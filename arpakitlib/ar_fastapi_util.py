@@ -53,7 +53,7 @@ class BaseAPISO(BaseAPISchema):
     pass
 
 
-class SimpleDataSO(BaseAPISO):
+class APISimpleDataSO(BaseAPISO):
     data: dict[str, Any] = {}
 
 
