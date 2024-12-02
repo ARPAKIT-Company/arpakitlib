@@ -6,6 +6,7 @@ import asyncio
 import logging
 import os.path
 import pathlib
+from datetime import datetime
 from typing import Any, Callable
 
 import fastapi.exceptions
@@ -50,6 +51,12 @@ class BaseAPISI(BaseAPISchema):
 
 class BaseAPISO(BaseAPISchema):
     pass
+
+
+class BaseAPISimpleSO(BaseAPISO):
+    id: int
+    long_id: str
+    creation_dt: datetime
 
 
 class APIErrorSO(BaseAPISO):
@@ -243,18 +250,13 @@ def add_ar_fastapi_static_docs_and_redoc_handlers_to_fastapi_app(
     return fastapi_app
 
 
-class BaseAPIStartupEvent:
+class BaseAPIEvent:
     def __init__(self, *args, **kwargs):
         self._logger = logging.getLogger(self.__class__.__name__)
 
     async def on_startup(self, *args, **kwargs):
         self._logger.info("on_startup starts")
         self._logger.info("on_startup ends")
-
-
-class BaseAPIShutdownEvent:
-    def __init__(self, *args, **kwargs):
-        self._logger = logging.getLogger(self.__class__.__name__)
 
     async def on_shutdown(self, *args, **kwargs):
         self._logger.info("on_shutdown starts")
@@ -265,8 +267,7 @@ def create_fastapi_app(
         *,
         title: str,
         description: str | None = None,
-        api_startup_event: BaseAPIStartupEvent | None = BaseAPIStartupEvent(),
-        api_shutdown_event: BaseAPIShutdownEvent | None = BaseAPIShutdownEvent(),
+        api_event: BaseAPIEvent | None = BaseAPIEvent(),
         api_handle_exception_: Callable | None = simple_api_handle_exception
 ):
     app = FastAPI(
@@ -275,8 +276,8 @@ def create_fastapi_app(
         docs_url=None,
         redoc_url=None,
         openapi_url="/openapi",
-        on_startup=[api_startup_event.on_startup] if api_startup_event else [],
-        on_shutdown=[api_shutdown_event.on_shutdown] if api_shutdown_event else []
+        on_startup=[api_event.on_startup] if api_event else [],
+        on_shutdown=[api_event.on_shutdown] if api_event else []
     )
 
     add_middleware_cors_to_fastapi_app(fastapi_app=app)

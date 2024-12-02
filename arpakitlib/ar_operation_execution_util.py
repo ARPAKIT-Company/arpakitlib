@@ -16,7 +16,7 @@ from arpakitlib.ar_datetime_util import now_utc_dt
 from arpakitlib.ar_dict_util import combine_dicts
 from arpakitlib.ar_easy_sqlalchemy_util import EasySQLAlchemyDB
 from arpakitlib.ar_enumeration import EasyEnumeration
-from arpakitlib.ar_fastapi_util import BaseAPISO
+from arpakitlib.ar_fastapi_util import BaseAPISO, BaseAPISimpleSO
 from arpakitlib.ar_sqlalchemy_model_util import SimpleDBM
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
@@ -78,10 +78,7 @@ class OperationDBM(SimpleDBM):
         return self.duration.total_seconds()
 
 
-class OperationSO(BaseAPISO):
-    id: int
-    long_id: str
-    creation_dt: datetime
+class OperationSO(BaseAPISimpleSO):
     execution_start_dt: datetime | None
     execution_finish_dt: datetime | None
     status: str
