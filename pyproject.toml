@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "arpakitlib"
-version = "1.5.31"
+version = "1.5.32"
 description = "arpakitlib"
 authors = ["arpakit <arpakit@gmail.com>"]
 license = "Apache License 2.0"

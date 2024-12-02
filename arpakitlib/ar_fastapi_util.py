@@ -53,6 +53,10 @@ class BaseAPISO(BaseAPISchema):
     pass
 
 
+class SimpleDataSO(BaseAPISO):
+    data: dict[str, Any] = {}
+
+
 class BaseAPISimpleSO(BaseAPISO):
     id: int
     long_id: str
