@@ -20,14 +20,12 @@ from pydantic import BaseModel, ConfigDict
 from starlette.middleware.cors import CORSMiddleware
 from starlette.staticfiles import StaticFiles
 
+from arpakitlib.ar_easy_sqlalchemy_util import EasySQLAlchemyDB
 from arpakitlib.ar_enumeration import EasyEnumeration
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
 
 _logger = logging.getLogger(__name__)
-
-
-# ---
 
 
 class BaseAPISchema(BaseModel):
@@ -75,9 +73,6 @@ class APIErrorSO(BaseAPISO):
     error_code_specification: str | None = None
     error_description: str | None = None
     error_data: dict[str, Any] = {}
-
-
-# ---
 
 
 class APIJSONResponse(fastapi.responses.JSONResponse):
@@ -182,9 +177,6 @@ def from_exception_to_api_json_response(
     )
 
 
-# ---
-
-
 def add_exception_handler_to_fastapi_app(*, fastapi_app: FastAPI, api_handle_exception_: Callable) -> FastAPI:
     fastapi_app.add_exception_handler(
         exc_class_or_status_code=Exception,
@@ -254,34 +246,55 @@ def add_ar_fastapi_static_docs_and_redoc_handlers_to_fastapi_app(
     return fastapi_app
 
 
-class BaseAPIEvent:
+class BaseAPIStartupEvent:
     def __init__(self, *args, **kwargs):
         self._logger = logging.getLogger(self.__class__.__name__)
 
-    async def on_startup(self, *args, **kwargs):
+    async def async_on_startup(self, *args, **kwargs):
         self._logger.info("on_startup starts")
         self._logger.info("on_startup ends")
 
-    async def on_shutdown(self, *args, **kwargs):
+
+class BaseAPIShutdownEvent:
+    def __init__(self, *args, **kwargs):
+        self._logger = logging.getLogger(self.__class__.__name__)
+
+    async def async_on_shutdown(self, *args, **kwargs):
         self._logger.info("on_shutdown starts")
         self._logger.info("on_shutdown ends")
 
 
+class APIStartupEventInitEasySQLAlchemyDB(BaseAPIStartupEvent):
+    def __init__(self, easy_sqlalchemy_db: EasySQLAlchemyDB):
+        super().__init__()
+        self.easy_sqlalchemy_db = easy_sqlalchemy_db
+
+    async def async_on_startup(self, *args, **kwargs):
+        self.easy_sqlalchemy_db.init()
+
+
 def create_fastapi_app(
         *,
-        title: str,
+        title: str = "ARPAKITLIB FastAPI",
         description: str | None = None,
-        api_event: BaseAPIEvent | None = BaseAPIEvent(),
+        api_startup_events: list[BaseAPIStartupEvent] | None = None,
+        api_shutdown_events: list[BaseAPIStartupEvent] | None = None,
         api_handle_exception_: Callable | None = simple_api_handle_exception
 ):
+    if api_startup_events is None:
+        api_startup_events = [BaseAPIStartupEvent()]
+
+    if api_shutdown_events is None:
+        api_shutdown_events = [BaseAPIShutdownEvent()]
+
     app = FastAPI(
         title=title,
         description=description,
         docs_url=None,
         redoc_url=None,
         openapi_url="/openapi",
-        on_startup=[api_event.on_startup] if api_event else [],
-        on_shutdown=[api_event.on_shutdown] if api_event else []
+        on_startup=[api_startup_event.async_on_startup for api_startup_event in api_startup_events],
+        on_shutdown=[api_shutdown_event.async_on_shutdown for api_shutdown_event in api_shutdown_events]
     )
 
     add_middleware_cors_to_fastapi_app(fastapi_app=app)
@@ -300,9 +313,6 @@ def create_fastapi_app(
         )
 
     return app
-
-
-# ---
 
 
 def __example():

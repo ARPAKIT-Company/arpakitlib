@@ -16,10 +16,13 @@ from arpakitlib.ar_datetime_util import now_utc_dt
 from arpakitlib.ar_dict_util import combine_dicts
 from arpakitlib.ar_easy_sqlalchemy_util import EasySQLAlchemyDB
 from arpakitlib.ar_enumeration import EasyEnumeration
-from arpakitlib.ar_fastapi_util import BaseAPISO, BaseAPISimpleSO
+from arpakitlib.ar_fastapi_util import BaseAPISimpleSO
 from arpakitlib.ar_sqlalchemy_model_util import SimpleDBM
+from arpakitlib.ar_story_log_util import StoryLogDBM
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
+
+_logger = logging.getLogger(__name__)
 
 
 class OperationDBM(SimpleDBM):
@@ -226,6 +229,7 @@ class BaseOperationExecutor:
             traceback_str = traceback.format_exc()
 
         with self.easy_sql_alchemy_db.new_session() as session:
+
             operation_dbm: OperationDBM = get_operation_by_id(
                 session=session, filter_operation_id=operation_dbm.id, strict=True
             )
@@ -239,7 +243,21 @@ class BaseOperationExecutor:
             else:
                 operation_dbm.status = OperationDBM.Statuses.executed_without_error
             session.commit()
+
+            story_log_dbm = StoryLogDBM(
+                level=StoryLogDBM.Levels.error,
+                title="Error in sync_execute_operation",
+                data={
+                    "operation_id": operation_dbm.id,
+                    "exception": str(exception),
+                    "traceback_str": traceback_str
+                }
+            )
+            session.add(story_log_dbm)
+            session.commit()
+
             session.refresh(operation_dbm)
+            session.refresh(story_log_dbm)
 
         self._logger.info(
             f"finish sync_safe_execute_operation"
@@ -306,3 +324,7 @@ class ExecuteOperationWorker(BaseWorker):
 
     def sync_run_on_error(self, exception: BaseException, kwargs: dict[str, Any]):
         self._logger.exception(exception)
+
+
+def import_ar_operation_execution_util():
+    _logger.info("import_ar_operation_execution_util")

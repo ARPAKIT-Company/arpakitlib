@@ -13,8 +13,19 @@ _ARPAKIT_LIB_MODULE_VERSION = "3.0"
 
 
 class EasySQLAlchemyDB:
-    def __init__(self, *, db_url: str, echo: bool = False):
+    def __init__(
+            self,
+            *,
+            db_url: str,
+            echo: bool = False,
+            need_include_operation_dbm: bool = False,
+            need_include_story_dbm: bool = False
+    ):
         self._logger = logging.getLogger(self.__class__.__name__)
+        self.need_include_operation_dbm = need_include_operation_dbm
+        self.need_include_story_dbm = need_include_story_dbm
+        if self.need_include_operation_dbm:
+            self.need_include_story_dbm = True
         self.engine = create_engine(
             url=db_url,
             echo=echo,
@@ -25,6 +36,16 @@ class EasySQLAlchemyDB:
         )
         self.sessionmaker = sessionmaker(bind=self.engine)
         self.func_new_session_counter = 0
+
+    def include_operation_dbm(self):
+        if self.need_include_operation_dbm:
+            from arpakitlib.ar_operation_util import import_ar_operation_execution_util
+            import_ar_operation_execution_util()
+
+    def include_story_dbm(self):
+        if self.need_include_story_dbm or self.need_include_operation_dbm:
+            from arpakitlib.ar_story_log_util import import_ar_story_util
+            import_ar_story_util()
 
     def drop_celery_tables(self):
         with self.engine.connect() as connection:
@@ -41,6 +62,8 @@ class EasySQLAlchemyDB:
             self._logger.info("celery tables data were removed")
 
     def init(self):
+        self.include_operation_dbm()
+        self.include_story_dbm()
         from arpakitlib.ar_sqlalchemy_model_util import BaseDBM
         BaseDBM.metadata.create_all(bind=self.engine, checkfirst=True)
         self._logger.info("db was inited")
@@ -51,6 +74,8 @@ class EasySQLAlchemyDB:
         self._logger.info("db was dropped")
 
     def reinit(self):
+        self.include_operation_dbm()
+        self.include_story_dbm()
         from arpakitlib.ar_sqlalchemy_model_util import BaseDBM
         BaseDBM.metadata.drop_all(bind=self.engine, checkfirst=True)
         BaseDBM.metadata.create_all(bind=self.engine, checkfirst=True)
