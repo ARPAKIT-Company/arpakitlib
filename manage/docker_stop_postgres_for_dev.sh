@@ -1,0 +1,1 @@
+docker stop arpakitlib_postgres
