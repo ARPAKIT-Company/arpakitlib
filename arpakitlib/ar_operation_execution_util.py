@@ -4,92 +4,21 @@ from __future__ import annotations
 
 import logging
 import traceback
-from datetime import datetime, timedelta
+from datetime import timedelta
 from typing import Any
 
-from sqlalchemy import TIMESTAMP, TEXT, asc
-from sqlalchemy.dialects.postgresql import JSONB
-from sqlalchemy.orm import Mapped, mapped_column, Session
+from sqlalchemy import asc
+from sqlalchemy.orm import Session
 
 from arpakitlib.ar_base_worker import BaseWorker
 from arpakitlib.ar_datetime_util import now_utc_dt
 from arpakitlib.ar_dict_util import combine_dicts
-from arpakitlib.ar_easy_sqlalchemy_util import EasySQLAlchemyDB
-from arpakitlib.ar_enumeration import EasyEnumeration
-from arpakitlib.ar_fastapi_util import BaseAPISimpleSO
-from arpakitlib.ar_sqlalchemy_model_util import SimpleDBM
-from arpakitlib.ar_story_log_util import StoryLogDBM
+from arpakitlib.ar_sqlalchemy_model_util import OperationDBM, StoryLogDBM
+from arpakitlib.ar_sqlalchemy_util import EasySQLAlchemyDB
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
 
 _logger = logging.getLogger(__name__)
-
-
-class OperationDBM(SimpleDBM):
-    __tablename__ = "operation"
-
-    class Statuses(EasyEnumeration):
-        waiting_for_execution = "waiting_for_execution"
-        executing = "executing"
-        executed_without_error = "executed_without_error"
-        executed_with_error = "executed_with_error"
-
-    class Types(EasyEnumeration):
-        healthcheck_ = "healthcheck"
-        raise_fake_exception = "raise_fake_exception"
-
-    status: Mapped[str] = mapped_column(
-        TEXT, index=True, insert_default=Statuses.waiting_for_execution,
-        server_default=Statuses.waiting_for_execution, nullable=False
-    )
-    type: Mapped[str] = mapped_column(
-        TEXT, index=True, insert_default=Types.healthcheck_, nullable=False
-    )
-    execution_start_dt: Mapped[datetime | None] = mapped_column(TIMESTAMP(timezone=True), nullable=True)
-    execution_finish_dt: Mapped[datetime | None] = mapped_column(TIMESTAMP(timezone=True), nullable=True)
-    input_data: Mapped[dict[str, Any]] = mapped_column(
-        JSONB,
-        insert_default={},
-        server_default="{}",
-        nullable=False
-    )
-    output_data: Mapped[dict[str, Any]] = mapped_column(JSONB, insert_default={}, server_default="{}", nullable=False)
-    error_data: Mapped[dict[str, Any]] = mapped_column(JSONB, insert_default={}, server_default="{}", nullable=False)
-
-    def raise_if_executed_with_error(self):
-        if self.status == self.Statuses.executed_with_error:
-            raise Exception(
-                f"Operation (id={self.id}, type={self.type}) executed with error, error_data={self.error_data}"
-            )
-
-    def raise_if_error_data(self):
-        if self.status == self.Statuses.executed_with_error:
-            raise Exception(
-                f"Operation (id={self.id}, type={self.type}) has error_data, error_data={self.error_data}"
-            )
-
-    @property
-    def duration(self) -> timedelta | None:
-        if self.execution_start_dt is None or self.execution_finish_dt is None:
-            return None
-        return self.execution_finish_dt - self.execution_start_dt
-
-    @property
-    def duration_total_seconds(self) -> float | None:
-        if self.duration is None:
-            return None
-        return self.duration.total_seconds()
-
-
-class OperationSO(BaseAPISimpleSO):
-    execution_start_dt: datetime | None
-    execution_finish_dt: datetime | None
-    status: str
-    type: str
-    input_data: dict[str, Any]
-    output_data: dict[str, Any]
-    error_data: dict[str, Any]
-    duration_total_seconds: float | None
 
 
 def get_operation_for_execution(
@@ -324,7 +253,3 @@ class ExecuteOperationWorker(BaseWorker):
 
     def sync_run_on_error(self, exception: BaseException, kwargs: dict[str, Any]):
         self._logger.exception(exception)
-
-
-def import_ar_operation_execution_util():
-    _logger.info("import_ar_operation_execution_util")

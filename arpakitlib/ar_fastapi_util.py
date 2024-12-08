@@ -20,15 +20,15 @@ from pydantic import BaseModel, ConfigDict
 from starlette.middleware.cors import CORSMiddleware
 from starlette.staticfiles import StaticFiles
 
-from arpakitlib.ar_easy_sqlalchemy_util import EasySQLAlchemyDB
 from arpakitlib.ar_enumeration import EasyEnumeration
+from arpakitlib.ar_sqlalchemy_util import EasySQLAlchemyDB
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
 
 _logger = logging.getLogger(__name__)
 
 
-class BaseAPISchema(BaseModel):
+class BaseSchema(BaseModel):
     model_config = ConfigDict(extra="ignore", arbitrary_types_allowed=True, from_attributes=True)
 
     @classmethod
@@ -43,25 +43,21 @@ class BaseAPISchema(BaseModel):
         super().__init_subclass__(**kwargs)
 
 
-class BaseAPISI(BaseAPISchema):
+class BaseSI(BaseSchema):
     pass
 
 
-class BaseAPISO(BaseAPISchema):
+class BaseSO(BaseSchema):
     pass
 
 
-class APISimpleDataSO(BaseAPISO):
-    data: dict[str, Any] = {}
-
-
-class BaseAPISimpleSO(BaseAPISO):
+class SimpleSO(BaseSO):
     id: int
     long_id: str
     creation_dt: datetime
 
 
-class APIErrorSO(BaseAPISO):
+class APIErrorSO(BaseSO):
     class APIErrorCodes(EasyEnumeration):
         cannot_authorize = "CANNOT_AUTHORIZE"
         unknown_error = "UNKNOWN_ERROR"
@@ -75,8 +71,29 @@ class APIErrorSO(BaseAPISO):
     error_data: dict[str, Any] = {}
 
 
+class RawDataSO(BaseSO):
+    data: dict[str, Any] = {}
+
+
+class StoryLogSO(SimpleSO):
+    level: str
+    title: str | None
+    data: dict[str, Any]
+
+
+class OperationSO(SimpleSO):
+    execution_start_dt: datetime | None
+    execution_finish_dt: datetime | None
+    status: str
+    type: str
+    input_data: dict[str, Any]
+    output_data: dict[str, Any]
+    error_data: dict[str, Any]
+    duration_total_seconds: float | None
+
+
 class APIJSONResponse(fastapi.responses.JSONResponse):
-    def __init__(self, *, content: BaseAPISO, status_code: int = starlette.status.HTTP_200_OK):
+    def __init__(self, *, content: BaseSO, status_code: int = starlette.status.HTTP_200_OK):
         super().__init__(
             content=content.model_dump(mode="json"),
             status_code=status_code
@@ -124,7 +141,7 @@ def from_exception_to_api_json_response(
 ) -> APIJSONResponse:
     _logger.exception(exception)
 
-    easy_api_error_so = APIErrorSO(
+    api_error_so = APIErrorSO(
         has_error=True,
         error_code=APIErrorSO.APIErrorCodes.unknown_error
     )
@@ -132,16 +149,16 @@ def from_exception_to_api_json_response(
     status_code = starlette.status.HTTP_500_INTERNAL_SERVER_ERROR
 
     if isinstance(exception, APIException):
-        easy_api_error_so = exception.api_error_so
+        api_error_so = exception.api_error_so
 
     elif isinstance(exception, starlette.exceptions.HTTPException):
         status_code = exception.status_code
         if status_code in (starlette.status.HTTP_403_FORBIDDEN, starlette.status.HTTP_401_UNAUTHORIZED):
-            easy_api_error_so.error_code = APIErrorSO.APIErrorCodes.cannot_authorize
+            api_error_so.error_code = APIErrorSO.APIErrorCodes.cannot_authorize
         elif status_code == starlette.status.HTTP_404_NOT_FOUND:
-            easy_api_error_so.error_code = APIErrorSO.APIErrorCodes.not_found
+            api_error_so.error_code = APIErrorSO.APIErrorCodes.not_found
         else:
-            easy_api_error_so.error_code = APIErrorSO.APIErrorCodes.unknown_error
+            api_error_so.error_code = APIErrorSO.APIErrorCodes.unknown_error
         if (
                 isinstance(exception.detail, dict)
                 or isinstance(exception.detail, list)
@@ -150,29 +167,29 @@ def from_exception_to_api_json_response(
                 or isinstance(exception.detail, float)
                 or isinstance(exception.detail, bool)
         ):
-            easy_api_error_so.error_data["raw"] = exception.detail
+            api_error_so.error_data["raw"] = exception.detail
 
     elif isinstance(exception, fastapi.exceptions.RequestValidationError):
         status_code = starlette.status.HTTP_422_UNPROCESSABLE_ENTITY
-        easy_api_error_so.error_code = APIErrorSO.APIErrorCodes.error_in_request
-        easy_api_error_so.error_data["raw"] = str(exception.errors()) if exception.errors() else {}
+        api_error_so.error_code = APIErrorSO.APIErrorCodes.error_in_request
+        api_error_so.error_data["raw"] = str(exception.errors()) if exception.errors() else {}
 
     else:
         status_code = starlette.status.HTTP_500_INTERNAL_SERVER_ERROR
-        easy_api_error_so.error_code = APIErrorSO.APIErrorCodes.unknown_error
-        easy_api_error_so.error_data["raw"] = str(exception)
+        api_error_so.error_code = APIErrorSO.APIErrorCodes.unknown_error
+        api_error_so.error_data["raw"] = str(exception)
         _logger.exception(exception)
 
-    if easy_api_error_so.error_code:
-        easy_api_error_so.error_code = easy_api_error_so.error_code.upper().replace(" ", "_").strip()
+    if api_error_so.error_code:
+        api_error_so.error_code = api_error_so.error_code.upper().replace(" ", "_").strip()
 
-    if easy_api_error_so.error_code_specification:
-        easy_api_error_so.error_code_specification = (
-            easy_api_error_so.error_code_specification.upper().replace(" ", "_").strip()
+    if api_error_so.error_code_specification:
+        api_error_so.error_code_specification = (
+            api_error_so.error_code_specification.upper().replace(" ", "_").strip()
         )
 
     return APIJSONResponse(
-        content=easy_api_error_so,
+        content=api_error_so,
         status_code=status_code
     )
 

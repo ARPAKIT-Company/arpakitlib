@@ -37,16 +37,6 @@ class EasySQLAlchemyDB:
         self.sessionmaker = sessionmaker(bind=self.engine)
         self.func_new_session_counter = 0
 
-    def include_operation_dbm(self):
-        if self.need_include_operation_dbm:
-            from arpakitlib.ar_operation_util import import_ar_operation_execution_util
-            import_ar_operation_execution_util()
-
-    def include_story_dbm(self):
-        if self.need_include_story_dbm or self.need_include_operation_dbm:
-            from arpakitlib.ar_story_log_util import import_ar_story_util
-            import_ar_story_util()
-
     def drop_celery_tables(self):
         with self.engine.connect() as connection:
             connection.execute(text("DROP TABLE IF EXISTS celery_tasksetmeta CASCADE;"))
@@ -62,8 +52,6 @@ class EasySQLAlchemyDB:
             self._logger.info("celery tables data were removed")
 
     def init(self):
-        self.include_operation_dbm()
-        self.include_story_dbm()
         from arpakitlib.ar_sqlalchemy_model_util import BaseDBM
         BaseDBM.metadata.create_all(bind=self.engine, checkfirst=True)
         self._logger.info("db was inited")
@@ -74,8 +62,6 @@ class EasySQLAlchemyDB:
         self._logger.info("db was dropped")
 
     def reinit(self):
-        self.include_operation_dbm()
-        self.include_story_dbm()
         from arpakitlib.ar_sqlalchemy_model_util import BaseDBM
         BaseDBM.metadata.drop_all(bind=self.engine, checkfirst=True)
         BaseDBM.metadata.create_all(bind=self.engine, checkfirst=True)
