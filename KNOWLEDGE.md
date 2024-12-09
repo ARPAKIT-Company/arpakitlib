@@ -1,6 +1,6 @@
-## Below is a set of information to assist with development at ARPAKIT Company
+# KNOWLEDGE
 
-Note: This is not related to arpakitlib, it is just a collection of helpful information
+## Note: This is not related to arpakitlib, it is just a collection of helpful information
 
 ### Emoji
 
