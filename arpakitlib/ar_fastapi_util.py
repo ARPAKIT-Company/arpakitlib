@@ -97,6 +97,8 @@ class OperationSO(SimpleSO):
 
 class EasyJSONResponse(fastapi.responses.JSONResponse):
     def __init__(self, *, content: BaseSO, status_code: int = starlette.status.HTTP_200_OK):
+        self.content_ = content
+        self.status_code_ = status_code
         super().__init__(
             content=safely_transfer_to_json_str_to_json_obj(content.model_dump()),
             status_code=status_code
@@ -136,10 +138,10 @@ class EasyAPIException(fastapi.exceptions.HTTPException):
 
 
 async def simple_handle_exception(request: starlette.requests.Request, exception: Exception) -> EasyJSONResponse:
-    return await from_exception_to_easy_json_response(request=request, exception=exception)
+    return from_exception_to_easy_json_response(request=request, exception=exception)
 
 
-async def from_exception_to_easy_json_response(
+def from_exception_to_easy_json_response(
         request: starlette.requests.Request, exception: Exception
 ) -> EasyJSONResponse:
     api_error_so = ErrorSO(
@@ -225,17 +227,6 @@ def add_exception_handler_to_app(*, app: FastAPI, handle_exception: Callable) ->
     app.add_exception_handler(
         exc_class_or_status_code=starlette.exceptions.HTTPException,
         handler=handle_exception
-    )
-    return app
-
-
-def add_middleware_cors_to_app(*, app: FastAPI) -> FastAPI:
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=["*"],
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
     )
     return app
 
@@ -368,7 +359,13 @@ def create_fastapi_app(
 
     app.state.transmitted_api_data = transmitted_api_data
 
-    add_middleware_cors_to_app(app=app)
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
     add_normalized_swagger_to_app(app=app)
 
