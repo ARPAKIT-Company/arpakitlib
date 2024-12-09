@@ -14,14 +14,17 @@ import fastapi.responses
 import starlette.exceptions
 import starlette.requests
 import starlette.status
-from fastapi import FastAPI
+from fastapi import FastAPI, APIRouter
 from fastapi.openapi.docs import get_swagger_ui_html, get_redoc_html
+from jaraco.context import suppress
 from pydantic import BaseModel, ConfigDict
 from starlette.middleware.cors import CORSMiddleware
 from starlette.staticfiles import StaticFiles
 
+from arpakitlib.ar_dict_util import combine_dicts
 from arpakitlib.ar_enumeration import EasyEnumeration
-from arpakitlib.ar_sqlalchemy_util import EasySQLAlchemyDB
+from arpakitlib.ar_json_util import safely_transfer_to_json_str_to_json_obj
+from arpakitlib.ar_logging_util import setup_normal_logging
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
 
@@ -57,7 +60,7 @@ class SimpleSO(BaseSO):
     creation_dt: datetime
 
 
-class APIErrorSO(BaseSO):
+class ErrorSO(BaseSO):
     class APIErrorCodes(EasyEnumeration):
         cannot_authorize = "CANNOT_AUTHORIZE"
         unknown_error = "UNKNOWN_ERROR"
@@ -92,20 +95,20 @@ class OperationSO(SimpleSO):
     duration_total_seconds: float | None
 
 
-class APIJSONResponse(fastapi.responses.JSONResponse):
+class EasyJSONResponse(fastapi.responses.JSONResponse):
     def __init__(self, *, content: BaseSO, status_code: int = starlette.status.HTTP_200_OK):
         super().__init__(
-            content=content.model_dump(mode="json"),
+            content=safely_transfer_to_json_str_to_json_obj(content.model_dump()),
             status_code=status_code
         )
 
 
-class APIException(fastapi.exceptions.HTTPException):
+class EasyAPIException(fastapi.exceptions.HTTPException):
     def __init__(
             self,
             *,
             status_code: int = starlette.status.HTTP_400_BAD_REQUEST,
-            error_code: str | None = APIErrorSO.APIErrorCodes.unknown_error,
+            error_code: str | None = ErrorSO.APIErrorCodes.unknown_error,
             error_code_specification: str | None = None,
             error_description: str | None = None,
             error_data: dict[str, Any] | None = None
@@ -118,7 +121,7 @@ class APIException(fastapi.exceptions.HTTPException):
             error_data = {}
         self.error_data = error_data
 
-        self.api_error_so = APIErrorSO(
+        self.error_so = ErrorSO(
             has_error=True,
             error_code=self.error_code,
             error_specification=self.error_code_specification,
@@ -128,57 +131,64 @@ class APIException(fastapi.exceptions.HTTPException):
 
         super().__init__(
             status_code=self.status_code,
-            detail=self.api_error_so.model_dump(mode="json")
+            detail=self.error_so.model_dump(mode="json")
         )
 
 
-def simple_api_handle_exception(request: starlette.requests.Request, exception: Exception) -> APIJSONResponse:
-    return from_exception_to_api_json_response(request=request, exception=exception)
+async def simple_handle_exception(request: starlette.requests.Request, exception: Exception) -> EasyJSONResponse:
+    return await from_exception_to_easy_json_response(request=request, exception=exception)
 
 
-def from_exception_to_api_json_response(
+async def from_exception_to_easy_json_response(
         request: starlette.requests.Request, exception: Exception
-) -> APIJSONResponse:
-    _logger.exception(exception)
-
-    api_error_so = APIErrorSO(
+) -> EasyJSONResponse:
+    api_error_so = ErrorSO(
         has_error=True,
-        error_code=APIErrorSO.APIErrorCodes.unknown_error
+        error_code=ErrorSO.APIErrorCodes.unknown_error,
+        error_data={
+            "exception_type": str(type(exception)),
+            "exception_str": str(exception),
+            "request.method": str(request.method),
+            "request.url": str(request.url),
+        }
     )
 
     status_code = starlette.status.HTTP_500_INTERNAL_SERVER_ERROR
 
-    if isinstance(exception, APIException):
-        api_error_so = exception.api_error_so
+    need_exc_info = True
+
+    if isinstance(exception, EasyAPIException):
+        old_error_data = api_error_so.error_data
+        api_error_so = exception.error_so
+        api_error_so.error_data = combine_dicts(old_error_data, api_error_so.error_data)
+        need_exc_info = False
 
     elif isinstance(exception, starlette.exceptions.HTTPException):
         status_code = exception.status_code
         if status_code in (starlette.status.HTTP_403_FORBIDDEN, starlette.status.HTTP_401_UNAUTHORIZED):
-            api_error_so.error_code = APIErrorSO.APIErrorCodes.cannot_authorize
+            api_error_so.error_code = ErrorSO.APIErrorCodes.cannot_authorize
+            need_exc_info = False
         elif status_code == starlette.status.HTTP_404_NOT_FOUND:
-            api_error_so.error_code = APIErrorSO.APIErrorCodes.not_found
+            api_error_so.error_code = ErrorSO.APIErrorCodes.not_found
+            need_exc_info = False
         else:
-            api_error_so.error_code = APIErrorSO.APIErrorCodes.unknown_error
-        if (
-                isinstance(exception.detail, dict)
-                or isinstance(exception.detail, list)
-                or isinstance(exception.detail, str)
-                or isinstance(exception.detail, int)
-                or isinstance(exception.detail, float)
-                or isinstance(exception.detail, bool)
-        ):
-            api_error_so.error_data["raw"] = exception.detail
+            status_code = starlette.status.HTTP_500_INTERNAL_SERVER_ERROR
+            need_exc_info = True
+        with suppress(Exception):
+            api_error_so.error_data["exception.detail"] = exception.detail
 
     elif isinstance(exception, fastapi.exceptions.RequestValidationError):
         status_code = starlette.status.HTTP_422_UNPROCESSABLE_ENTITY
-        api_error_so.error_code = APIErrorSO.APIErrorCodes.error_in_request
-        api_error_so.error_data["raw"] = str(exception.errors()) if exception.errors() else {}
+        api_error_so.error_code = ErrorSO.APIErrorCodes.error_in_request
+        with suppress(Exception):
+            api_error_so.error_data["exception.errors"] = str(exception.errors()) if exception.errors() else {}
+        need_exc_info = False
 
     else:
         status_code = starlette.status.HTTP_500_INTERNAL_SERVER_ERROR
-        api_error_so.error_code = APIErrorSO.APIErrorCodes.unknown_error
-        api_error_so.error_data["raw"] = str(exception)
+        api_error_so.error_code = ErrorSO.APIErrorCodes.unknown_error
         _logger.exception(exception)
+        need_exc_info = True
 
     if api_error_so.error_code:
         api_error_so.error_code = api_error_so.error_code.upper().replace(" ", "_").strip()
@@ -188,82 +198,82 @@ def from_exception_to_api_json_response(
             api_error_so.error_code_specification.upper().replace(" ", "_").strip()
         )
 
-    return APIJSONResponse(
+    if need_exc_info:
+        _logger.error(str(exception), exc_info=exception)
+    else:
+        _logger.error(str(exception))
+
+    return EasyJSONResponse(
         content=api_error_so,
         status_code=status_code
     )
 
 
-def add_exception_handler_to_fastapi_app(*, fastapi_app: FastAPI, api_handle_exception_: Callable) -> FastAPI:
-    fastapi_app.add_exception_handler(
+def add_exception_handler_to_app(*, app: FastAPI, handle_exception: Callable) -> FastAPI:
+    app.add_exception_handler(
         exc_class_or_status_code=Exception,
-        handler=api_handle_exception_
+        handler=handle_exception
     )
-    fastapi_app.add_exception_handler(
+    app.add_exception_handler(
         exc_class_or_status_code=ValueError,
-        handler=api_handle_exception_
+        handler=handle_exception
     )
-    fastapi_app.add_exception_handler(
+    app.add_exception_handler(
         exc_class_or_status_code=fastapi.exceptions.RequestValidationError,
-        handler=api_handle_exception_
+        handler=handle_exception
     )
-    fastapi_app.add_exception_handler(
+    app.add_exception_handler(
         exc_class_or_status_code=starlette.exceptions.HTTPException,
-        handler=api_handle_exception_
+        handler=handle_exception
     )
-    return fastapi_app
+    return app
 
 
-def add_middleware_cors_to_fastapi_app(*, fastapi_app: FastAPI) -> FastAPI:
-    fastapi_app.add_middleware(
+def add_middleware_cors_to_app(*, app: FastAPI) -> FastAPI:
+    app.add_middleware(
         CORSMiddleware,
         allow_origins=["*"],
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
     )
-    return fastapi_app
+    return app
 
 
-def add_ar_fastapi_static_to_fastapi_app(*, fastapi_app: FastAPI):
-    ar_fastapi_static_dirpath = os.path.join(str(pathlib.Path(__file__).parent), "ar_fastapi_static")
-    fastapi_app.mount(
+def add_normalized_swagger_to_app(
+        *,
+        app: FastAPI,
+        favicon_url: str | None = None
+):
+    app.mount(
         "/ar_fastapi_static",
-        StaticFiles(directory=ar_fastapi_static_dirpath),
+        StaticFiles(directory=os.path.join(str(pathlib.Path(__file__).parent), "ar_fastapi_static")),
         name="ar_fastapi_static"
     )
 
-
-def add_ar_fastapi_static_docs_and_redoc_handlers_to_fastapi_app(
-        *,
-        fastapi_app: FastAPI,
-        favicon_url: str | None = None
-):
-    add_ar_fastapi_static_to_fastapi_app(fastapi_app=fastapi_app)
-
-    @fastapi_app.get("/docs", include_in_schema=False)
+    @app.get("/docs", include_in_schema=False)
     async def custom_swagger_ui_html():
         return get_swagger_ui_html(
-            openapi_url=fastapi_app.openapi_url,
-            title=fastapi_app.title,
+            openapi_url=app.openapi_url,
+            title=app.title,
             swagger_js_url="/ar_fastapi_static/swagger-ui/swagger-ui-bundle.js",
             swagger_css_url="/ar_fastapi_static/swagger-ui/swagger-ui.css",
             swagger_favicon_url=favicon_url
         )
 
-    @fastapi_app.get("/redoc", include_in_schema=False)
+    @app.get("/redoc", include_in_schema=False)
     async def custom_redoc_html():
         return get_redoc_html(
-            openapi_url=fastapi_app.openapi_url,
-            title=fastapi_app.title,
+            openapi_url=app.openapi_url,
+            title=app.title,
             redoc_js_url="/ar_fastapi_static/redoc/redoc.standalone.js",
             redoc_favicon_url=favicon_url
         )
 
-    return fastapi_app
+    return app
 
 
-class BaseAPIStartupEvent:
+class BaseStartupAPIEvent:
     def __init__(self, *args, **kwargs):
         self._logger = logging.getLogger(self.__class__.__name__)
 
@@ -272,7 +282,7 @@ class BaseAPIStartupEvent:
         self._logger.info("on_startup ends")
 
 
-class BaseAPIShutdownEvent:
+class BaseShutdownAPIEvent:
     def __init__(self, *args, **kwargs):
         self._logger = logging.getLogger(self.__class__.__name__)
 
@@ -281,28 +291,70 @@ class BaseAPIShutdownEvent:
         self._logger.info("on_shutdown ends")
 
 
-class APIStartupEventInitEasySQLAlchemyDB(BaseAPIStartupEvent):
-    def __init__(self, easy_sqlalchemy_db: EasySQLAlchemyDB):
-        super().__init__()
-        self.easy_sqlalchemy_db = easy_sqlalchemy_db
+def simple_api_router_for_testing():
+    router = APIRouter(tags=["Testing"])
 
-    async def async_on_startup(self, *args, **kwargs):
-        self.easy_sqlalchemy_db.init()
+    @router.get(
+        "/healthcheck",
+        response_model=RawDataSO | ErrorSO
+    )
+    async def _():
+        return RawDataSO(data={"healthcheck": True})
+
+    @router.get(
+        "/raise_fake_exception_1",
+        response_model=ErrorSO
+    )
+    async def _():
+        raise fastapi.HTTPException(status_code=starlette.status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @router.get(
+        "/raise_fake_exception_2",
+        response_model=ErrorSO
+    )
+    async def _():
+        raise EasyAPIException(
+            error_code="raise_fake_exception_2",
+            error_code_specification="raise_fake_exception_2",
+            error_description="raise_fake_exception_2"
+        )
+
+    @router.get(
+        "/raise_fake_exception_3",
+        response_model=ErrorSO
+    )
+    async def _():
+        raise Exception("raise_fake_exception_3")
+
+    return router
+
+
+class BaseTransmittedAPIData(BaseModel):
+    model_config = ConfigDict(extra="ignore", arbitrary_types_allowed=True, from_attributes=True)
+
+
+def get_transmitted_api_data(request: starlette.requests.Request) -> BaseTransmittedAPIData:
+    return request.app.state.transmitted_api_data
 
 
 def create_fastapi_app(
         *,
         title: str = "ARPAKITLIB FastAPI",
-        description: str | None = None,
-        api_startup_events: list[BaseAPIStartupEvent] | None = None,
-        api_shutdown_events: list[BaseAPIStartupEvent] | None = None,
-        api_handle_exception_: Callable | None = simple_api_handle_exception
+        description: str | None = "ARPAKITLIB FastAPI",
+        log_filepath: str | None = "./story.log",
+        handle_exception: Callable | None = simple_handle_exception,
+        startup_api_events: list[BaseStartupAPIEvent] | None = None,
+        shutdown_api_events: list[BaseStartupAPIEvent] | None = None,
+        api_router: APIRouter = simple_api_router_for_testing(),
+        transmitted_api_data: BaseTransmittedAPIData = BaseTransmittedAPIData()
 ):
-    if api_startup_events is None:
-        api_startup_events = [BaseAPIStartupEvent()]
+    setup_normal_logging(log_filepath=log_filepath)
 
-    if api_shutdown_events is None:
-        api_shutdown_events = [BaseAPIShutdownEvent()]
+    if not startup_api_events:
+        startup_api_events = [BaseStartupAPIEvent()]
+
+    if not shutdown_api_events:
+        shutdown_api_events = [BaseShutdownAPIEvent()]
 
     app = FastAPI(
         title=title,
@@ -310,24 +362,28 @@ def create_fastapi_app(
         docs_url=None,
         redoc_url=None,
         openapi_url="/openapi",
-        on_startup=[api_startup_event.async_on_startup for api_startup_event in api_startup_events],
-        on_shutdown=[api_shutdown_event.async_on_shutdown for api_shutdown_event in api_shutdown_events]
+        on_startup=[api_startup_event.async_on_startup for api_startup_event in startup_api_events],
+        on_shutdown=[api_shutdown_event.async_on_shutdown for api_shutdown_event in shutdown_api_events]
     )
 
-    add_middleware_cors_to_fastapi_app(fastapi_app=app)
+    app.state.transmitted_api_data = transmitted_api_data
 
-    add_ar_fastapi_static_docs_and_redoc_handlers_to_fastapi_app(fastapi_app=app)
+    add_middleware_cors_to_app(app=app)
 
-    if api_handle_exception_:
-        add_exception_handler_to_fastapi_app(
-            fastapi_app=app,
-            api_handle_exception_=api_handle_exception_
+    add_normalized_swagger_to_app(app=app)
+
+    if handle_exception:
+        add_exception_handler_to_app(
+            app=app,
+            handle_exception=handle_exception
         )
     else:
-        add_exception_handler_to_fastapi_app(
-            fastapi_app=app,
-            api_handle_exception_=simple_api_handle_exception
+        add_exception_handler_to_app(
+            app=app,
+            handle_exception=simple_handle_exception
         )
+
+    app.include_router(router=api_router)
 
     return app
 
