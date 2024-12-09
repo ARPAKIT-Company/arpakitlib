@@ -6,6 +6,7 @@ import asyncio
 import logging
 import os.path
 import pathlib
+import traceback
 from datetime import datetime
 from typing import Any, Callable
 
@@ -213,20 +214,22 @@ def create_handle_exception(
         else:
             _logger.error(str(exception))
 
+        _kwargs = {}
         for func in funcs_before_response:
             data = func(
-                error_so=error_so, status_code=status_code, request=request, exception=exception
+                error_so=error_so, status_code=status_code, request=request, exception=exception, **_kwargs
             )
             if asyncio.iscoroutine(data):
                 data = await data
             if data is not None:
-                status_code, error_so = data[0], data[1]
+                status_code, error_so, _kwargs = data[0], data[1], data[2]
                 raise_for_type(status_code, int)
                 raise_for_type(error_so, ErrorSO)
+                raise_for_type(_kwargs, dict)
 
-        for func_for_create_task in async_funcs_after_response:
-            raise_if_not_async_func(func_for_create_task)
-            _ = asyncio.create_task(func_for_create_task(
+        for async_func_after_response in async_funcs_after_response:
+            raise_if_not_async_func(async_func_after_response)
+            _ = asyncio.create_task(async_func_after_response(
                 error_so=error_so, status_code=status_code, request=request, exception=exception
             ))
 
@@ -249,17 +252,24 @@ def create_handle_exception_creating_story_log(
             request: starlette.requests.Request,
             exception: Exception,
             **kwargs
-    ) -> None:
+    ) -> (int, ErrorSO, dict[str, Any]):
+        sqlalchemy_db.init()
+        traceback_str = "".join(traceback.format_exception(type(exception), exception, exception.__traceback__))
         with sqlalchemy_db.new_session() as session:
             story_log_dbm = StoryLogDBM(
                 level=StoryLogDBM.Levels.error,
                 title=str(exception),
                 data={
-                    "error_so": error_so.model_dump()
+                    "error_so": error_so.model_dump(),
+                    "traceback_str": traceback_str
                 }
             )
             session.add(story_log_dbm)
             session.commit()
+            session.refresh(story_log_dbm)
+        error_so.error_data.update({"story_log_id": story_log_dbm.id})
+        kwargs["story_log_id"] = story_log_dbm.id
+        return status_code, error_so, kwargs
 
     return handle_exception
 

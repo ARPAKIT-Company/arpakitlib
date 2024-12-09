@@ -16,7 +16,7 @@ class SQLAlchemyDB:
     def __init__(
             self,
             *,
-            db_url: str,
+            db_url: str = "postgresql://arpakitlib:arpakitlib@localhost:50629/arpakitlib",
             echo: bool = False,
             need_include_operation_dbm: bool = False,
             need_include_story_dbm: bool = False
