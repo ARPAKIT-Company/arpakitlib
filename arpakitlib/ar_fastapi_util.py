@@ -25,6 +25,7 @@ from arpakitlib.ar_dict_util import combine_dicts
 from arpakitlib.ar_enumeration import EasyEnumeration
 from arpakitlib.ar_json_util import safely_transfer_to_json_str_to_json_obj
 from arpakitlib.ar_logging_util import setup_normal_logging
+from arpakitlib.ar_type_util import raise_for_type, raise_if_not_async_func
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
 
@@ -95,7 +96,7 @@ class OperationSO(SimpleSO):
     duration_total_seconds: float | None
 
 
-class EasyJSONResponse(fastapi.responses.JSONResponse):
+class APIJSONResponse(fastapi.responses.JSONResponse):
     def __init__(self, *, content: BaseSO, status_code: int = starlette.status.HTTP_200_OK):
         self.content_ = content
         self.status_code_ = status_code
@@ -105,7 +106,7 @@ class EasyJSONResponse(fastapi.responses.JSONResponse):
         )
 
 
-class EasyAPIException(fastapi.exceptions.HTTPException):
+class APIException(fastapi.exceptions.HTTPException):
     def __init__(
             self,
             *,
@@ -137,78 +138,103 @@ class EasyAPIException(fastapi.exceptions.HTTPException):
         )
 
 
-async def simple_handle_exception(request: starlette.requests.Request, exception: Exception) -> EasyJSONResponse:
-    return from_exception_to_easy_json_response(request=request, exception=exception)
+def create_handle_exception(
+        *,
+        funcs_before_response: list[Callable] | None = None,
+        async_funcs_after_response: list[Callable] | None = None,
+) -> Any:
+    if funcs_before_response is None:
+        funcs_before_response = []
 
+    if async_funcs_after_response is None:
+        async_funcs_after_response = []
 
-def from_exception_to_easy_json_response(
-        request: starlette.requests.Request, exception: Exception
-) -> EasyJSONResponse:
-    api_error_so = ErrorSO(
-        has_error=True,
-        error_code=ErrorSO.APIErrorCodes.unknown_error,
-        error_data={
-            "exception_type": str(type(exception)),
-            "exception_str": str(exception),
-            "request.method": str(request.method),
-            "request.url": str(request.url),
-        }
-    )
+    async def handle_exception(
+            request: starlette.requests.Request, exception: Exception
+    ) -> APIJSONResponse:
 
-    status_code = starlette.status.HTTP_500_INTERNAL_SERVER_ERROR
-
-    need_exc_info = True
-
-    if isinstance(exception, EasyAPIException):
-        old_error_data = api_error_so.error_data
-        api_error_so = exception.error_so
-        api_error_so.error_data = combine_dicts(old_error_data, api_error_so.error_data)
-        need_exc_info = False
-
-    elif isinstance(exception, starlette.exceptions.HTTPException):
-        status_code = exception.status_code
-        if status_code in (starlette.status.HTTP_403_FORBIDDEN, starlette.status.HTTP_401_UNAUTHORIZED):
-            api_error_so.error_code = ErrorSO.APIErrorCodes.cannot_authorize
-            need_exc_info = False
-        elif status_code == starlette.status.HTTP_404_NOT_FOUND:
-            api_error_so.error_code = ErrorSO.APIErrorCodes.not_found
-            need_exc_info = False
-        else:
-            status_code = starlette.status.HTTP_500_INTERNAL_SERVER_ERROR
-            need_exc_info = True
-        with suppress(Exception):
-            api_error_so.error_data["exception.detail"] = exception.detail
-
-    elif isinstance(exception, fastapi.exceptions.RequestValidationError):
-        status_code = starlette.status.HTTP_422_UNPROCESSABLE_ENTITY
-        api_error_so.error_code = ErrorSO.APIErrorCodes.error_in_request
-        with suppress(Exception):
-            api_error_so.error_data["exception.errors"] = str(exception.errors()) if exception.errors() else {}
-        need_exc_info = False
-
-    else:
         status_code = starlette.status.HTTP_500_INTERNAL_SERVER_ERROR
-        api_error_so.error_code = ErrorSO.APIErrorCodes.unknown_error
-        _logger.exception(exception)
-        need_exc_info = True
 
-    if api_error_so.error_code:
-        api_error_so.error_code = api_error_so.error_code.upper().replace(" ", "_").strip()
-
-    if api_error_so.error_code_specification:
-        api_error_so.error_code_specification = (
-            api_error_so.error_code_specification.upper().replace(" ", "_").strip()
+        error_so = ErrorSO(
+            has_error=True,
+            error_code=ErrorSO.APIErrorCodes.unknown_error,
+            error_data={
+                "exception_type": str(type(exception)),
+                "exception_str": str(exception),
+                "request.method": str(request.method),
+                "request.url": str(request.url),
+            }
         )
 
-    if need_exc_info:
-        _logger.error(str(exception), exc_info=exception)
-    else:
-        _logger.error(str(exception))
+        if isinstance(exception, APIException):
+            old_error_data = error_so.error_data
+            error_so = exception.error_so
+            error_so.error_data = combine_dicts(old_error_data, error_so.error_data)
+            _need_exc_info = False
 
-    return EasyJSONResponse(
-        content=api_error_so,
-        status_code=status_code
-    )
+        elif isinstance(exception, starlette.exceptions.HTTPException):
+            status_code = exception.status_code
+            if status_code in (starlette.status.HTTP_403_FORBIDDEN, starlette.status.HTTP_401_UNAUTHORIZED):
+                error_so.error_code = ErrorSO.APIErrorCodes.cannot_authorize
+                _need_exc_info = False
+            elif status_code == starlette.status.HTTP_404_NOT_FOUND:
+                error_so.error_code = ErrorSO.APIErrorCodes.not_found
+                _need_exc_info = False
+            else:
+                status_code = starlette.status.HTTP_500_INTERNAL_SERVER_ERROR
+                _need_exc_info = True
+            with suppress(Exception):
+                error_so.error_data["exception.detail"] = exception.detail
+
+        elif isinstance(exception, fastapi.exceptions.RequestValidationError):
+            status_code = starlette.status.HTTP_422_UNPROCESSABLE_ENTITY
+            error_so.error_code = ErrorSO.APIErrorCodes.error_in_request
+            with suppress(Exception):
+                error_so.error_data["exception.errors"] = str(exception.errors()) if exception.errors() else {}
+            _need_exc_info = False
+
+        else:
+            status_code = starlette.status.HTTP_500_INTERNAL_SERVER_ERROR
+            error_so.error_code = ErrorSO.APIErrorCodes.unknown_error
+            _logger.exception(exception)
+            _need_exc_info = True
+
+        if error_so.error_code:
+            error_so.error_code = error_so.error_code.upper().replace(" ", "_").strip()
+
+        if error_so.error_code_specification:
+            error_so.error_code_specification = (
+                error_so.error_code_specification.upper().replace(" ", "_").strip()
+            )
+
+        if _need_exc_info:
+            _logger.error(str(exception), exc_info=exception)
+        else:
+            _logger.error(str(exception))
+
+        for func in funcs_before_response:
+            data = func(
+                error_so=error_so, status_code=status_code, request=request, exception=exception
+            )
+            if asyncio.iscoroutine(data):
+                data = await data
+            if data is not None:
+                status_code, error_so = data[0], data[1]
+                raise_for_type(status_code, int)
+                raise_for_type(error_so, ErrorSO)
+
+        for func_for_create_task in async_funcs_after_response:
+            raise_if_not_async_func(func_for_create_task)
+            _ = asyncio.create_task(func_for_create_task(
+                error_so=error_so, status_code=status_code, request=request, exception=exception
+            ))
+
+        return APIJSONResponse(
+            content=error_so,
+            status_code=status_code
+        )
+
+    return handle_exception
 
 
 def add_exception_handler_to_app(*, app: FastAPI, handle_exception: Callable) -> FastAPI:
@@ -231,7 +257,7 @@ def add_exception_handler_to_app(*, app: FastAPI, handle_exception: Callable) ->
     return app
 
 
-def add_normalized_swagger_to_app(
+def add_swagger_to_app(
         *,
         app: FastAPI,
         favicon_url: str | None = None
@@ -264,6 +290,49 @@ def add_normalized_swagger_to_app(
     return app
 
 
+def add_cors_to_app(*, app: FastAPI):
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+    return app
+
+
+def add_needed_api_router_to_app(*, app: FastAPI):
+    api_router = APIRouter()
+
+    @api_router.get(
+        "/healthcheck",
+        response_model=ErrorSO,
+        status_code=starlette.status.HTTP_200_OK,
+        tags=["Healthcheck"]
+    )
+    async def _():
+        return APIJSONResponse(
+            status_code=starlette.status.HTTP_200_OK,
+            content=RawDataSO(data={"healthcheck": "healthcheck"})
+        )
+
+    @api_router.get(
+        "/arpakitlib",
+        response_model=ErrorSO,
+        status_code=starlette.status.HTTP_200_OK,
+        tags=["arpakitlib"]
+    )
+    async def _():
+        return APIJSONResponse(
+            status_code=starlette.status.HTTP_200_OK,
+            content=RawDataSO(data={"arpakitlib": "arpakitlib"})
+        )
+
+    app.include_router(router=api_router, prefix="")
+
+    return app
+
+
 class BaseStartupAPIEvent:
     def __init__(self, *args, **kwargs):
         self._logger = logging.getLogger(self.__class__.__name__)
@@ -282,15 +351,16 @@ class BaseShutdownAPIEvent:
         self._logger.info("on_shutdown ends")
 
 
+class BaseTransmittedAPIData(BaseModel):
+    model_config = ConfigDict(extra="ignore", arbitrary_types_allowed=True, from_attributes=True)
+
+
+def get_transmitted_api_data(request: starlette.requests.Request) -> BaseTransmittedAPIData:
+    return request.app.state.transmitted_api_data
+
+
 def simple_api_router_for_testing():
     router = APIRouter(tags=["Testing"])
-
-    @router.get(
-        "/healthcheck",
-        response_model=RawDataSO | ErrorSO
-    )
-    async def _():
-        return RawDataSO(data={"healthcheck": True})
 
     @router.get(
         "/raise_fake_exception_1",
@@ -304,7 +374,7 @@ def simple_api_router_for_testing():
         response_model=ErrorSO
     )
     async def _():
-        raise EasyAPIException(
+        raise APIException(
             error_code="raise_fake_exception_2",
             error_code_specification="raise_fake_exception_2",
             error_description="raise_fake_exception_2"
@@ -320,20 +390,12 @@ def simple_api_router_for_testing():
     return router
 
 
-class BaseTransmittedAPIData(BaseModel):
-    model_config = ConfigDict(extra="ignore", arbitrary_types_allowed=True, from_attributes=True)
-
-
-def get_transmitted_api_data(request: starlette.requests.Request) -> BaseTransmittedAPIData:
-    return request.app.state.transmitted_api_data
-
-
 def create_fastapi_app(
         *,
         title: str = "ARPAKITLIB FastAPI",
         description: str | None = "ARPAKITLIB FastAPI",
         log_filepath: str | None = "./story.log",
-        handle_exception: Callable | None = simple_handle_exception,
+        handle_exception_: Callable | None = create_handle_exception(),
         startup_api_events: list[BaseStartupAPIEvent] | None = None,
         shutdown_api_events: list[BaseStartupAPIEvent] | None = None,
         api_router: APIRouter = simple_api_router_for_testing(),
@@ -359,26 +421,22 @@ def create_fastapi_app(
 
     app.state.transmitted_api_data = transmitted_api_data
 
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=["*"],
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
+    add_cors_to_app(app=app)
 
-    add_normalized_swagger_to_app(app=app)
+    add_swagger_to_app(app=app)
 
-    if handle_exception:
+    if handle_exception_:
         add_exception_handler_to_app(
             app=app,
-            handle_exception=handle_exception
+            handle_exception=handle_exception_
         )
     else:
         add_exception_handler_to_app(
             app=app,
-            handle_exception=simple_handle_exception
+            handle_exception=create_handle_exception()
         )
+
+    add_needed_api_router_to_app(app=app)
 
     app.include_router(router=api_router)
 

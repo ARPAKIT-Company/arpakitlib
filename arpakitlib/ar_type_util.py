@@ -1,11 +1,8 @@
 # arpakit
-
+import inspect
 from typing import Optional, Any
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
-
-
-# ---
 
 
 class NotSet:
@@ -44,9 +41,6 @@ def make_none_if_not_set(v: Any) -> Any:
     return v
 
 
-# ---
-
-
 def raise_for_type(comparable, need_type, comment_for_error: Optional[str] = None):
     if comparable is need_type:
         return
@@ -73,7 +67,9 @@ def raise_for_types(comparable, need_types, comment_for_error: Optional[str] = N
         raise TypeError(err)
 
 
-# ---
+def raise_if_not_async_func(func: Any):
+    if not inspect.iscoroutinefunction(func):
+        raise TypeError(f"The provided function '{func.__name__}' is not an async function")
 
 
 def __example():
