@@ -25,6 +25,7 @@ from arpakitlib.ar_dict_util import combine_dicts
 from arpakitlib.ar_enumeration_util import Enumeration
 from arpakitlib.ar_json_util import safely_transfer_to_json_str_to_json_obj
 from arpakitlib.ar_logging_util import setup_normal_logging
+from arpakitlib.ar_sqlalchemy_model_util import StoryLogDBM
 from arpakitlib.ar_sqlalchemy_util import SQLAlchemyDB
 from arpakitlib.ar_type_util import raise_for_type, raise_if_not_async_func
 
@@ -237,15 +238,30 @@ def create_handle_exception(
     return handle_exception
 
 
-def handle_exception_create_story_log(
+def create_handle_exception_creating_story_log(
         *,
-        error_so,
-        status_code,
-        request: starlette.requests.Request,
-        exception: Exception,
         sqlalchemy_db: SQLAlchemyDB
-) -> None:
-    pass
+) -> Callable:
+    def handle_exception(
+            *,
+            error_so: ErrorSO,
+            status_code: int,
+            request: starlette.requests.Request,
+            exception: Exception,
+            **kwargs
+    ) -> None:
+        with sqlalchemy_db.new_session() as session:
+            story_log_dbm = StoryLogDBM(
+                level=StoryLogDBM.Levels.error,
+                title=str(exception),
+                data={
+                    "error_so": error_so.model_dump()
+                }
+            )
+            session.add(story_log_dbm)
+            session.commit()
+
+    return handle_exception
 
 
 def add_exception_handler_to_app(*, app: FastAPI, handle_exception: Callable) -> FastAPI:
