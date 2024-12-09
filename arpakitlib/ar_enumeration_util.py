@@ -8,7 +8,7 @@ ValueType = Union[int, str]
 ValuesForParseType = Union[ValueType, Iterable[ValueType]]
 
 
-class EasyEnumeration:
+class Enumeration:
     @classmethod
     def iter_values(cls) -> Iterator[ValueType]:
         big_dict = {}

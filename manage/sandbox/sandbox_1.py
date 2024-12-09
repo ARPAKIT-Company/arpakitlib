@@ -6,7 +6,7 @@ from arpakitlib.ar_fastapi_util import create_fastapi_app, create_handle_excepti
 from arpakitlib.ar_sleep_util import async_safe_sleep
 
 
-def f(error_so: ErrorSO, status_code: int, **kwargs):
+async def f(error_so: ErrorSO, status_code: int, **kwargs):
     print("2st4wtwetwest")
     return status_code, error_so
 

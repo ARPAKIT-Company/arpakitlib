@@ -3,12 +3,12 @@
 import json
 from typing import Any
 
-from arpakitlib.ar_enumeration import EasyEnumeration
+from arpakitlib.ar_enumeration_util import Enumeration
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
 
 
-class NeedTypes(EasyEnumeration):
+class NeedTypes(Enumeration):
     str_ = "str"
     int_ = "int"
     bool_ = "bool"

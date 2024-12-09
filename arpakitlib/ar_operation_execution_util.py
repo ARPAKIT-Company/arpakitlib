@@ -14,7 +14,7 @@ from arpakitlib.ar_base_worker import BaseWorker
 from arpakitlib.ar_datetime_util import now_utc_dt
 from arpakitlib.ar_dict_util import combine_dicts
 from arpakitlib.ar_sqlalchemy_model_util import OperationDBM, StoryLogDBM
-from arpakitlib.ar_sqlalchemy_util import EasySQLAlchemyDB
+from arpakitlib.ar_sqlalchemy_util import SQLAlchemyDB
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
 
@@ -23,10 +23,10 @@ _logger = logging.getLogger(__name__)
 
 def get_operation_for_execution(
         *,
-        easy_sql_alchemy_db: EasySQLAlchemyDB,
+        sqlalchemy_db: SQLAlchemyDB,
         filter_operation_type: str | None = None
 ) -> OperationDBM | None:
-    with easy_sql_alchemy_db.new_session() as session:
+    with sqlalchemy_db.new_session() as session:
         query = (
             session
             .query(OperationDBM)
@@ -43,23 +43,23 @@ def get_operation_by_id(
         *,
         session: Session,
         filter_operation_id: int,
-        strict: bool = False
+        raise_if_not_found: bool = False
 ) -> OperationDBM | None:
     query = (
         session
         .query(OperationDBM)
         .filter(OperationDBM.id == filter_operation_id)
     )
-    if strict:
+    if raise_if_not_found:
         return query.one()
     else:
         return query.one_or_none()
 
 
 class BaseOperationExecutor:
-    def __init__(self, *, easy_sql_alchemy_db: EasySQLAlchemyDB):
+    def __init__(self, *, sqlalchemy_db: SQLAlchemyDB):
         self._logger = logging.getLogger(self.__class__.__name__)
-        self.easy_sql_alchemy_db = easy_sql_alchemy_db
+        self.sql_alchemy_db = sqlalchemy_db
 
     async def async_execute_operation(self, operation_dbm: OperationDBM) -> OperationDBM:
         if operation_dbm.type == OperationDBM.Types.healthcheck_:
@@ -78,9 +78,9 @@ class BaseOperationExecutor:
             f", operation_dbm.type={operation_dbm.type}"
         )
 
-        with self.easy_sql_alchemy_db.new_session() as session:
+        with self.sql_alchemy_db.new_session() as session:
             operation_dbm: OperationDBM = get_operation_by_id(
-                session=session, filter_operation_id=operation_dbm.id, strict=True
+                session=session, filter_operation_id=operation_dbm.id, raise_if_not_found=True
             )
             operation_dbm.execution_start_dt = now_utc_dt()
             operation_dbm.status = OperationDBM.Statuses.executing
@@ -97,9 +97,9 @@ class BaseOperationExecutor:
             exception = exception_
             traceback_str = traceback.format_exc()
 
-        with self.easy_sql_alchemy_db.new_session() as session:
+        with self.sql_alchemy_db.new_session() as session:
             operation_dbm: OperationDBM = get_operation_by_id(
-                session=session, filter_operation_id=operation_dbm.id, strict=True
+                session=session, filter_operation_id=operation_dbm.id, raise_if_not_found=True
             )
             operation_dbm.execution_finish_dt = now_utc_dt()
             if exception:
@@ -138,9 +138,9 @@ class BaseOperationExecutor:
             f", operation_dbm.type={operation_dbm.type}"
         )
 
-        with self.easy_sql_alchemy_db.new_session() as session:
+        with self.sql_alchemy_db.new_session() as session:
             operation_dbm: OperationDBM = get_operation_by_id(
-                session=session, filter_operation_id=operation_dbm.id, strict=True
+                session=session, filter_operation_id=operation_dbm.id, raise_if_not_found=True
             )
             operation_dbm.execution_start_dt = now_utc_dt()
             operation_dbm.status = OperationDBM.Statuses.executing
@@ -157,10 +157,10 @@ class BaseOperationExecutor:
             exception = exception_
             traceback_str = traceback.format_exc()
 
-        with self.easy_sql_alchemy_db.new_session() as session:
+        with self.sql_alchemy_db.new_session() as session:
 
             operation_dbm: OperationDBM = get_operation_by_id(
-                session=session, filter_operation_id=operation_dbm.id, strict=True
+                session=session, filter_operation_id=operation_dbm.id, raise_if_not_found=True
             )
             operation_dbm.execution_finish_dt = now_utc_dt()
             if exception:
@@ -203,26 +203,26 @@ class ExecuteOperationWorker(BaseWorker):
     def __init__(
             self,
             *,
-            easy_sql_alchemy_db: EasySQLAlchemyDB,
+            sqlalchemy_db: SQLAlchemyDB,
             operation_executor: BaseOperationExecutor,
             need_operation_type: str | None = None
     ):
         super().__init__()
-        self.easy_sql_alchemy_db = easy_sql_alchemy_db
+        self.sqlalchemy_db = sqlalchemy_db
         self.timeout_after_run = timedelta(seconds=0.1).total_seconds()
         self.timeout_after_err_in_run = timedelta(seconds=1).total_seconds()
         self.operation_executor = operation_executor
         self.need_operation_type = need_operation_type
 
     async def async_on_startup(self):
-        self.easy_sql_alchemy_db.init()
+        self.sqlalchemy_db.init()
 
     async def async_execute_operation(self, operation_dbm: OperationDBM) -> OperationDBM:
         return await self.operation_executor.async_safe_execute_operation(operation_dbm=operation_dbm)
 
     async def async_run(self):
         operation_dbm: OperationDBM | None = get_operation_for_execution(
-            easy_sql_alchemy_db=self.easy_sql_alchemy_db,
+            sqlalchemy_db=self.sqlalchemy_db,
             filter_operation_type=self.need_operation_type
         )
 
@@ -235,14 +235,14 @@ class ExecuteOperationWorker(BaseWorker):
         self._logger.exception(exception)
 
     def sync_on_startup(self):
-        self.easy_sql_alchemy_db.init()
+        self.sqlalchemy_db.init()
 
     def sync_execute_operation(self, operation_dbm: OperationDBM) -> OperationDBM:
         return self.operation_executor.sync_safe_execute_operation(operation_dbm=operation_dbm)
 
     def sync_run(self):
         operation_dbm: OperationDBM | None = get_operation_for_execution(
-            easy_sql_alchemy_db=self.easy_sql_alchemy_db,
+            sqlalchemy_db=self.sqlalchemy_db,
             filter_operation_type=self.need_operation_type
         )
 

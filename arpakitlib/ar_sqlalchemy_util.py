@@ -12,7 +12,7 @@ from sqlalchemy.orm.session import Session
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
 
 
-class EasySQLAlchemyDB:
+class SQLAlchemyDB:
     def __init__(
             self,
             *,

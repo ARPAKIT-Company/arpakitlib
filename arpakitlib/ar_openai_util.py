@@ -13,7 +13,7 @@ https://platform.openai.com/docs/
 """
 
 
-class EasyOpenAI:
+class OpenAIAPIClient:
     def __init__(
             self,
             *,

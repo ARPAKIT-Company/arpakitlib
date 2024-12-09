@@ -12,7 +12,7 @@ import aiohttp
 import requests
 
 from arpakitlib.ar_dict_util import combine_dicts
-from arpakitlib.ar_enumeration import EasyEnumeration
+from arpakitlib.ar_enumeration_util import Enumeration
 from arpakitlib.ar_sleep_util import sync_safe_sleep, async_safe_sleep
 from arpakitlib.ar_type_util import raise_for_type
 
@@ -23,7 +23,7 @@ https://yookassa.ru/developers/api
 """
 
 
-class YookassaPaymentStatuses(EasyEnumeration):
+class YookassaPaymentStatuses(Enumeration):
     pending = "pending"
     waiting_for_capture = "waiting_for_capture"
     succeeded = "succeeded"

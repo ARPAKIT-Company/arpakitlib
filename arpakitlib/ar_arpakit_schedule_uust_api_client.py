@@ -16,7 +16,7 @@ from aiohttp import ClientResponse, ClientTimeout, ClientResponseError
 from pydantic import ConfigDict, BaseModel
 
 from arpakitlib.ar_dict_util import combine_dicts
-from arpakitlib.ar_enumeration import EasyEnumeration
+from arpakitlib.ar_enumeration_util import Enumeration
 from arpakitlib.ar_json_util import safely_transfer_to_json_str
 from arpakitlib.ar_sleep_util import async_safe_sleep
 from arpakitlib.ar_type_util import raise_for_type
@@ -24,7 +24,7 @@ from arpakitlib.ar_type_util import raise_for_type
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
 
 
-class Weekdays(EasyEnumeration):
+class Weekdays(Enumeration):
     monday = 1
     tuesday = 2
     wednesday = 3
@@ -34,7 +34,7 @@ class Weekdays(EasyEnumeration):
     sunday = 7
 
 
-class Months(EasyEnumeration):
+class Months(Enumeration):
     january = 1
     february = 2
     march = 3

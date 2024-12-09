@@ -22,9 +22,10 @@ from starlette.middleware.cors import CORSMiddleware
 from starlette.staticfiles import StaticFiles
 
 from arpakitlib.ar_dict_util import combine_dicts
-from arpakitlib.ar_enumeration import EasyEnumeration
+from arpakitlib.ar_enumeration_util import Enumeration
 from arpakitlib.ar_json_util import safely_transfer_to_json_str_to_json_obj
 from arpakitlib.ar_logging_util import setup_normal_logging
+from arpakitlib.ar_sqlalchemy_util import SQLAlchemyDB
 from arpakitlib.ar_type_util import raise_for_type, raise_if_not_async_func
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
@@ -62,7 +63,7 @@ class SimpleSO(BaseSO):
 
 
 class ErrorSO(BaseSO):
-    class APIErrorCodes(EasyEnumeration):
+    class APIErrorCodes(Enumeration):
         cannot_authorize = "CANNOT_AUTHORIZE"
         unknown_error = "UNKNOWN_ERROR"
         error_in_request = "ERROR_IN_REQUEST"
@@ -152,7 +153,6 @@ def create_handle_exception(
     async def handle_exception(
             request: starlette.requests.Request, exception: Exception
     ) -> APIJSONResponse:
-
         status_code = starlette.status.HTTP_500_INTERNAL_SERVER_ERROR
 
         error_so = ErrorSO(
@@ -235,6 +235,17 @@ def create_handle_exception(
         )
 
     return handle_exception
+
+
+def handle_exception_create_story_log(
+        *,
+        error_so,
+        status_code,
+        request: starlette.requests.Request,
+        exception: Exception,
+        sqlalchemy_db: SQLAlchemyDB
+) -> None:
+    pass
 
 
 def add_exception_handler_to_app(*, app: FastAPI, handle_exception: Callable) -> FastAPI:
@@ -398,8 +409,8 @@ def create_fastapi_app(
         handle_exception_: Callable | None = create_handle_exception(),
         startup_api_events: list[BaseStartupAPIEvent] | None = None,
         shutdown_api_events: list[BaseStartupAPIEvent] | None = None,
-        api_router: APIRouter = simple_api_router_for_testing(),
-        transmitted_api_data: BaseTransmittedAPIData = BaseTransmittedAPIData()
+        transmitted_api_data: BaseTransmittedAPIData = BaseTransmittedAPIData(),
+        api_router: APIRouter = simple_api_router_for_testing()
 ):
     setup_normal_logging(log_filepath=log_filepath)
 
