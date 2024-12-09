@@ -64,11 +64,9 @@ class BaseOperationExecutor:
     async def async_execute_operation(self, operation_dbm: OperationDBM) -> OperationDBM:
         if operation_dbm.type == OperationDBM.Types.healthcheck_:
             self._logger.info("healthcheck")
-        elif operation_dbm.type == OperationDBM.Types.raise_fake_exception:
+        elif operation_dbm.type == OperationDBM.Types.raise_fake_exception_:
             self._logger.info("raise_fake_exception")
             raise Exception("raise_fake_exception")
-        else:
-            raise ValueError(f"unknown operation.type = {operation_dbm.type}")
         return operation_dbm
 
     async def async_safe_execute_operation(self, operation_dbm: OperationDBM) -> OperationDBM:
@@ -98,6 +96,7 @@ class BaseOperationExecutor:
             traceback_str = traceback.format_exc()
 
         with self.sql_alchemy_db.new_session() as session:
+
             operation_dbm: OperationDBM = get_operation_by_id(
                 session=session, filter_operation_id=operation_dbm.id, raise_if_not_found=True
             )
@@ -111,7 +110,21 @@ class BaseOperationExecutor:
             else:
                 operation_dbm.status = OperationDBM.Statuses.executed_without_error
             session.commit()
+
+            story_log_dbm = StoryLogDBM(
+                level=StoryLogDBM.Levels.error,
+                title="Error in async_execute_operation",
+                data={
+                    "operation_id": operation_dbm.id,
+                    "exception_str": str(exception),
+                    "traceback_str": traceback_str
+                }
+            )
+            session.add(story_log_dbm)
+            session.commit()
+
             session.refresh(operation_dbm)
+            session.refresh(story_log_dbm)
 
         self._logger.info(
             f"finish async_safe_execute_operation"
@@ -124,11 +137,9 @@ class BaseOperationExecutor:
     def sync_execute_operation(self, operation_dbm: OperationDBM) -> OperationDBM:
         if operation_dbm.type == OperationDBM.Types.healthcheck_:
             self._logger.info("healthcheck")
-        elif operation_dbm.type == OperationDBM.Types.raise_fake_exception:
+        elif operation_dbm.type == OperationDBM.Types.raise_fake_exception_:
             self._logger.info("raise_fake_exception")
             raise Exception("raise_fake_exception")
-        else:
-            raise ValueError(f"unknown operation.type = {operation_dbm.type}")
         return operation_dbm
 
     def sync_safe_execute_operation(self, operation_dbm: OperationDBM) -> OperationDBM:
@@ -178,7 +189,7 @@ class BaseOperationExecutor:
                 title="Error in sync_execute_operation",
                 data={
                     "operation_id": operation_dbm.id,
-                    "exception": str(exception),
+                    "exception_str": str(exception),
                     "traceback_str": traceback_str
                 }
             )
@@ -204,15 +215,17 @@ class ExecuteOperationWorker(BaseWorker):
             self,
             *,
             sqlalchemy_db: SQLAlchemyDB,
-            operation_executor: BaseOperationExecutor,
-            need_operation_type: str | None = None
+            operation_executor: BaseOperationExecutor | None = None,
+            filter_operation_type: str | None = None
     ):
         super().__init__()
         self.sqlalchemy_db = sqlalchemy_db
         self.timeout_after_run = timedelta(seconds=0.1).total_seconds()
         self.timeout_after_err_in_run = timedelta(seconds=1).total_seconds()
+        if operation_executor is None:
+            operation_executor = BaseOperationExecutor(sqlalchemy_db=sqlalchemy_db)
         self.operation_executor = operation_executor
-        self.need_operation_type = need_operation_type
+        self.filter_operation_type = filter_operation_type
 
     async def async_on_startup(self):
         self.sqlalchemy_db.init()
@@ -223,7 +236,7 @@ class ExecuteOperationWorker(BaseWorker):
     async def async_run(self):
         operation_dbm: OperationDBM | None = get_operation_for_execution(
             sqlalchemy_db=self.sqlalchemy_db,
-            filter_operation_type=self.need_operation_type
+            filter_operation_type=self.filter_operation_type
         )
 
         if not operation_dbm:
@@ -243,7 +256,7 @@ class ExecuteOperationWorker(BaseWorker):
     def sync_run(self):
         operation_dbm: OperationDBM | None = get_operation_for_execution(
             sqlalchemy_db=self.sqlalchemy_db,
-            filter_operation_type=self.need_operation_type
+            filter_operation_type=self.filter_operation_type
         )
 
         if not operation_dbm:

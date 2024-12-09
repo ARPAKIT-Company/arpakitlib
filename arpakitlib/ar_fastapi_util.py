@@ -6,6 +6,7 @@ import asyncio
 import logging
 import os.path
 import pathlib
+import threading
 import traceback
 from datetime import datetime
 from typing import Any, Callable
@@ -15,7 +16,7 @@ import fastapi.responses
 import starlette.exceptions
 import starlette.requests
 import starlette.status
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI, APIRouter, Query
 from fastapi.openapi.docs import get_swagger_ui_html, get_redoc_html
 from jaraco.context import suppress
 from pydantic import BaseModel, ConfigDict
@@ -26,6 +27,7 @@ from arpakitlib.ar_dict_util import combine_dicts
 from arpakitlib.ar_enumeration_util import Enumeration
 from arpakitlib.ar_json_util import safely_transfer_to_json_str_to_json_obj
 from arpakitlib.ar_logging_util import setup_normal_logging
+from arpakitlib.ar_operation_execution_util import ExecuteOperationWorker
 from arpakitlib.ar_sqlalchemy_model_util import StoryLogDBM
 from arpakitlib.ar_sqlalchemy_util import SQLAlchemyDB
 from arpakitlib.ar_type_util import raise_for_type, raise_if_not_async_func
@@ -379,6 +381,37 @@ class BaseStartupAPIEvent:
         self._logger.info("on_startup ends")
 
 
+class InitSqlalchemyDBStartupAPIEvent(BaseStartupAPIEvent):
+    def __init__(self, sqlalchemy_db: SQLAlchemyDB):
+        super().__init__()
+        self.sqlalchemy_db = sqlalchemy_db
+
+    def async_on_startup(self, *args, **kwargs):
+        self.sqlalchemy_db.init()
+
+
+class SyncSafeRunExecuteOperationWorkerStartupAPIEvent(BaseStartupAPIEvent):
+    def __init__(self, execute_operation_worker: ExecuteOperationWorker):
+        super().__init__()
+        self.execute_operation_worker = execute_operation_worker
+
+    def async_on_startup(self, *args, **kwargs):
+        thread = threading.Thread(
+            target=self.execute_operation_worker.sync_safe_run,
+            daemon=True
+        )
+        thread.start()
+
+
+class AsyncSafeRunExecuteOperationWorkerStartupAPIEvent(BaseStartupAPIEvent):
+    def __init__(self, execute_operation_worker: ExecuteOperationWorker):
+        super().__init__()
+        self.execute_operation_worker = execute_operation_worker
+
+    def async_on_startup(self, *args, **kwargs):
+        _ = asyncio.create_task(self.execute_operation_worker.async_safe_run())
+
+
 class BaseShutdownAPIEvent:
     def __init__(self, *args, **kwargs):
         self._logger = logging.getLogger(self.__class__.__name__)
@@ -423,6 +456,13 @@ def simple_api_router_for_testing():
     )
     async def _():
         raise Exception("raise_fake_exception_3")
+
+    @router.get(
+        "/check_params",
+        response_model=ErrorSO
+    )
+    async def _(name: int = Query()):
+        return RawDataSO(data={"name": name})
 
     return router
 

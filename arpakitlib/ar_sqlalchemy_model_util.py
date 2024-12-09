@@ -77,7 +77,7 @@ class OperationDBM(SimpleDBM):
 
     class Types(Enumeration):
         healthcheck_ = "healthcheck"
-        raise_fake_exception = "raise_fake_exception"
+        raise_fake_exception_ = "raise_fake_exception"
 
     status: Mapped[str] = mapped_column(
         TEXT, index=True, insert_default=Statuses.waiting_for_execution,
