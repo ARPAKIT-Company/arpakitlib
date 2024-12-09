@@ -267,7 +267,7 @@ def create_handle_exception_creating_story_log(
             session.add(story_log_dbm)
             session.commit()
             session.refresh(story_log_dbm)
-        error_so.error_data.update({"story_log_id": story_log_dbm.id})
+        error_so.error_data.update({"story_log_long_id": story_log_dbm.long_id})
         kwargs["story_log_id"] = story_log_dbm.id
         return status_code, error_so, kwargs
 
