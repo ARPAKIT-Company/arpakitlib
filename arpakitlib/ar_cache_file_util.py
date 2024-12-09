@@ -7,7 +7,7 @@ from typing import Optional, Any
 import pytz
 from pydantic import BaseModel
 
-from arpakitlib.ar_json_db import JSONDbFile
+from arpakitlib.ar_json_db_util import JSONDbFile
 from arpakitlib.ar_type_util import raise_for_type
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"

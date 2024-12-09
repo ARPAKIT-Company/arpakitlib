@@ -10,7 +10,7 @@ from typing import Any
 from sqlalchemy import asc
 from sqlalchemy.orm import Session
 
-from arpakitlib.ar_base_worker import BaseWorker
+from arpakitlib.ar_base_worker_util import BaseWorker
 from arpakitlib.ar_datetime_util import now_utc_dt
 from arpakitlib.ar_dict_util import combine_dicts
 from arpakitlib.ar_sqlalchemy_model_util import OperationDBM, StoryLogDBM

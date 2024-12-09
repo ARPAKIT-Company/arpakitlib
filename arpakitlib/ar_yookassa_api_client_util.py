@@ -13,7 +13,7 @@ import requests
 
 from arpakitlib.ar_dict_util import combine_dicts
 from arpakitlib.ar_enumeration_util import Enumeration
-from arpakitlib.ar_sleep_util import sync_safe_sleep, async_safe_sleep
+from arpakitlib.ar_http_request_util import sync_make_http_request, async_make_http_request
 from arpakitlib.ar_type_util import raise_for_type
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
@@ -42,56 +42,23 @@ class YookassaAPIClient:
         self.headers = {"Content-Type": "application/json"}
         self._logger = logging.getLogger(self.__class__.__name__)
 
-    def _sync_make_request(self, method: str, url: str, **kwargs) -> requests.Response:
-        max_tries = 7
-        tries = 0
-
-        kwargs["url"] = url
-        kwargs["method"] = method
-        kwargs["timeout"] = (timedelta(seconds=3).total_seconds(), timedelta(seconds=3).total_seconds())
+    def _sync_make_request(
+            self,
+            *,
+            method: str,
+            url: str,
+            **kwargs
+    ) -> requests.Response:
         if "headers" not in kwargs:
             kwargs["headers"] = {}
         kwargs["headers"] = combine_dicts(self.headers, kwargs["headers"])
         kwargs["auth"] = (self.shop_id, self.secret_key)
-
-        while True:
-            self._logger.info(f"{method} {url}")
-            tries += 1
-            try:
-                return requests.request(**kwargs)
-            except Exception as err:
-                self._logger.warning(f"{tries}/{max_tries} {err} {method} {url}")
-                if tries >= max_tries:
-                    raise YookassaAPIException(err)
-                sync_safe_sleep(timedelta(seconds=0.1).total_seconds())
-                continue
-
-    async def _async_make_request(self, method: str, url: str, **kwargs) -> aiohttp.ClientResponse:
-        max_tries = 7
-        tries = 0
-
-        kwargs["url"] = url
-        kwargs["method"] = method
-        kwargs["timeout"] = aiohttp.ClientTimeout(total=timedelta(seconds=15).total_seconds())
-        if "headers" not in kwargs:
-            kwargs["headers"] = {}
-        kwargs["headers"] = combine_dicts(self.headers, kwargs["headers"])
-        kwargs["auth"] = aiohttp.BasicAuth(login=str(self.shop_id), password=self.secret_key)
-
-        while True:
-            self._logger.info(f"{method} {url}")
-            tries += 1
-            try:
-                async with aiohttp.ClientSession() as session:
-                    async with session.request(**kwargs) as response:
-                        await response.read()
-                        return response
-            except Exception as err:
-                self._logger.warning(f"{tries}/{max_tries} {err} {method} {url}")
-                if tries >= max_tries:
-                    raise YookassaAPIException(err)
-                await async_safe_sleep(timedelta(seconds=0.1).total_seconds())
-                continue
+        kwargs["timeout_"] = timedelta(seconds=3)
+        return sync_make_http_request(
+            method=method,
+            url=url,
+            **kwargs
+        )
 
     def sync_create_payment(
             self,
@@ -121,12 +88,10 @@ class YookassaAPIClient:
         if idempotence_key is None:
             idempotence_key = str(uuid.uuid4())
 
-        headers = combine_dicts({"Idempotence-Key": idempotence_key})
-
         response = self._sync_make_request(
             method="POST",
             url="https://api.yookassa.ru/v3/payments",
-            headers=headers,
+            headers={"Idempotence-Key": idempotence_key},
             json=json_body,
         )
 
@@ -154,6 +119,18 @@ class YookassaAPIClient:
 
         return json_data
 
+    async def async_make_request(self, method: str, url: str, **kwargs) -> aiohttp.ClientResponse:
+        if "headers" not in kwargs:
+            kwargs["headers"] = {}
+        kwargs["headers"] = combine_dicts(self.headers, kwargs["headers"])
+        kwargs["auth"] = aiohttp.BasicAuth(login=str(self.shop_id), password=self.secret_key)
+        kwargs["timeout_"] = timedelta(seconds=3)
+        return await async_make_http_request(
+            method=method,
+            url=url,
+            **kwargs
+        )
+
     async def async_create_payment(
             self, json_body: dict[str, Any], idempotence_key: Optional[str] = None
     ) -> dict[str, Any]:
@@ -180,12 +157,10 @@ class YookassaAPIClient:
         if idempotence_key is None:
             idempotence_key = str(uuid.uuid4())
 
-        headers = combine_dicts({"Idempotence-Key": idempotence_key})
-
-        response = await self._async_make_request(
+        response = await self.async_make_request(
             method="POST",
             url="https://api.yookassa.ru/v3/payments",
-            headers=headers,
+            headers={"Idempotence-Key": idempotence_key},
             json=json_body,
         )
 
@@ -198,7 +173,7 @@ class YookassaAPIClient:
     async def async_get_payment(self, payment_id: str) -> Optional[dict[str, Any]]:
         raise_for_type(payment_id, str)
 
-        response = await self._async_make_request(
+        response = await self.async_make_request(
             method="GET",
             url=f"https://api.yookassa.ru/v3/payments/{payment_id}",
         )

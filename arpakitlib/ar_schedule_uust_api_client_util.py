@@ -9,7 +9,7 @@ from typing import Any
 import pytz
 
 from arpakitlib.ar_dict_util import combine_dicts
-from arpakitlib.ar_http_request_util import async_make_request
+from arpakitlib.ar_http_request_util import async_make_http_request
 from arpakitlib.ar_type_util import raise_for_type
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
@@ -75,7 +75,7 @@ class ScheduleUUSTAPIClient:
             url: str,
             params: dict | None = None
     ) -> dict[str, Any]:
-        response = await async_make_request(
+        response = await async_make_http_request(
             url=url,
             method="GET",
             params=combine_dicts(params, self.auth_params()),

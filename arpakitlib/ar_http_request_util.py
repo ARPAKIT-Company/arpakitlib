@@ -9,22 +9,27 @@ import requests
 from aiohttp_socks import ProxyConnector
 
 from arpakitlib.ar_sleep_util import sync_safe_sleep, async_safe_sleep
+from arpakitlib.ar_type_util import raise_for_type
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
 
 _logger = logging.getLogger(__name__)
 
 
-def sync_make_request(
+def sync_make_http_request(
         *,
         method: str = "GET",
         url: str,
         max_tries_: int = 9,
         proxy_url_: str | None = None,
         raise_for_status_: bool = False,
-        timeout_: timedelta = timedelta(seconds=15).total_seconds(),
+        timeout_: timedelta | float = timedelta(seconds=15).total_seconds(),
         **kwargs
 ) -> requests.Response:
+    if isinstance(timeout_, float):
+        timeout_ = timedelta(seconds=timeout_)
+    raise_for_type(timeout_, timedelta)
+
     tries_counter = 0
 
     kwargs["method"] = method
@@ -55,7 +60,7 @@ def sync_make_request(
             continue
 
 
-async def async_make_request(
+async def async_make_http_request(
         *,
         method: str = "GET",
         url: str,
