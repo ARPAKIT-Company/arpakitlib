@@ -36,13 +36,13 @@ class SimpleDBM(BaseDBM):
     __abstract__ = True
 
     id: Mapped[int] = mapped_column(
-        INTEGER, primary_key=True, autoincrement=True, nullable=False
+        INTEGER, primary_key=True, autoincrement=True, sort_order=0, nullable=False
     )
     long_id: Mapped[str] = mapped_column(
-        TEXT, insert_default=uuid4, unique=True, nullable=False
+        TEXT, insert_default=uuid4, unique=True, sort_order=1, nullable=False
     )
     creation_dt: Mapped[datetime] = mapped_column(
-        TIMESTAMP(timezone=True), insert_default=now_utc_dt, index=True, nullable=False
+        TIMESTAMP(timezone=True), insert_default=now_utc_dt, index=True, sort_order=2, nullable=False
     )
 
     def __repr__(self):
