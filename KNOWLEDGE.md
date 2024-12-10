@@ -249,6 +249,8 @@ nano /etc/apt/sources.list.d
 deluser --remove-home user
 adduser user
 usermode -aG sudo user
+
+nslookup {ip address}  # check ptr
 ```
 
 ### Swagger-ui, /docs help
