@@ -6,8 +6,10 @@ import asyncio
 import logging
 import traceback
 from datetime import timedelta
-from typing import Any
+from typing import Any, Callable
 
+from pydantic import ConfigDict
+from pydantic.v1 import BaseModel
 from sqlalchemy import asc
 from sqlalchemy.orm import Session
 
@@ -271,19 +273,12 @@ class ExecuteOperationWorker(BaseWorker):
         self._logger.exception(exception)
 
 
-class BaseScheduledOperation:
-    def __init__(
-            self,
-            type_: str,
-            input_data: dict[str, Any] | None = None
-    ):
-        self.type_ = type_
-        if input_data is None:
-            input_data = {}
-        self.input_data = input_data
+class ScheduledOperation(BaseModel):
+    model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True, from_attributes=True)
 
-    def is_time(self):
-        raise NotImplementedError()
+    type: str
+    input_data: dict[str, Any] | None = None
+    is_time_func: Callable[[], bool]
 
 
 class CreateScheduledOperationWorker(BaseWorker):
@@ -291,7 +286,7 @@ class CreateScheduledOperationWorker(BaseWorker):
             self,
             *,
             sqlalchemy_db: SQLAlchemyDB,
-            scheduled_operations: list[BaseScheduledOperation] | None = None,
+            scheduled_operations: list[ScheduledOperation] | None = None,
             timeout_after_run=timedelta(seconds=0.1).total_seconds(),
             timeout_after_err_in_run=timedelta(seconds=1).total_seconds()
     ):
@@ -308,11 +303,27 @@ class CreateScheduledOperationWorker(BaseWorker):
 
     def sync_run(self):
         for scheduled_operation in self.scheduled_operations:
-            if not scheduled_operation.is_time():
+            if not scheduled_operation.is_time_func():
                 continue
             with self.sqlalchemy_db.new_session() as session:
                 operation_dbm = OperationDBM(
-                    type=scheduled_operation.type_,
+                    type=scheduled_operation.type,
+                    input_data=scheduled_operation.input_data
+                )
+                session.add(operation_dbm)
+                session.commit()
+                session.refresh(operation_dbm)
+
+    def async_on_startup(self):
+        self.sqlalchemy_db.init()
+
+    def async_run(self):
+        for scheduled_operation in self.scheduled_operations:
+            if not scheduled_operation.is_time_func():
+                continue
+            with self.sqlalchemy_db.new_session() as session:
+                operation_dbm = OperationDBM(
+                    type=scheduled_operation.type,
                     input_data=scheduled_operation.input_data
                 )
                 session.add(operation_dbm)

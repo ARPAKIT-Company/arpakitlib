@@ -8,6 +8,7 @@ workflow
 ---
 
 ### Supported python version
+
 - Python ^3.12
 
 ---
@@ -31,8 +32,9 @@ pip install arpakitlib
 - https://pypi.org/project/arpakitlib/
 - https://test.pypi.org/project/arpakitlib/
 - https://github.com/ARPAKIT-Company/arpakitlib
-- https://t.me/arpakit (author telegram)
-- arpakit@gmail.com (author email)
+- https://t.me/arpakit
+- arpakit@gmail.com
+- support@arpakit.com
 
 ---
 

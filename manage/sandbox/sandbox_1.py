@@ -1,14 +1,18 @@
 import asyncio
+from datetime import datetime
 
+import pytz
 import uvicorn
 from asyncpg.pgproto.pgproto import timedelta
+from jaraco.functools import retry
 
+from arpakitlib.ar_datetime_util import now_utc_dt
 from arpakitlib.ar_fastapi_util import create_fastapi_app, create_handle_exception, ErrorSO, \
     create_handle_exception_creating_story_log, InitSqlalchemyDBStartupAPIEvent, \
-    AsyncSafeRunExecuteOperationWorkerStartupAPIEvent, SyncSafeRunExecuteOperationWorkerStartupAPIEvent, \
-    BaseStartupAPIEvent
+    BaseStartupAPIEvent, AsyncSafeRunWorkerStartupAPIEvent, SyncSafeRunWorkerStartupAPIEvent
 from arpakitlib.ar_logging_util import setup_normal_logging
-from arpakitlib.ar_operation_execution_util import ExecuteOperationWorker, BaseOperationExecutor
+from arpakitlib.ar_operation_execution_util import ExecuteOperationWorker, BaseOperationExecutor, \
+    CreateScheduledOperationWorker, ScheduledOperation
 from arpakitlib.ar_sleep_util import async_safe_sleep
 from arpakitlib.ar_sqlalchemy_model_util import OperationDBM
 from arpakitlib.ar_sqlalchemy_util import SQLAlchemyDB
@@ -44,10 +48,21 @@ def command():
     app = create_fastapi_app(
         startup_api_events=[
             InitSqlalchemyDBStartupAPIEvent(sqlalchemy_db=sqlalchemy_db),
-            AsyncSafeRunExecuteOperationWorkerStartupAPIEvent(
-                execute_operation_worker=ExecuteOperationWorker(
+            SyncSafeRunWorkerStartupAPIEvent(
+                worker=ExecuteOperationWorker(
                     sqlalchemy_db=sqlalchemy_db,
                     operation_executor=OperationExecutor(sqlalchemy_db=sqlalchemy_db)
+                )
+            ),
+            SyncSafeRunWorkerStartupAPIEvent(
+                worker=CreateScheduledOperationWorker(
+                    scheduled_operations=[
+                        ScheduledOperation(
+                            type="healthcheck",
+                            is_time_func=lambda : True if (datetime(year=2020, month=1, day=1, tzinfo=pytz.UTC) < now_utc_dt() < datetime(year=2020, month=1, day=1, tzinfo=pytz.UTC)) else False
+                        )
+                    ],
+                    sqlalchemy_db=sqlalchemy_db
                 )
             ),
             Startup1(),

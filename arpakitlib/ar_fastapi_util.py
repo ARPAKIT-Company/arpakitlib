@@ -23,6 +23,7 @@ from pydantic import BaseModel, ConfigDict
 from starlette.middleware.cors import CORSMiddleware
 from starlette.staticfiles import StaticFiles
 
+from arpakitlib.ar_base_worker_util import BaseWorker
 from arpakitlib.ar_dict_util import combine_dicts
 from arpakitlib.ar_enumeration_util import Enumeration
 from arpakitlib.ar_json_util import safely_transfer_to_json_str_to_json_obj
@@ -381,6 +382,15 @@ class BaseStartupAPIEvent:
         self._logger.info("on_startup ends")
 
 
+class BaseShutdownAPIEvent:
+    def __init__(self, *args, **kwargs):
+        self._logger = logging.getLogger(self.__class__.__name__)
+
+    async def async_on_shutdown(self, *args, **kwargs):
+        self._logger.info("on_shutdown starts")
+        self._logger.info("on_shutdown ends")
+
+
 class InitSqlalchemyDBStartupAPIEvent(BaseStartupAPIEvent):
     def __init__(self, sqlalchemy_db: SQLAlchemyDB):
         super().__init__()
@@ -390,35 +400,26 @@ class InitSqlalchemyDBStartupAPIEvent(BaseStartupAPIEvent):
         self.sqlalchemy_db.init()
 
 
-class SyncSafeRunExecuteOperationWorkerStartupAPIEvent(BaseStartupAPIEvent):
-    def __init__(self, execute_operation_worker: ExecuteOperationWorker):
+class SyncSafeRunWorkerStartupAPIEvent(BaseStartupAPIEvent):
+    def __init__(self, worker: BaseWorker):
         super().__init__()
-        self.execute_operation_worker = execute_operation_worker
+        self.worker = worker
 
     def async_on_startup(self, *args, **kwargs):
         thread = threading.Thread(
-            target=self.execute_operation_worker.sync_safe_run,
+            target=self.worker.sync_safe_run,
             daemon=True
         )
         thread.start()
 
 
-class AsyncSafeRunExecuteOperationWorkerStartupAPIEvent(BaseStartupAPIEvent):
-    def __init__(self, execute_operation_worker: ExecuteOperationWorker):
+class AsyncSafeRunWorkerStartupAPIEvent(BaseStartupAPIEvent):
+    def __init__(self, worker: ExecuteOperationWorker):
         super().__init__()
-        self.execute_operation_worker = execute_operation_worker
+        self.worker = worker
 
     def async_on_startup(self, *args, **kwargs):
-        _ = asyncio.create_task(self.execute_operation_worker.async_safe_run())
-
-
-class BaseShutdownAPIEvent:
-    def __init__(self, *args, **kwargs):
-        self._logger = logging.getLogger(self.__class__.__name__)
-
-    async def async_on_shutdown(self, *args, **kwargs):
-        self._logger.info("on_shutdown starts")
-        self._logger.info("on_shutdown ends")
+        _ = asyncio.create_task(self.worker.async_safe_run())
 
 
 class BaseTransmittedAPIData(BaseModel):
@@ -469,8 +470,8 @@ def simple_api_router_for_testing():
 
 def create_fastapi_app(
         *,
-        title: str = "ARPAKITLIB FastAPI",
-        description: str | None = "ARPAKITLIB FastAPI",
+        title: str = "arpakitlib FastAPI",
+        description: str | None = "arpakitlib FastAPI",
         log_filepath: str | None = "./story.log",
         handle_exception_: Callable | None = create_handle_exception(),
         startup_api_events: list[BaseStartupAPIEvent] | None = None,
