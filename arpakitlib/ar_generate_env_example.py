@@ -16,3 +16,7 @@ def generate_env_example(settings_class: Union[BaseSettings, type[BaseSettings]]
 
 def __example():
     pass
+
+
+if __name__ == '__main__':
+    __example()

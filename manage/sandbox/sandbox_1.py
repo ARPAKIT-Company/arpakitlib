@@ -1,6 +1,7 @@
 import asyncio
 
 import uvicorn
+from asyncpg.pgproto.pgproto import timedelta
 
 from arpakitlib.ar_fastapi_util import create_fastapi_app, create_handle_exception, ErrorSO, \
     create_handle_exception_creating_story_log, InitSqlalchemyDBStartupAPIEvent, \

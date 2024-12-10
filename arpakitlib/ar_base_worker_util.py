@@ -4,7 +4,6 @@ import asyncio
 import logging
 from abc import ABC
 from datetime import timedelta
-from typing import Any
 
 from arpakitlib.ar_sleep_util import sync_safe_sleep, async_safe_sleep
 
@@ -16,8 +15,8 @@ class BaseWorker(ABC):
     def __init__(self):
         self.worker_name = self.__class__.__name__
         self._logger = logging.getLogger(self.worker_name)
-        self.timeout_after_run: float | None = timedelta(seconds=15).total_seconds()
-        self.timeout_after_err_in_run: float | None = timedelta(seconds=15).total_seconds()
+        self.timeout_after_run = timedelta(seconds=0.1).total_seconds()
+        self.timeout_after_err_in_run = timedelta(seconds=1).total_seconds()
 
     def sync_on_startup(self):
         pass
@@ -25,7 +24,7 @@ class BaseWorker(ABC):
     def sync_run(self):
         raise NotImplementedError()
 
-    def sync_run_on_error(self, exception: BaseException, kwargs: dict[str, Any]):
+    def sync_run_on_error(self, exception: BaseException, **kwargs):
         self._logger.exception(exception)
 
     def sync_safe_run(self):
@@ -49,7 +48,7 @@ class BaseWorker(ABC):
             except BaseException as exception:
 
                 self._logger.info("start sync_run_on_error")
-                self.sync_run_on_error(exception=exception, kwargs={})
+                self.sync_run_on_error(exception=exception)
                 self._logger.info("start sync_run_on_error")
 
                 if self.timeout_after_err_in_run is not None:
@@ -61,7 +60,7 @@ class BaseWorker(ABC):
     async def async_run(self):
         raise NotImplementedError()
 
-    async def async_run_on_error(self, exception: BaseException, kwargs: dict[str, Any]):
+    async def async_run_on_error(self, exception: BaseException, **kwargs):
         self._logger.exception(exception)
 
     async def async_safe_run(self):
@@ -83,7 +82,7 @@ class BaseWorker(ABC):
             except BaseException as exception:
 
                 self._logger.info("start async_run_on_error")
-                await self.async_run_on_error(exception=exception, kwargs={})
+                await self.async_run_on_error(exception=exception)
                 self._logger.info("finish async_run_on_error")
 
                 if self.timeout_after_err_in_run is not None:

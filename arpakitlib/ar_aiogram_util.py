@@ -23,9 +23,6 @@ _ARPAKIT_LIB_MODULE_VERSION = "3.0"
 _logger = logging.getLogger(__name__)
 
 
-# ---
-
-
 class TextFilter(Filter):
 
     def __init__(
@@ -78,9 +75,6 @@ class IsPrivateChat(Filter):
             return False
 
 
-# ---
-
-
 _used_cd_prefixes = set()
 
 
@@ -116,9 +110,6 @@ class BaseCD(CallbackData, prefix="BaseCD"):
 
 class WithFromCD(BaseCD, prefix="WithFromCD"):
     from_: Optional[str] = None
-
-
-# ---
 
 
 class BadTgCommandFormat(BadCommandFormat):
@@ -321,16 +312,10 @@ def as_tg_command(
     return decorator
 
 
-# ---
-
-
 class SimpleMiddleware(BaseMiddleware, ABC):
     def __init__(self):
         self.middleware_name = self.__class__.__name__
         self._logger = logging.getLogger(self.__class__.__name__)
-
-
-# ---
 
 
 def create_tg_bot(*, tg_bot_token: str, tg_bot_proxy_url: str | None = None) -> Bot:
@@ -347,9 +332,6 @@ def create_tg_bot(*, tg_bot_token: str, tg_bot_proxy_url: str | None = None) -> 
         session=session
     )
     return tg_bot
-
-
-# ---
 
 
 def __example():

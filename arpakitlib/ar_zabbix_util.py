@@ -1,5 +1,5 @@
 # arpakit
-
+import asyncio
 import logging
 import time
 from datetime import timedelta, datetime
@@ -188,5 +188,10 @@ def __example():
     pass
 
 
+async def __async_example():
+    pass
+
+
 if __name__ == '__main__':
     __example()
+    asyncio.run(__async_example())

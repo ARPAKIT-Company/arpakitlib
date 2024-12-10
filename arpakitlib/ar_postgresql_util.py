@@ -1,6 +1,5 @@
 # arpakit
 
-from arpakitlib.ar_logging_util import setup_normal_logging
 from arpakitlib.ar_run_cmd_util import run_cmd
 from arpakitlib.ar_type_util import raise_for_type
 
@@ -34,13 +33,7 @@ def make_postgresql_db_dump(
 
 
 def __example():
-    setup_normal_logging()
-    make_postgresql_db_dump(
-        user="arpakitlib",
-        db_name="arpakitlib",
-        port=50629,
-        password="arpakitlib"
-    )
+    pass
 
 
 if __name__ == '__main__':

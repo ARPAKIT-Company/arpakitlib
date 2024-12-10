@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import logging
 import traceback
 from datetime import timedelta
@@ -216,12 +217,14 @@ class ExecuteOperationWorker(BaseWorker):
             *,
             sqlalchemy_db: SQLAlchemyDB,
             operation_executor: BaseOperationExecutor | None = None,
-            filter_operation_type: str | None = None
+            filter_operation_type: str | None = None,
+            timeout_after_run=timedelta(seconds=0.1).total_seconds(),
+            timeout_after_err_in_run=timedelta(seconds=1).total_seconds()
     ):
         super().__init__()
         self.sqlalchemy_db = sqlalchemy_db
-        self.timeout_after_run = timedelta(seconds=0.1).total_seconds()
-        self.timeout_after_err_in_run = timedelta(seconds=1).total_seconds()
+        self.timeout_after_run = timeout_after_run
+        self.timeout_after_err_in_run = timeout_after_err_in_run
         if operation_executor is None:
             operation_executor = BaseOperationExecutor(sqlalchemy_db=sqlalchemy_db)
         self.operation_executor = operation_executor
@@ -244,7 +247,7 @@ class ExecuteOperationWorker(BaseWorker):
 
         await self.async_execute_operation(operation_dbm=operation_dbm)
 
-    async def async_run_on_error(self, exception: BaseException, kwargs: dict[str, Any]):
+    async def async_run_on_error(self, exception: BaseException, **kwargs):
         self._logger.exception(exception)
 
     def sync_on_startup(self):
@@ -264,5 +267,67 @@ class ExecuteOperationWorker(BaseWorker):
 
         self.sync_execute_operation(operation_dbm=operation_dbm)
 
-    def sync_run_on_error(self, exception: BaseException, kwargs: dict[str, Any]):
+    def sync_run_on_error(self, exception: BaseException, **kwargs):
         self._logger.exception(exception)
+
+
+class BaseScheduledOperation:
+    def __init__(
+            self,
+            type_: str,
+            input_data: dict[str, Any] | None = None
+    ):
+        self.type_ = type_
+        if input_data is None:
+            input_data = {}
+        self.input_data = input_data
+
+    def is_time(self):
+        raise NotImplementedError()
+
+
+class CreateScheduledOperationWorker(BaseWorker):
+    def __init__(
+            self,
+            *,
+            sqlalchemy_db: SQLAlchemyDB,
+            scheduled_operations: list[BaseScheduledOperation] | None = None,
+            timeout_after_run=timedelta(seconds=0.1).total_seconds(),
+            timeout_after_err_in_run=timedelta(seconds=1).total_seconds()
+    ):
+        super().__init__()
+        self.sqlalchemy_db = sqlalchemy_db
+        self.timeout_after_run = timeout_after_run
+        self.timeout_after_err_in_run = timeout_after_err_in_run
+        if scheduled_operations is None:
+            scheduled_operations = []
+        self.scheduled_operations = scheduled_operations
+
+    def sync_on_startup(self):
+        self.sqlalchemy_db.init()
+
+    def sync_run(self):
+        for scheduled_operation in self.scheduled_operations:
+            if not scheduled_operation.is_time():
+                continue
+            with self.sqlalchemy_db.new_session() as session:
+                operation_dbm = OperationDBM(
+                    type=scheduled_operation.type_,
+                    input_data=scheduled_operation.input_data
+                )
+                session.add(operation_dbm)
+                session.commit()
+                session.refresh(operation_dbm)
+
+
+def __example():
+    pass
+
+
+async def __async_example():
+    pass
+
+
+if __name__ == '__main__':
+    __example()
+    asyncio.run(__async_example())

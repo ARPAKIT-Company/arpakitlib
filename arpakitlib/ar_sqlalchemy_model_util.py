@@ -120,3 +120,11 @@ class OperationDBM(SimpleDBM):
         if self.duration is None:
             return None
         return self.duration.total_seconds()
+
+
+def __example():
+    pass
+
+
+if __name__ == '__main__':
+    __example()
