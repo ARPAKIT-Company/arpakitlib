@@ -219,13 +219,13 @@ def create_handle_exception(
 
         _kwargs = {}
         for func in funcs_before_response:
-            data = func(
-                error_so=error_so, status_code=status_code, request=request, exception=exception, **_kwargs
+            _func_data = func(
+                status_code=status_code, error_so=error_so, request=request, exception=exception, **_kwargs
             )
-            if asyncio.iscoroutine(data):
-                data = await data
-            if data is not None:
-                status_code, error_so, _kwargs = data[0], data[1], data[2]
+            if asyncio.iscoroutine(_func_data):
+                _func_data = await _func_data
+            if _func_data is not None:
+                status_code, error_so, _kwargs = _func_data[0], _func_data[1], _func_data[2]
                 raise_for_type(status_code, int)
                 raise_for_type(error_so, ErrorSO)
                 raise_for_type(_kwargs, dict)
@@ -250,8 +250,8 @@ def create_handle_exception_creating_story_log(
 ) -> Callable:
     def handle_exception(
             *,
-            error_so: ErrorSO,
             status_code: int,
+            error_so: ErrorSO,
             request: starlette.requests.Request,
             exception: Exception,
             **kwargs
