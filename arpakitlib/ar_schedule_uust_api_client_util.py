@@ -52,22 +52,25 @@ class ScheduleUUSTAPIClient:
         elif self.api_password_first_part:
             return {
                 "login": self.api_login,
-                "pass": self.generate_v2_token(password_first_part=self.api_password_first_part)
+                "pass": self.generate_v2_token()
             }
         else:
             return {}
 
     @classmethod
-    def hash_token(cls, token: str) -> str:
+    def hash_new_token(cls, token: str) -> str:
         sha256 = hashlib.sha256()
         sha256.update(token.encode('utf-8'))
         return sha256.hexdigest()
 
     @classmethod
-    def generate_v2_token(cls, password_first_part: str) -> str:
-        return cls.hash_token(
+    def generate_new_v2_token(cls, password_first_part: str) -> str:
+        return cls.hash_new_token(
             password_first_part + datetime.now(tz=pytz.timezone("Asia/Yekaterinburg")).strftime("%Y-%m-%d")
         )
+
+    def generate_v2_token(self) -> str:
+        return self.generate_new_v2_token(password_first_part=self.api_password_first_part)
 
     async def _async_make_http_get_request(
             self,
