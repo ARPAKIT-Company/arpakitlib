@@ -439,7 +439,7 @@ class BaseNeedAPIAuthData(BaseModel):
     apikey_string: str | None = None
 
 
-def need_api_auth(
+def base_need_api_auth(
         *,
         require_apikey_string: bool = False,
         require_token_string: bool = False,
