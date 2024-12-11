@@ -25,11 +25,18 @@ class BaseDBM(DeclarativeBase):
             self._bus_data = {}
         return self._bus_data
 
-    def simple_dict(self) -> dict[str, Any]:
-        return {c.key: getattr(self, c.key) for c in inspect(self).mapper.column_attrs}
+    def simple_dict(self, *, include_sd_properties: bool = True) -> dict[str, Any]:
+        res = {c.key: getattr(self, c.key) for c in inspect(self).mapper.column_attrs}
 
-    def simple_json(self) -> str:
-        return safely_transfer_to_json_str(self.simple_dict())
+        if include_sd_properties:
+            for attr_name in dir(self):
+                if attr_name.startswith("sdp_") and isinstance(getattr(type(self), attr_name, None), property):
+                    res[attr_name.removesuffix("sdp_")] = getattr(self, attr_name)
+
+        return res
+
+    def simple_json(self, *, include_sd_properties: bool = True) -> str:
+        return safely_transfer_to_json_str(self.simple_dict(include_sd_properties=include_sd_properties))
 
 
 class SimpleDBM(BaseDBM):
