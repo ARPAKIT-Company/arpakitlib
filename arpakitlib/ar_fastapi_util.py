@@ -477,7 +477,7 @@ def create_fastapi_app(
         startup_api_events: list[BaseStartupAPIEvent] | None = None,
         shutdown_api_events: list[BaseStartupAPIEvent] | None = None,
         transmitted_api_data: BaseTransmittedAPIData = BaseTransmittedAPIData(),
-        api_router: APIRouter = simple_api_router_for_testing()
+        main_router: APIRouter = simple_api_router_for_testing()
 ):
     setup_normal_logging(log_filepath=log_filepath)
 
@@ -516,7 +516,7 @@ def create_fastapi_app(
 
     add_needed_api_router_to_app(app=app)
 
-    app.include_router(router=api_router)
+    app.include_router(router=main_router)
 
     return app
 
