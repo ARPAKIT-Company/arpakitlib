@@ -436,12 +436,12 @@ class BaseNeedAPIAuthData(BaseModel):
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True, from_attributes=True)
 
     token_string: str | None = None
-    apikey_string: str | None = None
+    api_key_string: str | None = None
 
 
 def base_need_api_auth(
         *,
-        require_apikey_string: bool = False,
+        require_api_key_string: bool = False,
         require_token_string: bool = False,
 ) -> Callable:
     async def func(
@@ -449,32 +449,36 @@ def base_need_api_auth(
             ac: fastapi.security.HTTPAuthorizationCredentials | None = fastapi.Security(
                 fastapi.security.HTTPBearer(auto_error=False)
             ),
-            apikey_string: str | None = Security(APIKeyHeader(name="apikey", auto_error=False)),
+            api_key_string: str | None = Security(APIKeyHeader(name="apikey", auto_error=False)),
             request: fastapi.Request
     ) -> BaseNeedAPIAuthData:
 
         _error_data = {
-            "require_apikey_string": require_apikey_string,
+            "require_api_key_string": require_api_key_string,
             "require_token_string": require_token_string
         }
 
         res = BaseNeedAPIAuthData()
 
-        # apikey
+        # api_key
 
-        res.apikey_string = apikey_string
+        res.api_key_string = api_key_string
 
-        if not res.apikey_string and "api_key" in request.headers.keys():
-            res.apikey_string = request.headers["api_key"]
-        if not res.apikey_string and "apikey" in request.headers.keys():
-            res.apikey_string = request.headers["apikey"]
+        if not res.api_key_string and "api_key" in request.headers.keys():
+            res.api_key_string = request.headers["api_key"]
+        if not res.api_key_string and "api-key" in request.headers.keys():
+            res.api_key_string = request.headers["api-key"]
+        if not res.api_key_string and "apikey" in request.headers.keys():
+            res.api_key_string = request.headers["apikey"]
 
-        if not res.apikey_string and "apikey" in request.query_params.keys():
-            res.apikey_string = request.query_params["apikey"]
-        if not res.apikey_string and "api_key" in request.query_params.keys():
-            res.apikey_string = request.query_params["api_key"]
+        if not res.api_key_string and "api_key" in request.query_params.keys():
+            res.api_key_string = request.query_params["api_key"]
+        if not res.api_key_string and "api-key" in request.query_params.keys():
+            res.api_key_string = request.query_params["api-key"]
+        if not res.api_key_string and "apikey" in request.query_params.keys():
+            res.api_key_string = request.query_params["apikey"]
 
-        _error_data["res.apikey_string"] = res.apikey_string
+        _error_data["res.api_key_string"] = res.api_key_string
 
         # token
 
@@ -483,22 +487,22 @@ def base_need_api_auth(
         if not res.token_string and "token" in request.headers.keys():
             res.token_string = request.headers["token"]
 
+        if not res.token_string and "user_token" in request.headers.keys():
+            res.token_string = request.headers["user_token"]
+        if not res.token_string and "user-token" in request.headers.keys():
+            res.token_string = request.headers["user-token"]
+        if not res.token_string and "usertoken" in request.headers.keys():
+            res.token_string = request.headers["usertoken"]
+
         if not res.token_string and "token" in request.query_params.keys():
             res.token_string = request.query_params["token"]
 
-        if not res.token_string and "user_token" in request.headers.keys():
-            res.token_string = request.headers["user_token"]
-        if not res.token_string and "usertoken" in request.headers.keys():
-            res.token_string = request.headers["usertoken"]
-        if not res.token_string and "user-token" in request.headers.keys():
-            res.token_string = request.headers["user-token"]
-
         if not res.token_string and "user_token" in request.query_params.keys():
             res.token_string = request.query_params["user_token"]
-        if not res.token_string and "usertoken" in request.query_params.keys():
-            res.token_string = request.query_params["usertoken"]
         if not res.token_string and "user-token" in request.query_params.keys():
             res.token_string = request.query_params["user-token"]
+        if not res.token_string and "usertoken" in request.query_params.keys():
+            res.token_string = request.query_params["usertoken"]
 
         if res.token_string:
             res.token_string = res.token_string.strip()
@@ -507,7 +511,7 @@ def base_need_api_auth(
 
         _error_data["res.token_string"] = res.token_string
 
-        if require_apikey_string and not res.apikey_string:
+        if require_api_key_string and not res.api_key_string:
             raise APIException(
                 status_code=starlette.status.HTTP_401_UNAUTHORIZED,
                 error_code=ErrorSO.APIErrorCodes.cannot_authorize,

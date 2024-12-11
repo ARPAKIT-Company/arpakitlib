@@ -10,7 +10,7 @@ def command():
     app = create_fastapi_app()
 
     @app.get("/hello")
-    async def _(need_api_auth_data: BaseNeedAPIAuthData = Depends(base_need_api_auth(require_token_string=True, require_apikey_string=True))):
+    async def _(need_api_auth_data: BaseNeedAPIAuthData = Depends(base_need_api_auth(require_token_string=True, require_api_key_string=True))):
         pass
     uvicorn.run(app=app)
 
