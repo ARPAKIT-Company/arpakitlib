@@ -13,11 +13,13 @@ from typing import Any, Callable
 
 import fastapi.exceptions
 import fastapi.responses
+import fastapi.security
 import starlette.exceptions
 import starlette.requests
 import starlette.status
-from fastapi import FastAPI, APIRouter, Query
+from fastapi import FastAPI, APIRouter, Query, Security
 from fastapi.openapi.docs import get_swagger_ui_html, get_redoc_html
+from fastapi.security import APIKeyHeader
 from jaraco.context import suppress
 from pydantic import BaseModel, ConfigDict
 from starlette.middleware.cors import CORSMiddleware
@@ -430,6 +432,100 @@ def get_transmitted_api_data(request: starlette.requests.Request) -> BaseTransmi
     return request.app.state.transmitted_api_data
 
 
+class BaseNeedAPIAuthData(BaseModel):
+    model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True, from_attributes=True)
+
+    token_string: str | None = None
+    apikey_string: str | None = None
+
+
+def need_api_auth(
+        *,
+        require_apikey_string: bool = False,
+        require_token_string: bool = False,
+) -> Callable:
+    async def func(
+            *,
+            ac: fastapi.security.HTTPAuthorizationCredentials | None = fastapi.Security(
+                fastapi.security.HTTPBearer(auto_error=False)
+            ),
+            apikey_string: str | None = Security(APIKeyHeader(name="apikey", auto_error=False)),
+            request: fastapi.Request
+    ) -> BaseNeedAPIAuthData:
+
+        _error_data = {
+            "require_apikey_string": require_apikey_string,
+            "require_token_string": require_token_string
+        }
+
+        res = BaseNeedAPIAuthData()
+
+        # apikey
+
+        res.apikey_string = apikey_string
+
+        if not res.apikey_string and "api_key" in request.headers.keys():
+            res.apikey_string = request.headers["api_key"]
+        if not res.apikey_string and "apikey" in request.headers.keys():
+            res.apikey_string = request.headers["apikey"]
+
+        if not res.apikey_string and "apikey" in request.query_params.keys():
+            res.apikey_string = request.query_params["apikey"]
+        if not res.apikey_string and "api_key" in request.query_params.keys():
+            res.apikey_string = request.query_params["api_key"]
+
+        _error_data["res.apikey_string"] = res.apikey_string
+
+        # token
+
+        res.token_string = ac.credentials if ac and ac.credentials and ac.credentials.strip() else None
+
+        if not res.token_string and "token" in request.headers.keys():
+            res.token_string = request.headers["token"]
+
+        if not res.token_string and "token" in request.query_params.keys():
+            res.token_string = request.query_params["token"]
+
+        if not res.token_string and "user_token" in request.headers.keys():
+            res.token_string = request.headers["user_token"]
+        if not res.token_string and "usertoken" in request.headers.keys():
+            res.token_string = request.headers["usertoken"]
+        if not res.token_string and "user-token" in request.headers.keys():
+            res.token_string = request.headers["user-token"]
+
+        if not res.token_string and "user_token" in request.query_params.keys():
+            res.token_string = request.query_params["user_token"]
+        if not res.token_string and "usertoken" in request.query_params.keys():
+            res.token_string = request.query_params["usertoken"]
+        if not res.token_string and "user-token" in request.query_params.keys():
+            res.token_string = request.query_params["user-token"]
+
+        if res.token_string:
+            res.token_string = res.token_string.strip()
+        if not res.token_string:
+            res.token_string = None
+
+        _error_data["res.token_string"] = res.token_string
+
+        if require_apikey_string and not res.apikey_string:
+            raise APIException(
+                status_code=starlette.status.HTTP_401_UNAUTHORIZED,
+                error_code=ErrorSO.APIErrorCodes.cannot_authorize,
+                error_data=_error_data
+            )
+
+        if require_token_string and not res.token_string:
+            raise APIException(
+                status_code=starlette.status.HTTP_401_UNAUTHORIZED,
+                error_code=ErrorSO.APIErrorCodes.cannot_authorize,
+                error_data=_error_data
+            )
+
+        return res
+
+    return func
+
+
 def simple_api_router_for_testing():
     router = APIRouter(tags=["Testing"])
 
@@ -468,6 +564,12 @@ def simple_api_router_for_testing():
     return router
 
 
+_DEFAULT_CONTACT = {
+    "name": "arpakit",
+    "email": "support@arpakit.com"
+}
+
+
 def create_fastapi_app(
         *,
         title: str = "arpakitlib FastAPI",
@@ -477,8 +579,12 @@ def create_fastapi_app(
         startup_api_events: list[BaseStartupAPIEvent] | None = None,
         shutdown_api_events: list[BaseStartupAPIEvent] | None = None,
         transmitted_api_data: BaseTransmittedAPIData = BaseTransmittedAPIData(),
-        main_api_router: APIRouter = simple_api_router_for_testing()
+        main_api_router: APIRouter = simple_api_router_for_testing(),
+        contact: dict[str, Any] | None = None
 ):
+    if contact is None:
+        contact = _DEFAULT_CONTACT
+
     setup_normal_logging(log_filepath=log_filepath)
 
     if not startup_api_events:
@@ -494,7 +600,8 @@ def create_fastapi_app(
         redoc_url=None,
         openapi_url="/openapi",
         on_startup=[api_startup_event.async_on_startup for api_startup_event in startup_api_events],
-        on_shutdown=[api_shutdown_event.async_on_shutdown for api_shutdown_event in shutdown_api_events]
+        on_shutdown=[api_shutdown_event.async_on_shutdown for api_shutdown_event in shutdown_api_events],
+        contact=contact
     )
 
     app.state.transmitted_api_data = transmitted_api_data
