@@ -1,13 +1,15 @@
 # arpakit
 import asyncio
 import logging
-from datetime import timedelta
+from datetime import timedelta, datetime
 from typing import Any
 from uuid import uuid4
 
 from sqlalchemy import create_engine, QueuePool, text, func
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
 from sqlalchemy.orm.session import Session
+
+from arpakitlib.ar_datetime_util import now_utc_dt
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
 
@@ -78,9 +80,9 @@ class SQLAlchemyDB:
         self.engine.connect()
         self._logger.info("db conn is good")
 
-    def new_session(self) -> Session:
+    def new_session(self, **kwargs) -> Session:
         self.func_new_session_counter += 1
-        return self.sessionmaker(bind=self.engine)
+        return self.sessionmaker(**kwargs)
 
     def is_conn_good(self) -> bool:
         try:
@@ -103,6 +105,9 @@ class SQLAlchemyDB:
             while session.query(class_dbm).filter(class_dbm.long_id == res).first() is not None:
                 res = str(uuid4())
         return res
+
+    def generate_creation_dt(self) -> datetime:
+        return now_utc_dt()
 
 
 def __example():
