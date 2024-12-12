@@ -3,7 +3,7 @@
 import asyncio
 import hashlib
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Any
 
 import pytz
@@ -83,6 +83,10 @@ class ScheduleUUSTAPIClient:
             method="GET",
             params=combine_dicts(params, self.auth_params()),
             proxy_url_=self.api_proxy_url,
+            max_tries_=9,
+            timeout_=timedelta(seconds=15),
+            raise_for_status_=True,
+            headers=self.headers
         )
         json_data = await response.json()
         raise_for_type(json_data, dict)
