@@ -581,7 +581,7 @@ def create_fastapi_app(
         log_filepath: str | None = "./story.log",
         handle_exception_: Callable | None = create_handle_exception(),
         startup_api_events: list[BaseStartupAPIEvent] | None = None,
-        shutdown_api_events: list[BaseStartupAPIEvent] | None = None,
+        shutdown_api_events: list[BaseShutdownAPIEvent] | None = None,
         transmitted_api_data: BaseTransmittedAPIData = BaseTransmittedAPIData(),
         main_api_router: APIRouter = simple_api_router_for_testing(),
         contact: dict[str, Any] | None = None
