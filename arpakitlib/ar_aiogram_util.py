@@ -112,6 +112,10 @@ class WithFromCD(BaseCD, prefix="WithFromCD"):
     from_: Optional[str] = None
 
 
+class RemoveMessageCD(WithFromCD, prefix=generate_cd_prefix("RemoveMessageCD")):
+    pass
+
+
 class BadTgCommandFormat(BadCommandFormat):
     pass
 
@@ -318,7 +322,7 @@ class SimpleMiddleware(BaseMiddleware, ABC):
         self._logger = logging.getLogger(self.__class__.__name__)
 
 
-def create_tg_bot(*, tg_bot_token: str, tg_bot_proxy_url: str | None = None) -> Bot:
+def create_aiogram_tg_bot(*, tg_bot_token: str, tg_bot_proxy_url: str | None = None) -> Bot:
     session: AiohttpSession | None = None
     if tg_bot_proxy_url:
         session = AiohttpSession(proxy=tg_bot_proxy_url)
@@ -331,6 +335,7 @@ def create_tg_bot(*, tg_bot_token: str, tg_bot_proxy_url: str | None = None) -> 
         ),
         session=session
     )
+
     return tg_bot
 
 
