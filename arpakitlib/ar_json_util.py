@@ -22,6 +22,10 @@ def safely_transfer_to_json_str_to_json_obj(data: Union[dict[str, Any], list[Any
     return safely_transfer_to_json_obj(safely_transfer_to_json_str(data))
 
 
+def safely_transfer_to_json_obj_to_json_str(data: str) -> str:
+    return safely_transfer_to_json_str(safely_transfer_to_json_obj(data))
+
+
 def __example():
     pass
 

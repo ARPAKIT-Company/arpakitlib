@@ -1,8 +1,16 @@
+from typing import Union
+
 from pydantic import ConfigDict, field_validator
 from pydantic_settings import BaseSettings
 
 from arpakitlib.ar_enumeration_util import Enumeration
-from arpakitlib.ar_generate_env_example import generate_env_example
+
+
+def generate_env_example(settings_class: Union[BaseSettings, type[BaseSettings]]):
+    res = ""
+    for k in settings_class.model_fields:
+        res += f"{k}=\n"
+    return res
 
 
 class SimpleSettings(BaseSettings):
@@ -34,5 +42,5 @@ class SimpleSettings(BaseSettings):
         return self.mode_type == self.ModeTypes.prod
 
     @classmethod
-    def env_example(cls) -> str:
+    def generate_env_example(cls) -> str:
         return generate_env_example(settings_class=cls)
