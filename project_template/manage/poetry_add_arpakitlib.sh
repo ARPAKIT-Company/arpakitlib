@@ -1,0 +1,2 @@
+cd ..
+poetry add arpakitlibx
