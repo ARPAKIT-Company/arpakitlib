@@ -439,14 +439,14 @@ def get_transmitted_api_data(request: starlette.requests.Request) -> BaseTransmi
     return request.app.state.transmitted_api_data
 
 
-class BaseNeedAPIAuthData(BaseModel):
+class BaseAPIAuthData(BaseModel):
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True, from_attributes=True)
 
     token_string: str | None = None
     api_key_string: str | None = None
 
 
-def base_need_api_auth(
+def base_api_auth(
         *,
         require_api_key_string: bool = False,
         require_token_string: bool = False,
@@ -458,14 +458,14 @@ def base_need_api_auth(
             ),
             api_key_string: str | None = Security(APIKeyHeader(name="apikey", auto_error=False)),
             request: fastapi.Request
-    ) -> BaseNeedAPIAuthData:
+    ) -> BaseAPIAuthData:
 
         _error_data = {
             "require_api_key_string": require_api_key_string,
             "require_token_string": require_token_string
         }
 
-        res = BaseNeedAPIAuthData()
+        res = BaseAPIAuthData()
 
         # api_key
 
