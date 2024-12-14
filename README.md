@@ -32,11 +32,16 @@ pip install arpakitlib
 - https://pypi.org/project/arpakitlib/
 - https://test.pypi.org/project/arpakitlib/
 - https://github.com/ARPAKIT-Company/arpakitlib
+
+---
+
+### Contacts
+
 - https://t.me/arpakit
 - arpakit@gmail.com
 - support@arpakit.com
 
 ---
 
-## ❤️ Made with Care by arpakit ❤️
+## ❤️ Made with Care by ARPAKIT Company ❤️
 
