@@ -12,7 +12,7 @@ class SimpleSettings(BaseSettings):
         test: str = "preprod"
         prod: str = "prod"
 
-    mode_type: str
+    mode_type: str = ModeTypes.local
 
     @field_validator("mode_type")
     @classmethod
