@@ -38,5 +38,5 @@ pip install arpakitlib
 
 ---
 
-## ❤️ Made with Care by Arpakit ❤️
+## ❤️ Made with Care by arpakit ❤️
 
