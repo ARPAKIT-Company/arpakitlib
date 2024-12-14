@@ -12,10 +12,12 @@ from aiogram.enums import ChatType, ParseMode
 from aiogram.exceptions import AiogramError
 from aiogram.filters import CommandObject, Filter
 from aiogram.filters.callback_data import CallbackData
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from arpakitlib.ar_need_type_util import parse_need_type, NeedTypes
 from arpakitlib.ar_parse_command import BadCommandFormat, parse_command
+from arpakitlib.ar_settings_util import SimpleSettings
+from arpakitlib.ar_sqlalchemy_util import SQLAlchemyDB
 from arpakitlib.ar_type_util import raise_for_types, raise_for_type
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
@@ -320,6 +322,17 @@ class SimpleMiddleware(BaseMiddleware, ABC):
     def __init__(self):
         self.middleware_name = self.__class__.__name__
         self._logger = logging.getLogger(self.__class__.__name__)
+
+
+class BaseTransmittedTgBotData(BaseModel):
+    model_config = ConfigDict(extra="ignore", arbitrary_types_allowed=True, from_attributes=True)
+
+    tg_bot: Bot
+    settings: SimpleSettings | None = None
+
+
+class SimpleTransmittedTgBotData(BaseTransmittedTgBotData):
+    sqlalchemy_db: SQLAlchemyDB | None = None
 
 
 def create_aiogram_tg_bot(*, tg_bot_token: str, tg_bot_proxy_url: str | None = None) -> Bot:
