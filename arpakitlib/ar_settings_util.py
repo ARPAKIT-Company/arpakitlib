@@ -2,6 +2,7 @@ from pydantic import ConfigDict, field_validator
 from pydantic_settings import BaseSettings
 
 from arpakitlib.ar_enumeration_util import Enumeration
+from arpakitlib.ar_generate_env_example import generate_env_example
 
 
 class SimpleSettings(BaseSettings):
@@ -31,3 +32,7 @@ class SimpleSettings(BaseSettings):
     @property
     def is_mode_type_prod(self) -> bool:
         return self.mode_type == self.ModeTypes.prod
+
+    @classmethod
+    def env_example(cls) -> str:
+        return generate_env_example(settings_class=cls)
