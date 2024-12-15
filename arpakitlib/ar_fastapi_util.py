@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import multiprocessing
 import os.path
 import pathlib
 import threading
@@ -30,7 +31,6 @@ from arpakitlib.ar_dict_util import combine_dicts
 from arpakitlib.ar_enumeration_util import Enumeration
 from arpakitlib.ar_json_util import safely_transfer_to_json_str_to_json_obj
 from arpakitlib.ar_logging_util import setup_normal_logging
-from arpakitlib.ar_operation_execution_util import ExecuteOperationWorker
 from arpakitlib.ar_settings_util import SimpleSettings
 from arpakitlib.ar_sqlalchemy_model_util import StoryLogDBM
 from arpakitlib.ar_sqlalchemy_util import SQLAlchemyDB
@@ -403,26 +403,33 @@ class InitSqlalchemyDBStartupAPIEvent(BaseStartupAPIEvent):
         self.sqlalchemy_db.init()
 
 
-class SyncSafeRunWorkerStartupAPIEvent(BaseStartupAPIEvent):
-    def __init__(self, worker: BaseWorker):
+class SafeRunWorkerModes(Enumeration):
+    async_task = "async_task"
+    thread = "thread"
+    process = "process"
+
+
+class SafeRunWorkerStartupAPIEvent(BaseStartupAPIEvent):
+    def __init__(self, worker: BaseWorker, safe_run_mode: str):
         super().__init__()
         self.worker = worker
+        self.safe_run_mode = safe_run_mode
 
     def async_on_startup(self, *args, **kwargs):
-        thread = threading.Thread(
-            target=self.worker.sync_safe_run,
-            daemon=True
-        )
-        thread.start()
-
-
-class AsyncSafeRunWorkerStartupAPIEvent(BaseStartupAPIEvent):
-    def __init__(self, worker: BaseWorker):
-        super().__init__()
-        self.worker = worker
-
-    def async_on_startup(self, *args, **kwargs):
-        _ = asyncio.create_task(self.worker.async_safe_run())
+        if self.safe_run_mode == SafeRunWorkerModes.async_task:
+            _ = asyncio.create_task(self.worker.async_safe_run())
+        elif self.safe_run_mode == SafeRunWorkerModes.thread:
+            thread = threading.Thread(
+                target=self.worker.sync_safe_run,
+                daemon=True
+            )
+            thread.start()
+        elif self.safe_run_mode == SafeRunWorkerModes.process:
+            process = multiprocessing.Process(
+                target=self.worker.sync_safe_run,
+                daemon=True
+            )
+            process.start()
 
 
 class BaseTransmittedAPIData(BaseModel):
