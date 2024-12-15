@@ -417,7 +417,7 @@ class SyncSafeRunWorkerStartupAPIEvent(BaseStartupAPIEvent):
 
 
 class AsyncSafeRunWorkerStartupAPIEvent(BaseStartupAPIEvent):
-    def __init__(self, worker: ExecuteOperationWorker):
+    def __init__(self, worker: BaseWorker):
         super().__init__()
         self.worker = worker
 
