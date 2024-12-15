@@ -2,9 +2,8 @@ import json
 
 from arpakitlib.ar_arpakit_lib_module_util import get_arpakit_lib_modules
 
-_ARPAKIT_LIB_MODULE_VERSION = "1.5"
 
-if __name__ == '__main__':
+def __example():
     arpakit_lib_modules = get_arpakit_lib_modules()
 
     print("module_name_to_module_version big json")
@@ -34,3 +33,7 @@ if __name__ == '__main__':
     print()
 
     print(arpakit_lib_modules)
+
+
+if __name__ == '__main__':
+    __example()
