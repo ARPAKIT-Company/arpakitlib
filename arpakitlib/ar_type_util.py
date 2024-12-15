@@ -72,6 +72,12 @@ def raise_if_not_async_func(func: Any):
         raise TypeError(f"The provided function '{func.__name__}' is not an async function")
 
 
+def make_none_to_false(v: Any) -> Any:
+    if v is None:
+        return False
+    return v
+
+
 def __example():
     pass
 
