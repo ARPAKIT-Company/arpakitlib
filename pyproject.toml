@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "arpakitlib"
-version = "1.6.52"
+version = "1.6.53"
 description = "arpakitlib"
 authors = ["arpakit <arpakit@gmail.com>", "arpakit_support <support@arpakit.com>"]
 license = "Apache License 2.0"
@@ -48,6 +48,7 @@ celery = "^5.4.0"
 redis = "^5.2.0"
 alembic = "^1.14.0"
 twine = "^6.0.1"
+itsdangerous = "^2.2.0"
 
 [[tool.poetry.source]]
 name = "testpypi"
