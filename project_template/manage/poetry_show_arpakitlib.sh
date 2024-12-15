@@ -1,2 +1,2 @@
 cd ..
-poetry show arpakitlib
+poetry show arpakitlib --tree
