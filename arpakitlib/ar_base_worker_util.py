@@ -90,11 +90,41 @@ class BaseWorker(ABC):
 
 
 def __example():
-    pass
+    class TestWorker(BaseWorker):
+        def __init__(self, *, timeout_after_run: int, timeout_after_err_in_run: int):
+            super().__init__()
+            self.timeout_after_run = timedelta(seconds=timeout_after_run).total_seconds()
+            self.timeout_after_err_in_run = timedelta(hours=timeout_after_err_in_run).total_seconds()
+
+        def sync_run(self):
+            print("Sync worker started")
+
+            raise ValueError("example error in sync_run")
+
+        def sync_run_on_error(self, exception: BaseException, **kwargs):
+            print(f"Error in sync_run: {exception}")
+
+    worker = TestWorker(timeout_after_run=10, timeout_after_err_in_run=1)
+    worker.sync_safe_run()
 
 
 async def __async_example():
-    pass
+    class TestAsyncWorker(BaseWorker):
+        def __init__(self, *, timeout_after_run: int, timeout_after_err_in_run: int):
+            super().__init__()
+            self.timeout_after_run = timedelta(seconds=timeout_after_run).total_seconds()
+            self.timeout_after_err_in_run = timedelta(seconds=timeout_after_err_in_run).total_seconds()
+
+        async def async_run(self):
+            print("Async worker started")
+
+            raise ValueError("example error in async_run")
+
+        async def async_run_on_error(self, exception: BaseException, **kwargs):
+            print(f"Error in async_run: {exception}")
+
+    worker = TestAsyncWorker(timeout_after_run=1, timeout_after_err_in_run=10)
+    await worker.async_safe_run()
 
 
 if __name__ == '__main__':

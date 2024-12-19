@@ -37,7 +37,26 @@ def birth_date_to_age(*, birth_date: date, raise_if_age_negative: bool = False) 
 
 
 def __example():
-    pass
+    converted = convert_dt_tz(dt=datetime.now(), tz_info=pytz.timezone("Asia/Yekaterinburg"))
+    print("convert_dt_tz:", converted)
+
+    converted_to_utc = convert_dt_tz_to_utc(dt=datetime.now())
+    print("convert_dt_tz_to_utc:", converted_to_utc)
+
+    print("now_utc_dt:", now_utc_dt())
+
+    current_local = now_dt(pytz.timezone("Asia/Yekaterinburg"))
+    print("now_dt Asia/Yekaterinburg:", current_local)
+
+    birth_date = date(year=2002, month=1, day=25)
+    age = birth_date_to_age(birth_date=birth_date)
+    print("birth_date_to_age:", age)
+
+    future_birth_date = date(year=3000, month=1, day=25)
+    try:
+        birth_date_to_age(birth_date=future_birth_date, raise_if_age_negative=True)
+    except ValueError as e:
+        print("birth_date_to_age (future date):", e)
 
 
 if __name__ == '__main__':

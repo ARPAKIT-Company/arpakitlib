@@ -25,8 +25,13 @@ def convert_bytes_to_base64_string(bytes_: bytes, raise_for_error: bool = False)
 
 
 def __example():
-    pass
+    simple_bytes = b"Hello, World"
 
+    base64_string = convert_bytes_to_base64_string(simple_bytes)
+    print("convert_bytes_to_base64_string:", base64_string)
+
+    decoded = convert_base64_string_to_bytes(base64_string)
+    print("convert_base64_string_to_bytes:", decoded)
 
 if __name__ == '__main__':
     __example()
