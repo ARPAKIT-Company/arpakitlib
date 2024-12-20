@@ -56,11 +56,15 @@ async def async_safe_sleep(n: timedelta | float | int):
 
 
 def __example():
-    pass
+    print("sync hello in 2 seconds...")
+    sync_safe_sleep(n=timedelta(seconds=2))
+    print("sync hello world!")
 
 
 async def __async_example():
-    pass
+    print("async hello in 0.5 seconds...")
+    await async_safe_sleep(n=timedelta(seconds=0.5))
+    print("async hello world!")
 
 
 if __name__ == '__main__':
