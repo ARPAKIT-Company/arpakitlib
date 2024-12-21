@@ -1,0 +1,47 @@
+# extensions
+*.log
+*.crt
+*.key
+*.zip
+*.session-journal
+*.ignore
+ignore*
+*.session
+*.sqlite
+*_ardb.json
+
+# dirs
+media
+.idea
+.venv
+venv
+dist
+*_ardb
+.pytest_cache
+file_storage
+mongo_dumps
+__pycache__
+cache
+wgconfigs
+foo
+bar
+logs
+cache_dir
+cachedir
+config
+
+# concrete files
+.env
+.env_docker
+db.sqlite
+.env_test_prod
+.api_env
+./manage/Приложение_1.pdf
+./manage/Приложение_2.pdf
+./manage/СхемаРаботы.jpeg
+test.txt
+vk_config.v2.json
+.env_prod
+test.py
+test.sh
+playground.py
