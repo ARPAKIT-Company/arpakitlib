@@ -102,11 +102,26 @@ async def async_make_http_request(
 
 
 def __example():
-    pass
-
+    response = sync_make_http_request(
+        method="GET",
+        url="https://api.schedule-uust.arpakit.com/"
+    )
+    print(response.status_code)
 
 async def __async_example():
-    pass
+    response = await async_make_http_request(
+        method="GET",
+        url="https://api.schedule-uust.arpakit.com/"
+    )
+    print(response.status)
+
+    await async_make_http_request(
+        method="GET",
+        url="https://invalidurl.com",
+        max_tries_=1,
+        raise_for_status_=True,
+        timeout_=timedelta(seconds=5)
+    )
 
 
 if __name__ == '__main__':

@@ -27,7 +27,17 @@ def safely_transfer_to_json_obj_to_json_str(data: str) -> str:
 
 
 def __example():
-    pass
+    json_obj = safely_transfer_to_json_obj(data='{"key": "value"}')
+    print(f"safely_transfer_to_json_obj: {json_obj}")  # {'key': 'value'}
+
+    json_str = safely_transfer_to_json_str(data=json_obj)
+    print(f"safely_transfer_to_json_str:\n {json_str}")
+
+    json_obj = safely_transfer_to_json_str_to_json_obj(data=json_obj)
+    print(f"safely_transfer_to_json_str_to_json_obj: {json_obj}")
+
+    json_str = safely_transfer_to_json_obj_to_json_str(data='{"key": "value"}')
+    print(f"safely_transfer_to_json_obj_to_json_str: \n{json_str}")
 
 
 if __name__ == '__main__':

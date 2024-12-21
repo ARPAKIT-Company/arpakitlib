@@ -71,7 +71,25 @@ class Enumeration:
 
 
 def __example():
-    pass
+    class TestEnumeration(Enumeration):
+        VALUE1 = "hello"
+        VALUE2 = 100
+        VALUE3 = "world"
+
+    values_iterator = list(TestEnumeration.iter_values())
+    print("iter_values:", values_iterator)
+
+    values_set = TestEnumeration.values_set()
+    print("values_set:", values_set)
+
+    values_list = TestEnumeration.values_list()
+    print("values_list:", values_list)
+
+    parsed_values = TestEnumeration.parse_values("world", [66, "privet"])
+    print("parse_values:", parsed_values)
+
+    validated_values = TestEnumeration.parse_and_validate_values("world", [100, "hello"])
+    print("parse_and_validate_values:", validated_values)
 
 
 if __name__ == '__main__':
