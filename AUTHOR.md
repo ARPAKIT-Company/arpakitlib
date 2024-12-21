@@ -1,7 +1,5 @@
-# arpakitlib
+# Author
 
-### Contacts
-
-- https://t.me/arpakit
-- arpakit@gmail.com
+- arpakit.com
 - support@arpakit.com
+- arpakit@gmail.com
