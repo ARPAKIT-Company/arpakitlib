@@ -27,6 +27,7 @@ from starlette.staticfiles import StaticFiles
 from arpakitlib.ar_base_worker_util import BaseWorker
 from arpakitlib.ar_dict_util import combine_dicts
 from arpakitlib.ar_enumeration_util import Enumeration
+from arpakitlib.ar_file_storage_in_dir_util import FileStorageInDir
 from arpakitlib.ar_json_util import safely_transfer_to_json_str_to_json_obj
 from arpakitlib.ar_logging_util import setup_normal_logging
 from arpakitlib.ar_sqlalchemy_model_util import StoryLogDBM
@@ -396,18 +397,29 @@ class InitSqlalchemyDBStartupAPIEvent(BaseStartupAPIEvent):
         super().__init__()
         self.sqlalchemy_db = sqlalchemy_db
 
-    def async_on_startup(self, *args, **kwargs):
+    async def async_on_startup(self, *args, **kwargs):
         self.sqlalchemy_db.init()
 
 
 class SafeRunWorkerStartupAPIEvent(BaseStartupAPIEvent):
-    def __init__(self, worker: BaseWorker, safe_run_in_background_mode: str):
+    def __init__(self, workers: list[BaseWorker], safe_run_in_background_mode: str):
         super().__init__()
-        self.worker = worker
+        self.workers = workers
         self.safe_run_in_background_mode = safe_run_in_background_mode
 
-    def async_on_startup(self, *args, **kwargs):
-        self.worker.safe_run_in_background(safe_run_in_background_mode=self.safe_run_in_background_mode)
+    async def async_on_startup(self, *args, **kwargs):
+        for worker in self.workers:
+            _ = worker.safe_run_in_background(safe_run_in_background_mode=self.safe_run_in_background_mode)
+
+
+class InitFileStoragesInDir(BaseStartupAPIEvent):
+    def __init__(self, file_storages_in_dir: list[FileStorageInDir]):
+        super().__init__()
+        self.file_storages_in_dir = file_storages_in_dir
+
+    async def async_on_startup(self, *args, **kwargs):
+        for file_storage_in_dir in self.file_storages_in_dir:
+            file_storage_in_dir.init()
 
 
 class BaseTransmittedAPIData(BaseModel):
@@ -422,7 +434,7 @@ class BaseAPIAuthData(BaseModel):
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True, from_attributes=True)
 
     require_api_key_string: bool = False
-    require_token_string: bool = None
+    require_token_string: bool = False
 
     token_string: str | None = None
     api_key_string: str | None = None
