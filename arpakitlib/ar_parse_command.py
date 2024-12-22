@@ -77,7 +77,7 @@ def parse_command(text: str) -> ParsedCommand:
     if len(parts[0]) == 1:
         raise BadCommandFormat("len(parts[0]) == 1")
 
-    res = ParsedCommand(full_command=parts[0], command=os.path.basename(parts[0]))
+    res = ParsedCommand(full_command=parts[0], command=os.path.basename(parts[0]).removeprefix("/"))
 
     last_key: str | None = None
     for part in parts[1:]:
