@@ -8,6 +8,8 @@ from src.core.const import BASE_DIRPATH, ENV_FILEPATH
 
 
 class Settings(SimpleSettings):
+    # ...
+
     var_dirname: str = "var"
 
     var_dirpath: str = os.path.join(BASE_DIRPATH, var_dirname)
