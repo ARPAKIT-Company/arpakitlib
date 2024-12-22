@@ -29,7 +29,6 @@ from arpakitlib.ar_dict_util import combine_dicts
 from arpakitlib.ar_enumeration_util import Enumeration
 from arpakitlib.ar_json_util import safely_transfer_to_json_str_to_json_obj
 from arpakitlib.ar_logging_util import setup_normal_logging
-from arpakitlib.ar_settings_util import SimpleSettings
 from arpakitlib.ar_sqlalchemy_model_util import StoryLogDBM
 from arpakitlib.ar_sqlalchemy_util import SQLAlchemyDB
 from arpakitlib.ar_type_util import raise_for_type, raise_if_not_async_func
@@ -413,10 +412,6 @@ class SafeRunWorkerStartupAPIEvent(BaseStartupAPIEvent):
 
 class BaseTransmittedAPIData(BaseModel):
     model_config = ConfigDict(extra="ignore", arbitrary_types_allowed=True, from_attributes=True)
-
-
-class SimpleTransmittedAPIData(BaseTransmittedAPIData):
-    settings: SimpleSettings | None = None
 
 
 def get_transmitted_api_data(request: starlette.requests.Request) -> BaseTransmittedAPIData:
