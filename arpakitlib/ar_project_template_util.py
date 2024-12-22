@@ -15,7 +15,8 @@ def init_arpakit_project_template(
         project_dirpath: str,
         overwrite_if_exists: bool = False,
         project_name: str | None = None,
-        ignore_paths_startswith: list[str] | str | None = None
+        ignore_paths_startswith: list[str] | str | None = None,
+        only_paths_startswith: list[str] | str | None = None
 ):
     if project_name:
         project_name = project_name.strip()
@@ -26,17 +27,35 @@ def init_arpakit_project_template(
     if ignore_paths_startswith is None:
         ignore_paths_startswith = []
 
+    if isinstance(only_paths_startswith, str):
+        only_paths_startswith = [only_paths_startswith]
+    if only_paths_startswith is None:
+        only_paths_startswith = []
+
     def _generate_filepath_to_content() -> dict[str, str]:
-        arpakit_project_template_dirpath = os.path.abspath("_arpakit_project_template")
+        arpakit_project_template_dirpath = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), "_arpakit_project_template"
+        )
         res = {}
         for root, dirs, files in os.walk(arpakit_project_template_dirpath):
             dirs[:] = [d for d in dirs if d != '__pycache__']
             for file in files:
                 rel_path = os.path.relpath(os.path.join(root, file), arpakit_project_template_dirpath)
-                if any(rel_path.startswith(ignore_path) for ignore_path in ignore_paths_startswith):
-                    _logger.info(f"Ignoring file: {rel_path}")
+                if (
+                        ignore_paths_startswith
+                        and
+                        any(rel_path.startswith(ignore_path) for ignore_path in ignore_paths_startswith)
+                ):
+                    _logger.info(f"ignoring file: {rel_path}")
                     continue
-                with open(os.path.join(root, file), "r", encoding='utf-8') as _file:
+                if (
+                        only_paths_startswith
+                        and
+                        not any(rel_path.startswith(only_path) for only_path in only_paths_startswith)
+                ):
+                    _logger.info(f"ignoring file: {rel_path}")
+                    continue
+                with open(os.path.join(root, file), "r", encoding="utf-8") as _file:
                     _content = _file.read()
                 if project_name:
                     _content = _content.replace("{PROJECT_NAME}", project_name)

@@ -4,10 +4,8 @@ from __future__ import annotations
 
 import asyncio
 import logging
-import multiprocessing
 import os.path
 import pathlib
-import threading
 import traceback
 from datetime import datetime
 from typing import Any, Callable
@@ -403,33 +401,14 @@ class InitSqlalchemyDBStartupAPIEvent(BaseStartupAPIEvent):
         self.sqlalchemy_db.init()
 
 
-class SafeRunWorkerModes(Enumeration):
-    async_task = "async_task"
-    thread = "thread"
-    process = "process"
-
-
 class SafeRunWorkerStartupAPIEvent(BaseStartupAPIEvent):
-    def __init__(self, worker: BaseWorker, safe_run_mode: str):
+    def __init__(self, worker: BaseWorker, safe_run_in_background_mode: str):
         super().__init__()
         self.worker = worker
-        self.safe_run_mode = safe_run_mode
+        self.safe_run_in_background_mode = safe_run_in_background_mode
 
     def async_on_startup(self, *args, **kwargs):
-        if self.safe_run_mode == SafeRunWorkerModes.async_task:
-            _ = asyncio.create_task(self.worker.async_safe_run())
-        elif self.safe_run_mode == SafeRunWorkerModes.thread:
-            thread = threading.Thread(
-                target=self.worker.sync_safe_run,
-                daemon=True
-            )
-            thread.start()
-        elif self.safe_run_mode == SafeRunWorkerModes.process:
-            process = multiprocessing.Process(
-                target=self.worker.sync_safe_run,
-                daemon=True
-            )
-            process.start()
+        self.worker.safe_run_in_background(safe_run_in_background_mode=self.safe_run_in_background_mode)
 
 
 class BaseTransmittedAPIData(BaseModel):

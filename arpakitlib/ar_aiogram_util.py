@@ -293,7 +293,7 @@ def as_tg_command(
                                     f"Value (key={_param.key}, index={_param.index}) is required"
                                 )
                         else:
-                            value = parse_need_type(value=value, need_type=_param.need_type)
+                            value = parse_need_type(value=value, need_type=_param.need_type, allow_none=False)
 
                         kwargs[_param.key] = value
 

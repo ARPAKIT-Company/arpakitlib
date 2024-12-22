@@ -2,5 +2,5 @@
 
 ....
 
-## ❤️ Made with Care by ARPAKIT Company ❤️
+## ❤️ Made by ARPAKIT Company ❤️
 
