@@ -428,12 +428,10 @@ class BaseAPIAuthData(BaseModel):
     api_key_string: str | None = None
 
 
-def api_auth(
+def base_api_auth(
         *,
         require_api_key_string: bool = False,
-        require_token_string: bool = False,
-        api_key_string_validator: Callable | None = None,
-        token_string_validator: Callable | None = None,
+        require_token_string: bool = False
 ) -> Callable:
     async def func(
             *,
@@ -509,12 +507,6 @@ def api_auth(
                 error_code=ErrorSO.APIErrorCodes.cannot_authorize,
                 error_data=safely_transfer_to_json_str_to_json_obj(api_auth_data.model_dump())
             )
-
-        if api_key_string_validator is not None:
-            api_auth_data = api_key_string_validator(api_auth_data=api_auth_data)
-
-        if token_string_validator is not None:
-            api_auth_data = token_string_validator(api_auth_data=api_auth_data)
 
         return api_auth_data
 
