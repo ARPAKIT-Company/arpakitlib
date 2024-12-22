@@ -1,13 +1,12 @@
 [tool.poetry]
 name = "arpakitlib"
-version = "1.6.67"
+version = "1.6.68"
 description = "arpakitlib"
 authors = ["arpakit <arpakit@gmail.com>", "arpakit_support <support@arpakit.com>"]
 license = "Apache License 2.0"
 readme = "README.md"
+keywords = ["arpakitlib", "arpakit", "arpakit-company", "arpakitcompany", "arpakit_company"]
 package-mode = true
-repository = "https://github.com/ARPAKIT-Company/arpakitlib"
-keywords = ["arpakit", "arpakitlib", "arpakit-company", "arpakitcompany", "arpakit_company"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
@@ -15,9 +14,11 @@ classifiers = [
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.12.4",
     "Operating System :: OS Independent",
     "Topic :: Software Development :: Libraries"
 ]
+repository = "https://github.com/ARPAKIT-Company/arpakitlib"
 
 [tool.poetry.dependencies]
 python = "^3.12"
@@ -61,4 +62,4 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-arpakitlib = "arpakitlib._cli:cli"
+arpakitlib = "arpakitlib._ar_arpakitlib_cli:_arpakitlib_cli"

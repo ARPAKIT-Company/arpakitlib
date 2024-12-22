@@ -1,7 +1,6 @@
 # arpakit
 
 import shlex
-from typing import Optional
 
 from pydantic import BaseModel
 
@@ -40,8 +39,14 @@ class ParsedCommand(BaseModel):
     def values(self) -> list[str]:
         return [self.key_to_value[k] for k in self.keys]
 
-    def get_value_by_key(self, key: str) -> Optional[str]:
+    def get_value_by_key(self, key: str) -> str | None:
         return self.key_to_value.get(key)
+
+    def get_value_by_keys(self, keys: list[str]) -> str | None:
+        for key in keys:
+            if self.key_exists(key=key):
+                return self.get_value_by_key(key=key)
+        return None
 
     def key_exists(self, key: str) -> bool:
         return key in self.key_to_value.keys()
@@ -55,7 +60,7 @@ class ParsedCommand(BaseModel):
     def has_flag(self, flag: str) -> bool:
         return flag in self.flags
 
-    def get_value_by_index(self, index: int) -> Optional[str]:
+    def get_value_by_index(self, index: int) -> str | None:
         if index >= len(self.values_without_key):
             return None
         return self.values_without_key[index]
@@ -72,7 +77,7 @@ def parse_command(text: str) -> ParsedCommand:
 
     res = ParsedCommand(command=parts[0])
 
-    last_key: Optional[str] = None
+    last_key: str | None = None
     for part in parts[1:]:
         part = part.strip()
 

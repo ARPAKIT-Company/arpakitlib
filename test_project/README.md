@@ -1,4 +1,4 @@
-# {REPOSITORY_DIRNAME}
+# testing
 
 ....
 
