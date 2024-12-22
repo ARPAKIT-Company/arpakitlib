@@ -1,5 +1,5 @@
 # arpakit
-
+import os
 import shlex
 
 from pydantic import BaseModel
@@ -15,6 +15,7 @@ class BadCommandFormat(Exception):
 
 class ParsedCommand(BaseModel):
     command: str
+    full_command: str
     key_to_value: dict[str, str | None] = {}
     values_without_key: list[str] = []
 
@@ -76,7 +77,7 @@ def parse_command(text: str) -> ParsedCommand:
     if len(parts[0]) == 1:
         raise BadCommandFormat("len(parts[0]) == 1")
 
-    res = ParsedCommand(command=parts[0])
+    res = ParsedCommand(full_command=parts[0], command=os.path.basename(parts[0]))
 
     last_key: str | None = None
     for part in parts[1:]:
