@@ -38,7 +38,9 @@ def get_cached_dump_file_storage_in_dir() -> FileStorageInDir:
 
 
 def __example():
-    pass
+    get_cached_cache_file_storage_in_dir().init()
+    get_cached_media_file_storage_in_dir().init()
+    get_cached_dump_file_storage_in_dir().init()
 
 
 async def __async_example():

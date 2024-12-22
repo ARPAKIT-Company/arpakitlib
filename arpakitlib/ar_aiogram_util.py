@@ -327,11 +327,10 @@ class SimpleMiddleware(BaseMiddleware, ABC):
 class BaseTransmittedTgBotData(BaseModel):
     model_config = ConfigDict(extra="ignore", arbitrary_types_allowed=True, from_attributes=True)
 
-    tg_bot: Bot
-    settings: SimpleSettings | None = None
-
 
 class SimpleTransmittedTgBotData(BaseTransmittedTgBotData):
+    tg_bot: Bot
+    settings: SimpleSettings | None = None
     sqlalchemy_db: SQLAlchemyDB | None = None
 
 

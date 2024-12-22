@@ -414,10 +414,9 @@ class SafeRunWorkerStartupAPIEvent(BaseStartupAPIEvent):
 class BaseTransmittedAPIData(BaseModel):
     model_config = ConfigDict(extra="ignore", arbitrary_types_allowed=True, from_attributes=True)
 
-    settings: SimpleSettings | None = None
-
 
 class SimpleTransmittedAPIData(BaseTransmittedAPIData):
+    settings: SimpleSettings | None = None
     sqlalchemy_db: SQLAlchemyDB | None = None
 
 
