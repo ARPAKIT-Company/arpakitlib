@@ -3,7 +3,6 @@ import logging
 import os
 
 from arpakitlib.ar_file_util import raise_if_path_not_exists
-from arpakitlib.ar_logging_util import setup_normal_logging
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
 
@@ -11,7 +10,7 @@ _logger = logging.getLogger(__name__)
 
 
 def init_arpakit_project_template(
-        *, project_dirpath: str, remove_if_exists: bool = False, project_name: str = None
+        *, project_dirpath: str, remove_if_exists: bool = False, project_name: str | None = None
 ):
     if project_name:
         project_name = project_name.strip()
@@ -54,7 +53,3 @@ def init_arpakit_project_template(
         with open(target_file_filepath, "w", encoding="utf-8") as f:
             f.write(content)
         _logger.info(f"file was inited: {target_file_filepath}")
-
-
-setup_normal_logging()
-init_arpakit_project_template(project_dirpath="./test_project", remove_if_exists=True, project_name="testing")

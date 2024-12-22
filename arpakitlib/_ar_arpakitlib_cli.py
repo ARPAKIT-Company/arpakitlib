@@ -1,10 +1,12 @@
 # arpakit
+
 import logging
 import sys
 
 from arpakitlib.ar_need_type_util import parse_need_type, NeedTypes
 from arpakitlib.ar_parse_command import parse_command
 from arpakitlib.ar_project_template_util import init_arpakit_project_template
+from arpakitlib.ar_str_util import raise_if_string_blank
 
 _logger = logging.getLogger(__name__)
 
@@ -27,12 +29,12 @@ def _arpakitlib_cli(*, full_command: str):
         pass
 
     elif command == "init_arpakit_project_template":
-        project_dirpath = parsed_command.get_value_by_key(key="project_dirpath")
+        project_dirpath = raise_if_string_blank(parsed_command.get_value_by_keys(keys=["pd", "project_dirpath"]))
         remove_if_exists: bool = parse_need_type(
-            value=parsed_command.get_value_by_key(key="remove_if_exists"),
+            value=parsed_command.get_value_by_keys(keys=["rie", "remove_if_exists"]),
             need_type=NeedTypes.bool_
         )
-        project_name = parsed_command.get_value_by_key(key="project_name")
+        project_name = raise_if_string_blank(parsed_command.get_value_by_keys(keys=["pm", "project_name"]))
         init_arpakit_project_template(
             project_dirpath=project_dirpath, remove_if_exists=remove_if_exists, project_name=project_name
         )

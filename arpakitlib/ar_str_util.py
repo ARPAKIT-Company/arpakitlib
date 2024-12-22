@@ -73,6 +73,12 @@ def remove_tags_and_html(string: str) -> str:
     return remove_tags(remove_html(string))
 
 
+def raise_if_string_blank(string: str) -> str:
+    if not string:
+        raise ValueError("not string")
+    return string
+
+
 def __example():
     pass
 
