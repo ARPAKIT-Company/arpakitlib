@@ -134,7 +134,7 @@ class APIException(fastapi.exceptions.HTTPException):
         self.error_so = ErrorSO(
             has_error=True,
             error_code=self.error_code,
-            error_specification=self.error_code_specification,
+            error_code_specification=self.error_code_specification,
             error_description=self.error_description,
             error_data=self.error_data
         )
@@ -417,7 +417,6 @@ class BaseTransmittedAPIData(BaseModel):
 
 class SimpleTransmittedAPIData(BaseTransmittedAPIData):
     settings: SimpleSettings | None = None
-    sqlalchemy_db: SQLAlchemyDB | None = None
 
 
 def get_transmitted_api_data(request: starlette.requests.Request) -> BaseTransmittedAPIData:
