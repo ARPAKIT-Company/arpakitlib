@@ -67,6 +67,7 @@ class ParsedCommand(BaseModel):
 
 
 def parse_command(text: str) -> ParsedCommand:
+    text = text.removeprefix("/")
     text = " ".join([text_.strip() for text_ in text.split(" ") if text_.strip()]).strip()
 
     parts = shlex.split(text)
