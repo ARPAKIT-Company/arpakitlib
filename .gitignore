@@ -2,7 +2,6 @@
 *.log
 *.crt
 *.key
-*.zip
 *.session-journal
 *.ignore
 ignore*
@@ -13,6 +12,12 @@ ignore*
 # dirs
 media
 .idea
+var
+dump
+dump/*
+var/*
+cache/*
+media/*
 .venv
 venv
 dist
@@ -30,7 +35,7 @@ cache_dir
 cachedir
 config
 
-# concrete files
+# files
 .env
 .env_docker
 db.sqlite
@@ -45,3 +50,4 @@ vk_config.v2.json
 test.py
 test.sh
 playground.py
+story.log

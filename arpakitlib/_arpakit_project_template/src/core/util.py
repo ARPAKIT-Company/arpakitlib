@@ -19,6 +19,24 @@ def get_cache_file_storage_in_dir() -> FileStorageInDir:
     return create_cache_file_storage_in_dir()
 
 
+def create_media_file_storage_in_dir() -> FileStorageInDir:
+    return FileStorageInDir(dirpath=get_cached_settings().media_dirpath)
+
+
+@lru_cache()
+def get_media_file_storage_in_dir() -> FileStorageInDir:
+    return create_media_file_storage_in_dir()
+
+
+def create_dump_file_storage_in_dir() -> FileStorageInDir:
+    return FileStorageInDir(dirpath=get_cached_settings().dump_dirpath)
+
+
+@lru_cache()
+def get_dump_file_storage_in_dir() -> FileStorageInDir:
+    return create_dump_file_storage_in_dir()
+
+
 def __example():
     pass
 

@@ -8,13 +8,25 @@ from src.core.const import BASE_DIRPATH, ENV_FILEPATH
 
 
 class Settings(SimpleSettings):
+    var_dirname: str = "var"
+
+    var_dirpath: str = os.path.join(BASE_DIRPATH, var_dirname)
+
     log_filename: str = "story.log"
 
-    log_filepath: str = os.path.join(BASE_DIRPATH, log_filename)
+    log_filepath: str = os.path.join(var_dirpath, log_filename)
 
     cache_dirname: str = "cache"
 
-    cache_dirpath: str = os.path.join(BASE_DIRPATH, cache_dirname)
+    cache_dirpath: str = os.path.join(var_dirpath, cache_dirname)
+
+    media_dirname: str = "media"
+
+    media_dirpath: str = os.path.join(var_dirpath, media_dirname)
+
+    dump_dirname: str = "dump"
+
+    dump_dirpath: str = os.path.join(var_dirpath, dump_dirname)
 
 
 @lru_cache()

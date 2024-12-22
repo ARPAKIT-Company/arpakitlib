@@ -10,8 +10,11 @@ from arpakitlib.ar_enumeration_util import Enumeration
 
 def generate_env_example(settings_class: Union[BaseSettings, type[BaseSettings]]):
     res = ""
-    for k in settings_class.model_fields:
-        res += f"{k}=\n"
+    for k, f in settings_class.model_fields.items():
+        if f.default:
+            res += f"# {k}=\n"
+        else:
+            res += f"{k}=\n"
     return res
 
 
