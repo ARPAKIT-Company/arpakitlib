@@ -82,10 +82,10 @@ class ScheduleUUSTAPIClient:
         response = await async_make_http_request(
             method=method,
             url=url,
+            headers=self.headers,
             params=combine_dicts(params, self.auth_params()),
             proxy_url_=self.api_proxy_url,
-            raise_for_status_=True,
-            headers=self.headers
+            raise_for_status_=True
         )
         return response
 
