@@ -10,7 +10,6 @@ from sqlalchemy.orm import sessionmaker, DeclarativeBase
 from sqlalchemy.orm.session import Session
 
 from arpakitlib.ar_datetime_util import now_utc_dt
-from arpakitlib.ar_sqlalchemy_model_util import BaseDBM
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
 
@@ -30,7 +29,7 @@ class SQLAlchemyDB:
             echo: bool = False,
             need_include_operation_dbm: bool = False,
             need_include_story_dbm: bool = False,
-            models: list[BaseDBM] = None
+            models: list[Any] = None
     ):
         self._logger = logging.getLogger(self.__class__.__name__)
         self.need_include_operation_dbm = need_include_operation_dbm
