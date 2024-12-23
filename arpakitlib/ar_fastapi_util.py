@@ -579,7 +579,8 @@ def create_fastapi_app(
         shutdown_api_events: list[BaseShutdownAPIEvent] | None = None,
         transmitted_api_data: BaseTransmittedAPIData = BaseTransmittedAPIData(),
         main_api_router: APIRouter = simple_api_router_for_testing(),
-        contact: dict[str, Any] | None = None
+        contact: dict[str, Any] | None = None,
+        media_dirpath: str | None = None
 ):
     if contact is None:
         contact = _DEFAULT_CONTACT
@@ -602,6 +603,9 @@ def create_fastapi_app(
         on_shutdown=[api_shutdown_event.async_on_shutdown for api_shutdown_event in shutdown_api_events],
         contact=contact
     )
+
+    if media_dirpath is not None:
+        app.mount("/media", StaticFiles(directory=media_dirpath), name="media")
 
     app.state.transmitted_api_data = transmitted_api_data
 

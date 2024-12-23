@@ -76,11 +76,11 @@ class ScheduleUUSTAPIClient:
             self,
             *,
             url: str,
-            params: dict | None = None
+            params: dict[str, Any] | None = None
     ) -> dict[str, Any]:
         response = await async_make_http_request(
-            url=url,
             method="GET",
+            url=url,
             params=combine_dicts(params, self.auth_params()),
             proxy_url_=self.api_proxy_url,
             max_tries_=9,

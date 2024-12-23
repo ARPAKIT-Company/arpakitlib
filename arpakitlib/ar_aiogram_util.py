@@ -326,19 +326,20 @@ class BaseTransmittedTgBotData(BaseModel):
     model_config = ConfigDict(extra="ignore", arbitrary_types_allowed=True, from_attributes=True)
 
 
-def create_aiogram_tg_bot(*, tg_bot_token: str, tg_bot_proxy_url: str | None = None) -> Bot:
-    session: AiohttpSession | None = None
+def create_aiogram_tg_bot(*, tg_bot_token: str, tg_bot_proxy_url: str | None = None, **kwargs) -> Bot:
+    kwargs["token"] = tg_bot_token
+
     if tg_bot_proxy_url:
-        session = AiohttpSession(proxy=tg_bot_proxy_url)
-    tg_bot = Bot(
-        token=tg_bot_token,
-        default=DefaultBotProperties(
+        kwargs["session"] = AiohttpSession(proxy=tg_bot_proxy_url)
+
+    if kwargs.get("default") is None:
+        kwargs["default"] = DefaultBotProperties(
             parse_mode=ParseMode.HTML,
             disable_notification=False,
             link_preview_is_disabled=True
-        ),
-        session=session
-    )
+        )
+
+    tg_bot = Bot(**kwargs)
 
     return tg_bot
 
