@@ -3,6 +3,7 @@
 import asyncio
 import logging
 from datetime import timedelta
+from typing import Any
 
 import aiohttp
 import requests
@@ -20,6 +21,8 @@ def sync_make_http_request(
         *,
         method: str = "GET",
         url: str,
+        headers: dict[str, Any] | None = None,
+        params: dict[str, Any] | None = None,
         max_tries_: int = 9,
         proxy_url_: str | None = None,
         raise_for_status_: bool = False,
@@ -34,13 +37,17 @@ def sync_make_http_request(
 
     kwargs["method"] = method
     kwargs["url"] = url
-    if timeout_ is not None:
-        kwargs["timeout"] = timeout_.total_seconds()
+    if headers is not None:
+        kwargs["headers"] = headers
+    if params is not None:
+        kwargs["params"] = params
     if proxy_url_:
         kwargs["proxies"] = {
             "http": proxy_url_,
             "https": proxy_url_
         }
+    if timeout_ is not None:
+        kwargs["timeout"] = timeout_.total_seconds()
     if "allow_redirects" not in kwargs:
         kwargs["allow_redirects"] = True
 
@@ -64,6 +71,8 @@ async def async_make_http_request(
         *,
         method: str = "GET",
         url: str,
+        headers: dict[str, Any] | None = None,
+        params: dict[str, Any] | None = None,
         max_tries_: int = 9,
         proxy_url_: str | None = None,
         raise_for_status_: bool = False,
@@ -74,6 +83,10 @@ async def async_make_http_request(
 
     kwargs["method"] = method
     kwargs["url"] = url
+    if headers is not None:
+        kwargs["headers"] = headers
+    if params is not None:
+        kwargs["params"] = params
     if timeout_ is not None:
         kwargs["timeout"] = aiohttp.ClientTimeout(total=timeout_.total_seconds())
     if "allow_redirects" not in kwargs:

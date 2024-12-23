@@ -47,13 +47,17 @@ class DreamAIAPIClient:
             self.headers.update({"apikey": api_key})
 
     async def _async_make_http_request(
-            self, *, method: str = "GET", url: str, params: dict[str, Any] | None = None
+            self,
+            *,
+            method: str = "GET",
+            url: str,
+            params: dict[str, Any] | None = None
     ) -> ClientResponse:
         response = await async_make_http_request(
             method=method,
             url=url,
+            params=params,
             headers=self.headers,
-            params=params
         )
         response.raise_for_status()
         return response

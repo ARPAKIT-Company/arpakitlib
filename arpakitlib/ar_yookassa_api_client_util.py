@@ -42,7 +42,7 @@ class YookassaAPIClient:
         self.headers = {"Content-Type": "application/json"}
         self._logger = logging.getLogger(self.__class__.__name__)
 
-    def _sync_make_request(
+    def _sync_make_http_request(
             self,
             *,
             method: str,
@@ -53,10 +53,10 @@ class YookassaAPIClient:
             kwargs["headers"] = {}
         kwargs["headers"] = combine_dicts(self.headers, kwargs["headers"])
         kwargs["auth"] = (self.shop_id, self.secret_key)
-        kwargs["timeout_"] = timedelta(seconds=3)
         return sync_make_http_request(
             method=method,
             url=url,
+            timeout_=timedelta(seconds=3),
             **kwargs
         )
 
@@ -88,7 +88,7 @@ class YookassaAPIClient:
         if idempotence_key is None:
             idempotence_key = str(uuid.uuid4())
 
-        response = self._sync_make_request(
+        response = self._sync_make_http_request(
             method="POST",
             url="https://api.yookassa.ru/v3/payments",
             headers={"Idempotence-Key": idempotence_key},
@@ -104,7 +104,7 @@ class YookassaAPIClient:
     def sync_get_payment(self, payment_id: str) -> Optional[dict[str, Any]]:
         raise_for_type(payment_id, str)
 
-        response = self._sync_make_request(
+        response = self._sync_make_http_request(
             method="GET",
             url=f"https://api.yookassa.ru/v3/payments/{payment_id}",
             headers=self.headers
@@ -119,15 +119,21 @@ class YookassaAPIClient:
 
         return json_data
 
-    async def async_make_request(self, method: str, url: str, **kwargs) -> aiohttp.ClientResponse:
+    async def _async_make_http_request(
+            self,
+            *,
+            method: str = "GET",
+            url: str,
+            **kwargs
+    ) -> aiohttp.ClientResponse:
         if "headers" not in kwargs:
             kwargs["headers"] = {}
         kwargs["headers"] = combine_dicts(self.headers, kwargs["headers"])
         kwargs["auth"] = aiohttp.BasicAuth(login=str(self.shop_id), password=self.secret_key)
-        kwargs["timeout_"] = timedelta(seconds=3)
         return await async_make_http_request(
             method=method,
             url=url,
+            timeout_=timedelta(seconds=3),
             **kwargs
         )
 
@@ -157,7 +163,7 @@ class YookassaAPIClient:
         if idempotence_key is None:
             idempotence_key = str(uuid.uuid4())
 
-        response = await self.async_make_request(
+        response = await self._async_make_http_request(
             method="POST",
             url="https://api.yookassa.ru/v3/payments",
             headers={"Idempotence-Key": idempotence_key},
@@ -173,7 +179,7 @@ class YookassaAPIClient:
     async def async_get_payment(self, payment_id: str) -> Optional[dict[str, Any]]:
         raise_for_type(payment_id, str)
 
-        response = await self.async_make_request(
+        response = await self._async_make_http_request(
             method="GET",
             url=f"https://api.yookassa.ru/v3/payments/{payment_id}",
         )

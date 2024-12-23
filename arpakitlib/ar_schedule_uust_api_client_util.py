@@ -3,14 +3,14 @@
 import asyncio
 import hashlib
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Any
 
 import pytz
+from aiohttp import ClientResponse
 
 from arpakitlib.ar_dict_util import combine_dicts
 from arpakitlib.ar_http_request_util import async_make_http_request
-from arpakitlib.ar_type_util import raise_for_type
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
 
@@ -72,25 +72,22 @@ class ScheduleUUSTAPIClient:
     def generate_v2_token(self) -> str:
         return self.generate_new_v2_token(password_first_part=self.api_password_first_part)
 
-    async def _async_make_http_get_request(
+    async def _async_make_http_request(
             self,
             *,
+            method: str = "GET",
             url: str,
             params: dict[str, Any] | None = None
-    ) -> dict[str, Any]:
+    ) -> ClientResponse:
         response = await async_make_http_request(
-            method="GET",
+            method=method,
             url=url,
             params=combine_dicts(params, self.auth_params()),
             proxy_url_=self.api_proxy_url,
-            max_tries_=9,
-            timeout_=timedelta(seconds=15),
             raise_for_status_=True,
             headers=self.headers
         )
-        json_data = await response.json()
-        raise_for_type(json_data, dict)
-        return json_data
+        return response
 
     async def get_current_week(self) -> int:
         """
@@ -100,10 +97,11 @@ class ScheduleUUSTAPIClient:
         }
         """
 
-        json_data = await self._async_make_http_get_request(
+        response = await self._async_make_http_request(
             url=self.api_url,
             params={"ask": "get_current_week"}
         )
+        json_data = await response.json()
         return json_data["data"][0]
 
     async def get_current_semester(self) -> str:
@@ -114,10 +112,11 @@ class ScheduleUUSTAPIClient:
         }
         """
 
-        json_data = await self._async_make_http_get_request(
+        response = await self._async_make_http_request(
             url=self.api_url,
             params={"ask": "get_current_semestr"}
         )
+        json_data = await response.json()
         return json_data["data"][0]
 
     async def get_groups(self) -> list[dict[str, Any]]:
@@ -135,10 +134,11 @@ class ScheduleUUSTAPIClient:
         }
         """
 
-        json_data = await self._async_make_http_get_request(
+        response = await self._async_make_http_request(
             url=self.api_url,
             params={"ask": "get_group_list"}
         )
+        json_data = await response.json()
         return list(json_data["data"].values())
 
     async def get_group_lessons(self, group_id: int, semester: str | None = None) -> list[dict[str, Any]]:
@@ -148,27 +148,30 @@ class ScheduleUUSTAPIClient:
         }
         if semester is not None:
             params["semester"] = semester
-        json_data = await self._async_make_http_get_request(
+        response = await self._async_make_http_request(
             url=self.api_url,
             params=params
         )
+        json_data = await response.json()
         return json_data["data"]
 
     async def get_teachers(self) -> list[dict[str, Any]]:
-        json_data = await self._async_make_http_get_request(
+        response = await self._async_make_http_request(
             url=self.api_url,
             params={"ask": "get_teacher_list"}
         )
+        json_data = await response.json()
         return list(json_data["data"].values())
 
     async def get_teacher_lessons(self, teacher_id: int, semester: str | None = None) -> list[dict[str, Any]]:
         params = {"ask": "get_teacher_schedule", "id": teacher_id}
         if semester is not None:
             params["semester"] = semester
-        json_data = await self._async_make_http_get_request(
+        response = await self._async_make_http_request(
             url=self.api_url,
             params=params
         )
+        json_data = await response.json()
         return json_data["data"]
 
     async def check_conn(self):
