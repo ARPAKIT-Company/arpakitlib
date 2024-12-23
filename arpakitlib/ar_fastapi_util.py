@@ -605,6 +605,8 @@ def create_fastapi_app(
     )
 
     if media_dirpath is not None:
+        if not os.path.exists(media_dirpath):
+            os.makedirs(media_dirpath, exist_ok=True)
         app.mount("/media", StaticFiles(directory=media_dirpath), name="media")
 
     app.state.transmitted_api_data = transmitted_api_data
