@@ -59,7 +59,7 @@ def sync_make_http_request(
                 response.raise_for_status()
             return response
         except BaseException as exception:
-            _logger.warning(f"{tries_counter}/{max_tries_} {method} {url} {exception}")
+            _logger.warning(f"{tries_counter}/{max_tries_} {method} {url} {params}")
             if tries_counter >= max_tries_:
                 raise exception
             sync_safe_sleep(timedelta(seconds=0.1).total_seconds())
@@ -105,7 +105,7 @@ async def async_make_http_request(
                     await response.read()
                     return response
         except BaseException as exception:
-            _logger.warning(f"{tries_counter}/{max_tries_} {method} {url} {exception}")
+            _logger.warning(f"{tries_counter}/{max_tries_} {method} {url} {params}")
             if tries_counter >= max_tries_:
                 raise exception
             await async_safe_sleep(timedelta(seconds=0.1).total_seconds())
