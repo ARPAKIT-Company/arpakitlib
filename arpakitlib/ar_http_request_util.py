@@ -1,6 +1,7 @@
 # arpakit
 
 import asyncio
+import logging
 from datetime import timedelta
 from typing import Any
 
@@ -12,6 +13,8 @@ from arpakitlib.ar_sleep_util import sync_safe_sleep, async_safe_sleep
 from arpakitlib.ar_type_util import raise_for_type
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
+
+_logger = logging.getLogger(__name__)
 
 
 def sync_make_http_request(
@@ -56,6 +59,7 @@ def sync_make_http_request(
                 response.raise_for_status()
             return response
         except BaseException as exception:
+            _logger.warning(f"{tries_counter}/{max_tries_} {method} {url} {params}")
             if tries_counter >= max_tries_:
                 raise exception
             sync_safe_sleep(timedelta(seconds=0.1).total_seconds())
@@ -101,6 +105,7 @@ async def async_make_http_request(
                     await response.read()
                     return response
         except BaseException as exception:
+            _logger.warning(f"{tries_counter}/{max_tries_} {method} {url} {params}")
             if tries_counter >= max_tries_:
                 raise exception
             await async_safe_sleep(timedelta(seconds=0.1).total_seconds())
