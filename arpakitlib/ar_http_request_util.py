@@ -53,7 +53,6 @@ def sync_make_http_request(
 
     while True:
         tries_counter += 1
-        _logger.info(f"{method} {url} {kwargs.get('params')}")
         try:
             response = requests.request(**kwargs)
             if raise_for_status_:
@@ -98,7 +97,6 @@ async def async_make_http_request(
 
     while True:
         tries_counter += 1
-        _logger.info(f"{method} {url} {kwargs.get('params')}")
         try:
             async with aiohttp.ClientSession(connector=proxy_connector) as session:
                 async with session.request(**kwargs) as response:
