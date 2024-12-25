@@ -3,7 +3,7 @@
 import logging
 import os
 
-from arpakitlib.ar_str_util import make_none_if_blank
+from arpakitlib.ar_str_util import make_none_if_blank, raise_if_string_blank
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
 
@@ -18,6 +18,8 @@ def init_arpakit_project_template(
         ignore_paths_startswith: list[str] | str | None = None,
         only_paths_startswith: list[str] | str | None = None
 ):
+    raise_if_string_blank(project_dirpath)
+
     if project_name:
         project_name = project_name.strip()
     project_name = make_none_if_blank(project_name)

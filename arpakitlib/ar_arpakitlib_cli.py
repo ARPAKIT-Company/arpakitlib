@@ -5,7 +5,7 @@ import sys
 from arpakitlib.ar_need_type_util import parse_need_type, NeedTypes
 from arpakitlib.ar_parse_command import parse_command
 from arpakitlib.ar_project_template_util import init_arpakit_project_template
-from arpakitlib.ar_str_util import raise_if_blank
+from arpakitlib.ar_str_util import raise_if_string_blank
 
 
 def arpakitlib_cli(*, full_command: str | None = None):
@@ -29,13 +29,14 @@ def arpakitlib_cli(*, full_command: str | None = None):
         )
 
     elif command == "init_arpakit_project_template":
-        project_dirpath = raise_if_blank(parsed_command.get_value_by_keys(keys=["pd", "project_dirpath"]))
+        project_dirpath = raise_if_string_blank(parsed_command.get_value_by_keys(keys=["pd", "project_dirpath"]))
         overwrite_if_exists: bool = parse_need_type(
             value=parsed_command.get_value_by_keys(keys=["oie", "overwrite_if_exists"]),
             need_type=NeedTypes.bool_,
             allow_none=False
         )
         project_name: str = parsed_command.get_value_by_keys(keys=["pm", "project_name"])
+        project_name = project_name if project_name.strip() else None
         ignore_paths_startswith: list[str] | None = parse_need_type(
             value=parsed_command.get_value_by_keys(keys=["ipsw", "ignore_paths_startswith"]),
             need_type=NeedTypes.list_of_str,

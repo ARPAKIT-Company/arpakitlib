@@ -41,9 +41,6 @@ config
 db.sqlite
 .env_test_prod
 .api_env
-./manage/Приложение_1.pdf
-./manage/Приложение_2.pdf
-./manage/СхемаРаботы.jpeg
 test.txt
 vk_config.v2.json
 .env_prod

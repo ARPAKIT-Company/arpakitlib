@@ -1,8 +1,11 @@
 import asyncio
+import importlib
+from contextlib import suppress
 from functools import lru_cache
 
 from arpakitlib.ar_file_storage_in_dir_util import FileStorageInDir
 from arpakitlib.ar_logging_util import setup_normal_logging
+from arpakitlib.ar_sqlalchemy_util import SQLAlchemyDB
 from src.core.settings import get_cached_settings
 
 
@@ -37,10 +40,22 @@ def get_cached_dump_file_storage_in_dir() -> FileStorageInDir:
     return create_dump_file_storage_in_dir()
 
 
+def create_sqlalchemy_db() -> SQLAlchemyDB:
+    with suppress(Exception):
+        importlib.import_module("src.db.sqlalchemy_model")
+
+    return SQLAlchemyDB(
+        db_url=get_cached_settings().db_url,
+    )
+
+
+@lru_cache()
+def get_cached_sqlalchemy_db() -> SQLAlchemyDB:
+    return create_sqlalchemy_db()
+
+
 def __example():
-    get_cached_cache_file_storage_in_dir().init()
-    get_cached_media_file_storage_in_dir().init()
-    get_cached_dump_file_storage_in_dir().init()
+    pass
 
 
 async def __async_example():

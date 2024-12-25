@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "arpakitlib"
-version = "1.7.3"
+version = "1.7.4"
 description = "arpakitlib"
 authors = ["arpakit <arpakit@gmail.com>", "arpakit_support <support@arpakit.com>"]
 license = "Apache License 2.0"
@@ -38,10 +38,8 @@ pymongo = "^4.10.1"
 paramiko = "^3.5.0"
 asyncssh = "^2.18.0"
 aiohttp-socks = "^0.9.1"
-psycopg-binary = "^3.2.3"
 uvicorn = "^0.32.1"
 gunicorn = "^23.0.0"
-psycopg2-binary = "^2.9.10"
 sqladmin = "^0.20.1"
 asyncpg = "^0.30.0"
 celery = "^5.4.0"
@@ -53,6 +51,8 @@ email-validator = "^2.2.0"
 
 jupyter = "^1.1.1"
 matplotlib = "^3.10.0"
+openpyxl = "^3.1.5"
+psycopg2-binary = "^2.9.10"
 [[tool.poetry.source]]
 name = "testpypi"
 url = "https://test.pypi.org/legacy/"

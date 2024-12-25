@@ -30,6 +30,8 @@ class Settings(SimpleSettings):
 
     dump_dirpath: str = os.path.join(var_dirpath, dump_dirname)
 
+    db_url: str | None = "postgresql://cosmos:cosmos@localhost:5432/cosmos"
+
 
 @lru_cache()
 def get_cached_settings() -> Settings:
