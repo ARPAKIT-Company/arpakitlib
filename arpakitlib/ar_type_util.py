@@ -84,6 +84,20 @@ def raise_if_none(v: Any) -> Any:
     return v
 
 
+def dict_setted_elements(d: dict) -> dict:
+    setted_ = {}
+    for k, v in d.items():
+        if is_set(v):
+            setted_[k] = v
+    return setted_
+
+
+def dict_setted_keys(d: dict) -> list:
+    setted_ = dict_setted_elements(d)
+    
+    return setted_.keys()
+
+
 def __example():
     pass
 
