@@ -582,10 +582,10 @@ def create_fastapi_app(
         contact: dict[str, Any] | None = None,
         media_dirpath: str | None = None
 ):
+    setup_normal_logging(log_filepath=log_filepath)
+
     if contact is None:
         contact = _DEFAULT_CONTACT
-
-    setup_normal_logging(log_filepath=log_filepath)
 
     if not startup_api_events:
         startup_api_events = [BaseStartupAPIEvent()]
