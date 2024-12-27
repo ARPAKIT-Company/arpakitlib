@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "arpakitlib"
-version = "1.7.7"
+version = "1.7.8"
 description = "arpakitlib"
 authors = ["arpakit <arpakit@gmail.com>", "arpakit_support <support@arpakit.com>"]
 license = "Apache License 2.0"
@@ -64,4 +64,4 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-arpakitlib = "arpakitlib.ar_arpakitlib_cli:arpakitlib_cli"
+arpakitlib = "arpakitlib.ar_arpakitlib_cli_util:execute_arpakitlib_cli"

@@ -8,7 +8,7 @@ from arpakitlib.ar_project_template_util import init_arpakit_project_template
 from arpakitlib.ar_str_util import raise_if_string_blank
 
 
-def arpakitlib_cli(*, full_command: str | None = None):
+def execute_arpakitlib_cli(*, full_command: str | None = None):
     if full_command is None:
         full_command = " ".join(sys.argv)
 
@@ -57,4 +57,4 @@ def arpakitlib_cli(*, full_command: str | None = None):
 
 
 if __name__ == '__main__':
-    arpakitlib_cli(full_command="/arpakitlib -c help")
+    execute_arpakitlib_cli(full_command="/arpakitlib -c help")
