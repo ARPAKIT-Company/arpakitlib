@@ -4,10 +4,8 @@ from __future__ import annotations
 
 import asyncio
 import logging
-import multiprocessing
 import os.path
 import pathlib
-import threading
 import traceback
 from datetime import datetime
 from typing import Any, Callable
@@ -29,9 +27,9 @@ from starlette.staticfiles import StaticFiles
 from arpakitlib.ar_base_worker_util import BaseWorker
 from arpakitlib.ar_dict_util import combine_dicts
 from arpakitlib.ar_enumeration_util import Enumeration
+from arpakitlib.ar_file_storage_in_dir_util import FileStorageInDir
 from arpakitlib.ar_json_util import safely_transfer_to_json_str_to_json_obj
 from arpakitlib.ar_logging_util import setup_normal_logging
-from arpakitlib.ar_settings_util import SimpleSettings
 from arpakitlib.ar_sqlalchemy_model_util import StoryLogDBM
 from arpakitlib.ar_sqlalchemy_util import SQLAlchemyDB
 from arpakitlib.ar_type_util import raise_for_type, raise_if_not_async_func
@@ -136,7 +134,7 @@ class APIException(fastapi.exceptions.HTTPException):
         self.error_so = ErrorSO(
             has_error=True,
             error_code=self.error_code,
-            error_specification=self.error_code_specification,
+            error_code_specification=self.error_code_specification,
             error_description=self.error_description,
             error_data=self.error_data
         )
@@ -399,47 +397,33 @@ class InitSqlalchemyDBStartupAPIEvent(BaseStartupAPIEvent):
         super().__init__()
         self.sqlalchemy_db = sqlalchemy_db
 
-    def async_on_startup(self, *args, **kwargs):
+    async def async_on_startup(self, *args, **kwargs):
         self.sqlalchemy_db.init()
 
 
-class SafeRunWorkerModes(Enumeration):
-    async_task = "async_task"
-    thread = "thread"
-    process = "process"
-
-
 class SafeRunWorkerStartupAPIEvent(BaseStartupAPIEvent):
-    def __init__(self, worker: BaseWorker, safe_run_mode: str):
+    def __init__(self, workers: list[BaseWorker], safe_run_in_background_mode: str):
         super().__init__()
-        self.worker = worker
-        self.safe_run_mode = safe_run_mode
+        self.workers = workers
+        self.safe_run_in_background_mode = safe_run_in_background_mode
 
-    def async_on_startup(self, *args, **kwargs):
-        if self.safe_run_mode == SafeRunWorkerModes.async_task:
-            _ = asyncio.create_task(self.worker.async_safe_run())
-        elif self.safe_run_mode == SafeRunWorkerModes.thread:
-            thread = threading.Thread(
-                target=self.worker.sync_safe_run,
-                daemon=True
-            )
-            thread.start()
-        elif self.safe_run_mode == SafeRunWorkerModes.process:
-            process = multiprocessing.Process(
-                target=self.worker.sync_safe_run,
-                daemon=True
-            )
-            process.start()
+    async def async_on_startup(self, *args, **kwargs):
+        for worker in self.workers:
+            _ = worker.safe_run_in_background(safe_run_in_background_mode=self.safe_run_in_background_mode)
+
+
+class InitFileStoragesInDir(BaseStartupAPIEvent):
+    def __init__(self, file_storages_in_dir: list[FileStorageInDir]):
+        super().__init__()
+        self.file_storages_in_dir = file_storages_in_dir
+
+    async def async_on_startup(self, *args, **kwargs):
+        for file_storage_in_dir in self.file_storages_in_dir:
+            file_storage_in_dir.init()
 
 
 class BaseTransmittedAPIData(BaseModel):
     model_config = ConfigDict(extra="ignore", arbitrary_types_allowed=True, from_attributes=True)
-
-    settings: SimpleSettings | None = None
-
-
-class SimpleTransmittedAPIData(BaseTransmittedAPIData):
-    sqlalchemy_db: SQLAlchemyDB | None = None
 
 
 def get_transmitted_api_data(request: starlette.requests.Request) -> BaseTransmittedAPIData:
@@ -449,6 +433,9 @@ def get_transmitted_api_data(request: starlette.requests.Request) -> BaseTransmi
 class BaseAPIAuthData(BaseModel):
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True, from_attributes=True)
 
+    require_api_key_string: bool = False
+    require_token_string: bool = False
+
     token_string: str | None = None
     api_key_string: str | None = None
 
@@ -456,7 +443,7 @@ class BaseAPIAuthData(BaseModel):
 def base_api_auth(
         *,
         require_api_key_string: bool = False,
-        require_token_string: bool = False,
+        require_token_string: bool = False
 ) -> Callable:
     async def func(
             *,
@@ -467,79 +454,73 @@ def base_api_auth(
             request: fastapi.Request
     ) -> BaseAPIAuthData:
 
-        _error_data = {
-            "require_api_key_string": require_api_key_string,
-            "require_token_string": require_token_string
-        }
-
-        res = BaseAPIAuthData()
+        api_auth_data = BaseAPIAuthData(
+            require_api_key_string=require_api_key_string,
+            require_token_string=require_token_string
+        )
 
         # api_key
 
-        res.api_key_string = api_key_string
+        api_auth_data.api_key_string = api_key_string
 
-        if not res.api_key_string and "api_key" in request.headers.keys():
-            res.api_key_string = request.headers["api_key"]
-        if not res.api_key_string and "api-key" in request.headers.keys():
-            res.api_key_string = request.headers["api-key"]
-        if not res.api_key_string and "apikey" in request.headers.keys():
-            res.api_key_string = request.headers["apikey"]
+        if not api_auth_data.api_key_string and "api_key" in request.headers.keys():
+            api_auth_data.api_key_string = request.headers["api_key"]
+        if not api_auth_data.api_key_string and "api-key" in request.headers.keys():
+            api_auth_data.api_key_string = request.headers["api-key"]
+        if not api_auth_data.api_key_string and "apikey" in request.headers.keys():
+            api_auth_data.api_key_string = request.headers["apikey"]
 
-        if not res.api_key_string and "api_key" in request.query_params.keys():
-            res.api_key_string = request.query_params["api_key"]
-        if not res.api_key_string and "api-key" in request.query_params.keys():
-            res.api_key_string = request.query_params["api-key"]
-        if not res.api_key_string and "apikey" in request.query_params.keys():
-            res.api_key_string = request.query_params["apikey"]
-
-        _error_data["res.api_key_string"] = res.api_key_string
+        if not api_auth_data.api_key_string and "api_key" in request.query_params.keys():
+            api_auth_data.api_key_string = request.query_params["api_key"]
+        if not api_auth_data.api_key_string and "api-key" in request.query_params.keys():
+            api_auth_data.api_key_string = request.query_params["api-key"]
+        if not api_auth_data.api_key_string and "apikey" in request.query_params.keys():
+            api_auth_data.api_key_string = request.query_params["apikey"]
 
         # token
 
-        res.token_string = ac.credentials if ac and ac.credentials and ac.credentials.strip() else None
+        api_auth_data.token_string = ac.credentials if ac and ac.credentials and ac.credentials.strip() else None
 
-        if not res.token_string and "token" in request.headers.keys():
-            res.token_string = request.headers["token"]
+        if not api_auth_data.token_string and "token" in request.headers.keys():
+            api_auth_data.token_string = request.headers["token"]
 
-        if not res.token_string and "user_token" in request.headers.keys():
-            res.token_string = request.headers["user_token"]
-        if not res.token_string and "user-token" in request.headers.keys():
-            res.token_string = request.headers["user-token"]
-        if not res.token_string and "usertoken" in request.headers.keys():
-            res.token_string = request.headers["usertoken"]
+        if not api_auth_data.token_string and "user_token" in request.headers.keys():
+            api_auth_data.token_string = request.headers["user_token"]
+        if not api_auth_data.token_string and "user-token" in request.headers.keys():
+            api_auth_data.token_string = request.headers["user-token"]
+        if not api_auth_data.token_string and "usertoken" in request.headers.keys():
+            api_auth_data.token_string = request.headers["usertoken"]
 
-        if not res.token_string and "token" in request.query_params.keys():
-            res.token_string = request.query_params["token"]
+        if not api_auth_data.token_string and "token" in request.query_params.keys():
+            api_auth_data.token_string = request.query_params["token"]
 
-        if not res.token_string and "user_token" in request.query_params.keys():
-            res.token_string = request.query_params["user_token"]
-        if not res.token_string and "user-token" in request.query_params.keys():
-            res.token_string = request.query_params["user-token"]
-        if not res.token_string and "usertoken" in request.query_params.keys():
-            res.token_string = request.query_params["usertoken"]
+        if not api_auth_data.token_string and "user_token" in request.query_params.keys():
+            api_auth_data.token_string = request.query_params["user_token"]
+        if not api_auth_data.token_string and "user-token" in request.query_params.keys():
+            api_auth_data.token_string = request.query_params["user-token"]
+        if not api_auth_data.token_string and "usertoken" in request.query_params.keys():
+            api_auth_data.token_string = request.query_params["usertoken"]
 
-        if res.token_string:
-            res.token_string = res.token_string.strip()
-        if not res.token_string:
-            res.token_string = None
+        if api_auth_data.token_string:
+            api_auth_data.token_string = api_auth_data.token_string.strip()
+        if not api_auth_data.token_string:
+            api_auth_data.token_string = None
 
-        _error_data["res.token_string"] = res.token_string
-
-        if require_api_key_string and not res.api_key_string:
+        if require_api_key_string and not api_auth_data.api_key_string:
             raise APIException(
                 status_code=starlette.status.HTTP_401_UNAUTHORIZED,
                 error_code=ErrorSO.APIErrorCodes.cannot_authorize,
-                error_data=_error_data
+                error_data=safely_transfer_to_json_str_to_json_obj(api_auth_data.model_dump())
             )
 
-        if require_token_string and not res.token_string:
+        if require_token_string and not api_auth_data.token_string:
             raise APIException(
                 status_code=starlette.status.HTTP_401_UNAUTHORIZED,
                 error_code=ErrorSO.APIErrorCodes.cannot_authorize,
-                error_data=_error_data
+                error_data=safely_transfer_to_json_str_to_json_obj(api_auth_data.model_dump())
             )
 
-        return res
+        return api_auth_data
 
     return func
 
@@ -598,12 +579,13 @@ def create_fastapi_app(
         shutdown_api_events: list[BaseShutdownAPIEvent] | None = None,
         transmitted_api_data: BaseTransmittedAPIData = BaseTransmittedAPIData(),
         main_api_router: APIRouter = simple_api_router_for_testing(),
-        contact: dict[str, Any] | None = None
+        contact: dict[str, Any] | None = None,
+        media_dirpath: str | None = None
 ):
+    setup_normal_logging(log_filepath=log_filepath)
+
     if contact is None:
         contact = _DEFAULT_CONTACT
-
-    setup_normal_logging(log_filepath=log_filepath)
 
     if not startup_api_events:
         startup_api_events = [BaseStartupAPIEvent()]
@@ -621,6 +603,11 @@ def create_fastapi_app(
         on_shutdown=[api_shutdown_event.async_on_shutdown for api_shutdown_event in shutdown_api_events],
         contact=contact
     )
+
+    if media_dirpath is not None:
+        if not os.path.exists(media_dirpath):
+            os.makedirs(media_dirpath, exist_ok=True)
+        app.mount("/media", StaticFiles(directory=media_dirpath), name="media")
 
     app.state.transmitted_api_data = transmitted_api_data
 

@@ -1,7 +1,6 @@
 # arpakit
 
 import asyncio
-import logging
 import math
 from time import sleep
 
@@ -9,12 +8,8 @@ from asyncpg.pgproto.pgproto import timedelta
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
 
-_logger = logging.getLogger(__name__)
-
 
 def sync_safe_sleep(n: timedelta | float | int):
-    _logger.info(f"sync_safe_sleep ({n}) starts")
-
     if isinstance(n, timedelta):
         n = n.total_seconds()
     elif isinstance(n, int):
@@ -31,12 +26,8 @@ def sync_safe_sleep(n: timedelta | float | int):
         sleep(1)
     sleep(frac)
 
-    _logger.info(f"sync_safe_sleep ({n}) ends")
-
 
 async def async_safe_sleep(n: timedelta | float | int):
-    _logger.info(f"async_safe_sleep ({n}) starts")
-
     if isinstance(n, timedelta):
         n = n.total_seconds()
     elif isinstance(n, int):
@@ -48,11 +39,7 @@ async def async_safe_sleep(n: timedelta | float | int):
 
     n: float = n
 
-    _logger.info(f"sleep_time ({n}) starts")
     await asyncio.sleep(n)
-    _logger.info(f"sleep_time ({n}) ends")
-
-    _logger.info(f"async_safe_sleep ({n}) ends")
 
 
 def __example():

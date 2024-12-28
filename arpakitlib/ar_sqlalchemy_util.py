@@ -28,7 +28,8 @@ class SQLAlchemyDB:
             db_url: str = "postgresql://arpakitlib:arpakitlib@localhost:50629/arpakitlib",
             echo: bool = False,
             need_include_operation_dbm: bool = False,
-            need_include_story_dbm: bool = False
+            need_include_story_dbm: bool = False,
+            db_models: list[Any] | None = None
     ):
         self._logger = logging.getLogger(self.__class__.__name__)
         self.need_include_operation_dbm = need_include_operation_dbm

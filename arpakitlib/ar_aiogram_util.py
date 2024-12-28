@@ -16,8 +16,6 @@ from pydantic import BaseModel, ConfigDict
 
 from arpakitlib.ar_need_type_util import parse_need_type, NeedTypes
 from arpakitlib.ar_parse_command import BadCommandFormat, parse_command
-from arpakitlib.ar_settings_util import SimpleSettings
-from arpakitlib.ar_sqlalchemy_util import SQLAlchemyDB
 from arpakitlib.ar_type_util import raise_for_types, raise_for_type
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
@@ -293,7 +291,7 @@ def as_tg_command(
                                     f"Value (key={_param.key}, index={_param.index}) is required"
                                 )
                         else:
-                            value = parse_need_type(value=value, need_type=_param.need_type)
+                            value = parse_need_type(value=value, need_type=_param.need_type, allow_none=False)
 
                         kwargs[_param.key] = value
 
@@ -327,27 +325,21 @@ class SimpleMiddleware(BaseMiddleware, ABC):
 class BaseTransmittedTgBotData(BaseModel):
     model_config = ConfigDict(extra="ignore", arbitrary_types_allowed=True, from_attributes=True)
 
-    tg_bot: Bot
-    settings: SimpleSettings | None = None
 
+def create_aiogram_tg_bot(*, tg_bot_token: str, tg_bot_proxy_url: str | None = None, **kwargs) -> Bot:
+    kwargs["token"] = tg_bot_token
 
-class SimpleTransmittedTgBotData(BaseTransmittedTgBotData):
-    sqlalchemy_db: SQLAlchemyDB | None = None
-
-
-def create_aiogram_tg_bot(*, tg_bot_token: str, tg_bot_proxy_url: str | None = None) -> Bot:
-    session: AiohttpSession | None = None
     if tg_bot_proxy_url:
-        session = AiohttpSession(proxy=tg_bot_proxy_url)
-    tg_bot = Bot(
-        token=tg_bot_token,
-        default=DefaultBotProperties(
+        kwargs["session"] = AiohttpSession(proxy=tg_bot_proxy_url)
+
+    if kwargs.get("default") is None:
+        kwargs["default"] = DefaultBotProperties(
             parse_mode=ParseMode.HTML,
             disable_notification=False,
             link_preview_is_disabled=True
-        ),
-        session=session
-    )
+        )
+
+    tg_bot = Bot(**kwargs)
 
     return tg_bot
 

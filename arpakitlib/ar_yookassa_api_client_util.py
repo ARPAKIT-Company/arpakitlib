@@ -40,30 +40,29 @@ class YookassaAPIClient:
         self.secret_key = secret_key
         self.shop_id = shop_id
         self.headers = {"Content-Type": "application/json"}
+        self.timeout_ = timedelta(seconds=3)
         self._logger = logging.getLogger(self.__class__.__name__)
 
-    def _sync_make_request(
+    def _sync_make_http_request(
             self,
             *,
             method: str,
             url: str,
+            headers: dict[str, Any] | None = None,
             **kwargs
     ) -> requests.Response:
-        if "headers" not in kwargs:
-            kwargs["headers"] = {}
-        kwargs["headers"] = combine_dicts(self.headers, kwargs["headers"])
-        kwargs["auth"] = (self.shop_id, self.secret_key)
-        kwargs["timeout_"] = timedelta(seconds=3)
         return sync_make_http_request(
             method=method,
             url=url,
+            headers=combine_dicts(self.headers, (headers if headers is not None else {})),
+            timeout_=self.timeout_,
+            auth=(self.shop_id, self.secret_key),
             **kwargs
         )
 
     def sync_create_payment(
             self,
-            json_body: dict[str, Any],
-            idempotence_key: Optional[str] = None
+            json_body: dict[str, Any]
     ) -> dict[str, Any]:
 
         """
@@ -85,54 +84,48 @@ class YookassaAPIClient:
         }
         """
 
-        if idempotence_key is None:
-            idempotence_key = str(uuid.uuid4())
-
-        response = self._sync_make_request(
+        response = self._sync_make_http_request(
             method="POST",
             url="https://api.yookassa.ru/v3/payments",
-            headers={"Idempotence-Key": idempotence_key},
+            headers={"Idempotence-Key": str(uuid.uuid4())},
             json=json_body,
         )
-
         json_data = response.json()
-
         response.raise_for_status()
-
         return json_data
 
-    def sync_get_payment(self, payment_id: str) -> Optional[dict[str, Any]]:
+    def sync_get_payment(self, payment_id: str) -> dict[str, Any] | None:
         raise_for_type(payment_id, str)
-
-        response = self._sync_make_request(
+        response = self._sync_make_http_request(
             method="GET",
             url=f"https://api.yookassa.ru/v3/payments/{payment_id}",
             headers=self.headers
         )
-
         json_data = response.json()
-
         if response.status_code == 404:
             return None
-
         response.raise_for_status()
-
         return json_data
 
-    async def async_make_request(self, method: str, url: str, **kwargs) -> aiohttp.ClientResponse:
-        if "headers" not in kwargs:
-            kwargs["headers"] = {}
-        kwargs["headers"] = combine_dicts(self.headers, kwargs["headers"])
-        kwargs["auth"] = aiohttp.BasicAuth(login=str(self.shop_id), password=self.secret_key)
-        kwargs["timeout_"] = timedelta(seconds=3)
+    async def _async_make_http_request(
+            self,
+            *,
+            method: str = "GET",
+            url: str,
+            headers: dict[str, Any] | None = None,
+            **kwargs
+    ) -> aiohttp.ClientResponse:
         return await async_make_http_request(
             method=method,
             url=url,
+            headers=combine_dicts(self.headers, (headers if headers is not None else {})),
+            timeout_=self.timeout_,
+            auth=aiohttp.BasicAuth(login=str(self.shop_id), password=self.secret_key),
             **kwargs
         )
 
     async def async_create_payment(
-            self, json_body: dict[str, Any], idempotence_key: Optional[str] = None
+            self, json_body: dict[str, Any]
     ) -> dict[str, Any]:
 
         """
@@ -154,37 +147,26 @@ class YookassaAPIClient:
         }
         """
 
-        if idempotence_key is None:
-            idempotence_key = str(uuid.uuid4())
-
-        response = await self.async_make_request(
+        response = await self._async_make_http_request(
             method="POST",
             url="https://api.yookassa.ru/v3/payments",
-            headers={"Idempotence-Key": idempotence_key},
+            headers={"Idempotence-Key": str(uuid.uuid4())},
             json=json_body,
         )
-
         json_data = await response.json()
-
         response.raise_for_status()
-
         return json_data
 
     async def async_get_payment(self, payment_id: str) -> Optional[dict[str, Any]]:
         raise_for_type(payment_id, str)
-
-        response = await self.async_make_request(
+        response = await self._async_make_http_request(
             method="GET",
             url=f"https://api.yookassa.ru/v3/payments/{payment_id}",
         )
-
         json_data = await response.json()
-
         if response.status == 404:
             return None
-
         response.raise_for_status()
-
         return json_data
 
 

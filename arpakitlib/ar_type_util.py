@@ -78,6 +78,12 @@ def make_none_to_false(v: Any) -> Any:
     return v
 
 
+def raise_if_none(v: Any) -> Any:
+    if v is None:
+        raise ValueError(f"v is None, v={v}")
+    return v
+
+
 def __example():
     print("is_set:")
     print(is_set(v=NotSet))  # False

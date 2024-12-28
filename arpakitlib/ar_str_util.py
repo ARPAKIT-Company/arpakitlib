@@ -52,9 +52,15 @@ def bidirectional_str_startswith(string1: str, string2: str, max_diff: Optional[
     return False
 
 
-def blank_if_none(string: Optional[str] = None) -> str:
+def make_blank_if_none(string: Optional[str] = None) -> str:
     if string is None:
         return ""
+    return string
+
+
+def make_none_if_blank(string: Optional[str] = None) -> str | None:
+    if not string:
+        return None
     return string
 
 
@@ -71,6 +77,12 @@ def remove_tags(string: str) -> str:
 def remove_tags_and_html(string: str) -> str:
     raise_for_type(string, str)
     return remove_tags(remove_html(string))
+
+
+def raise_if_string_blank(string: str) -> str:
+    if not string:
+        raise ValueError("not string")
+    return string
 
 
 def __example():

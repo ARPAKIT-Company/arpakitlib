@@ -1,9 +1,10 @@
 # arpakit
-
+import os
 import shlex
-from typing import Optional
 
 from pydantic import BaseModel
+
+from arpakitlib.ar_enumeration_util import ValuesForParseType
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
 
@@ -14,8 +15,18 @@ class BadCommandFormat(Exception):
 
 class ParsedCommand(BaseModel):
     command: str
-    key_to_value: dict[str, Optional[str]] = {}
+    full_command: str
+    key_to_value: dict[str, str | None] = {}
     values_without_key: list[str] = []
+
+    def raise_for_command(self, needed_command: str, lower_: bool = True):
+        needed_command = needed_command.strip()
+
+        if (
+                (self.command.lower() if lower_ else self.command)
+                != (needed_command.lower() if lower_ else needed_command)
+        ):
+            raise ValuesForParseType(f"needed_command != {self.command}, lower_={lower_}")
 
     @property
     def keys(self) -> list[str]:
@@ -29,8 +40,14 @@ class ParsedCommand(BaseModel):
     def values(self) -> list[str]:
         return [self.key_to_value[k] for k in self.keys]
 
-    def get_value_by_key(self, key: str) -> Optional[str]:
+    def get_value_by_key(self, key: str) -> str | None:
         return self.key_to_value.get(key)
+
+    def get_value_by_keys(self, keys: list[str]) -> str | None:
+        for key in keys:
+            if self.key_exists(key=key):
+                return self.get_value_by_key(key=key)
+        return None
 
     def key_exists(self, key: str) -> bool:
         return key in self.key_to_value.keys()
@@ -44,13 +61,14 @@ class ParsedCommand(BaseModel):
     def has_flag(self, flag: str) -> bool:
         return flag in self.flags
 
-    def get_value_by_index(self, index: int) -> Optional[str]:
+    def get_value_by_index(self, index: int) -> str | None:
         if index >= len(self.values_without_key):
             return None
         return self.values_without_key[index]
 
 
 def parse_command(text: str) -> ParsedCommand:
+    text = text.removeprefix("/")
     text = " ".join([text_.strip() for text_ in text.split(" ") if text_.strip()]).strip()
 
     parts = shlex.split(text)
@@ -59,9 +77,9 @@ def parse_command(text: str) -> ParsedCommand:
     if len(parts[0]) == 1:
         raise BadCommandFormat("len(parts[0]) == 1")
 
-    res = ParsedCommand(command=parts[0])
+    res = ParsedCommand(full_command=parts[0], command=os.path.basename(parts[0]).removeprefix("/"))
 
-    last_key: Optional[str] = None
+    last_key: str | None = None
     for part in parts[1:]:
         part = part.strip()
 
