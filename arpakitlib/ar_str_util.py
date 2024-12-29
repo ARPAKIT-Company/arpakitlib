@@ -104,9 +104,9 @@ def __example():
     print(bidirectional_str_startswith(string1="hello", string2="hello world"))  # True
     print(bidirectional_str_startswith(string1="world", string2="hello world"))  # False
 
-    print("\nblank_if_none:")
-    print(blank_if_none())  # ""
-    print(blank_if_none(string="test"))  # "test"
+    print("\nmake blank_if_none:")
+    print(make_blank_if_none())  # ""
+    print(make_blank_if_none(string="test"))  # "test"
 
     print("\nremove_html:")
     print(remove_html(string="<div>Hello <b>World</b></div>"))  # "Hello World"

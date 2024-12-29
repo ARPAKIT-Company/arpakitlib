@@ -115,7 +115,36 @@ def parse_command(text: str) -> ParsedCommand:
 
 
 def __example():
-    pass
+    test_command_text = "/my_command --key_0 -key_1 value_1 -key_2 value_2 value_without_key"
+    parsed = parse_command(text=test_command_text)
+
+    print(f"Наименование команды: {parsed.command}")
+    print(f"Ключи-значения: {parsed.key_to_value}")
+    print(f"Значения без ключей: {parsed.values_without_key}")
+
+    # Проверка свойств keys, flags и values
+    print(f"Ключи: {parsed.keys}")
+    print(f"Флаги: {parsed.flags}")
+    print(f"Значения: {parsed.values}")
+
+    # Получение значения по ключу
+    print(f"Значение по ключу 'key_1': {parsed.get_value_by_key(key="key_1")}")
+    print(f"Значение по ключу 'key_2': {parsed.get_value_by_key(key="key_2")}")
+
+    # Проверка существования ключей
+    print(f"Ключ 'key_1' существует? {parsed.key_exists(key="key_1")}")
+    print(f"Ключ 'key_3' существует? {parsed.key_exists(key="key_3")}")
+
+    # Получение значения по списку ключей
+    print(f"Значение для ключей ['key_1', 'key_2']: {parsed.get_value_by_keys(keys=["key_1", "key_2"])}")
+    print(f"Значение для ключей ['key_3', 'key_4']: {parsed.get_value_by_keys(keys=["key_3", "key_4"])}")
+
+    # Проверка существования флага
+    print(f"Флаг 'key_0' существует? {parsed.has_flag(flag="key_0")}")
+
+    # Получение значения по индексу
+    print(f"Значение по индексу 0: {parsed.get_value_by_index(0)}")
+    print(f"Значение по индексу 1: {parsed.get_value_by_index(1)}")
 
 
 if __name__ == '__main__':

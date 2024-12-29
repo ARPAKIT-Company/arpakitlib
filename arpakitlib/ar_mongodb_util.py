@@ -133,13 +133,64 @@ class EasyMongoDb:
 
 
 def __example():
-    pass
+    mongo_uri = generate_mongo_uri(
+        mongo_user="test_user",
+        mongo_password="test_password",
+        mongo_hostname="localhost",
+        mongo_port=27017,
+        mongo_auth_db="admin"
+    )
+    print(f"Mongo URI: {mongo_uri}")
 
+    db = EasyMongoDb(
+        db_name="test_db",
+        username="test_user",
+        password="test_password",
+        hostname="localhost",
+        port=27017,
+        auth_source="admin"
+    )
 
-async def __async_example():
-    pass
+    print("Checking database connection...")
+    if db.is_db_conn_good():
+        print("Connection is good!")
+    else:
+        print("Connection failed!")
+
+    try:
+        # Проверка доступ к базе
+        pymongo_db = db.get_pymongo_db()
+        print(f"Database accessed: {pymongo_db.name}")
+
+        # Создание коллекции
+        test_collection = pymongo_db.get_collection(name="test_collection")
+        db.used_collections.append(__object=test_collection)
+
+        # Генерация нового ID
+        new_id = db.generate_collection_int_id(collection=test_collection)
+        print("Generated new ID:", new_id)
+
+        # Добавление документа 1
+        test_doc = {"id": new_id, "name": "TestName1"}
+        test_collection.insert_one(document=test_doc)
+        print(f"Inserted document with new ID: {test_doc}")
+
+        # Генерация случайного уникального ID
+        new_random_id = db.generate_collection_rand_int_id(collection=test_collection, max_rand_int=50)
+        print(f"Generated random unique ID: {new_random_id}")
+
+        # Добавление документа 2
+        test_doc_2 = {"id": new_random_id, "name": "TestName_2"}
+        test_collection.insert_one(test_doc_2)
+        print(f"Inserted document with random unique ID: {test_doc_2}")
+
+        # Очистка коллекций
+        db.drop_used_collections()
+        print("Dropped used collections")
+
+    except Exception as e:
+        print(f"Error during database operations: {e}")
 
 
 if __name__ == '__main__':
     __example()
-    asyncio.run(__async_example())

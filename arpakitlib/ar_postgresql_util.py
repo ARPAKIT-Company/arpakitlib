@@ -33,7 +33,22 @@ def make_postgresql_db_dump(
 
 
 def __example():
-    pass
+    user = "test_user"
+    host = "localhost"
+    db_name = "test_db"
+    port = 5432
+    out_filepath = "test_dump.sql"
+    password = "test_password"
+
+    result_path = make_postgresql_db_dump(
+        user=user,
+        host=host,
+        db_name=db_name,
+        port=port,
+        out_filepath=out_filepath,
+        password=password
+    )
+    print(f"Дамп базы данных сохранен в файл {result_path}")
 
 
 if __name__ == '__main__':

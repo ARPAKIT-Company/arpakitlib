@@ -49,11 +49,25 @@ class OpenAIAPIClient:
 
 
 def __example():
-    pass
+    open_ai = OpenAI(api_key="your-api-key")
+    client = OpenAIAPIClient(open_ai=open_ai)
+
+    print("Checking OpenAI API connection...")
+    if client.is_conn_good():
+        print("Connection to OpenAI API is good")
+    else:
+        print("Failed to connect to OpenAI API")
 
 
 async def __async_example():
-    pass
+    async_open_ai = AsyncOpenAI(api_key="your-api-key")
+    client = OpenAIAPIClient(async_open_ai=async_open_ai)
+
+    print("Checking OpenAI API async connection...")
+    if await client.async_is_conn_good():
+        print("Async connection to OpenAI API is good")
+    else:
+        print("Failed to async connect to OpenAI API")
 
 
 if __name__ == '__main__':
