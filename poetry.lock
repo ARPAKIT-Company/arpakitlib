@@ -2247,13 +2247,13 @@ files = [
 
 [[package]]
 name = "keyring"
-version = "25.5.0"
+version = "25.6.0"
 description = "Store and access your passwords safely."
 optional = false
-python-versions = ">=3.8"
+python-versions = ">=3.9"
 files = [
-    {file = "keyring-25.5.0-py3-none-any.whl", hash = "sha256:e67f8ac32b04be4714b42fe84ce7dad9c40985b9ca827c592cc303e7c26d9741"},
-    {file = "keyring-25.5.0.tar.gz", hash = "sha256:4c753b3ec91717fe713c4edd522d625889d8973a349b0e582622f49766de58e6"},
+    {file = "keyring-25.6.0-py3-none-any.whl", hash = "sha256:552a3f7af126ece7ed5c89753650eec89c7eaae8617d0aa4d9ad2b75111266bd"},
+    {file = "keyring-25.6.0.tar.gz", hash = "sha256:0b39998aa941431eb3d9b0d4b2460bc773b9df6fed7621c2dfb291a7e0187a66"},
 ]
 
 [package.dependencies]
@@ -2606,13 +2606,13 @@ files = [
 
 [[package]]
 name = "mistune"
-version = "3.0.2"
+version = "3.1.0"
 description = "A sane and fast Markdown parser with useful plugins and renderers"
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.8"
 files = [
-    {file = "mistune-3.0.2-py3-none-any.whl", hash = "sha256:71481854c30fdbc938963d3605b72501f5c10a9320ecd412c121c163a1c7d205"},
-    {file = "mistune-3.0.2.tar.gz", hash = "sha256:fc7f93ded930c92394ef2cb6f04a8aabab4117a91449e72dcc8dfa646a508be8"},
+    {file = "mistune-3.1.0-py3-none-any.whl", hash = "sha256:b05198cf6d671b3deba6c87ec6cf0d4eb7b72c524636eddb6dbf13823b52cee1"},
+    {file = "mistune-3.1.0.tar.gz", hash = "sha256:dbcac2f78292b9dc066cd03b7a3a26b62d85f8159f2ea5fd28e55df79908d667"},
 ]
 
 [[package]]
@@ -3913,20 +3913,20 @@ files = [
 
 [[package]]
 name = "python-socks"
-version = "2.5.3"
-description = "Core proxy (SOCKS4, SOCKS5, HTTP tunneling) functionality for Python"
+version = "2.6.1"
+description = "Proxy (SOCKS4, SOCKS5, HTTP CONNECT) client for Python"
 optional = false
-python-versions = "*"
+python-versions = ">=3.8.0"
 files = [
-    {file = "python_socks-2.5.3-py3-none-any.whl", hash = "sha256:6bc428d0e19f8043e7b8fbc8af33417e690238bd8c9c1e9215871ac18c6136ad"},
-    {file = "python_socks-2.5.3.tar.gz", hash = "sha256:4414b2a24777e439758a5f4644f81509ee634e6893115fe7fd1ec482b4b5c979"},
+    {file = "python_socks-2.6.1-py3-none-any.whl", hash = "sha256:7fe9324c1834bb9cdce46ddb6721cf42a05a00da5f1fb87f8507ac0c6f305e1d"},
+    {file = "python_socks-2.6.1.tar.gz", hash = "sha256:9743929aab6ffe0bab640ecfbbee7130af92408ad86e4aa2984789f742f3ec9e"},
 ]
 
 [package.extras]
 anyio = ["anyio (>=3.3.4,<5.0.0)"]
-asyncio = ["async-timeout (>=3.0.1)"]
+asyncio = ["async-timeout (>=4.0)"]
 curio = ["curio (>=1.4)"]
-trio = ["trio (>=0.16.0)"]
+trio = ["trio (>=0.24)"]
 
 [[package]]
 name = "pytz"
