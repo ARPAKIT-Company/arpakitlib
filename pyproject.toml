@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "arpakitlib"
-version = "1.7.12"
+version = "1.7.14"
 description = "arpakitlib"
 authors = ["arpakit <arpakit@gmail.com>", "arpakit_support <support@arpakit.com>"]
 license = "Apache License 2.0"
@@ -54,6 +54,7 @@ matplotlib = "^3.10.0"
 openpyxl = "^3.1.5"
 psycopg2-binary = "^2.9.10"
 emoji = "^2.14.0"
+poetry = "^1.8.5"
 [[tool.poetry.source]]
 name = "testpypi"
 url = "https://test.pypi.org/legacy/"
