@@ -7,7 +7,7 @@ workflow
 
 ---
 
-### Supported python version
+### Supported Python version
 
 - Python 3.12.4
 
