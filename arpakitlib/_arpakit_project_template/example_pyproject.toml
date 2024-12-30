@@ -1,11 +1,11 @@
 [tool.poetry]
-name = "{PROJECT_NAME}"
+name = "..."
 version = "0.1.0"
-description = "{PROJECT_NAME}"
+description = "..."
 authors = ["arpakit <arpakit@gmail.com>", "arpakit_support <support@arpakit.com>"]
 license = "Apache License 2.0"
 readme = "README.md"
-keywords = ["{PROJECT_NAME}", "arpakitlib", "arpakit", "arpakit-company", "arpakitcompany", "arpakit_company"]
+keywords = ["...", "arpakitlib", "arpakit", "arpakit-company", "arpakitcompany", "arpakit_company"]
 package-mode = false
 
 
