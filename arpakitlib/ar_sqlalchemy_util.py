@@ -26,7 +26,7 @@ class SQLAlchemyDB:
             self,
             *,
             db_url: str = "postgresql://arpakitlib:arpakitlib@localhost:50629/arpakitlib",
-            echo: bool = False,
+            db_echo: bool = False,
             need_include_operation_dbm: bool = False,
             need_include_story_dbm: bool = False,
             db_models: list[Any] | None = None
@@ -38,7 +38,7 @@ class SQLAlchemyDB:
             self.need_include_story_dbm = True
         self.engine = create_engine(
             url=db_url,
-            echo=echo,
+            echo=db_echo,
             pool_size=5,
             max_overflow=10,
             poolclass=QueuePool,

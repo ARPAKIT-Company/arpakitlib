@@ -46,6 +46,7 @@ def create_sqlalchemy_db() -> SQLAlchemyDB:
 
     return SQLAlchemyDB(
         db_url=get_cached_settings().db_url,
+        db_echo=get_cached_settings().db_echo
     )
 
 

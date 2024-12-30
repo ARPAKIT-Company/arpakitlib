@@ -32,6 +32,8 @@ class Settings(SimpleSettings):
 
     db_url: str | None = None
 
+    db_echo: bool = False
+
 
 @lru_cache()
 def get_cached_settings() -> Settings:
