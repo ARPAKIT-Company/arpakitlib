@@ -30,9 +30,11 @@ class Settings(SimpleSettings):
 
     dump_dirpath: str = os.path.join(var_dirpath, dump_dirname)
 
-    db_url: str | None = None
+    sql_db_url: str | None = (
+        "postgresql://{PROJECT_NAME}:{PROJECT_NAME}@127.0.0.1:{SQL_DB_PORT}/{PROJECT_NAME}"
+    )
 
-    db_echo: bool = False
+    sql_db_echo: bool = False
 
 
 @lru_cache()

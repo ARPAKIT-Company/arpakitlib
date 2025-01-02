@@ -45,8 +45,8 @@ def create_sqlalchemy_db() -> SQLAlchemyDB:
         importlib.import_module("src.db.sqlalchemy_model")
 
     return SQLAlchemyDB(
-        db_url=get_cached_settings().db_url,
-        db_echo=get_cached_settings().db_echo
+        db_url=get_cached_settings().sql_db_url,
+        db_echo=get_cached_settings().sql_db_echo
     )
 
 
