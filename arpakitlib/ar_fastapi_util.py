@@ -260,6 +260,8 @@ def create_handle_exception_creating_story_log(
             exception: Exception,
             **kwargs
     ) -> (int, ErrorSO, dict[str, Any]):
+        print(222, type(request))
+
         sqlalchemy_db.init()
         traceback_str = "".join(traceback.format_exception(type(exception), exception, exception.__traceback__))
         with sqlalchemy_db.new_session() as session:
@@ -550,8 +552,7 @@ def api_auth_check_api_key(
             transmitted_api_data: TransmittedAPIData = Depends(get_transmitted_api_data),
             request: fastapi.Request
     ):
-        if not need_check_api_key:
-            return base_need_api_auth_data
+        print(111, type(request))
 
         # TODO
 
