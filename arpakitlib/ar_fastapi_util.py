@@ -454,7 +454,7 @@ def base_api_auth(
                 fastapi.security.HTTPBearer(auto_error=False)
             ),
             api_key_string: str | None = Security(APIKeyHeader(name="apikey", auto_error=False)),
-            request: fastapi.Request
+            request: starlette.requests.Request
     ) -> BaseAPIAuthData:
 
         api_auth_data = BaseAPIAuthData(
@@ -528,13 +528,18 @@ def base_api_auth(
     return func
 
 
+class CheckAPIKeyAPIAuthData(BaseAPIAuthData):
+    require_check_api_key: bool = False
+    is_api_key_correct: bool | None = None
+
+
 def api_auth_check_api_key(
         *,
-        need_check_api_key: bool = True,
+        require_check_api_key: bool = True,
         check_api_key_func: Callable | None = None,
         correct_api_key: str | None = None
 ):
-    if need_check_api_key:
+    if require_check_api_key:
         require_api_key_string = True
     else:
         require_api_key_string = False
@@ -549,9 +554,11 @@ def api_auth_check_api_key(
                 require_token_string=False
             )),
             transmitted_api_data: BaseTransmittedAPIData = Depends(get_transmitted_api_data),
-            request: fastapi.Request
+            request: starlette.requests.Request
     ):
-        print(111, type(request))
+        if not require_check_api_key:
+            return  # TODO
+        # TODO
 
     return func
 
