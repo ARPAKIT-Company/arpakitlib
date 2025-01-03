@@ -6,19 +6,19 @@ from src.api.transmitted_api_data import TransmittedAPIData
 _logger = logging.getLogger(__name__)
 
 
-class StartupAPIEvent(BaseStartupAPIEvent):
+class FirstStartupAPIEvent(BaseStartupAPIEvent):
     def __init__(self, transmitted_api_data: TransmittedAPIData):
         super().__init__()
         self.transmitted_api_data = transmitted_api_data
 
     async def async_on_startup(self, *args, **kwargs):
-        pass
+        self._logger.info(self.__class__.__name__)
 
 
-class ShutdownAPIEvent(BaseShutdownAPIEvent):
+class FirstShutdownAPIEvent(BaseShutdownAPIEvent):
     def __init__(self, transmitted_api_data: TransmittedAPIData):
         super().__init__()
         self.transmitted_api_data = transmitted_api_data
 
     async def async_on_shutdown(self, *args, **kwargs):
-        pass
+        self._logger.info(self.__class__.__name__)

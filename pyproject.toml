@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "arpakitlib"
-version = "1.7.17"
+version = "1.7.18"
 description = "arpakitlib"
 authors = ["arpakit <arpakit@gmail.com>", "arpakit_support <support@arpakit.com>"]
 license = "Apache License 2.0"
@@ -8,7 +8,7 @@ readme = "README.md"
 keywords = ["arpakitlib", "arpakit", "arpakit-company", "arpakitcompany", "arpakit_company"]
 package-mode = true
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: Apache Software License",
     "Programming Language :: Python",

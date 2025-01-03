@@ -7,6 +7,7 @@ import logging
 import os.path
 import pathlib
 import traceback
+from contextlib import suppress
 from datetime import datetime
 from typing import Any, Callable
 
@@ -19,7 +20,6 @@ import starlette.status
 from fastapi import FastAPI, APIRouter, Query, Security
 from fastapi.openapi.docs import get_swagger_ui_html, get_redoc_html
 from fastapi.security import APIKeyHeader
-from jaraco.context import suppress
 from pydantic import BaseModel, ConfigDict
 from starlette.middleware.cors import CORSMiddleware
 from starlette.staticfiles import StaticFiles
@@ -147,14 +147,16 @@ class APIException(fastapi.exceptions.HTTPException):
 
 def create_handle_exception(
         *,
-        funcs_before_response: list[Callable] | None = None,
-        async_funcs_after_response: list[Callable] | None = None,
-) -> Any:
+        funcs_before_response: list[Callable | None] | None = None,
+        async_funcs_after_response: list[Callable | None] | None = None,
+) -> Callable:
     if funcs_before_response is None:
         funcs_before_response = []
+    funcs_before_response = [v for v in funcs_before_response if v is not None]
 
     if async_funcs_after_response is None:
         async_funcs_after_response = []
+    async_funcs_after_response = [v for v in async_funcs_after_response if v is not None]
 
     async def handle_exception(
             request: starlette.requests.Request, exception: Exception
@@ -564,7 +566,7 @@ def simple_api_router_for_testing():
 
 
 _DEFAULT_CONTACT = {
-    "name": "arpakit",
+    "name": "ARPAKIT Company",
     "email": "support@arpakit.com"
 }
 
@@ -575,8 +577,8 @@ def create_fastapi_app(
         description: str | None = "arpakitlib FastAPI",
         log_filepath: str | None = "./story.log",
         handle_exception_: Callable | None = create_handle_exception(),
-        startup_api_events: list[BaseStartupAPIEvent] | None = None,
-        shutdown_api_events: list[BaseShutdownAPIEvent] | None = None,
+        startup_api_events: list[BaseStartupAPIEvent | None] | None = None,
+        shutdown_api_events: list[BaseShutdownAPIEvent | None] | None = None,
         transmitted_api_data: BaseTransmittedAPIData = BaseTransmittedAPIData(),
         main_api_router: APIRouter = simple_api_router_for_testing(),
         contact: dict[str, Any] | None = None,
@@ -589,9 +591,11 @@ def create_fastapi_app(
 
     if not startup_api_events:
         startup_api_events = [BaseStartupAPIEvent()]
+    startup_api_events = [v for v in startup_api_events if v is not None]
 
     if not shutdown_api_events:
         shutdown_api_events = [BaseShutdownAPIEvent()]
+    shutdown_api_events = [v for v in shutdown_api_events if v is not None]
 
     app = FastAPI(
         title=title,

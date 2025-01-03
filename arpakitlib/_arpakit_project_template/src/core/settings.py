@@ -34,6 +34,8 @@ class Settings(SimpleSettings):
         "postgresql://{PROJECT_NAME}:{PROJECT_NAME}@127.0.0.1:{SQL_DB_PORT}/{PROJECT_NAME}"
     )
 
+    init_sql_db_at_start: bool = False
+
     sql_db_echo: bool = False
 
 
