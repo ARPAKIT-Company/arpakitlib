@@ -415,8 +415,9 @@ class SafeRunWorkerStartupAPIEvent(BaseStartupAPIEvent):
 
 
 class InitFileStoragesInDir(BaseStartupAPIEvent):
-    def __init__(self, file_storages_in_dir: list[FileStorageInDir]):
+    def __init__(self, file_storages_in_dir: list[FileStorageInDir | None]):
         super().__init__()
+        file_storages_in_dir = [v for v in file_storages_in_dir if v is not None]
         self.file_storages_in_dir = file_storages_in_dir
 
     async def async_on_startup(self, *args, **kwargs):

@@ -10,25 +10,25 @@ from src.core.const import BASE_DIRPATH, ENV_FILEPATH
 class Settings(SimpleSettings):
     # ...
 
-    var_dirname: str = "var"
+    var_dirname: str | None = "var"
 
-    var_dirpath: str = os.path.join(BASE_DIRPATH, var_dirname)
+    var_dirpath: str | None = os.path.join(BASE_DIRPATH, var_dirname)
 
-    log_filename: str = "story.log"
+    log_filename: str | None = "story.log"
 
-    log_filepath: str = os.path.join(var_dirpath, log_filename)
+    log_filepath: str | None = os.path.join(var_dirpath, log_filename)
 
-    cache_dirname: str = "cache"
+    cache_dirname: str | None = "cache"
 
-    cache_dirpath: str = os.path.join(var_dirpath, cache_dirname)
+    cache_dirpath: str | None = os.path.join(var_dirpath, cache_dirname)
 
-    media_dirname: str = "media"
+    media_dirname: str | None = "media"
 
-    media_dirpath: str = os.path.join(var_dirpath, media_dirname)
+    media_dirpath: str | None = os.path.join(var_dirpath, media_dirname)
 
-    dump_dirname: str = "dump"
+    dump_dirname: str | None = "dump"
 
-    dump_dirpath: str = os.path.join(var_dirpath, dump_dirname)
+    dump_dirpath: str | None = os.path.join(var_dirpath, dump_dirname)
 
     sql_db_url: str | None = (
         "postgresql://{PROJECT_NAME}:{PROJECT_NAME}@127.0.0.1:{SQL_DB_PORT}/{PROJECT_NAME}"
