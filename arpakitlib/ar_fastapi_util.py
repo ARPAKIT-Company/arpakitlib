@@ -33,7 +33,6 @@ from arpakitlib.ar_logging_util import setup_normal_logging
 from arpakitlib.ar_sqlalchemy_model_util import StoryLogDBM
 from arpakitlib.ar_sqlalchemy_util import SQLAlchemyDB
 from arpakitlib.ar_type_util import raise_for_type, raise_if_not_async_func
-from src.api.transmitted_api_data import TransmittedAPIData
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
 
@@ -549,7 +548,7 @@ def api_auth_check_api_key(
                 require_api_key_string=need_check_api_key,
                 require_token_string=False
             )),
-            transmitted_api_data: TransmittedAPIData = Depends(get_transmitted_api_data),
+            transmitted_api_data: BaseTransmittedAPIData = Depends(get_transmitted_api_data),
             request: fastapi.Request
     ):
         print(111, type(request))
