@@ -259,8 +259,6 @@ def create_handle_exception_creating_story_log(
             exception: Exception,
             **kwargs
     ) -> (int, ErrorSO, dict[str, Any]):
-        print(222, type(request))
-
         sqlalchemy_db.init()
         traceback_str = "".join(traceback.format_exception(type(exception), exception, exception.__traceback__))
         with sqlalchemy_db.new_session() as session:
@@ -538,6 +536,8 @@ def api_auth_check_api_key(
 ):
     if need_check_api_key:
         require_api_key_string = True
+    else:
+        require_api_key_string = False
 
     if correct_api_key is not None:
         check_api_key_func = lambda v: v == correct_api_key
@@ -545,7 +545,7 @@ def api_auth_check_api_key(
     async def func(
             *,
             base_need_api_auth_data: BaseAPIAuthData = Depends(base_api_auth(
-                require_api_key_string=need_check_api_key,
+                require_api_key_string=require_api_key_string,
                 require_token_string=False
             )),
             transmitted_api_data: BaseTransmittedAPIData = Depends(get_transmitted_api_data),
@@ -553,7 +553,7 @@ def api_auth_check_api_key(
     ):
         print(111, type(request))
 
-        # TODO
+    return func
 
 
 def simple_api_router_for_testing():
