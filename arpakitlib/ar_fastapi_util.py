@@ -17,7 +17,7 @@ import fastapi.security
 import starlette.exceptions
 import starlette.requests
 import starlette.status
-from fastapi import FastAPI, APIRouter, Query, Security
+from fastapi import FastAPI, APIRouter, Query, Security, Depends
 from fastapi.openapi.docs import get_swagger_ui_html, get_redoc_html
 from fastapi.security import APIKeyHeader
 from pydantic import BaseModel, ConfigDict
@@ -33,6 +33,7 @@ from arpakitlib.ar_logging_util import setup_normal_logging
 from arpakitlib.ar_sqlalchemy_model_util import StoryLogDBM
 from arpakitlib.ar_sqlalchemy_util import SQLAlchemyDB
 from arpakitlib.ar_type_util import raise_for_type, raise_if_not_async_func
+from src.api.transmitted_api_data import TransmittedAPIData
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
 
@@ -526,6 +527,33 @@ def base_api_auth(
         return api_auth_data
 
     return func
+
+
+def api_auth_check_api_key(
+        *,
+        need_check_api_key: bool = True,
+        check_api_key_func: Callable | None = None,
+        correct_api_key: str | None = None
+):
+    if need_check_api_key:
+        require_api_key_string = True
+
+    if correct_api_key is not None:
+        check_api_key_func = lambda v: v == correct_api_key
+
+    async def func(
+            *,
+            base_need_api_auth_data: BaseAPIAuthData = Depends(base_api_auth(
+                require_api_key_string=need_check_api_key,
+                require_token_string=False
+            )),
+            transmitted_api_data: TransmittedAPIData = Depends(get_transmitted_api_data),
+            request: fastapi.Request
+    ):
+        if not need_check_api_key:
+            return base_need_api_auth_data
+
+        # TODO
 
 
 def simple_api_router_for_testing():
