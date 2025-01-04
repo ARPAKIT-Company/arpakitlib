@@ -96,7 +96,7 @@ class BaseOperationExecutor:
         try:
             self.sync_execute_operation(operation_dbm=operation_dbm)
         except BaseException as exception_:
-            self._logger.exception(exception_)
+            self._logger.error(f"Error while executing operation (id={operation_dbm.id})", exc_info=exception_)
             exception = exception_
             traceback_str = traceback.format_exc()
 
@@ -116,25 +116,27 @@ class BaseOperationExecutor:
                 operation_dbm.status = OperationDBM.Statuses.executed_without_error
             session.commit()
 
-            story_log_dbm = StoryLogDBM(
-                level=StoryLogDBM.Levels.error,
-                title="Error in sync_execute_operation",
-                data={
-                    "operation_id": operation_dbm.id,
-                    "exception_str": str(exception),
-                    "traceback_str": traceback_str
-                }
-            )
-            session.add(story_log_dbm)
-            session.commit()
+            if exception:
+                story_log_dbm = StoryLogDBM(
+                    level=StoryLogDBM.Levels.error,
+                    title=f"Error while executing operation (id={operation_dbm.id}, type={operation_dbm.type})",
+                    data={
+                        "operation_id": operation_dbm.id,
+                        "exception_str": str(exception),
+                        "traceback_str": traceback_str
+                    }
+                )
+                session.add(story_log_dbm)
+                session.commit()
+                session.refresh(story_log_dbm)
 
             session.refresh(operation_dbm)
-            session.refresh(story_log_dbm)
 
         self._logger.info(
             f"finish sync_safe_execute_operation"
             f", operation_dbm.id={operation_dbm.id}"
             f", operation_dbm.type={operation_dbm.type}"
+            f", operation_dbm.status={operation_dbm.status}"
             f", operation_dbm.duration={operation_dbm.duration}"
         )
 
@@ -170,7 +172,7 @@ class BaseOperationExecutor:
         try:
             await self.async_execute_operation(operation_dbm=operation_dbm)
         except BaseException as exception_:
-            self._logger.exception(exception_)
+            self._logger.error(f"Error while executing operation (id={operation_dbm.id})", exc_info=exception_)
             exception = exception_
             traceback_str = traceback.format_exc()
 
@@ -190,25 +192,28 @@ class BaseOperationExecutor:
                 operation_dbm.status = OperationDBM.Statuses.executed_without_error
             session.commit()
 
-            story_log_dbm = StoryLogDBM(
-                level=StoryLogDBM.Levels.error,
-                title="Error in async_execute_operation",
-                data={
-                    "operation_id": operation_dbm.id,
-                    "exception_str": str(exception),
-                    "traceback_str": traceback_str
-                }
-            )
-            session.add(story_log_dbm)
-            session.commit()
+            if exception:
+                story_log_dbm = StoryLogDBM(
+                    level=StoryLogDBM.Levels.error,
+                    title=f"Error while executing operation (id={operation_dbm.id}, type={operation_dbm.type})",
+                    data={
+                        "operation_id": operation_dbm.id,
+                        "exception_str": str(exception),
+                        "traceback_str": traceback_str
+                    }
+                )
+                session.add(story_log_dbm)
+                session.commit()
+                session.refresh(story_log_dbm)
 
             session.refresh(operation_dbm)
-            session.refresh(story_log_dbm)
 
         self._logger.info(
             f"finish async_safe_execute_operation"
             f", operation_dbm.id={operation_dbm.id}"
             f", operation_dbm.type={operation_dbm.type}"
+            f", operation_dbm.status={operation_dbm.status}"
+            f", operation_dbm.duration={operation_dbm.duration}"
         )
 
         return operation_dbm

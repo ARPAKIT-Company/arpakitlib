@@ -85,7 +85,7 @@ def create_api_app() -> FastAPI:
 
     shutdown_api_events = []
 
-    startup_api_events.append(ShutdownAPIEvent(transmitted_api_data=transmitted_api_data))
+    shutdown_api_events.append(ShutdownAPIEvent(transmitted_api_data=transmitted_api_data))
 
     api_app = create_fastapi_app(
         title=settings.api_title.strip(),

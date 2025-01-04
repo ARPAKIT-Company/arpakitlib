@@ -56,6 +56,7 @@ class BaseWorker(ABC):
         self._logger.exception(exception)
 
     def sync_safe_run(self):
+        self._logger.info("sync_safe_run")
         self.sync_on_startup()
         while True:
             try:
@@ -77,6 +78,7 @@ class BaseWorker(ABC):
         self._logger.exception(exception)
 
     async def async_safe_run(self):
+        self._logger.info("async_safe_run")
         await self.async_on_startup()
         while True:
             try:

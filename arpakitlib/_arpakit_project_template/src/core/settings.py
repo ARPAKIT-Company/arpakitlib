@@ -14,7 +14,7 @@ class Settings(SimpleSettings):
 
     sql_db_echo: bool = False
 
-    api_init_sql_db_at_start: bool = False
+    api_init_sql_db_at_start: bool = True
 
     api_title: str = "{PROJECT_NAME}"
 
