@@ -1,11 +1,14 @@
 import asyncio
 import importlib
 from contextlib import suppress
+from datetime import datetime
 from functools import lru_cache
 
+from arpakitlib.ar_datetime_util import now_dt
 from arpakitlib.ar_file_storage_in_dir_util import FileStorageInDir
 from arpakitlib.ar_logging_util import setup_normal_logging
 from arpakitlib.ar_sqlalchemy_util import SQLAlchemyDB
+from arpakitlib.ar_type_util import raise_if_none
 from src.core.settings import get_cached_settings
 
 
@@ -53,6 +56,11 @@ def create_sqlalchemy_db() -> SQLAlchemyDB:
 @lru_cache()
 def get_cached_sqlalchemy_db() -> SQLAlchemyDB:
     return create_sqlalchemy_db()
+
+
+def now_local_dt() -> datetime:
+    raise_if_none(get_cached_settings().local_timezone_as_pytz)
+    return now_dt(tz=get_cached_settings().local_timezone_as_pytz)
 
 
 def __example():

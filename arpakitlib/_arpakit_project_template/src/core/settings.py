@@ -1,6 +1,9 @@
 import asyncio
 import os
 from functools import lru_cache
+from typing import Any
+
+import pytz
 
 from arpakitlib.ar_json_util import safely_transfer_to_json_str
 from arpakitlib.ar_settings_util import SimpleSettings
@@ -47,6 +50,12 @@ class Settings(SimpleSettings):
     dump_dirname: str | None = "dump"
 
     dump_dirpath: str | None = os.path.join(var_dirpath, dump_dirname)
+
+    local_timezone: str | None = None
+
+    @property
+    def local_timezone_as_pytz(self) -> Any:
+        return pytz.timezone(self.local_timezone)
 
     # ...
 
