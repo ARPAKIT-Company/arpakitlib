@@ -8,7 +8,13 @@ from src.core.const import BASE_DIRPATH, ENV_FILEPATH
 
 
 class Settings(SimpleSettings):
-    # ...
+    sql_db_url: str | None = (
+        "postgresql://{PROJECT_NAME}:{PROJECT_NAME}@127.0.0.1:{SQL_DB_PORT}/{PROJECT_NAME}"
+    )
+
+    sql_db_echo: bool = False
+
+    api_init_sql_db_at_start: bool = False
 
     var_dirname: str | None = "var"
 
@@ -30,13 +36,7 @@ class Settings(SimpleSettings):
 
     dump_dirpath: str | None = os.path.join(var_dirpath, dump_dirname)
 
-    sql_db_url: str | None = (
-        "postgresql://{PROJECT_NAME}:{PROJECT_NAME}@127.0.0.1:{SQL_DB_PORT}/{PROJECT_NAME}"
-    )
-
-    init_sql_db_at_start: bool = False
-
-    sql_db_echo: bool = False
+    # ...
 
 
 @lru_cache()

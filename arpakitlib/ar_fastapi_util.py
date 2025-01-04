@@ -368,7 +368,7 @@ def add_needed_api_router_to_app(*, app: FastAPI):
     async def _():
         return APIJSONResponse(
             status_code=starlette.status.HTTP_200_OK,
-            content=RawDataSO(data={"arpakitlib": "arpakitlib"})
+            content=RawDataSO(data={"arpakitlib": True})
         )
 
     app.include_router(router=api_router, prefix="")
@@ -533,7 +533,7 @@ class CheckAPIKeyAPIAuthData(BaseAPIAuthData):
     is_api_key_correct: bool | None = None
 
 
-def api_auth_check_api_key(
+def check_api_key_api_auth(
         *,
         require_check_api_key: bool = True,
         check_api_key_func: Callable | None = None,
@@ -545,20 +545,40 @@ def api_auth_check_api_key(
         require_api_key_string = False
 
     if correct_api_key is not None:
-        check_api_key_func = lambda v: v == correct_api_key
+        check_api_key_func = lambda **kwargs: kwargs["api_key_string"] == correct_api_key
+
+    if require_check_api_key and check_api_key_func is None:
+        raise ValueError("require_check_api_key and check_api_key_func is None")
 
     async def func(
             *,
-            base_need_api_auth_data: BaseAPIAuthData = Depends(base_api_auth(
+            base_api_auth_data: BaseAPIAuthData = Depends(base_api_auth(
                 require_api_key_string=require_api_key_string,
                 require_token_string=False
             )),
             transmitted_api_data: BaseTransmittedAPIData = Depends(get_transmitted_api_data),
             request: starlette.requests.Request
-    ):
-        if not require_check_api_key:
-            return  # TODO
-        # TODO
+    ) -> CheckAPIKeyAPIAuthData:
+        check_api_key_api_auth_data = CheckAPIKeyAPIAuthData.model_validate(base_api_auth_data)
+        check_api_key_api_auth_data.require_check_api_key = require_check_api_key
+        check_api_key_api_auth_data.is_api_key_correct = (
+            check_api_key_func(
+                api_key_string=base_api_auth_data.api_key_string,
+                base_api_auth_data=base_api_auth_data,
+                transmitted_api_data=transmitted_api_data,
+                request=request
+            )
+            if check_api_key_func is not None else None
+        )
+
+        if check_api_key_api_auth_data.require_check_api_key and not check_api_key_api_auth_data.is_api_key_correct:
+            raise APIException(
+                status_code=starlette.status.HTTP_401_UNAUTHORIZED,
+                error_code=ErrorSO.APIErrorCodes.cannot_authorize,
+                error_data=safely_transfer_to_json_str_to_json_obj(check_api_key_api_auth_data.model_dump())
+            )
+
+        return check_api_key_api_auth_data
 
     return func
 
@@ -592,7 +612,7 @@ def simple_api_router_for_testing():
         raise Exception("raise_fake_exception_3")
 
     @router.get(
-        "/check_params",
+        "/check_params_1",
         response_model=ErrorSO
     )
     async def _(name: int = Query()):

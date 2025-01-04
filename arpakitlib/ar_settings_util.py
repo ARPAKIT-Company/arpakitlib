@@ -23,10 +23,10 @@ class SimpleSettings(BaseSettings):
     model_config = ConfigDict(extra="ignore")
 
     class ModeTypes(Enumeration):
-        dev: str = "dev"
+        not_prod: str = "not_prod"
         prod: str = "prod"
 
-    mode_type: str = ModeTypes.dev
+    mode_type: str = ModeTypes.not_prod
 
     @field_validator("mode_type")
     @classmethod

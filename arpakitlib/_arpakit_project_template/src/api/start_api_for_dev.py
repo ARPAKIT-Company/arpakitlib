@@ -1,7 +1,7 @@
 import uvicorn
 
 
-def start_api_for_dev(reload: bool = True):
+def start_api_for_dev(*, reload: bool = False):
     uvicorn.run(
         "src.api.asgi:app",
         port=int("{API_PORT}"),
@@ -12,4 +12,4 @@ def start_api_for_dev(reload: bool = True):
 
 
 if __name__ == '__main__':
-    start_api_for_dev()
+    start_api_for_dev(reload=False)

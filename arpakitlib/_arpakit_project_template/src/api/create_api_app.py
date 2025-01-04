@@ -43,7 +43,7 @@ def create_api_app() -> FastAPI:
             ),
             (
                 InitSqlalchemyDBStartupAPIEvent(sqlalchemy_db=sqlalchemy_db)
-                if (sqlalchemy_db is not None and settings.init_sql_db_at_start) else None
+                if (sqlalchemy_db is not None and settings.api_init_sql_db_at_start) else None
             ),
         ],
         shutdown_api_events=[
