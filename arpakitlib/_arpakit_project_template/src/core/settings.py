@@ -31,6 +31,8 @@ class Settings(SimpleSettings):
 
     api_port: int | None = int("{API_PORT}") if "{API_PORT}".isdigit() else None
 
+    api_correct_api_key: str | None = None
+
     var_dirname: str | None = "var"
 
     var_dirpath: str | None = os.path.join(BASE_DIRPATH, var_dirname)

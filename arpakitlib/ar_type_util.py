@@ -80,7 +80,7 @@ def make_none_to_false(v: Any) -> Any:
 
 def raise_if_none(v: Any) -> Any:
     if v is None:
-        raise ValueError(f"v is None, v={v}")
+        raise ValueError(f"v is None, v={v}, type(v)={type(v)}")
     return v
 
 

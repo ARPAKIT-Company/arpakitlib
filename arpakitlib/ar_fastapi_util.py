@@ -32,7 +32,7 @@ from arpakitlib.ar_json_util import safely_transfer_to_json_str_to_json_obj
 from arpakitlib.ar_logging_util import setup_normal_logging
 from arpakitlib.ar_sqlalchemy_model_util import StoryLogDBM
 from arpakitlib.ar_sqlalchemy_util import SQLAlchemyDB
-from arpakitlib.ar_type_util import raise_for_type, raise_if_not_async_func
+from arpakitlib.ar_type_util import raise_for_type, raise_if_not_async_func, raise_if_none
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
 
@@ -529,26 +529,20 @@ def base_api_auth(
 
 
 class CheckAPIKeyAPIAuthData(BaseAPIAuthData):
-    require_check_api_key: bool = False
     is_api_key_correct: bool | None = None
 
 
-def check_api_key_api_auth(
+def is_api_key_correct_api_auth(
         *,
-        require_check_api_key: bool = True,
-        check_api_key_func: Callable | None = None,
+        validate_api_key_func: Callable | None = None,
         correct_api_key: str | None = None
 ):
-    if require_check_api_key:
-        require_api_key_string = True
-    else:
-        require_api_key_string = False
+    require_api_key_string = True
 
     if correct_api_key is not None:
-        check_api_key_func = lambda **kwargs: kwargs["api_key_string"] == correct_api_key
+        validate_api_key_func = lambda **kwargs: kwargs["api_key_string"] == correct_api_key
 
-    if require_check_api_key and check_api_key_func is None:
-        raise ValueError("require_check_api_key and check_api_key_func is None")
+    raise_if_none(validate_api_key_func)
 
     async def func(
             *,
@@ -560,18 +554,17 @@ def check_api_key_api_auth(
             request: starlette.requests.Request
     ) -> CheckAPIKeyAPIAuthData:
         check_api_key_api_auth_data = CheckAPIKeyAPIAuthData.model_validate(base_api_auth_data)
-        check_api_key_api_auth_data.require_check_api_key = require_check_api_key
         check_api_key_api_auth_data.is_api_key_correct = (
-            check_api_key_func(
+            validate_api_key_func(
                 api_key_string=base_api_auth_data.api_key_string,
                 base_api_auth_data=base_api_auth_data,
                 transmitted_api_data=transmitted_api_data,
                 request=request
             )
-            if check_api_key_func is not None else None
+            if validate_api_key_func is not None else None
         )
 
-        if check_api_key_api_auth_data.require_check_api_key and not check_api_key_api_auth_data.is_api_key_correct:
+        if not check_api_key_api_auth_data.is_api_key_correct:
             raise APIException(
                 status_code=starlette.status.HTTP_401_UNAUTHORIZED,
                 error_code=ErrorSO.APIErrorCodes.cannot_authorize,
