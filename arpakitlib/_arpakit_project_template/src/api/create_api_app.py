@@ -10,6 +10,7 @@ from arpakitlib.ar_type_util import raise_for_type
 from src.api.event import StartupAPIEvent, ShutdownAPIEvent
 from src.api.router.v1.main_router import api_v1_main_router
 from src.api.transmitted_api_data import TransmittedAPIData
+from src.core.const import STATIC_DIRPATH
 from src.core.settings import get_cached_settings
 from src.core.util import get_cached_sqlalchemy_db, get_cached_media_file_storage_in_dir, \
     get_cached_cache_file_storage_in_dir, get_cached_dump_file_storage_in_dir, setup_logging
@@ -97,7 +98,8 @@ def create_api_app() -> FastAPI:
         transmitted_api_data=transmitted_api_data,
         main_api_router=api_v1_main_router,
         contact=_DEFAULT_CONTACT,
-        media_dirpath=settings.media_dirpath
+        media_dirpath=settings.media_dirpath,
+        static_dirpath=STATIC_DIRPATH
     )
 
     return api_app

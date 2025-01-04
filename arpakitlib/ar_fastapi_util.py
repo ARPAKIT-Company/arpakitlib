@@ -638,7 +638,8 @@ def create_fastapi_app(
         transmitted_api_data: BaseTransmittedAPIData = BaseTransmittedAPIData(),
         main_api_router: APIRouter = simple_api_router_for_testing(),
         contact: dict[str, Any] | None = None,
-        media_dirpath: str | None = None
+        media_dirpath: str | None = None,
+        static_dirpath: str | None = None
 ):
     setup_normal_logging(log_filepath=log_filepath)
 
@@ -668,6 +669,11 @@ def create_fastapi_app(
         if not os.path.exists(media_dirpath):
             os.makedirs(media_dirpath, exist_ok=True)
         app.mount("/media", StaticFiles(directory=media_dirpath), name="media")
+
+    if static_dirpath is not None:
+        if not os.path.exists(static_dirpath):
+            os.makedirs(static_dirpath, exist_ok=True)
+        app.mount("/static", StaticFiles(directory=static_dirpath), name="static")
 
     app.state.transmitted_api_data = transmitted_api_data
 
