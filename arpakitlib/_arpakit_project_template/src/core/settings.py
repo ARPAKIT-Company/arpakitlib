@@ -16,6 +16,16 @@ class Settings(SimpleSettings):
 
     api_init_sql_db_at_start: bool = False
 
+    api_title: str = "{PROJECT_NAME}"
+
+    api_description: str = "{PROJECT_NAME} (arpakitlib)"
+
+    api_create_story_log_before_response_in_handle_exception: bool = True
+
+    api_start_execute_operation_worker: bool = False
+
+    api_start_create_scheduled_operation_worker: bool = False
+
     var_dirname: str | None = "var"
 
     var_dirpath: str | None = os.path.join(BASE_DIRPATH, var_dirname)

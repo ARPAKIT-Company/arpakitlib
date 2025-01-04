@@ -1,13 +1,20 @@
 from fastapi import FastAPI
 
+from arpakitlib.ar_base_worker_util import BaseWorker
 from arpakitlib.ar_fastapi_util import create_fastapi_app, InitSqlalchemyDBStartupAPIEvent, InitFileStoragesInDir, \
-    create_handle_exception, create_handle_exception_creating_story_log, _DEFAULT_CONTACT
-from src.api.event import FirstStartupAPIEvent, FirstShutdownAPIEvent
+    create_handle_exception, create_story_log_before_response_in_handle_exception, _DEFAULT_CONTACT, \
+    SafeRunWorkerStartupAPIEvent
+from arpakitlib.ar_operation_execution_util import ExecuteOperationWorker, CreateScheduledOperationWorker
+from arpakitlib.ar_sqlalchemy_util import SQLAlchemyDB
+from arpakitlib.ar_type_util import raise_for_type
+from src.api.event import StartupAPIEvent, ShutdownAPIEvent
 from src.api.router.v1.main_router import api_v1_main_router
 from src.api.transmitted_api_data import TransmittedAPIData
 from src.core.settings import get_cached_settings
 from src.core.util import get_cached_sqlalchemy_db, get_cached_media_file_storage_in_dir, \
     get_cached_cache_file_storage_in_dir, get_cached_dump_file_storage_in_dir, setup_logging
+from src.operation_execution.operation_executor import OperationExecutor
+from src.operation_execution.scheduled_operations import ALL_SCHEDULED_OPERATIONS
 
 
 def create_api_app() -> FastAPI:
@@ -15,40 +22,77 @@ def create_api_app() -> FastAPI:
 
     settings = get_cached_settings()
     sqlalchemy_db = get_cached_sqlalchemy_db() if settings.sql_db_url is not None else None
-
     transmitted_api_data = TransmittedAPIData(
-        settings=get_cached_settings(),
+        settings=settings,
         sqlalchemy_db=sqlalchemy_db
     )
 
-    api_app = create_fastapi_app(
-        title="{PROJECT_NAME}",
-        description="{PROJECT_NAME}",
-        log_filepath=get_cached_settings().log_filepath,
-        handle_exception_=create_handle_exception(
-            funcs_before_response=[
-                create_handle_exception_creating_story_log(sqlalchemy_db=sqlalchemy_db)
-                if sqlalchemy_db is not None else None
-            ],
-            async_funcs_after_response=[]
+    funcs_before_response = []
+    if settings.api_create_story_log_before_response_in_handle_exception:
+        raise_for_type(sqlalchemy_db, SQLAlchemyDB)
+        funcs_before_response.append(
+            create_story_log_before_response_in_handle_exception(sqlalchemy_db=sqlalchemy_db)
+        )
+    handle_exception = create_handle_exception(
+        funcs_before_response=funcs_before_response,
+        async_funcs_after_response=[]
+    )
+
+    startup_api_events = [
+        InitFileStoragesInDir(
+            file_storages_in_dir=[
+                get_cached_media_file_storage_in_dir() if settings.media_dirpath is not None else None,
+                get_cached_cache_file_storage_in_dir() if settings.cache_dirpath is not None else None,
+                get_cached_dump_file_storage_in_dir() if settings.dump_dirpath is not None else None
+            ]
         ),
-        startup_api_events=[
-            FirstStartupAPIEvent(transmitted_api_data=transmitted_api_data),
-            InitFileStoragesInDir(
-                file_storages_in_dir=[
-                    get_cached_media_file_storage_in_dir() if settings.media_dirpath is not None else None,
-                    get_cached_cache_file_storage_in_dir() if settings.cache_dirpath is not None else None,
-                    get_cached_dump_file_storage_in_dir() if settings.dump_dirpath is not None else None
-                ]
-            ),
-            (
-                InitSqlalchemyDBStartupAPIEvent(sqlalchemy_db=sqlalchemy_db)
-                if (sqlalchemy_db is not None and settings.api_init_sql_db_at_start) else None
-            ),
-        ],
-        shutdown_api_events=[
-            FirstShutdownAPIEvent(transmitted_api_data=transmitted_api_data)
-        ],
+        StartupAPIEvent(transmitted_api_data=transmitted_api_data),
+    ]
+
+    if settings.api_init_sql_db_at_start:
+        raise_for_type(sqlalchemy_db, SQLAlchemyDB)
+        startup_api_events.append(InitSqlalchemyDBStartupAPIEvent(sqlalchemy_db=sqlalchemy_db))
+
+    if settings.api_start_execute_operation_worker:
+        raise_for_type(sqlalchemy_db, SQLAlchemyDB)
+        startup_api_events.append(
+            SafeRunWorkerStartupAPIEvent(
+                workers=[
+                    ExecuteOperationWorker(
+                        sqlalchemy_db=sqlalchemy_db,
+                        operation_executor=OperationExecutor(sqlalchemy_db=sqlalchemy_db),
+                        filter_operation_types=None
+                    )
+                ],
+                safe_run_in_background_mode=BaseWorker.SafeRunInBackgroundModes.async_task
+            )
+        )
+
+    if settings.api_start_create_scheduled_operation_worker:
+        raise_for_type(sqlalchemy_db, SQLAlchemyDB)
+        startup_api_events.append(
+            SafeRunWorkerStartupAPIEvent(
+                workers=[
+                    CreateScheduledOperationWorker(
+                        sqlalchemy_db=sqlalchemy_db,
+                        scheduled_operations=ALL_SCHEDULED_OPERATIONS
+                    )
+                ],
+                safe_run_in_background_mode=BaseWorker.SafeRunInBackgroundModes.async_task
+            )
+        )
+
+    shutdown_api_events = [
+        ShutdownAPIEvent(transmitted_api_data=transmitted_api_data)
+    ]
+
+    api_app = create_fastapi_app(
+        title=settings.api_title.strip(),
+        description=settings.api_description.strip(),
+        log_filepath=settings.log_filepath,
+        handle_exception_=handle_exception,
+        startup_api_events=startup_api_events,
+        shutdown_api_events=shutdown_api_events,
         transmitted_api_data=transmitted_api_data,
         main_api_router=api_v1_main_router,
         contact=_DEFAULT_CONTACT,

@@ -247,11 +247,11 @@ def create_handle_exception(
     return handle_exception
 
 
-def create_handle_exception_creating_story_log(
+def create_story_log_before_response_in_handle_exception(
         *,
         sqlalchemy_db: SQLAlchemyDB
 ) -> Callable:
-    def handle_exception(
+    def func(
             *,
             status_code: int,
             error_so: ErrorSO,
@@ -277,7 +277,7 @@ def create_handle_exception_creating_story_log(
         kwargs["story_log_id"] = story_log_dbm.id
         return status_code, error_so, kwargs
 
-    return handle_exception
+    return func
 
 
 def add_exception_handler_to_app(*, app: FastAPI, handle_exception: Callable) -> FastAPI:

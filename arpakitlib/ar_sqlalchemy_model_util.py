@@ -81,6 +81,11 @@ class StoryLogDBM(SimpleDBM):
     )
 
 
+class BaseOperationTypes(Enumeration):
+    healthcheck_ = "healthcheck"
+    raise_fake_exception_ = "raise_fake_exception"
+
+
 class OperationDBM(SimpleDBM):
     __tablename__ = "operation"
 
@@ -90,16 +95,12 @@ class OperationDBM(SimpleDBM):
         executed_without_error = "executed_without_error"
         executed_with_error = "executed_with_error"
 
-    class Types(Enumeration):
-        healthcheck_ = "healthcheck"
-        raise_fake_exception_ = "raise_fake_exception"
-
     status: Mapped[str] = mapped_column(
         TEXT, index=True, insert_default=Statuses.waiting_for_execution,
         server_default=Statuses.waiting_for_execution, nullable=False
     )
     type: Mapped[str] = mapped_column(
-        TEXT, index=True, insert_default=Types.healthcheck_, nullable=False
+        TEXT, index=True, insert_default=BaseOperationTypes.healthcheck_, nullable=False
     )
     execution_start_dt: Mapped[datetime | None] = mapped_column(TIMESTAMP(timezone=True), nullable=True)
     execution_finish_dt: Mapped[datetime | None] = mapped_column(TIMESTAMP(timezone=True), nullable=True)

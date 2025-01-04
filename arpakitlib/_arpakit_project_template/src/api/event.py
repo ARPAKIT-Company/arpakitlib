@@ -6,7 +6,7 @@ from src.api.transmitted_api_data import TransmittedAPIData
 _logger = logging.getLogger(__name__)
 
 
-class FirstStartupAPIEvent(BaseStartupAPIEvent):
+class StartupAPIEvent(BaseStartupAPIEvent):
     def __init__(self, transmitted_api_data: TransmittedAPIData):
         super().__init__()
         self.transmitted_api_data = transmitted_api_data
@@ -15,7 +15,7 @@ class FirstStartupAPIEvent(BaseStartupAPIEvent):
         self._logger.info(self.__class__.__name__)
 
 
-class FirstShutdownAPIEvent(BaseShutdownAPIEvent):
+class ShutdownAPIEvent(BaseShutdownAPIEvent):
     def __init__(self, transmitted_api_data: TransmittedAPIData):
         super().__init__()
         self.transmitted_api_data = transmitted_api_data
