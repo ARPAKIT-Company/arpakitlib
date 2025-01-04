@@ -38,20 +38,21 @@ def create_api_app() -> FastAPI:
         async_funcs_after_response=[]
     )
 
-    startup_api_events = [
-        InitFileStoragesInDir(
-            file_storages_in_dir=[
-                get_cached_media_file_storage_in_dir() if settings.media_dirpath is not None else None,
-                get_cached_cache_file_storage_in_dir() if settings.cache_dirpath is not None else None,
-                get_cached_dump_file_storage_in_dir() if settings.dump_dirpath is not None else None
-            ]
-        ),
-        StartupAPIEvent(transmitted_api_data=transmitted_api_data),
-    ]
+    startup_api_events = []
+
+    startup_api_events.append(InitFileStoragesInDir(
+        file_storages_in_dir=[
+            get_cached_media_file_storage_in_dir() if settings.media_dirpath is not None else None,
+            get_cached_cache_file_storage_in_dir() if settings.cache_dirpath is not None else None,
+            get_cached_dump_file_storage_in_dir() if settings.dump_dirpath is not None else None
+        ]
+    ))
 
     if settings.api_init_sql_db_at_start:
         raise_for_type(sqlalchemy_db, SQLAlchemyDB)
         startup_api_events.append(InitSqlalchemyDBStartupAPIEvent(sqlalchemy_db=sqlalchemy_db))
+
+    startup_api_events.append(StartupAPIEvent(transmitted_api_data=transmitted_api_data))
 
     if settings.api_start_execute_operation_worker:
         raise_for_type(sqlalchemy_db, SQLAlchemyDB)
@@ -82,9 +83,9 @@ def create_api_app() -> FastAPI:
             )
         )
 
-    shutdown_api_events = [
-        ShutdownAPIEvent(transmitted_api_data=transmitted_api_data)
-    ]
+    shutdown_api_events = []
+
+    startup_api_events.append(ShutdownAPIEvent(transmitted_api_data=transmitted_api_data))
 
     api_app = create_fastapi_app(
         title=settings.api_title.strip(),

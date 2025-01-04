@@ -333,10 +333,10 @@ class CreateScheduledOperationWorker(BaseWorker):
                 session.refresh(operation_dbm)
 
 
-def every_timedelta(*, td: timedelta) -> Callable:
+def is_time_func_every_timedelta(*, td: timedelta) -> Callable:
     last_now_utc_dt = now_utc_dt()
 
-    def check_time() -> bool:
+    def func() -> bool:
         nonlocal last_now_utc_dt
         now_utc_dt_ = now_utc_dt()
         if (now_utc_dt_ - last_now_utc_dt) >= td:
@@ -344,7 +344,7 @@ def every_timedelta(*, td: timedelta) -> Callable:
             return True
         return False
 
-    return check_time
+    return func
 
 
 def __example():

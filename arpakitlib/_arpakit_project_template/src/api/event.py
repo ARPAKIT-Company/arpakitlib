@@ -1,9 +1,5 @@
-import logging
-
 from arpakitlib.ar_fastapi_util import BaseStartupAPIEvent, BaseShutdownAPIEvent
 from src.api.transmitted_api_data import TransmittedAPIData
-
-_logger = logging.getLogger(__name__)
 
 
 class StartupAPIEvent(BaseStartupAPIEvent):
