@@ -26,6 +26,8 @@ class Settings(SimpleSettings):
 
     api_start_create_scheduled_operation_worker: bool = False
 
+    api_port: int | None = int("{API_PORT}") if "{API_PORT}".isdigit() else None
+
     var_dirname: str | None = "var"
 
     var_dirpath: str | None = os.path.join(BASE_DIRPATH, var_dirname)
