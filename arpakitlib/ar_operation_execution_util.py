@@ -64,79 +64,6 @@ class BaseOperationExecutor:
         self._logger = logging.getLogger(self.__class__.__name__)
         self.sql_alchemy_db = sqlalchemy_db
 
-    async def async_execute_operation(self, operation_dbm: OperationDBM) -> OperationDBM:
-        if operation_dbm.type == OperationDBM.Types.healthcheck_:
-            self._logger.info("healthcheck")
-        elif operation_dbm.type == OperationDBM.Types.raise_fake_exception_:
-            self._logger.info("raise_fake_exception")
-            raise Exception("raise_fake_exception")
-        return operation_dbm
-
-    async def async_safe_execute_operation(self, operation_dbm: OperationDBM) -> OperationDBM:
-        self._logger.info(
-            f"start async_safe_execute_operation"
-            f", operation_dbm.id={operation_dbm.id}"
-            f", operation_dbm.type={operation_dbm.type}"
-        )
-
-        with self.sql_alchemy_db.new_session() as session:
-            operation_dbm: OperationDBM = get_operation_by_id(
-                session=session, filter_operation_id=operation_dbm.id, raise_if_not_found=True
-            )
-            operation_dbm.execution_start_dt = now_utc_dt()
-            operation_dbm.status = OperationDBM.Statuses.executing
-            session.commit()
-            session.refresh(operation_dbm)
-
-        exception: BaseException | None = None
-        traceback_str: str | None = None
-
-        try:
-            await self.async_execute_operation(operation_dbm=operation_dbm)
-        except BaseException as exception_:
-            self._logger.exception(exception_)
-            exception = exception_
-            traceback_str = traceback.format_exc()
-
-        with self.sql_alchemy_db.new_session() as session:
-
-            operation_dbm: OperationDBM = get_operation_by_id(
-                session=session, filter_operation_id=operation_dbm.id, raise_if_not_found=True
-            )
-            operation_dbm.execution_finish_dt = now_utc_dt()
-            if exception:
-                operation_dbm.status = OperationDBM.Statuses.executed_with_error
-                operation_dbm.error_data = combine_dicts(
-                    {"exception": str(exception), "traceback_str": traceback_str},
-                    operation_dbm.error_data
-                )
-            else:
-                operation_dbm.status = OperationDBM.Statuses.executed_without_error
-            session.commit()
-
-            story_log_dbm = StoryLogDBM(
-                level=StoryLogDBM.Levels.error,
-                title="Error in async_execute_operation",
-                data={
-                    "operation_id": operation_dbm.id,
-                    "exception_str": str(exception),
-                    "traceback_str": traceback_str
-                }
-            )
-            session.add(story_log_dbm)
-            session.commit()
-
-            session.refresh(operation_dbm)
-            session.refresh(story_log_dbm)
-
-        self._logger.info(
-            f"finish async_safe_execute_operation"
-            f", operation_dbm.id={operation_dbm.id}"
-            f", operation_dbm.type={operation_dbm.type}"
-        )
-
-        return operation_dbm
-
     def sync_execute_operation(self, operation_dbm: OperationDBM) -> OperationDBM:
         if operation_dbm.type == OperationDBM.Types.healthcheck_:
             self._logger.info("healthcheck")
@@ -211,6 +138,79 @@ class BaseOperationExecutor:
 
         return operation_dbm
 
+    async def async_execute_operation(self, operation_dbm: OperationDBM) -> OperationDBM:
+        if operation_dbm.type == OperationDBM.Types.healthcheck_:
+            self._logger.info("healthcheck")
+        elif operation_dbm.type == OperationDBM.Types.raise_fake_exception_:
+            self._logger.info("raise_fake_exception")
+            raise Exception("raise_fake_exception")
+        return operation_dbm
+
+    async def async_safe_execute_operation(self, operation_dbm: OperationDBM) -> OperationDBM:
+        self._logger.info(
+            f"start async_safe_execute_operation"
+            f", operation_dbm.id={operation_dbm.id}"
+            f", operation_dbm.type={operation_dbm.type}"
+        )
+
+        with self.sql_alchemy_db.new_session() as session:
+            operation_dbm: OperationDBM = get_operation_by_id(
+                session=session, filter_operation_id=operation_dbm.id, raise_if_not_found=True
+            )
+            operation_dbm.execution_start_dt = now_utc_dt()
+            operation_dbm.status = OperationDBM.Statuses.executing
+            session.commit()
+            session.refresh(operation_dbm)
+
+        exception: BaseException | None = None
+        traceback_str: str | None = None
+
+        try:
+            await self.async_execute_operation(operation_dbm=operation_dbm)
+        except BaseException as exception_:
+            self._logger.exception(exception_)
+            exception = exception_
+            traceback_str = traceback.format_exc()
+
+        with self.sql_alchemy_db.new_session() as session:
+
+            operation_dbm: OperationDBM = get_operation_by_id(
+                session=session, filter_operation_id=operation_dbm.id, raise_if_not_found=True
+            )
+            operation_dbm.execution_finish_dt = now_utc_dt()
+            if exception:
+                operation_dbm.status = OperationDBM.Statuses.executed_with_error
+                operation_dbm.error_data = combine_dicts(
+                    {"exception": str(exception), "traceback_str": traceback_str},
+                    operation_dbm.error_data
+                )
+            else:
+                operation_dbm.status = OperationDBM.Statuses.executed_without_error
+            session.commit()
+
+            story_log_dbm = StoryLogDBM(
+                level=StoryLogDBM.Levels.error,
+                title="Error in async_execute_operation",
+                data={
+                    "operation_id": operation_dbm.id,
+                    "exception_str": str(exception),
+                    "traceback_str": traceback_str
+                }
+            )
+            session.add(story_log_dbm)
+            session.commit()
+
+            session.refresh(operation_dbm)
+            session.refresh(story_log_dbm)
+
+        self._logger.info(
+            f"finish async_safe_execute_operation"
+            f", operation_dbm.id={operation_dbm.id}"
+            f", operation_dbm.type={operation_dbm.type}"
+        )
+
+        return operation_dbm
+
 
 class ExecuteOperationWorker(BaseWorker):
 
@@ -232,26 +232,6 @@ class ExecuteOperationWorker(BaseWorker):
         self.operation_executor = operation_executor
         self.filter_operation_type = filter_operation_type
 
-    async def async_on_startup(self):
-        self.sqlalchemy_db.init()
-
-    async def async_execute_operation(self, operation_dbm: OperationDBM) -> OperationDBM:
-        return await self.operation_executor.async_safe_execute_operation(operation_dbm=operation_dbm)
-
-    async def async_run(self):
-        operation_dbm: OperationDBM | None = get_operation_for_execution(
-            sqlalchemy_db=self.sqlalchemy_db,
-            filter_operation_type=self.filter_operation_type
-        )
-
-        if not operation_dbm:
-            return
-
-        await self.async_execute_operation(operation_dbm=operation_dbm)
-
-    async def async_run_on_error(self, exception: BaseException, **kwargs):
-        self._logger.exception(exception)
-
     def sync_on_startup(self):
         self.sqlalchemy_db.init()
 
@@ -270,6 +250,26 @@ class ExecuteOperationWorker(BaseWorker):
         self.sync_execute_operation(operation_dbm=operation_dbm)
 
     def sync_run_on_error(self, exception: BaseException, **kwargs):
+        self._logger.exception(exception)
+
+    async def async_on_startup(self):
+        self.sqlalchemy_db.init()
+
+    async def async_execute_operation(self, operation_dbm: OperationDBM) -> OperationDBM:
+        return await self.operation_executor.async_safe_execute_operation(operation_dbm=operation_dbm)
+
+    async def async_run(self):
+        operation_dbm: OperationDBM | None = get_operation_for_execution(
+            sqlalchemy_db=self.sqlalchemy_db,
+            filter_operation_type=self.filter_operation_type
+        )
+
+        if not operation_dbm:
+            return
+
+        await self.async_execute_operation(operation_dbm=operation_dbm)
+
+    async def async_run_on_error(self, exception: BaseException, **kwargs):
         self._logger.exception(exception)
 
 

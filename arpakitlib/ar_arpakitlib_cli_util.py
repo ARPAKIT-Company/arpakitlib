@@ -2,9 +2,9 @@
 
 import sys
 
+from arpakitlib.ar_arpakit_project_template_util import init_arpakit_project_template
 from arpakitlib.ar_need_type_util import parse_need_type, NeedTypes
 from arpakitlib.ar_parse_command import parse_command
-from arpakitlib.ar_project_template_util import init_arpakit_project_template
 from arpakitlib.ar_str_util import raise_if_string_blank
 
 
@@ -25,7 +25,8 @@ def execute_arpakitlib_cli(*, full_command: str | None = None):
         print(
             "Commands:"
             "\n- init_arpakit_project_template"
-            " (project_dirpath, overwrite_if_exists, project_name, ignore_paths_startswith, only_paths_startswith)"
+            " (project_dirpath, overwrite_if_exists, project_name, sql_db_port, api_port,"
+            " ignore_paths_startswith, only_paths_startswith)"
         )
 
     elif command == "init_arpakit_project_template":
@@ -36,7 +37,17 @@ def execute_arpakitlib_cli(*, full_command: str | None = None):
             allow_none=False
         )
         project_name: str = parsed_command.get_value_by_keys(keys=["pm", "project_name"])
-        project_name = project_name if project_name.strip() else None
+        project_name = project_name.strip() if project_name.strip() else None
+        sql_db_port: int | None = parse_need_type(
+            value=parsed_command.get_value_by_keys(keys=["sdp", "sql_db_port"]),
+            need_type=NeedTypes.int_,
+            allow_none=True
+        )
+        api_port: int | None = parse_need_type(
+            value=parsed_command.get_value_by_keys(keys=["ap", "api_port"]),
+            need_type=NeedTypes.int_,
+            allow_none=True
+        )
         ignore_paths_startswith: list[str] | None = parse_need_type(
             value=parsed_command.get_value_by_keys(keys=["ipsw", "ignore_paths_startswith"]),
             need_type=NeedTypes.list_of_str,
@@ -48,7 +59,8 @@ def execute_arpakitlib_cli(*, full_command: str | None = None):
             allow_none=True
         )
         init_arpakit_project_template(
-            project_dirpath=project_dirpath, overwrite_if_exists=overwrite_if_exists, project_name=project_name,
+            project_dirpath=project_dirpath, overwrite_if_exists=overwrite_if_exists,
+            project_name=project_name, sql_db_port=sql_db_port, api_port=api_port,
             ignore_paths_startswith=ignore_paths_startswith, only_paths_startswith=only_paths_startswith
         )
 

@@ -15,6 +15,14 @@ from arpakitlib.ar_json_util import safely_transfer_to_json_str
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
 
 
+def generate_default_long_id():
+    return (
+        f"longid"
+        f"{str(uuid4()).replace('-', '')}"
+        f"{str(now_utc_dt().timestamp()).replace('.', '')}"
+    )
+
+
 class BaseDBM(DeclarativeBase):
     __abstract__ = True
     _bus_data: dict[str, Any] | None = None
@@ -46,7 +54,7 @@ class SimpleDBM(BaseDBM):
         INTEGER, primary_key=True, autoincrement=True, sort_order=-3, nullable=False
     )
     long_id: Mapped[str] = mapped_column(
-        TEXT, insert_default=uuid4, unique=True, sort_order=-2, nullable=False
+        TEXT, insert_default=generate_default_long_id, unique=True, sort_order=-2, nullable=False
     )
     creation_dt: Mapped[datetime] = mapped_column(
         TIMESTAMP(timezone=True), insert_default=now_utc_dt, index=True, sort_order=-1, nullable=False

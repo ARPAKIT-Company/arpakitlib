@@ -29,11 +29,11 @@ class GenerateImageFromNumberResApiModel(BaseAPIModel):
         return filepath
 
 
-class DreamAIAPIClient:
+class DREAMAIAPIClient:
     def __init__(
             self,
             *,
-            base_url: str = "https://api.dream_ai.arpakit.com/api/v1",
+            base_url: str = "https://api.dreamai.arpakit.com/api/v1",
             api_key: str | None = "1"
     ):
         self._logger = logging.getLogger(__name__)

@@ -3,6 +3,7 @@
 from typing import Union
 
 from pydantic import ConfigDict, field_validator
+from pydantic_core import PydanticUndefined
 from pydantic_settings import BaseSettings
 
 from arpakitlib.ar_enumeration_util import Enumeration
@@ -11,7 +12,7 @@ from arpakitlib.ar_enumeration_util import Enumeration
 def generate_env_example(settings_class: Union[BaseSettings, type[BaseSettings]]):
     res = ""
     for k, f in settings_class.model_fields.items():
-        if f.default:
+        if f.default is not PydanticUndefined:
             res += f"# {k}=\n"
         else:
             res += f"{k}=\n"
@@ -22,10 +23,10 @@ class SimpleSettings(BaseSettings):
     model_config = ConfigDict(extra="ignore")
 
     class ModeTypes(Enumeration):
-        dev: str = "dev"
+        not_prod: str = "not_prod"
         prod: str = "prod"
 
-    mode_type: str = ModeTypes.dev
+    mode_type: str = ModeTypes.not_prod
 
     @field_validator("mode_type")
     @classmethod

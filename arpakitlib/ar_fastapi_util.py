@@ -7,6 +7,7 @@ import logging
 import os.path
 import pathlib
 import traceback
+from contextlib import suppress
 from datetime import datetime
 from typing import Any, Callable
 
@@ -16,10 +17,9 @@ import fastapi.security
 import starlette.exceptions
 import starlette.requests
 import starlette.status
-from fastapi import FastAPI, APIRouter, Query, Security
+from fastapi import FastAPI, APIRouter, Query, Security, Depends
 from fastapi.openapi.docs import get_swagger_ui_html, get_redoc_html
 from fastapi.security import APIKeyHeader
-from jaraco.context import suppress
 from pydantic import BaseModel, ConfigDict
 from starlette.middleware.cors import CORSMiddleware
 from starlette.staticfiles import StaticFiles
@@ -147,14 +147,16 @@ class APIException(fastapi.exceptions.HTTPException):
 
 def create_handle_exception(
         *,
-        funcs_before_response: list[Callable] | None = None,
-        async_funcs_after_response: list[Callable] | None = None,
-) -> Any:
+        funcs_before_response: list[Callable | None] | None = None,
+        async_funcs_after_response: list[Callable | None] | None = None,
+) -> Callable:
     if funcs_before_response is None:
         funcs_before_response = []
+    funcs_before_response = [v for v in funcs_before_response if v is not None]
 
     if async_funcs_after_response is None:
         async_funcs_after_response = []
+    async_funcs_after_response = [v for v in async_funcs_after_response if v is not None]
 
     async def handle_exception(
             request: starlette.requests.Request, exception: Exception
@@ -366,7 +368,7 @@ def add_needed_api_router_to_app(*, app: FastAPI):
     async def _():
         return APIJSONResponse(
             status_code=starlette.status.HTTP_200_OK,
-            content=RawDataSO(data={"arpakitlib": "arpakitlib"})
+            content=RawDataSO(data={"arpakitlib": True})
         )
 
     app.include_router(router=api_router, prefix="")
@@ -413,8 +415,9 @@ class SafeRunWorkerStartupAPIEvent(BaseStartupAPIEvent):
 
 
 class InitFileStoragesInDir(BaseStartupAPIEvent):
-    def __init__(self, file_storages_in_dir: list[FileStorageInDir]):
+    def __init__(self, file_storages_in_dir: list[FileStorageInDir | None]):
         super().__init__()
+        file_storages_in_dir = [v for v in file_storages_in_dir if v is not None]
         self.file_storages_in_dir = file_storages_in_dir
 
     async def async_on_startup(self, *args, **kwargs):
@@ -451,7 +454,7 @@ def base_api_auth(
                 fastapi.security.HTTPBearer(auto_error=False)
             ),
             api_key_string: str | None = Security(APIKeyHeader(name="apikey", auto_error=False)),
-            request: fastapi.Request
+            request: starlette.requests.Request
     ) -> BaseAPIAuthData:
 
         api_auth_data = BaseAPIAuthData(
@@ -525,6 +528,61 @@ def base_api_auth(
     return func
 
 
+class CheckAPIKeyAPIAuthData(BaseAPIAuthData):
+    require_check_api_key: bool = False
+    is_api_key_correct: bool | None = None
+
+
+def check_api_key_api_auth(
+        *,
+        require_check_api_key: bool = True,
+        check_api_key_func: Callable | None = None,
+        correct_api_key: str | None = None
+):
+    if require_check_api_key:
+        require_api_key_string = True
+    else:
+        require_api_key_string = False
+
+    if correct_api_key is not None:
+        check_api_key_func = lambda **kwargs: kwargs["api_key_string"] == correct_api_key
+
+    if require_check_api_key and check_api_key_func is None:
+        raise ValueError("require_check_api_key and check_api_key_func is None")
+
+    async def func(
+            *,
+            base_api_auth_data: BaseAPIAuthData = Depends(base_api_auth(
+                require_api_key_string=require_api_key_string,
+                require_token_string=False
+            )),
+            transmitted_api_data: BaseTransmittedAPIData = Depends(get_transmitted_api_data),
+            request: starlette.requests.Request
+    ) -> CheckAPIKeyAPIAuthData:
+        check_api_key_api_auth_data = CheckAPIKeyAPIAuthData.model_validate(base_api_auth_data)
+        check_api_key_api_auth_data.require_check_api_key = require_check_api_key
+        check_api_key_api_auth_data.is_api_key_correct = (
+            check_api_key_func(
+                api_key_string=base_api_auth_data.api_key_string,
+                base_api_auth_data=base_api_auth_data,
+                transmitted_api_data=transmitted_api_data,
+                request=request
+            )
+            if check_api_key_func is not None else None
+        )
+
+        if check_api_key_api_auth_data.require_check_api_key and not check_api_key_api_auth_data.is_api_key_correct:
+            raise APIException(
+                status_code=starlette.status.HTTP_401_UNAUTHORIZED,
+                error_code=ErrorSO.APIErrorCodes.cannot_authorize,
+                error_data=safely_transfer_to_json_str_to_json_obj(check_api_key_api_auth_data.model_dump())
+            )
+
+        return check_api_key_api_auth_data
+
+    return func
+
+
 def simple_api_router_for_testing():
     router = APIRouter(tags=["Testing"])
 
@@ -554,7 +612,7 @@ def simple_api_router_for_testing():
         raise Exception("raise_fake_exception_3")
 
     @router.get(
-        "/check_params",
+        "/check_params_1",
         response_model=ErrorSO
     )
     async def _(name: int = Query()):
@@ -564,7 +622,7 @@ def simple_api_router_for_testing():
 
 
 _DEFAULT_CONTACT = {
-    "name": "arpakit",
+    "name": "ARPAKIT Company",
     "email": "support@arpakit.com"
 }
 
@@ -575,8 +633,8 @@ def create_fastapi_app(
         description: str | None = "arpakitlib FastAPI",
         log_filepath: str | None = "./story.log",
         handle_exception_: Callable | None = create_handle_exception(),
-        startup_api_events: list[BaseStartupAPIEvent] | None = None,
-        shutdown_api_events: list[BaseShutdownAPIEvent] | None = None,
+        startup_api_events: list[BaseStartupAPIEvent | None] | None = None,
+        shutdown_api_events: list[BaseShutdownAPIEvent | None] | None = None,
         transmitted_api_data: BaseTransmittedAPIData = BaseTransmittedAPIData(),
         main_api_router: APIRouter = simple_api_router_for_testing(),
         contact: dict[str, Any] | None = None,
@@ -589,9 +647,11 @@ def create_fastapi_app(
 
     if not startup_api_events:
         startup_api_events = [BaseStartupAPIEvent()]
+    startup_api_events = [v for v in startup_api_events if v is not None]
 
     if not shutdown_api_events:
         shutdown_api_events = [BaseShutdownAPIEvent()]
+    shutdown_api_events = [v for v in shutdown_api_events if v is not None]
 
     app = FastAPI(
         title=title,
