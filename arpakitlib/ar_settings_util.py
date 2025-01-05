@@ -44,3 +44,35 @@ class SimpleSettings(BaseSettings):
     @classmethod
     def generate_env_example(cls) -> str:
         return generate_env_example(settings_class=cls)
+
+
+def __example():
+    default_settings = SimpleSettings()
+    print(f"Настройки по умолчанию: {default_settings.mode_type}")
+
+    if default_settings.is_mode_type_dev:
+        print("Приложение запущено в режиме разработки")
+    elif default_settings.is_mode_type_prod:
+        print("Приложение запущено в режиме продакшена")
+
+    said_settings = SimpleSettings(mode_type="prod")
+    print(f"\nУказанные настройки: {said_settings.mode_type}")
+
+    if said_settings.is_mode_type_dev:
+        print("Приложение запущено в режиме разработки")
+    elif said_settings.is_mode_type_prod:
+        print("Приложение запущено в режиме продакшена")
+
+    # Неверное значение для mode_type
+    try:
+        SimpleSettings(mode_type="invalid_value")
+    except Exception as e:
+        print(f"\nОшибка: {e}")
+
+    # Генерация конфигурации
+    print("\nГенерация примера конфигурации:")
+    print(SimpleSettings.generate_env_example())
+
+
+if __name__ == '__main__':
+    __example()
