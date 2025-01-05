@@ -5,7 +5,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import traceback
-from datetime import timedelta
+from datetime import timedelta, time
 from typing import Any, Callable
 
 from pydantic import ConfigDict
@@ -109,7 +109,10 @@ class BaseOperationExecutor:
             if exception:
                 operation_dbm.status = OperationDBM.Statuses.executed_with_error
                 operation_dbm.error_data = combine_dicts(
-                    {"exception": str(exception), "traceback_str": traceback_str},
+                    {
+                        "exception_str": str(exception),
+                        "traceback_str": traceback_str
+                    },
                     operation_dbm.error_data
                 )
             else:
@@ -185,7 +188,10 @@ class BaseOperationExecutor:
             if exception:
                 operation_dbm.status = OperationDBM.Statuses.executed_with_error
                 operation_dbm.error_data = combine_dicts(
-                    {"exception": str(exception), "traceback_str": traceback_str},
+                    {
+                        "exception_str": str(exception),
+                        "traceback_str": traceback_str
+                    },
                     operation_dbm.error_data
                 )
             else:
@@ -219,7 +225,7 @@ class BaseOperationExecutor:
         return operation_dbm
 
 
-class ExecuteOperationWorker(BaseWorker):
+class OperationExecutorWorker(BaseWorker):
 
     def __init__(
             self,
@@ -288,7 +294,7 @@ class ScheduledOperation(BaseModel):
     is_time_func: Callable[[], bool]
 
 
-class CreateScheduledOperationWorker(BaseWorker):
+class ScheduledOperationCreatorWorker(BaseWorker):
     def __init__(
             self,
             *,
@@ -338,7 +344,7 @@ class CreateScheduledOperationWorker(BaseWorker):
                 session.refresh(operation_dbm)
 
 
-def is_time_func_every_timedelta(*, td: timedelta) -> Callable:
+def every_timedelta_is_time_func(*, td: timedelta) -> Callable:
     last_now_utc_dt = now_utc_dt()
 
     def func() -> bool:
@@ -346,6 +352,16 @@ def is_time_func_every_timedelta(*, td: timedelta) -> Callable:
         now_utc_dt_ = now_utc_dt()
         if (now_utc_dt_ - last_now_utc_dt) >= td:
             last_now_utc_dt = now_utc_dt_
+            return True
+        return False
+
+    return func
+
+
+def between_different_times_is_time_func(*, from_time: time, to_time: time) -> Callable:
+    def func() -> bool:
+        now_utc_dt_ = now_utc_dt()
+        if from_time <= now_utc_dt_.time() <= to_time:
             return True
         return False
 

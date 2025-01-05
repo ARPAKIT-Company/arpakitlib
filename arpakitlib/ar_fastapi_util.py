@@ -68,13 +68,14 @@ class SimpleSO(BaseSO):
     creation_dt: datetime
 
 
-class ErrorSO(BaseSO):
-    class APIErrorCodes(Enumeration):
-        cannot_authorize = "CANNOT_AUTHORIZE"
-        unknown_error = "UNKNOWN_ERROR"
-        error_in_request = "ERROR_IN_REQUEST"
-        not_found = "NOT_FOUND"
+class BaseAPIErrorCodes(Enumeration):
+    cannot_authorize = "CANNOT_AUTHORIZE"
+    unknown_error = "UNKNOWN_ERROR"
+    error_in_request = "ERROR_IN_REQUEST"
+    not_found = "NOT_FOUND"
 
+
+class ErrorSO(BaseSO):
     has_error: bool = True
     error_code: str | None = None
     error_code_specification: str | None = None
@@ -118,7 +119,7 @@ class APIException(fastapi.exceptions.HTTPException):
             self,
             *,
             status_code: int = starlette.status.HTTP_400_BAD_REQUEST,
-            error_code: str | None = ErrorSO.APIErrorCodes.unknown_error,
+            error_code: str | None = BaseAPIErrorCodes.unknown_error,
             error_code_specification: str | None = None,
             error_description: str | None = None,
             error_data: dict[str, Any] | None = None
@@ -165,7 +166,7 @@ def create_handle_exception(
 
         error_so = ErrorSO(
             has_error=True,
-            error_code=ErrorSO.APIErrorCodes.unknown_error,
+            error_code=BaseAPIErrorCodes.unknown_error,
             error_data={
                 "exception_type": str(type(exception)),
                 "exception_str": str(exception),
@@ -183,10 +184,10 @@ def create_handle_exception(
         elif isinstance(exception, starlette.exceptions.HTTPException):
             status_code = exception.status_code
             if status_code in (starlette.status.HTTP_403_FORBIDDEN, starlette.status.HTTP_401_UNAUTHORIZED):
-                error_so.error_code = ErrorSO.APIErrorCodes.cannot_authorize
+                error_so.error_code = BaseAPIErrorCodes.cannot_authorize
                 _need_exc_info = False
             elif status_code == starlette.status.HTTP_404_NOT_FOUND:
-                error_so.error_code = ErrorSO.APIErrorCodes.not_found
+                error_so.error_code = BaseAPIErrorCodes.not_found
                 _need_exc_info = False
             else:
                 status_code = starlette.status.HTTP_500_INTERNAL_SERVER_ERROR
@@ -196,14 +197,14 @@ def create_handle_exception(
 
         elif isinstance(exception, fastapi.exceptions.RequestValidationError):
             status_code = starlette.status.HTTP_422_UNPROCESSABLE_ENTITY
-            error_so.error_code = ErrorSO.APIErrorCodes.error_in_request
+            error_so.error_code = BaseAPIErrorCodes.error_in_request
             with suppress(Exception):
                 error_so.error_data["exception.errors"] = str(exception.errors()) if exception.errors() else {}
             _need_exc_info = False
 
         else:
             status_code = starlette.status.HTTP_500_INTERNAL_SERVER_ERROR
-            error_so.error_code = ErrorSO.APIErrorCodes.unknown_error
+            error_so.error_code = BaseAPIErrorCodes.unknown_error
             _logger.exception(exception)
             _need_exc_info = True
 
@@ -512,14 +513,14 @@ def base_api_auth(
         if require_api_key_string and not api_auth_data.api_key_string:
             raise APIException(
                 status_code=starlette.status.HTTP_401_UNAUTHORIZED,
-                error_code=ErrorSO.APIErrorCodes.cannot_authorize,
+                error_code=BaseAPIErrorCodes.cannot_authorize,
                 error_data=safely_transfer_to_json_str_to_json_obj(api_auth_data.model_dump())
             )
 
         if require_token_string and not api_auth_data.token_string:
             raise APIException(
                 status_code=starlette.status.HTTP_401_UNAUTHORIZED,
-                error_code=ErrorSO.APIErrorCodes.cannot_authorize,
+                error_code=BaseAPIErrorCodes.cannot_authorize,
                 error_data=safely_transfer_to_json_str_to_json_obj(api_auth_data.model_dump())
             )
 
@@ -537,37 +538,31 @@ def is_api_key_correct_api_auth(
         validate_api_key_func: Callable | None = None,
         correct_api_key: str | None = None
 ):
-    require_api_key_string = True
-
     if correct_api_key is not None:
-        validate_api_key_func = lambda **kwargs: kwargs["api_key_string"] == correct_api_key
-
+        validate_api_key_func = lambda *args, **kwargs: kwargs["api_key_string"] == correct_api_key
     raise_if_none(validate_api_key_func)
 
     async def func(
             *,
             base_api_auth_data: BaseAPIAuthData = Depends(base_api_auth(
-                require_api_key_string=require_api_key_string,
+                require_api_key_string=True,
                 require_token_string=False
             )),
             transmitted_api_data: BaseTransmittedAPIData = Depends(get_transmitted_api_data),
             request: starlette.requests.Request
     ) -> CheckAPIKeyAPIAuthData:
         check_api_key_api_auth_data = CheckAPIKeyAPIAuthData.model_validate(base_api_auth_data)
-        check_api_key_api_auth_data.is_api_key_correct = (
-            validate_api_key_func(
-                api_key_string=base_api_auth_data.api_key_string,
-                base_api_auth_data=base_api_auth_data,
-                transmitted_api_data=transmitted_api_data,
-                request=request
-            )
-            if validate_api_key_func is not None else None
+        check_api_key_api_auth_data.is_api_key_correct = validate_api_key_func(
+            api_key_string=base_api_auth_data.api_key_string,
+            base_api_auth_data=base_api_auth_data,
+            transmitted_api_data=transmitted_api_data,
+            request=request
         )
 
         if not check_api_key_api_auth_data.is_api_key_correct:
             raise APIException(
                 status_code=starlette.status.HTTP_401_UNAUTHORIZED,
-                error_code=ErrorSO.APIErrorCodes.cannot_authorize,
+                error_code=BaseAPIErrorCodes.cannot_authorize,
                 error_data=safely_transfer_to_json_str_to_json_obj(check_api_key_api_auth_data.model_dump())
             )
 

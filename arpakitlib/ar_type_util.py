@@ -84,6 +84,12 @@ def raise_if_none(v: Any) -> Any:
     return v
 
 
+def raise_if_not_none(v: Any) -> Any:
+    if v is not None:
+        raise ValueError(f"v is not None, v={v}, type(v)={type(v)}")
+    return v
+
+
 def __example():
     pass
 

@@ -69,6 +69,17 @@ class Enumeration:
     def parse_and_validate_values(cls, *values: ValuesForParseType) -> list[ValueType]:
         return cls.parse_values(*values, validate=True)
 
+    @classmethod
+    def str_for_print(cls) -> str:
+        res = f"{cls.__name__} (len={len(cls.values_list())})"
+        for v in cls.values_list():
+            res += f"\n- {v}"
+        return res.strip()
+
+    @classmethod
+    def print(cls):
+        print(cls.str_for_print())
+
 
 def __example():
     pass

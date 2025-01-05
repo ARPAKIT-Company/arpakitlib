@@ -4,7 +4,7 @@ from arpakitlib.ar_base_worker_util import BaseWorker
 from arpakitlib.ar_fastapi_util import create_fastapi_app, InitSqlalchemyDBStartupAPIEvent, InitFileStoragesInDir, \
     create_handle_exception, create_story_log_before_response_in_handle_exception, _DEFAULT_CONTACT, \
     SafeRunWorkerStartupAPIEvent
-from arpakitlib.ar_operation_execution_util import ExecuteOperationWorker, CreateScheduledOperationWorker
+from arpakitlib.ar_operation_execution_util import OperationExecutorWorker, ScheduledOperationCreatorWorker
 from arpakitlib.ar_sqlalchemy_util import SQLAlchemyDB
 from arpakitlib.ar_type_util import raise_for_type
 from src.api.event import StartupAPIEvent, ShutdownAPIEvent
@@ -60,7 +60,7 @@ def create_api_app() -> FastAPI:
         startup_api_events.append(
             SafeRunWorkerStartupAPIEvent(
                 workers=[
-                    ExecuteOperationWorker(
+                    OperationExecutorWorker(
                         sqlalchemy_db=sqlalchemy_db,
                         operation_executor=OperationExecutor(sqlalchemy_db=sqlalchemy_db),
                         filter_operation_types=None
@@ -75,7 +75,7 @@ def create_api_app() -> FastAPI:
         startup_api_events.append(
             SafeRunWorkerStartupAPIEvent(
                 workers=[
-                    CreateScheduledOperationWorker(
+                    ScheduledOperationCreatorWorker(
                         sqlalchemy_db=sqlalchemy_db,
                         scheduled_operations=ALL_SCHEDULED_OPERATIONS
                     )
