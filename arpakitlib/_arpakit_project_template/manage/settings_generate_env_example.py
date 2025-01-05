@@ -5,10 +5,8 @@ from src.core.settings import Settings
 
 
 def command():
-    env_example = Settings.generate_env_example()
-    print(env_example)
-    with open(os.path.join(BASE_DIRPATH, "example.env"), mode="w") as f:
-        f.write(env_example)
+    print(Settings.generate_env_example())
+    Settings.save_env_example_to_file(filepath=os.path.join(BASE_DIRPATH, "example.env"))
 
 
 if __name__ == '__main__':

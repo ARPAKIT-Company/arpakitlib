@@ -35,8 +35,8 @@ class SimpleSettings(BaseSettings):
         return v
 
     @property
-    def is_mode_type_dev(self) -> bool:
-        return self.mode_type == self.ModeTypes.dev
+    def is_mode_type_not_prod(self) -> bool:
+        return self.mode_type == self.ModeTypes.not_prod
 
     @property
     def is_mode_type_prod(self) -> bool:
@@ -45,3 +45,10 @@ class SimpleSettings(BaseSettings):
     @classmethod
     def generate_env_example(cls) -> str:
         return generate_env_example(settings_class=cls)
+
+    @classmethod
+    def save_env_example_to_file(cls, filepath: str) -> str:
+        env_example = cls.generate_env_example()
+        with open(filepath, mode="w") as f:
+            f.write(env_example)
+        return env_example

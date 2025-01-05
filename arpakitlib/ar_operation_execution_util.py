@@ -16,6 +16,7 @@ from sqlalchemy.orm import Session
 from arpakitlib.ar_base_worker_util import BaseWorker
 from arpakitlib.ar_datetime_util import now_utc_dt
 from arpakitlib.ar_dict_util import combine_dicts
+from arpakitlib.ar_sleep_util import sync_safe_sleep, async_safe_sleep
 from arpakitlib.ar_sqlalchemy_model_util import OperationDBM, StoryLogDBM, BaseOperationTypes
 from arpakitlib.ar_sqlalchemy_util import SQLAlchemyDB
 
@@ -292,6 +293,7 @@ class ScheduledOperation(BaseModel):
     type: str
     input_data: dict[str, Any] | None = None
     is_time_func: Callable[[], bool]
+    timeout_after_creation: timedelta | None = None
 
 
 class ScheduledOperationCreatorWorker(BaseWorker):
@@ -315,6 +317,8 @@ class ScheduledOperationCreatorWorker(BaseWorker):
         self.sqlalchemy_db.init()
 
     def sync_run(self):
+        timeout = None
+
         for scheduled_operation in self.scheduled_operations:
             if not scheduled_operation.is_time_func():
                 continue
@@ -327,10 +331,22 @@ class ScheduledOperationCreatorWorker(BaseWorker):
                 session.commit()
                 session.refresh(operation_dbm)
 
-    def async_on_startup(self):
+            if scheduled_operation.timeout_after_creation is not None:
+                if timeout is not None:
+                    if scheduled_operation.timeout_after_creation > timeout:
+                        timeout = scheduled_operation.timeout_after_creation
+                else:
+                    timeout = scheduled_operation.timeout_after_creation
+
+        if timeout is not None:
+            sync_safe_sleep(n=timeout)
+
+    async def async_on_startup(self):
         self.sqlalchemy_db.init()
 
-    def async_run(self):
+    async def async_run(self):
+        timeout: timedelta | None = None
+
         for scheduled_operation in self.scheduled_operations:
             if not scheduled_operation.is_time_func():
                 continue
@@ -342,6 +358,16 @@ class ScheduledOperationCreatorWorker(BaseWorker):
                 session.add(operation_dbm)
                 session.commit()
                 session.refresh(operation_dbm)
+
+            if scheduled_operation.timeout_after_creation is not None:
+                if timeout is not None:
+                    if scheduled_operation.timeout_after_creation > timeout:
+                        timeout = scheduled_operation.timeout_after_creation
+                else:
+                    timeout = scheduled_operation.timeout_after_creation
+
+        if timeout is not None:
+            await async_safe_sleep(n=timeout)
 
 
 def every_timedelta_is_time_func(*, td: timedelta) -> Callable:
