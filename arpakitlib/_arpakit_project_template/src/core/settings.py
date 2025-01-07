@@ -25,9 +25,9 @@ class Settings(SimpleSettings):
 
     api_create_story_log_before_response_in_handle_exception: bool = True
 
-    api_start_execute_operation_worker: bool = False
+    api_start_operation_executor_worker: bool = False
 
-    api_start_create_scheduled_operation_worker: bool = False
+    api_start_scheduled_operation_creator_worker: bool = False
 
     api_port: int | None = int("{API_PORT}") if "{API_PORT}".isdigit() else None
 

@@ -55,7 +55,7 @@ def create_api_app() -> FastAPI:
 
     startup_api_events.append(StartupAPIEvent(transmitted_api_data=transmitted_api_data))
 
-    if settings.api_start_execute_operation_worker:
+    if settings.api_start_operation_executor_worker:
         raise_for_type(sqlalchemy_db, SQLAlchemyDB)
         startup_api_events.append(
             SafeRunWorkerStartupAPIEvent(
@@ -70,7 +70,7 @@ def create_api_app() -> FastAPI:
             )
         )
 
-    if settings.api_start_create_scheduled_operation_worker:
+    if settings.api_start_scheduled_operation_creator_worker:
         raise_for_type(sqlalchemy_db, SQLAlchemyDB)
         startup_api_events.append(
             SafeRunWorkerStartupAPIEvent(

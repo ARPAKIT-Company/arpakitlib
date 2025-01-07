@@ -1,7 +1,11 @@
-from arpakitlib.ar_fastapi_util import BaseAPIErrorCodes
+from arpakitlib.ar_fastapi_util import BaseAPIErrorCodes, BaseAPIErrorSpecificationCodes
 
 
 class APIErrorCodes(BaseAPIErrorCodes):
+    pass
+
+
+class APIErrorSpecificationCodes(BaseAPIErrorSpecificationCodes):
     pass
 
 

@@ -75,10 +75,14 @@ class BaseAPIErrorCodes(Enumeration):
     not_found = "NOT_FOUND"
 
 
+class BaseAPIErrorSpecificationCodes(Enumeration):
+    pass
+
+
 class ErrorSO(BaseSO):
     has_error: bool = True
     error_code: str | None = None
-    error_code_specification: str | None = None
+    error_specification_code: str | None = None
     error_description: str | None = None
     error_data: dict[str, Any] = {}
 
@@ -120,13 +124,13 @@ class APIException(fastapi.exceptions.HTTPException):
             *,
             status_code: int = starlette.status.HTTP_400_BAD_REQUEST,
             error_code: str | None = BaseAPIErrorCodes.unknown_error,
-            error_code_specification: str | None = None,
+            error_specification_code: str | None = None,
             error_description: str | None = None,
             error_data: dict[str, Any] | None = None
     ):
         self.status_code = status_code
         self.error_code = error_code
-        self.error_code_specification = error_code_specification
+        self.error_specification_code = error_specification_code
         self.error_description = error_description
         if error_data is None:
             error_data = {}
@@ -135,7 +139,7 @@ class APIException(fastapi.exceptions.HTTPException):
         self.error_so = ErrorSO(
             has_error=True,
             error_code=self.error_code,
-            error_code_specification=self.error_code_specification,
+            error_specification_code=self.error_specification_code,
             error_description=self.error_description,
             error_data=self.error_data
         )
@@ -211,9 +215,9 @@ def create_handle_exception(
         if error_so.error_code:
             error_so.error_code = error_so.error_code.upper().replace(" ", "_").strip()
 
-        if error_so.error_code_specification:
-            error_so.error_code_specification = (
-                error_so.error_code_specification.upper().replace(" ", "_").strip()
+        if error_so.error_specification_code:
+            error_so.error_specification_code = (
+                error_so.error_specification_code.upper().replace(" ", "_").strip()
             )
 
         if _need_exc_info:
@@ -588,7 +592,7 @@ def simple_api_router_for_testing():
     async def _():
         raise APIException(
             error_code="raise_fake_exception_2",
-            error_code_specification="raise_fake_exception_2",
+            error_specification_code="raise_fake_exception_2",
             error_description="raise_fake_exception_2"
         )
 
