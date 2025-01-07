@@ -13,7 +13,7 @@ _logger = logging.getLogger(__name__)
 
 def init_arpakit_project_template(
         *,
-        project_dirpath: str,
+        project_dirpath: str = "./",
         overwrite_if_exists: bool = False,
         project_name: str | None = None,
         sql_db_port: int | None = None,

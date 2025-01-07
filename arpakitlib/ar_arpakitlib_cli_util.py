@@ -22,12 +22,17 @@ def execute_arpakitlib_cli(*, full_command: str | None = None):
         raise Exception(f"not command, command={command}")
 
     if command == "help":
-        print(
-            "Commands:"
-            "\n- init_arpakit_project_template"
-            " (project_dirpath, overwrite_if_exists, project_name, sql_db_port, api_port,"
-            " ignore_paths_startswith, only_paths_startswith)"
-        )
+        print("Commands:")
+        print()
+        print("-c init_arpakit_project_template")
+        print("-project_dirpath ...")
+        print("-overwrite_if_exists ...")
+        print("-project_name ...")
+        print("-sql_db_port ...")
+        print("-api_port ...")
+        print("-ignore_paths_startswith ...")
+        print("-only_paths_startswith ...")
+        print("\n")
 
     elif command == "init_arpakit_project_template":
         project_dirpath = raise_if_string_blank(parsed_command.get_value_by_keys(keys=["pd", "project_dirpath"]))
