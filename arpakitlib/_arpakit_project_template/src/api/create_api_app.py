@@ -8,7 +8,7 @@ from arpakitlib.ar_operation_execution_util import OperationExecutorWorker, Sche
 from arpakitlib.ar_sqlalchemy_util import SQLAlchemyDB
 from arpakitlib.ar_type_util import raise_for_type
 from src.api.event import StartupAPIEvent, ShutdownAPIEvent
-from src.api.router.v1.main_router import api_v1_main_router
+from src.api.router.main_router import main_api_router
 from src.api.transmitted_api_data import TransmittedAPIData
 from src.core.const import STATIC_DIRPATH
 from src.core.settings import get_cached_settings
@@ -96,7 +96,7 @@ def create_api_app() -> FastAPI:
         startup_api_events=startup_api_events,
         shutdown_api_events=shutdown_api_events,
         transmitted_api_data=transmitted_api_data,
-        main_api_router=api_v1_main_router,
+        main_api_router=main_api_router,
         contact=_DEFAULT_CONTACT,
         media_dirpath=settings.media_dirpath,
         static_dirpath=STATIC_DIRPATH
