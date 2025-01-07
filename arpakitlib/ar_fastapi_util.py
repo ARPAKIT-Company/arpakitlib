@@ -613,7 +613,7 @@ def simple_api_router_for_testing():
     return router
 
 
-_DEFAULT_CONTACT = {
+DEFAULT_CONTACT = {
     "name": "ARPAKIT Company",
     "email": "support@arpakit.com"
 }
@@ -636,7 +636,7 @@ def create_fastapi_app(
     setup_normal_logging(log_filepath=log_filepath)
 
     if contact is None:
-        contact = _DEFAULT_CONTACT
+        contact = DEFAULT_CONTACT
 
     if not startup_api_events:
         startup_api_events = [BaseStartupAPIEvent()]
