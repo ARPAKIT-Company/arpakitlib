@@ -11,7 +11,7 @@ def init_log_file(*, log_filepath: str):
     directory = os.path.dirname(log_filepath)
     if directory and not os.path.exists(directory):
         os.makedirs(directory, exist_ok=True)
-    if not os.path.exists(path=log_filepath):
+    if not os.path.exists(log_filepath):
         with open(file=log_filepath, mode="w") as file:
             file.write("")
 
@@ -55,7 +55,14 @@ def setup_normal_logging(log_filepath: Optional[str] = None):
 
 
 def __example():
-    pass
+    # Инициализация и настройка файла логов
+    init_log_file(log_filepath="logs/app.log")
+    setup_normal_logging(log_filepath="logs/app.log")
+
+    # Логирование сообщений
+    logging.info("This is a information")
+    logging.warning("This is a warning")
+    logging.error("This is a error")
 
 
 if __name__ == '__main__':

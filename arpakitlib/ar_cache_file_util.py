@@ -119,7 +119,35 @@ class CacheFile:
 
 
 def __example():
-    pass
+    # Создаем тестовую базу данных
+    json_db = JSONDbFile(filepath="test_cache.json")
+    cache_db = CacheFile(json_db_file=json_db)
+
+    # Добавление блоков
+    block1 = cache_db.create_block(key="key1", data={"value": 100})
+    print(f"Создан блок: {block1}")
+    block2 = cache_db.create_block(key="key2", data={"value": 200})
+    print(f"Создан блок: {block2}")
+
+    # Получение блоков
+    retrieved_block = cache_db.get_block(key="key1")
+    print(f"Полученный блок: {retrieved_block}")
+
+    # Обновление блока
+    updated_block = cache_db.update_block(key="key1", data={"value": 300})
+    print(f"Обновленный блок: {updated_block}")
+
+    # Получение всех блоков
+    all_blocks = cache_db.get_blocks()
+    print(f"Все блоки: {all_blocks}")
+
+    # Удаление блока
+    cache_db.remove_block(key="key2")
+    print(f"Блок с ключом key2 удален")
+
+    # Очистка базы данных
+    cache_db.remove_blocks()
+    print("Все блоки удалены")
 
 
 if __name__ == '__main__':

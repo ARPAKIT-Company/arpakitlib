@@ -250,11 +250,58 @@ class SSHRunner:
 
 
 def __example():
-    pass
+    print("Testing sync SSH methods...")
 
+    hostname = "your.ssh.server"
+    username = "your_username"
+    password = "your_password"
+    ssh_runner = SSHRunner(hostname=hostname, username=username, password=password)
+
+    # Проверка подключения
+    try:
+        ssh_runner.sync_connect()
+        print("Connection successful!")
+    except SSHCannotConnect as e:
+        print(f"Connection failed: {e}")
+        return
+
+    # Выполнение команды
+    try:
+        result = ssh_runner.sync_run(command="echo Hello World", raise_for_bad_return_code=True)
+        print(f"Output: {result.out}")
+        print(f"Return Code: {result.return_code}")
+    except SSHRunResHasErr as e:
+        print(f"Expected error occurred: {e}")
+
+    # Закрытие соединения
+    ssh_runner.sync_close()
 
 async def __async_example():
-    pass
+    print("Testing async SSH methods...")
+
+    hostname = "your.ssh.server"
+    username = "your_username"
+    password = "your_password"
+    ssh_runner = SSHRunner(hostname=hostname, username=username, password=password)
+
+    # Проверка асинхронного подключения
+    try:
+        await ssh_runner.async_connect()
+        print("Connection successful!")
+    except SSHCannotConnect as e:
+        print(f"Connection failed: {e}")
+        return
+
+    # Асинхронное выполнение команды
+    try:
+        result = await ssh_runner.async_run(command="echo Hello World", raise_for_bad_return_code=True)
+        print(f"Output: {result.out}")
+        print(f"Return Code: {result.return_code}")
+    except SSHRunResHasErr as e:
+        print(f"Expected error occurred: {e}")
+
+    # Закрытие соединения
+    ssh_runner.async_close()
 
 
 if __name__ == '__main__':

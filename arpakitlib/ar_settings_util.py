@@ -36,7 +36,7 @@ class SimpleSettings(BaseSettings):
 
     @property
     def is_mode_type_dev(self) -> bool:
-        return self.mode_type == self.ModeTypes.dev
+        return self.mode_type == self.ModeTypes.not_prod
 
     @property
     def is_mode_type_prod(self) -> bool:
@@ -49,29 +49,29 @@ class SimpleSettings(BaseSettings):
 
 def __example():
     default_settings = SimpleSettings()
-    print(f"Настройки по умолчанию: {default_settings.mode_type}")
+    print(f"Default Settings: {default_settings.mode_type}")
 
     if default_settings.is_mode_type_dev:
-        print("Приложение запущено в режиме разработки")
+        print("The application is running in development mode")
     elif default_settings.is_mode_type_prod:
-        print("Приложение запущено в режиме продакшена")
+        print("The application is running in production mode")
 
     said_settings = SimpleSettings(mode_type="prod")
-    print(f"\nУказанные настройки: {said_settings.mode_type}")
+    print(f"\nSpecified settings: {said_settings.mode_type}")
 
     if said_settings.is_mode_type_dev:
-        print("Приложение запущено в режиме разработки")
+        print("The application is running in development mode")
     elif said_settings.is_mode_type_prod:
-        print("Приложение запущено в режиме продакшена")
+        print("The application is running in production mode")
 
     # Неверное значение для mode_type
     try:
         SimpleSettings(mode_type="invalid_value")
     except Exception as e:
-        print(f"\nОшибка: {e}")
+        print(f"\nError: {e}")
 
     # Генерация конфигурации
-    print("\nГенерация примера конфигурации:")
+    print("\nGenerating example configuration:")
     print(SimpleSettings.generate_env_example())
 
 

@@ -226,7 +226,49 @@ class JSONDb:
 
 
 def __example():
-    pass
+    # Создание экземпляра JSONDbFile и инициализация базы данных
+    db = JSONDbFile(filepath="test_db.json")
+    db.init()
+
+    # Создание записей
+    record_id_1 = "1"
+    record_id_2 = "2"
+    record_data_1 = {"name": "TestName1", "value": 100}
+    record_data_2 = {"name": "TestName2", "value": 300}
+    db.create_record(record=record_data_1, record_id=record_id_1)
+    db.create_record(record=record_data_2, record_id=record_id_2)
+    print(f"Записи созданы!")
+
+    # Чтение записи
+    retrieved_record = db.get_record(record_id=record_id_1)
+    if retrieved_record:
+        print(f"Получена запись: {retrieved_record}")
+    else:
+        print(f"Запись с ID '{record_id_1}' не найдена.")
+
+    # Обновление записи
+    updated_data = {"name": "UpdatedName1", "value": 200}
+    updated_record = db.update_record(record_id=record_id_1, record=updated_data)
+    print(f"Обновлена запись: {updated_record}")
+
+    # Чтение всех записей
+    all_records = db.get_records()
+    print(f"Все записи: {all_records}")
+
+    # Удаление записи
+    db.rm_record(record_id=record_id_1)
+    print(f"Запись с ID '{record_id_1}' удалена")
+
+    # Удаление всех записей
+    db.rm_all_records()
+    print("Все записи удалены")
+
+    # Проверка существования файла
+    print(f"Файл существует: {db.check_exists()}")
+
+    # Удаление файла
+    db.drop()
+    print("Файл базы был данных удален")
 
 
 if __name__ == '__main__':

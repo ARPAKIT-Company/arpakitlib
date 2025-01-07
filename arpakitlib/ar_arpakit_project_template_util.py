@@ -94,3 +94,35 @@ def init_arpakit_project_template(
         with open(full_filepath, "w", encoding="utf-8") as file_:
             file_.write(content)
         _logger.info(f"file created: {full_filepath}")
+
+
+def __example():
+
+    # Создание шаблона проекта с базовыми параметрами
+    test_basic_dir = "test_project_1"
+    print("Testing basic project initialization...")
+    init_arpakit_project_template(
+        project_dirpath=test_basic_dir,
+        project_name="TestProject",
+        overwrite_if_exists=False
+    )
+
+    # Тест с игнорируемыми путями
+    test_ignore_dir = "test_project_2"
+    print("\nTesting ignored paths...")
+    init_arpakit_project_template(
+        project_dirpath=test_ignore_dir,
+        ignore_paths_startswith=["manage"]
+    )
+
+    # Тест с выборочными путями
+    print("\nTesting specific paths...")
+    test_specific_dir = "test_project_3"
+    init_arpakit_project_template(
+        project_dirpath=test_specific_dir,
+        only_paths_startswith=["manage"]
+    )
+
+
+if __name__ == '__main__':
+    __example()

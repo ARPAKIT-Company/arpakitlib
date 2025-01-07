@@ -122,7 +122,28 @@ class FileStorageInDir:
 
 
 def __example():
-    pass
+    # Инициализация корневой директории
+    storage = FileStorageInDir(dirpath="root_dir")
+    storage.init()
+
+    # Создание файла
+    file_path = storage.generate_filepath(filename="test_file", file_extension="py", content_to_write="Hello World")
+    print(f"File created: {file_path}")
+
+    # Просмотр всех файлов в корневой директории
+    print(f"Show all files: {storage.get_paths()}")
+
+    # Создание поддиректории
+    dir_path = storage.generate_dirpath(dirname="subdir")
+    print(f"Subdirectory created: {dir_path}")
+
+    # Удаление директории по полному пути
+    storage.rm_by_dirpath(dirpath=dir_path)
+    print("Subdirectory deleted")
+
+    # Удаление файла по имени в корневой директории
+    storage.rm_by_filename(filename="test_file")
+    print("File deleted")
 
 
 if __name__ == '__main__':

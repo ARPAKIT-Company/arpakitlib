@@ -43,7 +43,9 @@ def run_cmd(command: str, raise_for_bad_return_code: bool = False) -> RunCmdRes:
 
 
 def __example():
-    pass
+    result = run_cmd(command="echo Hello World!", raise_for_bad_return_code=True)
+    print(f"Output: {result.out}")
+    print(f"Return Code: {result.return_code}")
 
 
 if __name__ == '__main__':

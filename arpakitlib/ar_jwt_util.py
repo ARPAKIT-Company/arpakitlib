@@ -33,7 +33,20 @@ def decode_jwt_token(
 
 
 def __example():
-    pass
+
+    payload = {"user_id": 1111, "username": "test_user"}
+    secret = "supersecretkey"
+
+    # Кодирование токена
+    token = encode_jwt_token(jwt_payload=payload, jwt_secret=secret)
+    print(f"Созданный JWT токен: {token}")
+
+    # Декодирование токена
+    decoded_payload = decode_jwt_token(jwt_token=token, jwt_secret=secret)
+    if decoded_payload:
+        print(f"Декодированный payload: {decoded_payload}")
+    else:
+        print("Не удалось декодировать токен")
 
 
 if __name__ == '__main__':

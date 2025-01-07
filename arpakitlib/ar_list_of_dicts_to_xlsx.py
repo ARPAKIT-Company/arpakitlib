@@ -27,7 +27,14 @@ def list_of_dicts_to_xlsx(
 
 
 def __example():
-    pass
+
+    data = [
+        {"Name": "Name1", "Age": 22, "City": "Ufa"},
+        {"Name": "Name2", "Age": 20, "City": "Moscow"},
+        {"Name": "Name3", "Age": 35, "City": "Baymak"}
+    ]
+
+    list_of_dicts_to_xlsx(list_of_dicts=data, out_filepath="output_file.xlsx", sheet_name="Test")
 
 
 if __name__ == '__main__':
