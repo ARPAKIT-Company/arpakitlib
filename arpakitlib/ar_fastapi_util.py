@@ -354,7 +354,7 @@ def add_needed_api_router_to_app(*, app: FastAPI):
 
     @api_router.get(
         "/healthcheck",
-        response_model=ErrorSO,
+        response_model=RawDataSO | ErrorSO,
         status_code=starlette.status.HTTP_200_OK,
         tags=["Healthcheck"]
     )
@@ -366,7 +366,7 @@ def add_needed_api_router_to_app(*, app: FastAPI):
 
     @api_router.get(
         "/arpakitlib",
-        response_model=ErrorSO,
+        response_model=RawDataSO | ErrorSO,
         status_code=starlette.status.HTTP_200_OK,
         tags=["arpakitlib"]
     )
