@@ -54,6 +54,7 @@ def sync_make_http_request(
     while True:
         tries_counter += 1
         try:
+            _logger.info(f"{tries_counter}/{max_tries_}. {method} {url} {params}")
             response = requests.request(**kwargs)
             if raise_for_status_:
                 response.raise_for_status()
@@ -98,6 +99,7 @@ async def async_make_http_request(
     while True:
         tries_counter += 1
         try:
+            _logger.info(f"{tries_counter}/{max_tries_}. {method} {url} {params}")
             async with aiohttp.ClientSession(connector=proxy_connector) as session:
                 async with session.request(**kwargs) as response:
                     if raise_for_status_:
