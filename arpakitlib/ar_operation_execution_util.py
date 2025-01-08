@@ -19,6 +19,7 @@ from arpakitlib.ar_dict_util import combine_dicts
 from arpakitlib.ar_sleep_util import sync_safe_sleep, async_safe_sleep
 from arpakitlib.ar_sqlalchemy_model_util import OperationDBM, StoryLogDBM, BaseOperationTypes
 from arpakitlib.ar_sqlalchemy_util import SQLAlchemyDB
+from arpakitlib.ar_type_util import raise_for_type
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
 
@@ -27,14 +28,16 @@ _logger = logging.getLogger(__name__)
 
 def get_operation_for_execution(
         *,
-        sqlalchemy_db: SQLAlchemyDB,
+        session: Session | None = None,
+        sqlalchemy_db: SQLAlchemyDB | None = None,
         filter_operation_types: list[str] | str | None = None
 ) -> OperationDBM | None:
     if isinstance(filter_operation_types, str):
         filter_operation_types = [filter_operation_types]
-    with sqlalchemy_db.new_session() as session:
+
+    def func(session_: Session):
         query = (
-            session
+            session_
             .query(OperationDBM)
             .filter(OperationDBM.status == OperationDBM.Statuses.waiting_for_execution)
         )
@@ -42,24 +45,84 @@ def get_operation_for_execution(
             query = query.filter(OperationDBM.type.in_(filter_operation_types))
         query = query.order_by(asc(OperationDBM.creation_dt))
         operation_dbm: OperationDBM | None = query.first()
-    return operation_dbm
+        return operation_dbm
+
+    if session is not None:
+        return func(session_=session)
+    elif sqlalchemy_db is not None:
+        with sqlalchemy_db.new_session() as session:
+            return func(session_=session)
+    else:
+        raise ValueError("session is None and sqlalchemy_db is None")
 
 
 def get_operation_by_id(
         *,
-        session: Session,
+        session: Session | None = None,
+        sqlalchemy_db: SQLAlchemyDB | None = None,
         filter_operation_id: int,
         raise_if_not_found: bool = False
 ) -> OperationDBM | None:
-    query = (
-        session
-        .query(OperationDBM)
-        .filter(OperationDBM.id == filter_operation_id)
-    )
-    if raise_if_not_found:
-        return query.one()
+    def func(session_: Session):
+        query = (
+            session_
+            .query(OperationDBM)
+            .filter(OperationDBM.id == filter_operation_id)
+        )
+        if raise_if_not_found:
+            return query.one()
+        else:
+            return query.one_or_none()
+
+    if session is not None:
+        return func(session_=session)
+    elif sqlalchemy_db is not None:
+        with sqlalchemy_db.new_session() as session:
+            return func(session_=session)
     else:
-        return query.one_or_none()
+        raise ValueError("session is None and sqlalchemy_db is None")
+
+
+def remove_operations(
+        *,
+        session: Session | None = None,
+        sqlalchemy_db: SQLAlchemyDB | None = None,
+        filter_operation_ids: list[int] | int | None = None,
+        filter_operation_types: list[str] | str | None = None,
+        filter_operation_statuses: list[str] | str | None = None
+):
+    if isinstance(filter_operation_ids, int):
+        filter_operation_ids = [filter_operation_ids]
+    if isinstance(filter_operation_types, str):
+        filter_operation_types = [filter_operation_types]
+    if isinstance(filter_operation_statuses, str):
+        filter_operation_statuses = [filter_operation_statuses]
+
+    if filter_operation_ids is not None:
+        raise_for_type(filter_operation_ids, list)
+    if filter_operation_types is not None:
+        raise_for_type(filter_operation_types, list)
+    if filter_operation_statuses is not None:
+        raise_for_type(filter_operation_statuses, list)
+
+    def func(session_: Session):
+        query = session_.query(OperationDBM)
+        if filter_operation_ids is not None:
+            query = query.filter(OperationDBM.id.in_(filter_operation_ids))
+        if filter_operation_types is not None:
+            query = query.filter(OperationDBM.type.in_(filter_operation_types))
+        if filter_operation_statuses is not None:
+            query = query.filter(OperationDBM.status.in_(filter_operation_statuses))
+        query.delete()
+        session_.commit()
+
+    if session is not None:
+        return func(session_=session)
+    elif sqlalchemy_db is not None:
+        with sqlalchemy_db.new_session() as session:
+            return func(session_=session)
+    else:
+        raise ValueError("session is None and sqlalchemy_db is None")
 
 
 class BaseOperationExecutor:
