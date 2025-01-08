@@ -140,9 +140,10 @@ class BaseOperationExecutor:
 
     def sync_safe_execute_operation(self, operation_dbm: OperationDBM) -> OperationDBM:
         self._logger.info(
-            f"start sync_safe_execute_operation"
-            f", operation_dbm.id={operation_dbm.id}"
-            f", operation_dbm.type={operation_dbm.type}"
+            f"start sync_safe_execute_operation, "
+            f"operation_dbm.id={operation_dbm.id}, "
+            f"operation_dbm.type={operation_dbm.type}, "
+            f"operation_dbm.status={operation_dbm.status}"
         )
 
         with self.sql_alchemy_db.new_session() as session:
@@ -160,7 +161,10 @@ class BaseOperationExecutor:
         try:
             self.sync_execute_operation(operation_dbm=operation_dbm)
         except BaseException as exception_:
-            self._logger.error(f"Error while executing operation (id={operation_dbm.id})", exc_info=exception_)
+            self._logger.error(
+                f"error in sync_execute_operation (id={operation_dbm.id}, type={operation_dbm.type})",
+                exc_info=exception_
+            )
             exception = exception_
             traceback_str = traceback.format_exc()
 
@@ -186,7 +190,7 @@ class BaseOperationExecutor:
             if exception:
                 story_log_dbm = StoryLogDBM(
                     level=StoryLogDBM.Levels.error,
-                    title=f"Error while executing operation (id={operation_dbm.id}, type={operation_dbm.type})",
+                    title=f"error in sync_execute_operation (id={operation_dbm.id}, type={operation_dbm.type})",
                     data={
                         "operation_id": operation_dbm.id,
                         "exception_str": str(exception),
@@ -200,11 +204,11 @@ class BaseOperationExecutor:
             session.refresh(operation_dbm)
 
         self._logger.info(
-            f"finish sync_safe_execute_operation"
-            f", operation_dbm.id={operation_dbm.id}"
-            f", operation_dbm.type={operation_dbm.type}"
-            f", operation_dbm.status={operation_dbm.status}"
-            f", operation_dbm.duration={operation_dbm.duration}"
+            f"finish sync_safe_execute_operation, "
+            f"operation_dbm.id={operation_dbm.id}, "
+            f"operation_dbm.type={operation_dbm.type}, "
+            f"operation_dbm.status={operation_dbm.status}, "
+            f"operation_dbm.duration={operation_dbm.duration}"
         )
 
         return operation_dbm
@@ -219,9 +223,10 @@ class BaseOperationExecutor:
 
     async def async_safe_execute_operation(self, operation_dbm: OperationDBM) -> OperationDBM:
         self._logger.info(
-            f"start async_safe_execute_operation"
-            f", operation_dbm.id={operation_dbm.id}"
-            f", operation_dbm.type={operation_dbm.type}"
+            f"start async_safe_execute_operation, "
+            f"operation_dbm.id={operation_dbm.id}, "
+            f"operation_dbm.type={operation_dbm.type}, "
+            f"operation_dbm.status={operation_dbm.status}"
         )
 
         with self.sql_alchemy_db.new_session() as session:
@@ -239,7 +244,10 @@ class BaseOperationExecutor:
         try:
             await self.async_execute_operation(operation_dbm=operation_dbm)
         except BaseException as exception_:
-            self._logger.error(f"Error while executing operation (id={operation_dbm.id})", exc_info=exception_)
+            self._logger.error(
+                f"error in async_execute_operation (id={operation_dbm.id}, type={operation_dbm.type})",
+                exc_info=exception_
+            )
             exception = exception_
             traceback_str = traceback.format_exc()
 
@@ -265,7 +273,7 @@ class BaseOperationExecutor:
             if exception:
                 story_log_dbm = StoryLogDBM(
                     level=StoryLogDBM.Levels.error,
-                    title=f"Error while executing operation (id={operation_dbm.id}, type={operation_dbm.type})",
+                    title=f"error in async_execute_operation (id={operation_dbm.id}, type={operation_dbm.type})",
                     data={
                         "operation_id": operation_dbm.id,
                         "exception_str": str(exception),
@@ -279,11 +287,11 @@ class BaseOperationExecutor:
             session.refresh(operation_dbm)
 
         self._logger.info(
-            f"finish async_safe_execute_operation"
-            f", operation_dbm.id={operation_dbm.id}"
-            f", operation_dbm.type={operation_dbm.type}"
-            f", operation_dbm.status={operation_dbm.status}"
-            f", operation_dbm.duration={operation_dbm.duration}"
+            f"finish async_safe_execute_operation, "
+            f"operation_dbm.id={operation_dbm.id}, "
+            f"operation_dbm.type={operation_dbm.type}, "
+            f"operation_dbm.status={operation_dbm.status}, "
+            f"operation_dbm.duration={operation_dbm.duration}"
         )
 
         return operation_dbm
@@ -320,14 +328,12 @@ class OperationExecutorWorker(BaseWorker):
             sqlalchemy_db=self.sqlalchemy_db,
             filter_operation_types=self.filter_operation_types
         )
-
         if not operation_dbm:
             return
-
         self.sync_execute_operation(operation_dbm=operation_dbm)
 
     def sync_run_on_error(self, exception: BaseException, **kwargs):
-        self._logger.exception(exception)
+        pass
 
     async def async_on_startup(self):
         self.sqlalchemy_db.init()
@@ -340,14 +346,12 @@ class OperationExecutorWorker(BaseWorker):
             sqlalchemy_db=self.sqlalchemy_db,
             filter_operation_types=self.filter_operation_types
         )
-
         if not operation_dbm:
             return
-
         await self.async_execute_operation(operation_dbm=operation_dbm)
 
     async def async_run_on_error(self, exception: BaseException, **kwargs):
-        self._logger.exception(exception)
+        pass
 
 
 class ScheduledOperation(BaseModel):
@@ -383,8 +387,10 @@ class ScheduledOperationCreatorWorker(BaseWorker):
         timeout = None
 
         for scheduled_operation in self.scheduled_operations:
+
             if not scheduled_operation.is_time_func():
                 continue
+
             with self.sqlalchemy_db.new_session() as session:
                 operation_dbm = OperationDBM(
                     type=scheduled_operation.type,
@@ -411,8 +417,10 @@ class ScheduledOperationCreatorWorker(BaseWorker):
         timeout: timedelta | None = None
 
         for scheduled_operation in self.scheduled_operations:
+
             if not scheduled_operation.is_time_func():
                 continue
+
             with self.sqlalchemy_db.new_session() as session:
                 operation_dbm = OperationDBM(
                     type=scheduled_operation.type,

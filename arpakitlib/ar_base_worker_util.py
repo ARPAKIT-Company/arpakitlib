@@ -43,7 +43,7 @@ class BaseWorker(ABC):
             )
             res.start()
         else:
-            raise ValueError(f"unrecognized safe_run_mode={safe_run_in_background_mode}")
+            raise ValueError(f"unknown safe_run_mode={safe_run_in_background_mode}")
         return res
 
     def sync_on_startup(self):
@@ -53,18 +53,27 @@ class BaseWorker(ABC):
         raise NotImplementedError()
 
     def sync_run_on_error(self, exception: BaseException, **kwargs):
-        self._logger.exception(exception)
+        pass
 
     def sync_safe_run(self):
-        self._logger.info("sync_safe_run")
-        self.sync_on_startup()
+        self._logger.info("start sync_safe_run")
+        try:
+            self.sync_on_startup()
+        except BaseException as exception:
+            self._logger.error("error in sync_on_startup", exc_info=exception)
+            raise exception
         while True:
             try:
                 self.sync_run()
                 if self.timeout_after_run is not None:
                     sync_safe_sleep(self.timeout_after_run)
             except BaseException as exception:
-                self.sync_run_on_error(exception=exception)
+                self._logger.error("error in sync_run", exc_info=exception)
+                try:
+                    self.sync_run_on_error(exception=exception)
+                except BaseException as exception_:
+                    self._logger.error("error in sync_run_on_error", exc_info=exception_)
+                    raise exception_
                 if self.timeout_after_err_in_run is not None:
                     sync_safe_sleep(self.timeout_after_err_in_run)
 
@@ -75,18 +84,27 @@ class BaseWorker(ABC):
         raise NotImplementedError()
 
     async def async_run_on_error(self, exception: BaseException, **kwargs):
-        self._logger.exception(exception)
+        pass
 
     async def async_safe_run(self):
-        self._logger.info("async_safe_run")
-        await self.async_on_startup()
+        self._logger.info("start async_safe_run")
+        try:
+            await self.async_on_startup()
+        except BaseException as exception:
+            self._logger.error("error in async_on_startup", exc_info=exception)
+            raise exception
         while True:
             try:
                 await self.async_run()
                 if self.timeout_after_run is not None:
                     await async_safe_sleep(self.timeout_after_run)
             except BaseException as exception:
-                await self.async_run_on_error(exception=exception)
+                self._logger.error("error in async_run", exc_info=exception)
+                try:
+                    await self.async_run_on_error(exception=exception)
+                except BaseException as exception_:
+                    self._logger.error("error in async_run_on_error", exc_info=exception_)
+                    raise exception_
                 if self.timeout_after_err_in_run is not None:
                     await async_safe_sleep(self.timeout_after_err_in_run)
 

@@ -633,6 +633,8 @@ def create_fastapi_app(
         media_dirpath: str | None = None,
         static_dirpath: str | None = None
 ):
+    _logger.info("start create_fastapi_app")
+
     setup_normal_logging(log_filepath=log_filepath)
 
     if contact is None:
@@ -687,6 +689,8 @@ def create_fastapi_app(
     add_needed_api_router_to_app(app=app)
 
     app.include_router(router=main_api_router)
+
+    _logger.info("finish create_fastapi_app")
 
     return app
 
