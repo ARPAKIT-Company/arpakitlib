@@ -28,13 +28,13 @@ def setup_normal_logging(log_filepath: Optional[str] = None):
     if log_filepath:
         init_log_file(log_filepath=log_filepath)
 
-    logger = logging.getLogger()
+    logger = logging.getLogger(__name__)
     logger.setLevel(logging.INFO)
 
     stream_handler = logging.StreamHandler()
     stream_handler.setLevel(logging.INFO)
     stream_formatter = logging.Formatter(
-        "%(asctime)s | %(levelname)s | %(name)s - %(message)s",
+        "%(asctime)s | %(levelname)s | %(name)s | %(filename)s:%(lineno)d - %(message)s",
         datefmt="%d.%m.%Y %I:%M:%S%p"
     )
     stream_handler.setFormatter(stream_formatter)

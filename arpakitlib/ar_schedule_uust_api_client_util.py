@@ -87,6 +87,9 @@ class ScheduleUUSTAPIClient:
             proxy_url_=self.api_proxy_url,
             raise_for_status_=True
         )
+        json_data = await response.json()
+        if "error" in json_data.keys():
+            raise Exception(f"error in json_data, {json_data}")
         return response
 
     async def get_current_week(self) -> int:
@@ -176,20 +179,28 @@ class ScheduleUUSTAPIClient:
 
     async def check_conn(self):
         await self.get_current_week()
+        self._logger.info(f"connection is good")
 
     async def is_conn_good(self):
         try:
             await self.check_conn()
         except Exception as e:
-            self._logger.error(e)
+            self._logger.error(f"connection is bad", exc_info=e)
             return False
         return True
 
     async def check_all(self):
-        await self.get_groups()
-        await self.get_teachers()
-        await self.get_current_semester()
-        await self.get_current_week()
+        groups = await self.get_groups()
+        self._logger.info(f"groups len: {len(groups)}")
+
+        teachers = await self.get_teachers()
+        self._logger.info(f"teachers len: {len(teachers)}")
+
+        current_semester = await self.get_current_semester()
+        self._logger.info(f"current_semester: {current_semester}")
+
+        current_week = await self.get_current_week()
+        self._logger.info(f"current_week: {current_week}")
 
 
 def __example():
