@@ -27,6 +27,7 @@ def sync_make_http_request(
         proxy_url_: str | None = None,
         raise_for_status_: bool = False,
         timeout_: timedelta | float = timedelta(seconds=15).total_seconds(),
+        enable_logging_: bool = False,
         **kwargs
 ) -> requests.Response:
     if isinstance(timeout_, float):
@@ -51,7 +52,8 @@ def sync_make_http_request(
     if "allow_redirects" not in kwargs:
         kwargs["allow_redirects"] = True
 
-    _logger.info(f"{method} {url} {params}")
+    if enable_logging_:
+        _logger.info(f"TRY HTTP {method} {url} {params}")
 
     while True:
         tries_counter += 1
@@ -59,9 +61,14 @@ def sync_make_http_request(
             response = requests.request(**kwargs)
             if raise_for_status_:
                 response.raise_for_status()
+            if enable_logging_:
+                _logger.info(f"GOOD TRY HTTP {method} {url} {params}")
             return response
         except BaseException as exception:
-            _logger.warning(f"{tries_counter}/{max_tries_}. {method} {url} {params}, exception={exception}")
+            if enable_logging_:
+                _logger.warning(
+                    f"{tries_counter}/{max_tries_}. RETRY {method} {url} {params}, exception={exception}"
+                )
             if tries_counter >= max_tries_:
                 raise exception
             sync_safe_sleep(timedelta(seconds=0.1).total_seconds())
@@ -78,6 +85,7 @@ async def async_make_http_request(
         proxy_url_: str | None = None,
         raise_for_status_: bool = False,
         timeout_: timedelta | None = timedelta(seconds=15),
+        enable_logging_: bool = False,
         **kwargs
 ) -> aiohttp.ClientResponse:
     tries_counter = 0
@@ -97,7 +105,8 @@ async def async_make_http_request(
     if proxy_url_:
         proxy_connector = ProxyConnector.from_url(proxy_url_)
 
-    _logger.info(f"{method} {url} {params}")
+    if enable_logging_:
+        _logger.info(f"TRY HTTP {method} {url} {params}")
 
     while True:
         tries_counter += 1
@@ -107,9 +116,14 @@ async def async_make_http_request(
                     if raise_for_status_:
                         response.raise_for_status()
                     await response.read()
+                    if enable_logging_:
+                        _logger.info(f"GOOD TRY HTTP {method} {url} {params}")
                     return response
         except BaseException as exception:
-            _logger.warning(f"{tries_counter}/{max_tries_}. {method} {url} {params}, exception={exception}")
+            if enable_logging_:
+                _logger.warning(
+                    f"{tries_counter}/{max_tries_}. RETRY HTTP {method} {url} {params}, exception={exception}"
+                )
             if tries_counter >= max_tries_:
                 raise exception
             await async_safe_sleep(timedelta(seconds=0.1).total_seconds())
