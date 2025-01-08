@@ -4,9 +4,9 @@ from datetime import datetime, timedelta
 from typing import Any
 from uuid import uuid4
 
-from sqlalchemy import inspect, INTEGER, TEXT, TIMESTAMP
+from sqlalchemy import inspect, INTEGER, TEXT, TIMESTAMP, create_engine
 from sqlalchemy.dialects.postgresql import JSONB
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, sessionmaker
 
 from arpakitlib.ar_datetime_util import now_utc_dt
 from arpakitlib.ar_enumeration_util import Enumeration
@@ -138,7 +138,58 @@ class OperationDBM(SimpleDBM):
 
 
 def __example():
-    pass
+
+    DATABASE_URL = "postgresql+psycopg2://test_user:test_password@localhost:50622/test_db"
+    engine = create_engine(DATABASE_URL)
+    BaseDBM.metadata.create_all(engine)
+    Session = sessionmaker(bind=engine)
+    session = Session()
+
+    print("\n=== Тестирование StoryLogDBM ===")
+    log1 = StoryLogDBM(level="info", title="Test Log 1", data={"key1": "value1"})
+    log2 = StoryLogDBM(level="error", title="Test Log 2", data={"key2": "value2"})
+    session.add_all([log1, log2])
+    session.commit()
+
+    logs = session.query(StoryLogDBM).all()
+    for log in logs:
+        print("StoryLog:", log.simple_dict())
+
+    print("\n=== Тестирование OperationDBM ===")
+    op1 = OperationDBM(
+        type="healthcheck",
+        status="executing",
+        execution_start_dt=datetime.utcnow(),
+        execution_finish_dt=datetime.utcnow() + timedelta(seconds=5),
+        input_data={"param1": "value1"},
+        output_data={"result": "success"},
+    )
+    op2 = OperationDBM(
+        type="raise_fake_exception",
+        status="executed_with_error",
+        execution_start_dt=datetime.utcnow(),
+        execution_finish_dt=datetime.utcnow() + timedelta(seconds=10),
+        input_data={"param2": "value2"},
+        error_data={"error": "Some error occurred"},
+    )
+    session.add_all([op1, op2])
+    session.commit()
+
+    operations = session.query(OperationDBM).all()
+    for op in operations:
+        print("Operation:", op.simple_dict())
+
+    print("\n=== Проверка методов OperationDBM ===")
+    for op in operations:
+        if op.status == "executed_with_error":
+            try:
+                op.raise_if_executed_with_error()
+            except Exception as e:
+                print(f"Operation error {op.id}: {e}")
+
+        print(f"Operation duration {op.id}: {op.duration_total_seconds}")
+
+    session.close()
 
 
 if __name__ == '__main__':

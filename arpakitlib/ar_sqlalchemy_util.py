@@ -112,13 +112,45 @@ class SQLAlchemyDB:
 
 
 def __example():
-    pass
+    db = SQLAlchemyDB(
+        db_url="postgresql://test_user:test_password@localhost:50622/test_db",
+        db_echo=True
+    )
 
+    # Проверка соединения
+    try:
+        db.check_conn()
+        print("Connection successful")
+    except Exception as e:
+        print(f"Connection error: {e}")
+        return
 
-async def __async_example():
-    pass
+    # Создание тестовой таблицы
+    with db.engine.connect() as connection:
+        connection.execute(text("""
+            CREATE TABLE IF NOT EXISTS test_table (
+                id SERIAL PRIMARY KEY,
+                name VARCHAR(100),
+                created_at TIMESTAMP DEFAULT NOW()
+            );
+            """))
+        connection.commit()
+        print("The table test_table created!")
+
+    # Добавление данных
+    with db.engine.connect() as connection:
+        connection.execute(text("""
+            INSERT INTO test_table (name) VALUES ('TestName');
+            """))
+        connection.commit()
+        print("Data added successfully")
+
+    # Чтение данных
+    with db.engine.connect() as connection:
+        result = connection.execute(("SELECT * FROM test_table;"))
+        for row in result:
+            print(f"Record: {row}")
 
 
 if __name__ == '__main__':
     __example()
-    asyncio.run(__async_example())

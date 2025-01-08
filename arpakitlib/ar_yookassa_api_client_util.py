@@ -171,11 +171,73 @@ class YookassaAPIClient:
 
 
 def __example():
-    pass
+    print("Тестируем синхронный клиент Yookassa...")
+    client = YookassaAPIClient(secret_key="test_secret_key", shop_id=123456)
+
+    print("Создание платежа...")
+    try:
+        payment_data = {
+            "amount": {
+                "value": "2.0",
+                "currency": "RUB"
+            },
+            "description": "Test Payment",
+            "confirmation": {
+                "type": "redirect",
+                "return_url": "https://example.com/return",
+                "locale": "ru_RU"
+            },
+            "capture": True,
+            "metadata": {"order_id": "12345"},
+        }
+        created_payment = client.sync_create_payment(payment_data)
+        print(f"Созданный платеж: {created_payment}")
+    except Exception as e:
+        print(f"Ошибка при создании платежа: {e}")
+
+    if 'id' in locals():
+        print("Получение данных о платеже...")
+        try:
+            payment_id = created_payment["id"]
+            payment_info = client.sync_get_payment(payment_id)
+            print(f"Данные платежа {payment_id}: {payment_info}")
+        except Exception as e:
+            print(f"Ошибка при получении данных платежа: {e}")
 
 
 async def __async_example():
-    pass
+    print("Тестируем асинхронный клиент Yookassa...")
+    client = YookassaAPIClient(secret_key="test_secret_key", shop_id=123456)
+
+    print("Создание платежа...")
+    try:
+        payment_data = {
+            "amount": {
+                "value": "2.0",
+                "currency": "RUB"
+            },
+            "description": "Test Payment",
+            "confirmation": {
+                "type": "redirect",
+                "return_url": "https://example.com/return",
+                "locale": "ru_RU"
+            },
+            "capture": True,
+            "metadata": {"order_id": "12345"},
+        }
+        created_payment = await client.async_create_payment(payment_data)
+        print(f"Созданный платеж: {created_payment}")
+    except Exception as e:
+        print(f"Ошибка при создании платежа: {e}")
+
+    if 'id' in locals():
+        print("Получение данных о платеже...")
+        try:
+            payment_id = created_payment["id"]
+            payment_info = await client.async_get_payment(payment_id)
+            print(f"Данные платежа {payment_id}: {payment_info}")
+        except Exception as e:
+            print(f"Ошибка при получении данных платежа: {e}")
 
 
 if __name__ == '__main__':

@@ -192,14 +192,61 @@ class ScheduleUUSTAPIClient:
         await self.get_current_week()
 
 
-def __example():
-    pass
-
-
 async def __async_example():
-    pass
+    client = ScheduleUUSTAPIClient(
+        api_login="test_login",
+        api_password="test_password",
+        api_url="https://isu.uust.ru/api/schedule_v2"
+    )
+
+    is_conn_good = await client.is_conn_good()
+    if is_conn_good:
+        print(f"Подключение успешно!")
+
+    try:
+        current_week = await client.get_current_week()
+        print(f"Текущая неделя: {current_week}")
+    except Exception as e:
+        print(f"Ошибка получения текущей недели: {e}")
+
+    try:
+        current_semester = await client.get_current_semester()
+        print(f"Текущий семестр: {current_semester}")
+    except Exception as e:
+        print(f"Ошибка получения текущего семестра: {e}")
+
+    print("Получаем список групп...")
+    try:
+        groups = await client.get_groups()
+        print(f"Группы: {groups}")
+    except Exception as e:
+        print(f"Ошибка получения списка групп: {e}")
+
+    if groups:
+        group_id = groups[0]["group_id"]
+        print(f"Получаем расписание для группы ID {group_id}...")
+        try:
+            lessons = await client.get_group_lessons(group_id=group_id)
+            print(f"Расписание группы {group_id}: {lessons}")
+        except Exception as e:
+            print(f"Ошибка получения расписания группы: {e}")
+
+    print("Получаем список преподавателей...")
+    try:
+        teachers = await client.get_teachers()
+        print(f"Преподаватели: {teachers}")
+    except Exception as e:
+        print(f"Ошибка получения списка преподавателей: {e}")
+
+    if teachers:
+        teacher_id = teachers[0]["id"]
+        print(f"Получаем расписание для преподавателя ID {teacher_id}...")
+        try:
+            teacher_lessons = await client.get_teacher_lessons(teacher_id=teacher_id)
+            print(f"Расписание преподавателя {teacher_id}: {teacher_lessons}")
+        except Exception as e:
+            print(f"Ошибка получения расписания преподавателя: {e}")
 
 
 if __name__ == '__main__':
-    __example()
     asyncio.run(__async_example())

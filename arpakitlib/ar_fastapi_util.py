@@ -20,6 +20,7 @@ import starlette.status
 from fastapi import FastAPI, APIRouter, Query, Security, Depends
 from fastapi.openapi.docs import get_swagger_ui_html, get_redoc_html
 from fastapi.security import APIKeyHeader
+from fastapi.testclient import TestClient
 from pydantic import BaseModel, ConfigDict
 from starlette.middleware.cors import CORSMiddleware
 from starlette.staticfiles import StaticFiles
@@ -694,13 +695,40 @@ def create_fastapi_app(
 
 
 def __example():
-    pass
+    app = create_fastapi_app(
+        title="Test Application",
+        description="Testing AR FastAPI Utility Module",
+        log_filepath="./test.log"
+    )
+    client = TestClient(app)
 
+    # Тестирование healthcheck
+    response = client.get("/healthcheck")
+    print("Healthcheck Response:", response.status_code, response.json())
 
-async def __async_example():
-    pass
+    # Тестирование исключений
+    try:
+        response = client.get("/raise_fake_exception_1")
+        print("Exception 1 Response:", response.status_code, response.json())
+    except Exception as e:
+        print("Exception 1 Error:", str(e))
+
+    try:
+        response = client.get("/raise_fake_exception_2")
+        print("Exception 2 Response:", response.status_code, response.json())
+    except Exception as e:
+        print("Exception 2 Error:", str(e))
+
+    try:
+        response = client.get("/raise_fake_exception_3")
+        print("Exception 3 Response:", response.status_code, response.json())
+    except Exception as e:
+        print("Exception 3 Error:", str(e))
+
+    # Тестирование маршрута с параметрами
+    response = client.get("/check_params_1?name=123")
+    print("Check Params Response:", response.status_code, response.json())
 
 
 if __name__ == '__main__':
     __example()
-    asyncio.run(__async_example())

@@ -185,13 +185,51 @@ class ZabbixApiClient:
 
 
 def __example():
-    pass
+    client = ZabbixApiClient(
+        api_url="http://your-zabbix-server/api_jsonrpc.php",
+        api_user="your_zabbix_user",
+        api_password="your_zabbix_password"
+    )
 
+    try:
+        client.login()
+        print("Успешный вход.")
+    except Exception as e:
+        print(f"Ошибка входа: {e}")
+        return
 
-async def __async_example():
-    pass
+    print("Получаем список хостов...")
+    try:
+        host_ids = client.get_host_ids()
+        print(f"ID хостов: {host_ids}")
+        if host_ids:
+            hosts = client.get_hosts(host_ids=host_ids[:5])  # Получаем детали первых 5 хостов
+            print(f"Информация о хостах: {hosts}")
+    except Exception as e:
+        print(f"Ошибка при получении списка хостов: {e}")
+
+    print("Получаем элементы для хостов...")
+    try:
+        if host_ids:
+            items = client.get_items(host_ids=host_ids[:1], limit=10)  # Первые 10 элементов для первого хоста
+            print(f"Элементы: {items}")
+    except Exception as e:
+        print(f"Ошибка при получении элементов: {e}")
+
+    print("Получаем историю для элементов...")
+    try:
+        if host_ids:
+            histories = client.get_histories(
+                host_ids=host_ids[:1],
+                limit=5,  # Ограничиваем историю первыми 5 записями
+                history=0,  # История для данных типа float
+                time_from=datetime.now() - timedelta(days=1),  # За последние 24 часа
+                time_till=datetime.now()
+            )
+            print(f"История: {histories}")
+    except Exception as e:
+        print(f"Ошибка при получении истории: {e}")
 
 
 if __name__ == '__main__':
     __example()
-    asyncio.run(__async_example())

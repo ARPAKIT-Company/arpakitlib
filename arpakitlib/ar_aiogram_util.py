@@ -345,13 +345,28 @@ def create_aiogram_tg_bot(*, tg_bot_token: str, tg_bot_proxy_url: str | None = N
 
 
 def __example():
-    pass
+    # Пример создания бота
+    bot = create_aiogram_tg_bot(tg_bot_token="YOUR_BOT_TOKEN")
 
+    # Пример применения фильтров
+    @router.message(TextFilter("Привет", "Здравствуй"))
+    async def greet_user(message: types.Message):
+        await message.answer("Здравствуйте!")
 
-async def __async_example():
-    pass
+    @router.message(IsPrivateChat())
+    async def handle_private_chat(message: types.Message):
+        await message.answer("Это приватный чат.")
+
+    # Пример обработки команд с as_tg_command
+    @router.message(commands=["test"])
+    @as_tg_command(
+        TgCommandKeyValueParam(key="name", required=True, need_type="str"),
+        desc="Тестовая команда с параметром"
+    )
+
+    async def handle_test_command(message: types.Message, name: str):
+        await message.answer(f"Привет, {name}!")
 
 
 if __name__ == '__main__':
     __example()
-    asyncio.run(__async_example())

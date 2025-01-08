@@ -16,7 +16,17 @@ class BaseAM(BaseModel):
 
 
 def __example():
-    pass
+    class UserModel(BaseAM):
+        id: int
+        name: str
+        email: str
+
+    user = UserModel(id=1, name="John Doe", email="john.doe@example.com")
+    print(user.name)  # John Doe
+
+    # bus_data
+    user.bus_data["age"] = 22
+    print(user.bus_data)  # {'age': '22'}
 
 
 if __name__ == '__main__':

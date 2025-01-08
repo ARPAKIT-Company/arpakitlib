@@ -5,7 +5,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import traceback
-from datetime import timedelta
+from datetime import timedelta, datetime
 from typing import Any, Callable
 
 from pydantic import ConfigDict
@@ -332,8 +332,36 @@ class CreateScheduledOperationWorker(BaseWorker):
 
 
 def __example():
-    pass
+    # Подключение к PostgreSQL
+    db = SQLAlchemyDB(
+        db_url="postgresql://test_user:test_password@localhost:50622/test_db",
+        db_echo=True
+    )
 
+    db.init()  # Инициализация подключения
+
+    with db.new_session() as session:
+        # Добавляем новую операцию в базу данных
+        new_operation = OperationDBM(
+            type="healthcheck",
+            status=OperationDBM.Statuses.waiting_for_execution,
+            creation_dt=datetime.utcnow()
+        )
+        session.add(new_operation)
+        session.commit()
+        print(f"Создана операция с ID: {new_operation.id}")
+
+    # Создаем executor
+    executor = BaseOperationExecutor(sqlalchemy_db=db)
+
+    # Выполняем операцию
+    with db.new_session() as session:
+        operation = session.query(OperationDBM).filter_by(status=OperationDBM.Statuses.waiting_for_execution).first()
+        if operation:
+            executor.sync_safe_execute_operation(operation_dbm=operation)
+            print(f"Операция {operation.id} выполнена со статусом {operation.status}")
+        else:
+            print("Нет операций для выполнения.")
 
 async def __async_example():
     pass
