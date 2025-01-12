@@ -136,12 +136,6 @@ class BaseOperationExecutor:
         elif operation_dbm.type == BaseOperationTypes.raise_fake_exception_:
             self._logger.info("raise_fake_exception")
             raise Exception("raise_fake_exception")
-        else:
-            raise Exception(
-                f"unknown operation_dbm.type,"
-                f" operation_dbm.id={operation_dbm.id},"
-                f" operation_dbm.type={operation_dbm.type}"
-            )
         return operation_dbm
 
     def sync_safe_execute_operation(self, operation_dbm: OperationDBM) -> OperationDBM:
@@ -225,12 +219,6 @@ class BaseOperationExecutor:
         elif operation_dbm.type == BaseOperationTypes.raise_fake_exception_:
             self._logger.info("raise_fake_exception")
             raise Exception("raise_fake_exception")
-        else:
-            raise Exception(
-                f"unknown operation_dbm.type,"
-                f" operation_dbm.id={operation_dbm.id},"
-                f" operation_dbm.type={operation_dbm.type}"
-            )
         return operation_dbm
 
     async def async_safe_execute_operation(self, operation_dbm: OperationDBM) -> OperationDBM:

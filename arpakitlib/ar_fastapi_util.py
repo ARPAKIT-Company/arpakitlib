@@ -225,6 +225,9 @@ def create_handle_exception(
         if error_so.error_code == BaseAPIErrorCodes.not_found:
             status_code = status.HTTP_404_NOT_FOUND
 
+        if error_so.error_code == BaseAPIErrorCodes.cannot_authorize:
+            status_code = status.HTTP_401_UNAUTHORIZED
+
         if _need_exc_info:
             _logger.error(str(exception), exc_info=exception)
         else:
