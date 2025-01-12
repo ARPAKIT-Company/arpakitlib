@@ -560,7 +560,7 @@ class CheckAPIKeyAPIAuthData(BaseAPIAuthData):
     is_api_key_correct: bool | None = None
 
 
-def is_api_key_correct_api_auth(
+def api_key_api_auth(
         *,
         validate_api_key_func: Callable | None = None,
         correct_api_key: str | None = None
