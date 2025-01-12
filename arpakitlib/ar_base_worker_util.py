@@ -14,49 +14,23 @@ _ARPAKIT_LIB_MODULE_VERSION = "3.0"
 
 
 class BaseWorker(ABC):
-    class SafeRunInBackgroundModes(Enumeration):
-        async_task = "async_task"
-        thread = "thread"
-        process = "process"
-
     def __init__(self):
         self.worker_name = self.__class__.__name__
         self._logger = logging.getLogger(self.worker_name)
         self.timeout_after_run = timedelta(seconds=0.1).total_seconds()
         self.timeout_after_err_in_run = timedelta(seconds=1).total_seconds()
 
-    def safe_run_in_background(self, *, safe_run_in_background_mode: str) -> (
-            asyncio.Task | threading.Thread | multiprocessing.Process
-    ):
-        if safe_run_in_background_mode == self.SafeRunInBackgroundModes.async_task:
-            res: asyncio.Task = asyncio.create_task(self.async_safe_run())
-        elif safe_run_in_background_mode == self.SafeRunInBackgroundModes.thread:
-            res: threading.Thread = threading.Thread(
-                target=self.sync_safe_run,
-                daemon=True
-            )
-            res.start()
-        elif safe_run_in_background_mode == self.SafeRunInBackgroundModes.process:
-            res: multiprocessing.Process = multiprocessing.Process(
-                target=self.sync_safe_run,
-                daemon=True
-            )
-            res.start()
-        else:
-            raise ValueError(f"unknown safe_run_mode={safe_run_in_background_mode}")
-        return res
-
     def sync_on_startup(self):
         pass
 
     def sync_run(self):
-        raise NotImplementedError()
+        self._logger.info("hello world")
 
     def sync_run_on_error(self, exception: BaseException, **kwargs):
         pass
 
     def sync_safe_run(self):
-        self._logger.info("start sync_safe_run")
+        self._logger.info("start")
         try:
             self.sync_on_startup()
         except BaseException as exception:
@@ -65,8 +39,6 @@ class BaseWorker(ABC):
         while True:
             try:
                 self.sync_run()
-                if self.timeout_after_run is not None:
-                    sync_safe_sleep(self.timeout_after_run)
             except BaseException as exception:
                 self._logger.error("error in sync_run", exc_info=exception)
                 try:
@@ -74,14 +46,14 @@ class BaseWorker(ABC):
                 except BaseException as exception_:
                     self._logger.error("error in sync_run_on_error", exc_info=exception_)
                     raise exception_
-                if self.timeout_after_err_in_run is not None:
-                    sync_safe_sleep(self.timeout_after_err_in_run)
+            if self.timeout_after_run is not None:
+                sync_safe_sleep(self.timeout_after_run)
 
     async def async_on_startup(self):
         pass
 
     async def async_run(self):
-        raise NotImplementedError()
+        self._logger.info("hello world")
 
     async def async_run_on_error(self, exception: BaseException, **kwargs):
         pass
@@ -96,8 +68,6 @@ class BaseWorker(ABC):
         while True:
             try:
                 await self.async_run()
-                if self.timeout_after_run is not None:
-                    await async_safe_sleep(self.timeout_after_run)
             except BaseException as exception:
                 self._logger.error("error in async_run", exc_info=exception)
                 try:
@@ -105,8 +75,36 @@ class BaseWorker(ABC):
                 except BaseException as exception_:
                     self._logger.error("error in async_run_on_error", exc_info=exception_)
                     raise exception_
-                if self.timeout_after_err_in_run is not None:
-                    await async_safe_sleep(self.timeout_after_err_in_run)
+            if self.timeout_after_err_in_run is not None:
+                await async_safe_sleep(self.timeout_after_err_in_run)
+
+
+class SafeRunInBackgroundModes(Enumeration):
+    async_task = "async_task"
+    thread = "thread"
+    process = "process"
+
+
+def safe_run_worker_in_background(*, worker: BaseWorker, mode: str) -> (
+        asyncio.Task | threading.Thread | multiprocessing.Process
+):
+    if mode == SafeRunInBackgroundModes.async_task:
+        res: asyncio.Task = asyncio.create_task(worker.async_safe_run())
+    elif mode == SafeRunInBackgroundModes.thread:
+        res: threading.Thread = threading.Thread(
+            target=worker.sync_safe_run,
+            daemon=True
+        )
+        res.start()
+    elif mode == SafeRunInBackgroundModes.process:
+        res: multiprocessing.Process = multiprocessing.Process(
+            target=worker.sync_safe_run,
+            daemon=True
+        )
+        res.start()
+    else:
+        raise ValueError(f"unknown safe_run_mode={mode}")
+    return res
 
 
 def __example():

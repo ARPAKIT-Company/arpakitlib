@@ -2,7 +2,6 @@
 
 import logging
 import os
-from functools import wraps
 from typing import Optional
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
@@ -34,7 +33,7 @@ def setup_normal_logging(log_filepath: Optional[str] = None):
     stream_handler = logging.StreamHandler()
     stream_handler.setLevel(logging.INFO)
     stream_formatter = logging.Formatter(
-        "%(asctime)s | %(levelname)s | %(name)s:%(funcName)s:%(lineno)d - %(message)s",
+        "%(asctime)s | %(levelname)s | %(filename)s | %(name)s:%(funcName)s:%(lineno)d - %(message)s",
         datefmt="%d.%m.%Y %I:%M:%S%p"
     )
     stream_handler.setFormatter(stream_formatter)
@@ -44,7 +43,7 @@ def setup_normal_logging(log_filepath: Optional[str] = None):
         file_handler = logging.FileHandler(log_filepath)
         file_handler.setLevel(logging.WARNING)
         file_formatter = logging.Formatter(
-            "%(asctime)s | %(levelname)s | %(name)s:%(funcName)s:%(lineno)d - %(message)s",
+            "%(asctime)s | %(levelname)s | %(filename)s | %(name)s:%(funcName)s:%(lineno)d - %(message)s",
             datefmt="%d.%m.%Y %I:%M:%S%p"
         )
         file_handler.setFormatter(file_formatter)
@@ -53,38 +52,6 @@ def setup_normal_logging(log_filepath: Optional[str] = None):
     _normal_logging_was_setup = True
 
     logger.info("normal logging was setup")
-
-
-def log_func():
-    def decorator(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            function_path = f"{func.__module__}:{func.__qualname__}"
-            logger = logging.getLogger(__name__)
-            logger.info(f"start func {function_path}")
-            result = func(*args, **kwargs)
-            logger.info(f"finish func {function_path}")
-            return result
-
-        return wrapper
-
-    return decorator
-
-
-def log_async_func():
-    def decorator(func):
-        @wraps(func)
-        async def async_wrapper(*args, **kwargs):
-            function_path = f"{func.__module__}:{func.__qualname__}"
-            logger = logging.getLogger(__name__)
-            logger.info(f"start async func {function_path}")
-            result = await func(*args, **kwargs)
-            logger.info(f"finish async func {function_path}")
-            return result
-
-        return async_wrapper
-
-    return decorator
 
 
 def __example():

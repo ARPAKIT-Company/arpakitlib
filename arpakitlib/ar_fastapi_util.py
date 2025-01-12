@@ -176,6 +176,7 @@ def create_handle_exception(
                 "exception_str": str(exception),
                 "request.method": str(request.method),
                 "request.url": str(request.url),
+                "request.headers": str(request.headers),
             }
         )
 
@@ -254,7 +255,8 @@ def create_handle_exception(
 
 def create_story_log_before_response_in_handle_exception(
         *,
-        sqlalchemy_db: SQLAlchemyDB
+        sqlalchemy_db: SQLAlchemyDB,
+        ignore_api_error_code_not_found: bool = True
 ) -> Callable:
     def func(
             *,
@@ -264,6 +266,8 @@ def create_story_log_before_response_in_handle_exception(
             exception: Exception,
             **kwargs
     ) -> (int, ErrorSO, dict[str, Any]):
+        if ignore_api_error_code_not_found and error_so.error_code == BaseAPIErrorCodes.not_found:
+            return status_code, error_so, kwargs
         sqlalchemy_db.init()
         traceback_str = "".join(traceback.format_exception(type(exception), exception, exception.__traceback__))
         with sqlalchemy_db.new_session() as session:
