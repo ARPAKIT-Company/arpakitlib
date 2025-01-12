@@ -67,11 +67,6 @@ def raise_for_types(comparable, need_types, comment_for_error: Optional[str] = N
         raise TypeError(err)
 
 
-def raise_if_not_async_func(func: Any):
-    if not inspect.iscoroutinefunction(func):
-        raise TypeError(f"The provided function '{func.__name__}' is not an async function")
-
-
 def make_none_to_false(v: Any) -> Any:
     if v is None:
         return False

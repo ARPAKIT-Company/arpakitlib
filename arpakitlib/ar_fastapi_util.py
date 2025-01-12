@@ -29,11 +29,12 @@ from arpakitlib.ar_base_worker_util import BaseWorker, safe_run_worker_in_backgr
 from arpakitlib.ar_dict_util import combine_dicts
 from arpakitlib.ar_enumeration_util import Enumeration
 from arpakitlib.ar_file_storage_in_dir_util import FileStorageInDir
+from arpakitlib.ar_func_util import raise_if_not_async_func, is_async_function
 from arpakitlib.ar_json_util import safely_transfer_obj_to_json_str_to_json_obj
 from arpakitlib.ar_logging_util import setup_normal_logging
 from arpakitlib.ar_sqlalchemy_model_util import StoryLogDBM
 from arpakitlib.ar_sqlalchemy_util import SQLAlchemyDB
-from arpakitlib.ar_type_util import raise_for_type, raise_if_not_async_func, raise_if_none
+from arpakitlib.ar_type_util import raise_for_type
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
 
@@ -250,7 +251,7 @@ def create_handle_exception(
             _func_data = func(
                 status_code=status_code, error_so=error_so, request=request, exception=exception, **_kwargs
             )
-            if asyncio.iscoroutine(_func_data):
+            if is_async_function(_func_data):
                 _func_data = await _func_data
             if _func_data is not None:
                 status_code, error_so, _kwargs = _func_data[0], _func_data[1], _func_data[2]
@@ -470,19 +471,41 @@ class BaseAPIAuthData(BaseModel):
     token_string: str | None = None
     api_key_string: str | None = None
 
+    is_token_string_correct: bool | None = None
+    is_api_key_string_correct: bool | None = None
+
 
 def base_api_auth(
         *,
         require_api_key_string: bool = False,
-        require_token_string: bool = False
+        require_token_string: bool = False,
+        validate_api_key_func: Callable | None = None,
+        validate_token_func: Callable | None = None,
+        correct_api_keys: str | list[str] | None = None,
+        correct_tokens: str | list[str] | None = None,
+        require_correct_api_key: bool = False,
+        require_correct_token: bool = False,
 ) -> Callable:
+    if isinstance(correct_api_keys, str):
+        correct_api_keys = [correct_api_keys]
+    if correct_api_keys is not None:
+        raise_for_type(correct_api_keys, list)
+        validate_api_key_func = lambda *args, **kwargs: kwargs["api_key_string"] in correct_api_keys
+
+    if isinstance(correct_tokens, str):
+        correct_tokens = [correct_tokens]
+    if correct_tokens is not None:
+        raise_for_type(correct_tokens, list)
+        validate_token_func = lambda *args, **kwargs: kwargs["token_string"] in correct_tokens
+
     async def func(
             *,
             ac: fastapi.security.HTTPAuthorizationCredentials | None = fastapi.Security(
                 fastapi.security.HTTPBearer(auto_error=False)
             ),
             api_key_string: str | None = Security(APIKeyHeader(name="apikey", auto_error=False)),
-            request: starlette.requests.Request
+            request: starlette.requests.Request,
+            transmitted_api_data: BaseTransmittedAPIData = Depends(get_transmitted_api_data)
     ) -> BaseAPIAuthData:
 
         api_auth_data = BaseAPIAuthData(
@@ -537,12 +560,16 @@ def base_api_auth(
         if not api_auth_data.token_string:
             api_auth_data.token_string = None
 
+        # api_key
+
         if require_api_key_string and not api_auth_data.api_key_string:
             raise APIException(
                 status_code=starlette.status.HTTP_401_UNAUTHORIZED,
                 error_code=BaseAPIErrorCodes.cannot_authorize,
                 error_data=safely_transfer_obj_to_json_str_to_json_obj(api_auth_data.model_dump())
             )
+
+        # token
 
         if require_token_string and not api_auth_data.token_string:
             raise APIException(
@@ -551,49 +578,55 @@ def base_api_auth(
                 error_data=safely_transfer_obj_to_json_str_to_json_obj(api_auth_data.model_dump())
             )
 
-        return api_auth_data
+        # api_key
 
-    return func
-
-
-class CheckAPIKeyAPIAuthData(BaseAPIAuthData):
-    is_api_key_correct: bool | None = None
-
-
-def api_key_api_auth(
-        *,
-        validate_api_key_func: Callable | None = None,
-        correct_api_key: str | None = None
-):
-    if correct_api_key is not None:
-        validate_api_key_func = lambda *args, **kwargs: kwargs["api_key_string"] == correct_api_key
-    raise_if_none(validate_api_key_func)
-
-    async def func(
-            *,
-            base_api_auth_data: BaseAPIAuthData = Depends(base_api_auth(
-                require_api_key_string=True,
-                require_token_string=False
-            )),
-            transmitted_api_data: BaseTransmittedAPIData = Depends(get_transmitted_api_data),
-            request: starlette.requests.Request
-    ) -> CheckAPIKeyAPIAuthData:
-        check_api_key_api_auth_data = CheckAPIKeyAPIAuthData.model_validate(base_api_auth_data)
-        check_api_key_api_auth_data.is_api_key_correct = validate_api_key_func(
-            api_key_string=base_api_auth_data.api_key_string,
-            base_api_auth_data=base_api_auth_data,
-            transmitted_api_data=transmitted_api_data,
-            request=request
-        )
-
-        if not check_api_key_api_auth_data.is_api_key_correct:
-            raise APIException(
-                status_code=starlette.status.HTTP_401_UNAUTHORIZED,
-                error_code=BaseAPIErrorCodes.cannot_authorize,
-                error_data=safely_transfer_obj_to_json_str_to_json_obj(check_api_key_api_auth_data.model_dump())
+        if validate_api_key_func is not None:
+            validate_api_key_func_data = validate_api_key_func(
+                api_key_string=api_auth_data.api_key_string,
+                token_string=api_auth_data.token_string,
+                base_api_auth_data=api_auth_data,
+                transmitted_api_data=transmitted_api_data,
+                request=request
             )
+            if is_async_function(validate_api_key_func_data):
+                validate_api_key_func_data = await validate_api_key_func_data
+            api_auth_data.is_api_key_string_correct = validate_api_key_func_data
 
-        return check_api_key_api_auth_data
+        # token
+
+        if validate_token_func is not None:
+            validate_token_func_data = validate_token_func(
+                api_key_string=api_auth_data.api_key_string,
+                token_string=api_auth_data.token_string,
+                base_api_auth_data=api_auth_data,
+                transmitted_api_data=transmitted_api_data,
+                request=request
+            )
+            if is_async_function(validate_token_func_data):
+                validate_token_func_data_data = await validate_token_func_data
+            api_auth_data.is_token_string_correct = validate_token_func_data_data
+
+        # api_key
+
+        if require_correct_api_key:
+            if not api_auth_data.is_api_key_string_correct:
+                raise APIException(
+                    status_code=starlette.status.HTTP_401_UNAUTHORIZED,
+                    error_code=BaseAPIErrorCodes.cannot_authorize,
+                    error_data=safely_transfer_obj_to_json_str_to_json_obj(api_auth_data.model_dump())
+                )
+
+        # token
+
+        if require_correct_token:
+            if not api_auth_data.is_token_string_correct:
+                raise APIException(
+                    status_code=starlette.status.HTTP_401_UNAUTHORIZED,
+                    error_code=BaseAPIErrorCodes.cannot_authorize,
+                    error_data=safely_transfer_obj_to_json_str_to_json_obj(api_auth_data.model_dump())
+                )
+
+        return api_auth_data
 
     return func
 
