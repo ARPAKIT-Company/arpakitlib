@@ -144,7 +144,12 @@ def get_arpakit_lib_modules() -> ArpakitLibModules:
 
 
 def __example():
-    pass
+    for module_name, d in (
+            get_arpakit_lib_modules().module_name_to_module_version_and_module_has_errors().items()
+    ):
+        print(module_name)
+        print(d)
+        print()
 
 
 if __name__ == '__main__':

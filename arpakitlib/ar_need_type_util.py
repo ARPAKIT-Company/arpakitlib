@@ -56,7 +56,14 @@ def parse_need_type(value: Any, need_type: str, allow_none: bool = False) -> Any
 
 
 def __example():
-    pass
+    print(parse_need_type(value=123, need_type="int"))
+    print(parse_need_type(value="True", need_type="bool"))
+    print(parse_need_type(value=123.456, need_type="float"))
+    print(parse_need_type(value='[1, 2, 3]', need_type="list_of_int"))
+    print(parse_need_type(value='["a", "b", "c"]', need_type="list_of_str"))
+    print(parse_need_type(value='[1.1, 2.2, 3.3]', need_type="list_of_float"))
+    print(parse_need_type(value='{"key": "value"}', need_type="json"))
+    print(parse_need_type(value="hello world", need_type="str"))
 
 
 if __name__ == '__main__':

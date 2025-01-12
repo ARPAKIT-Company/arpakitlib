@@ -91,7 +91,58 @@ def raise_if_not_none(v: Any) -> Any:
 
 
 def __example():
-    pass
+    print("is_set:")
+    print(is_set(v=NotSet))  # False
+    print(is_set(v="hello world"))  # True
+
+    print("\nis_not_set:")
+    print(is_not_set(v=NotSet))  # True
+    print(is_not_set(v="hello world"))  # False
+
+    print("\nis_set_and_not_none:")
+    print(is_set_and_not_none(v=NotSet))  # False
+    print(is_set_and_not_none(v=None))  # False
+    print(is_set_and_not_none(v=1000))  # True
+
+    print("\nis_not_set_or_none:")
+    print(is_not_set_or_none(v=NotSet))  # True
+    print(is_not_set_or_none(v=None))  # True
+    print(is_not_set_or_none(v=100))  # False
+
+    print("\nmake_none_if_not_set:")
+    print(make_none_if_not_set(v=NotSet))  # None
+    print(make_none_if_not_set(v="hello world"))  # hello world
+
+    print("\nmake_none_to_false:")
+    print(make_none_to_false(v=None))  # False
+    print(make_none_to_false(v=True))  # True
+    print(make_none_to_false(v=100))  # 100
+
+    print("\nraise_if_set:")
+    try:
+        raise_if_set(v=100)  # raise
+    except ValueError as e:
+        print(e)
+
+    print("\nraise_if_set:")
+    try:
+        raise_if_not_set(v=NotSet)  # raise
+    except ValueError as e:
+        print(e)
+
+    print("\nraise_for_type:")
+    try:
+        raise_for_type(comparable="test", need_type=str)  # pass
+        raise_for_type(comparable=100, need_type=str)  # raise
+    except TypeError as e:
+        print(e)
+
+    print("\nraise_for_types:")
+    try:
+        raise_for_types(comparable="test", need_types=[str, int])  # pass
+        raise_for_types(comparable=100.5, need_types=[str, int], comment_for_error="Ooops")  # raise
+    except TypeError as e:
+        print(e)
 
 
 if __name__ == '__main__':

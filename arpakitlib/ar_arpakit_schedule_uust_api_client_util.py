@@ -521,7 +521,28 @@ def __example():
 
 
 async def __async_example():
-    pass
+    client = ARPAKITScheduleUUSTAPIClient(api_key="TEST_API_KEY", use_cache=True)
+
+    healthcheck = await client.healthcheck()
+    print(f"Healthcheck: {healthcheck}")
+
+    auth_healthcheck = await client.auth_healthcheck()
+    print(f"Auth Healthcheck: {auth_healthcheck}")
+
+    current_week = await client.get_current_week()
+    print(f"Текущая неделя: {current_week.simple_json() if current_week else 'Не найдено'}")
+
+    current_semester = await client.get_current_semester()
+    print(f"Текущий семестр: {current_semester.simple_json() if current_semester else 'Не найдено'}")
+
+    groups = await client.get_groups()
+    print(f"Группы: {[group.simple_json() for group in groups]}")
+
+    teachers = await client.get_teachers()
+    print(f"Преподаватели: {[teacher.simple_json() for teacher in teachers]}")
+
+    weather = await client.get_weather_in_ufa()
+    print(f"Погода в Уфе: {weather.simple_json()}")
 
 
 if __name__ == '__main__':

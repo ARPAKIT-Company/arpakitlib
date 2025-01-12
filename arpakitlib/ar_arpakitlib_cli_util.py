@@ -7,6 +7,8 @@ from arpakitlib.ar_need_type_util import parse_need_type, NeedTypes
 from arpakitlib.ar_parse_command import parse_command
 from arpakitlib.ar_str_util import raise_if_string_blank
 
+_ARPAKIT_LIB_MODULE_VERSION = "3.0"
+
 
 def execute_arpakitlib_cli(*, full_command: str | None = None):
     if full_command is None:

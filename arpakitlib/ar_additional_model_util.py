@@ -3,6 +3,8 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict
 
+_ARPAKIT_LIB_MODULE_VERSION = "3.0"
+
 
 class BaseAM(BaseModel):
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True, from_attributes=True)
@@ -16,7 +18,22 @@ class BaseAM(BaseModel):
 
 
 def __example():
-    pass
+    class UserAM(BaseAM):
+        id: int
+        name: str
+        email: str
+
+        @property
+        def bus_data_age(self) -> int | None:
+            return self.bus_data.get("age")
+
+    user = UserAM(id=1, name="John Doe", email="john.doe@example.com")
+    print(user.name)  # John Doe
+
+    # bus_data
+    user.bus_data["age"] = 22
+    print(user.bus_data)  # {'age': '22'}
+    print(user.bus_data_age)  # 22
 
 
 if __name__ == '__main__':

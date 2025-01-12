@@ -8,6 +8,8 @@ from pydantic_settings import BaseSettings
 
 from arpakitlib.ar_enumeration_util import Enumeration
 
+_ARPAKIT_LIB_MODULE_VERSION = "3.0"
+
 
 def generate_env_example(settings_class: Union[BaseSettings, type[BaseSettings]]):
     res = ""
@@ -52,3 +54,11 @@ class SimpleSettings(BaseSettings):
         with open(filepath, mode="w") as f:
             f.write(env_example)
         return env_example
+
+
+def __example():
+    pass
+
+
+if __name__ == '__main__':
+    __example()
