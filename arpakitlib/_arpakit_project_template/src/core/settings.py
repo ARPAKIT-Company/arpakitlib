@@ -35,6 +35,8 @@ class Settings(SimpleSettings):
 
     api_correct_api_key: str | None = "1"
 
+    api_correct_token: str | None = "1"
+
     var_dirname: str | None = "var"
 
     var_dirpath: str | None = os.path.join(BASE_DIRPATH, var_dirname)

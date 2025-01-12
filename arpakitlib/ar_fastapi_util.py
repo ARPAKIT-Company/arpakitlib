@@ -34,7 +34,7 @@ from arpakitlib.ar_json_util import safely_transfer_obj_to_json_str_to_json_obj
 from arpakitlib.ar_logging_util import setup_normal_logging
 from arpakitlib.ar_sqlalchemy_model_util import StoryLogDBM
 from arpakitlib.ar_sqlalchemy_util import SQLAlchemyDB
-from arpakitlib.ar_type_util import raise_for_type
+from arpakitlib.ar_type_util import raise_for_type, raise_if_none
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
 
@@ -497,6 +497,14 @@ def base_api_auth(
     if correct_tokens is not None:
         raise_for_type(correct_tokens, list)
         validate_token_func = lambda *args, **kwargs: kwargs["token_string"] in correct_tokens
+
+    if require_correct_api_key:
+        raise_if_none(validate_api_key_func)
+        require_api_key_string = True
+
+    if require_correct_token:
+        raise_if_none(validate_token_func)
+        require_token_string = True
 
     async def func(
             *,
