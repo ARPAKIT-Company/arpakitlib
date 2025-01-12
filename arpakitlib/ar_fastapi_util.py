@@ -21,6 +21,7 @@ from fastapi import FastAPI, APIRouter, Query, Security, Depends
 from fastapi.openapi.docs import get_swagger_ui_html, get_redoc_html
 from fastapi.security import APIKeyHeader
 from pydantic import BaseModel, ConfigDict
+from starlette import status
 from starlette.middleware.cors import CORSMiddleware
 from starlette.staticfiles import StaticFiles
 
@@ -220,6 +221,9 @@ def create_handle_exception(
             error_so.error_specification_code = (
                 error_so.error_specification_code.upper().replace(" ", "_").strip()
             )
+
+        if error_so.error_code == BaseAPIErrorCodes.not_found:
+            status_code = status.HTTP_404_NOT_FOUND
 
         if _need_exc_info:
             _logger.error(str(exception), exc_info=exception)

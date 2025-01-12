@@ -31,7 +31,7 @@ class Settings(SimpleSettings):
 
     api_port: int | None = int("{API_PORT}") if "{API_PORT}".strip().isdigit() else None
 
-    api_correct_api_key: str | None = None
+    api_correct_api_key: str | None = "1"
 
     var_dirname: str | None = "var"
 
