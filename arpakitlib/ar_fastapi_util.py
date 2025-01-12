@@ -647,7 +647,7 @@ def create_fastapi_app(
         title: str = "arpakitlib FastAPI",
         description: str | None = "arpakitlib FastAPI",
         log_filepath: str | None = "./story.log",
-        handle_exception_: Callable | None = create_handle_exception(),
+        handle_exception_: Callable | None = None,
         startup_api_events: list[BaseStartupAPIEvent | None] | None = None,
         shutdown_api_events: list[BaseShutdownAPIEvent | None] | None = None,
         transmitted_api_data: BaseTransmittedAPIData = BaseTransmittedAPIData(),
@@ -659,6 +659,9 @@ def create_fastapi_app(
     _logger.info("start create_fastapi_app")
 
     setup_normal_logging(log_filepath=log_filepath)
+
+    if handle_exception_ is None:
+        handle_exception_ = create_handle_exception()
 
     if contact is None:
         contact = DEFAULT_CONTACT
@@ -698,16 +701,10 @@ def create_fastapi_app(
 
     add_swagger_to_app(app=app)
 
-    if handle_exception_:
-        add_exception_handler_to_app(
-            app=app,
-            handle_exception=handle_exception_
-        )
-    else:
-        add_exception_handler_to_app(
-            app=app,
-            handle_exception=create_handle_exception()
-        )
+    add_exception_handler_to_app(
+        app=app,
+        handle_exception=handle_exception_
+    )
 
     add_needed_api_router_to_app(app=app)
 
