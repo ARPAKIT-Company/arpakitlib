@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from arpakitlib.ar_base_worker_util import BaseWorker
+from arpakitlib.ar_base_worker_util import SafeRunInBackgroundModes
 from arpakitlib.ar_fastapi_util import create_fastapi_app, InitSqlalchemyDBStartupAPIEvent, InitFileStoragesInDir, \
     create_handle_exception, create_story_log_before_response_in_handle_exception, DEFAULT_CONTACT, \
     SafeRunWorkerStartupAPIEvent
@@ -22,18 +22,25 @@ def create_api_app() -> FastAPI:
     setup_logging()
 
     settings = get_cached_settings()
+
     sqlalchemy_db = get_cached_sqlalchemy_db() if settings.sql_db_url is not None else None
+
     transmitted_api_data = TransmittedAPIData(
         settings=settings,
         sqlalchemy_db=sqlalchemy_db
     )
 
     funcs_before_response = []
+
     if settings.api_create_story_log_before_response_in_handle_exception:
         raise_for_type(sqlalchemy_db, SQLAlchemyDB)
         funcs_before_response.append(
-            create_story_log_before_response_in_handle_exception(sqlalchemy_db=sqlalchemy_db)
+            create_story_log_before_response_in_handle_exception(
+                sqlalchemy_db=sqlalchemy_db,
+                ignore_api_error_code_not_found=True
+            )
         )
+
     handle_exception = create_handle_exception(
         funcs_before_response=funcs_before_response,
         async_funcs_after_response=[]
@@ -66,7 +73,7 @@ def create_api_app() -> FastAPI:
                         filter_operation_types=None
                     )
                 ],
-                safe_run_in_background_mode=BaseWorker.SafeRunInBackgroundModes.async_task
+                safe_run_in_background_mode=SafeRunInBackgroundModes.async_task
             )
         )
 
@@ -80,7 +87,7 @@ def create_api_app() -> FastAPI:
                         scheduled_operations=ALL_SCHEDULED_OPERATIONS
                     )
                 ],
-                safe_run_in_background_mode=BaseWorker.SafeRunInBackgroundModes.async_task
+                safe_run_in_background_mode=SafeRunInBackgroundModes.async_task
             )
         )
 
