@@ -1,13 +1,10 @@
 import asyncio
-import importlib
-from contextlib import suppress
 from datetime import datetime
 from functools import lru_cache
 
 from arpakitlib.ar_datetime_util import now_dt
 from arpakitlib.ar_file_storage_in_dir_util import FileStorageInDir
 from arpakitlib.ar_logging_util import setup_normal_logging
-from arpakitlib.ar_sqlalchemy_util import SQLAlchemyDB
 from arpakitlib.ar_type_util import raise_if_none
 from src.core.settings import get_cached_settings
 
@@ -41,21 +38,6 @@ def create_dump_file_storage_in_dir() -> FileStorageInDir:
 @lru_cache()
 def get_cached_dump_file_storage_in_dir() -> FileStorageInDir:
     return create_dump_file_storage_in_dir()
-
-
-def create_sqlalchemy_db() -> SQLAlchemyDB:
-    with suppress(Exception):
-        importlib.import_module("src.db.sqlalchemy_model")
-
-    return SQLAlchemyDB(
-        db_url=get_cached_settings().sql_db_url,
-        db_echo=get_cached_settings().sql_db_echo
-    )
-
-
-@lru_cache()
-def get_cached_sqlalchemy_db() -> SQLAlchemyDB:
-    return create_sqlalchemy_db()
 
 
 def now_local_dt() -> datetime:

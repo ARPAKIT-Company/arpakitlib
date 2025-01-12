@@ -12,8 +12,9 @@ from src.api.router.main_router import main_api_router
 from src.api.transmitted_api_data import TransmittedAPIData
 from src.core.const import STATIC_DIRPATH
 from src.core.settings import get_cached_settings
-from src.core.util import get_cached_sqlalchemy_db, get_cached_media_file_storage_in_dir, \
+from src.core.util import get_cached_media_file_storage_in_dir, \
     get_cached_cache_file_storage_in_dir, get_cached_dump_file_storage_in_dir, setup_logging
+from src.db.util import get_cached_sqlalchemy_db
 from src.operation_execution.operation_executor import OperationExecutor
 from src.operation_execution.scheduled_operations import ALL_SCHEDULED_OPERATIONS
 

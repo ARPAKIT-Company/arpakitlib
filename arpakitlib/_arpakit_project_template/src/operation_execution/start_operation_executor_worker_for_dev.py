@@ -1,5 +1,6 @@
 from arpakitlib.ar_operation_execution_util import OperationExecutorWorker
-from src.core.util import get_cached_sqlalchemy_db, setup_logging
+from src.core.util import setup_logging
+from src.db.util import get_cached_sqlalchemy_db
 from src.operation_execution.operation_executor import OperationExecutor
 
 

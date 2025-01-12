@@ -13,7 +13,7 @@ from src.core.const import BASE_DIRPATH, ENV_FILEPATH
 class Settings(SimpleSettings):
     sql_db_url: str | None = (
         "postgresql://{PROJECT_NAME}:{PROJECT_NAME}@127.0.0.1:{SQL_DB_PORT}/{PROJECT_NAME}"
-    )
+    ) if (str("{PROJECT_NAME}") and str("{SQL_DB_PORT}").strip().isdigit()) else None
 
     sql_db_echo: bool = False
 
@@ -29,7 +29,7 @@ class Settings(SimpleSettings):
 
     api_start_scheduled_operation_creator_worker: bool = False
 
-    api_port: int | None = int("{API_PORT}") if "{API_PORT}".isdigit() else None
+    api_port: int | None = int("{API_PORT}") if "{API_PORT}".strip().isdigit() else None
 
     api_correct_api_key: str | None = None
 
