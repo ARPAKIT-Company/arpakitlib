@@ -33,7 +33,7 @@ def setup_normal_logging(log_filepath: Optional[str] = None):
     stream_handler = logging.StreamHandler()
     stream_handler.setLevel(logging.INFO)
     stream_formatter = logging.Formatter(
-        "%(asctime)s | %(levelname)s | %(filename)s | %(name)s:%(funcName)s:%(lineno)d - %(message)s",
+        "%(asctime)s | %(levelname)s | %(filename)s | %(funcName)s:%(lineno)d - %(message)s",
         datefmt="%d.%m.%Y %I:%M:%S%p"
     )
     stream_handler.setFormatter(stream_formatter)
@@ -43,7 +43,7 @@ def setup_normal_logging(log_filepath: Optional[str] = None):
         file_handler = logging.FileHandler(log_filepath)
         file_handler.setLevel(logging.WARNING)
         file_formatter = logging.Formatter(
-            "%(asctime)s | %(levelname)s | %(filename)s | %(name)s:%(funcName)s:%(lineno)d - %(message)s",
+            "%(asctime)s | %(levelname)s | %(filename)s | %(funcName)s:%(lineno)d - %(message)s",
             datefmt="%d.%m.%Y %I:%M:%S%p"
         )
         file_handler.setFormatter(file_formatter)
