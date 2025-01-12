@@ -17,7 +17,7 @@ from pydantic import ConfigDict, BaseModel
 
 from arpakitlib.ar_dict_util import combine_dicts
 from arpakitlib.ar_enumeration_util import Enumeration
-from arpakitlib.ar_json_util import safely_transfer_to_json_str
+from arpakitlib.ar_json_util import safely_transfer_obj_to_json_str
 from arpakitlib.ar_sleep_util import async_safe_sleep
 from arpakitlib.ar_type_util import raise_for_type
 
@@ -53,7 +53,7 @@ class BaseAPIModel(BaseModel):
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True, from_attributes=True)
 
     def simple_json(self) -> str:
-        return safely_transfer_to_json_str(self.model_dump(mode="json"))
+        return safely_transfer_obj_to_json_str(self.model_dump(mode="json"))
 
 
 class GroupAPIModel(BaseAPIModel):

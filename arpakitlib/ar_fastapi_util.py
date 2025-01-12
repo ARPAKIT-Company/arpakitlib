@@ -29,7 +29,7 @@ from arpakitlib.ar_base_worker_util import BaseWorker, safe_run_worker_in_backgr
 from arpakitlib.ar_dict_util import combine_dicts
 from arpakitlib.ar_enumeration_util import Enumeration
 from arpakitlib.ar_file_storage_in_dir_util import FileStorageInDir
-from arpakitlib.ar_json_util import safely_transfer_to_json_str_to_json_obj
+from arpakitlib.ar_json_util import safely_transfer_obj_to_json_str_to_json_obj
 from arpakitlib.ar_logging_util import setup_normal_logging
 from arpakitlib.ar_sqlalchemy_model_util import StoryLogDBM
 from arpakitlib.ar_sqlalchemy_util import SQLAlchemyDB
@@ -112,11 +112,11 @@ class OperationSO(SimpleSO):
 class APIJSONResponse(fastapi.responses.JSONResponse):
     def __init__(self, *, content: dict | list | BaseSO | None, status_code: int = starlette.status.HTTP_200_OK):
         if isinstance(content, dict):
-            content = safely_transfer_to_json_str_to_json_obj(content)
+            content = safely_transfer_obj_to_json_str_to_json_obj(content)
         elif isinstance(content, list):
-            content = safely_transfer_to_json_str_to_json_obj(content)
+            content = safely_transfer_obj_to_json_str_to_json_obj(content)
         elif isinstance(content, BaseSO):
-            content = safely_transfer_to_json_str_to_json_obj(content.model_dump())
+            content = safely_transfer_obj_to_json_str_to_json_obj(content.model_dump())
         elif content is None:
             content = None
         else:
@@ -541,14 +541,14 @@ def base_api_auth(
             raise APIException(
                 status_code=starlette.status.HTTP_401_UNAUTHORIZED,
                 error_code=BaseAPIErrorCodes.cannot_authorize,
-                error_data=safely_transfer_to_json_str_to_json_obj(api_auth_data.model_dump())
+                error_data=safely_transfer_obj_to_json_str_to_json_obj(api_auth_data.model_dump())
             )
 
         if require_token_string and not api_auth_data.token_string:
             raise APIException(
                 status_code=starlette.status.HTTP_401_UNAUTHORIZED,
                 error_code=BaseAPIErrorCodes.cannot_authorize,
-                error_data=safely_transfer_to_json_str_to_json_obj(api_auth_data.model_dump())
+                error_data=safely_transfer_obj_to_json_str_to_json_obj(api_auth_data.model_dump())
             )
 
         return api_auth_data
@@ -590,7 +590,7 @@ def is_api_key_correct_api_auth(
             raise APIException(
                 status_code=starlette.status.HTTP_401_UNAUTHORIZED,
                 error_code=BaseAPIErrorCodes.cannot_authorize,
-                error_data=safely_transfer_to_json_str_to_json_obj(check_api_key_api_auth_data.model_dump())
+                error_data=safely_transfer_obj_to_json_str_to_json_obj(check_api_key_api_auth_data.model_dump())
             )
 
         return check_api_key_api_auth_data

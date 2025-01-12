@@ -5,12 +5,14 @@ from typing import Any
 
 import pytz
 
-from arpakitlib.ar_json_util import safely_transfer_to_json_str
+from arpakitlib.ar_json_util import safely_transfer_obj_to_json_str
 from arpakitlib.ar_settings_util import SimpleSettings
 from src.core.const import BASE_DIRPATH, ENV_FILEPATH
 
 
 class Settings(SimpleSettings):
+    project_name: str = "{PROJECT_NAME}"
+
     sql_db_url: str | None = (
         "postgresql://{PROJECT_NAME}:{PROJECT_NAME}@127.0.0.1:{SQL_DB_PORT}/{PROJECT_NAME}"
     ) if (str("{PROJECT_NAME}") and str("{SQL_DB_PORT}").strip().isdigit()) else None
@@ -70,7 +72,7 @@ def get_cached_settings() -> Settings:
 
 
 def __example():
-    print(safely_transfer_to_json_str(get_cached_settings().model_dump(mode="json")))
+    print(safely_transfer_obj_to_json_str(get_cached_settings().model_dump(mode="json")))
 
 
 async def __async_example():

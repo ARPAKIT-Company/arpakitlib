@@ -10,7 +10,7 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 from arpakitlib.ar_datetime_util import now_utc_dt
 from arpakitlib.ar_enumeration_util import Enumeration
-from arpakitlib.ar_json_util import safely_transfer_to_json_str
+from arpakitlib.ar_json_util import safely_transfer_obj_to_json_str
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
 
@@ -44,7 +44,7 @@ class BaseDBM(DeclarativeBase):
         return res
 
     def simple_json(self, *, include_sd_properties: bool = True) -> str:
-        return safely_transfer_to_json_str(self.simple_dict(include_sd_properties=include_sd_properties))
+        return safely_transfer_obj_to_json_str(self.simple_dict(include_sd_properties=include_sd_properties))
 
 
 class SimpleDBM(BaseDBM):
