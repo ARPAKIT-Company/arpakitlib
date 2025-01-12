@@ -25,7 +25,7 @@ from starlette import status
 from starlette.middleware.cors import CORSMiddleware
 from starlette.staticfiles import StaticFiles
 
-from arpakitlib.ar_base_worker_util import BaseWorker
+from arpakitlib.ar_base_worker_util import BaseWorker, safe_run_worker_in_background, SafeRunInBackgroundModes
 from arpakitlib.ar_dict_util import combine_dicts
 from arpakitlib.ar_enumeration_util import Enumeration
 from arpakitlib.ar_file_storage_in_dir_util import FileStorageInDir
@@ -110,11 +110,23 @@ class OperationSO(SimpleSO):
 
 
 class APIJSONResponse(fastapi.responses.JSONResponse):
-    def __init__(self, *, content: BaseSO, status_code: int = starlette.status.HTTP_200_OK):
+    def __init__(self, *, content: dict | list | BaseSO | None, status_code: int = starlette.status.HTTP_200_OK):
+        if isinstance(content, dict):
+            content = safely_transfer_to_json_str_to_json_obj(content)
+        elif isinstance(content, list):
+            content = safely_transfer_to_json_str_to_json_obj(content)
+        elif isinstance(content, BaseSO):
+            content = safely_transfer_to_json_str_to_json_obj(content.model_dump())
+        elif content is None:
+            content = None
+        else:
+            raise ValueError(f"unknown content type, type(content)={type(content)}")
+
         self.content_ = content
         self.status_code_ = status_code
+
         super().__init__(
-            content=safely_transfer_to_json_str_to_json_obj(content.model_dump()),
+            content=content,
             status_code=status_code
         )
 
@@ -427,7 +439,7 @@ class SafeRunWorkerStartupAPIEvent(BaseStartupAPIEvent):
 
     async def async_on_startup(self, *args, **kwargs):
         for worker in self.workers:
-            _ = worker.safe_run_in_background(safe_run_in_background_mode=self.safe_run_in_background_mode)
+            _ = safe_run_worker_in_background(worker=worker, mode=SafeRunInBackgroundModes.async_task)
 
 
 class InitFileStoragesInDir(BaseStartupAPIEvent):
