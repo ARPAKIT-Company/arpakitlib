@@ -488,18 +488,19 @@ def base_api_auth(
         correct_tokens: str | list[str] | None = None,
         require_correct_api_key: bool = False,
         require_correct_token: bool = False,
+        **kwargs
 ) -> Callable:
     if isinstance(correct_api_keys, str):
         correct_api_keys = [correct_api_keys]
     if correct_api_keys is not None:
         raise_for_type(correct_api_keys, list)
-        validate_api_key_func = lambda *args, **kwargs: kwargs["api_key_string"] in correct_api_keys
+        validate_api_key_func = lambda *args, **kwargs_: kwargs_["api_key_string"] in correct_api_keys
 
     if isinstance(correct_tokens, str):
         correct_tokens = [correct_tokens]
     if correct_tokens is not None:
         raise_for_type(correct_tokens, list)
-        validate_token_func = lambda *args, **kwargs: kwargs["token_string"] in correct_tokens
+        validate_token_func = lambda *args, **kwargs_: kwargs_["token_string"] in correct_tokens
 
     if require_correct_api_key:
         raise_if_none(validate_api_key_func)
@@ -599,7 +600,8 @@ def base_api_auth(
                 token_string=api_auth_data.token_string,
                 base_api_auth_data=api_auth_data,
                 transmitted_api_data=transmitted_api_data,
-                request=request
+                request=request,
+                **kwargs
             )
             if is_async_object(validate_api_key_func_data):
                 validate_api_key_func_data = await validate_api_key_func_data
@@ -613,7 +615,8 @@ def base_api_auth(
                 token_string=api_auth_data.token_string,
                 base_api_auth_data=api_auth_data,
                 transmitted_api_data=transmitted_api_data,
-                request=request
+                request=request,
+                **kwargs
             )
             if is_async_object(validate_token_func_data):
                 validate_token_func_data_data = await validate_token_func_data
