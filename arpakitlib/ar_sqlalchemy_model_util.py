@@ -137,6 +137,10 @@ class OperationDBM(SimpleDBM):
             return None
         return self.duration.total_seconds()
 
+    @property
+    def sdp_duration_total_seconds(self) -> float | None:
+        return self.duration_total_seconds
+
 
 def __example():
     pass

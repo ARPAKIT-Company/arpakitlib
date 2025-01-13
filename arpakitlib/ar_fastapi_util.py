@@ -32,7 +32,7 @@ from arpakitlib.ar_file_storage_in_dir_util import FileStorageInDir
 from arpakitlib.ar_func_util import raise_if_not_async_func, is_async_function, is_async_object
 from arpakitlib.ar_json_util import safely_transfer_obj_to_json_str_to_json_obj
 from arpakitlib.ar_logging_util import setup_normal_logging
-from arpakitlib.ar_sqlalchemy_model_util import StoryLogDBM
+from arpakitlib.ar_sqlalchemy_model_util import StoryLogDBM, OperationDBM
 from arpakitlib.ar_sqlalchemy_util import SQLAlchemyDB
 from arpakitlib.ar_type_util import raise_for_type, raise_if_none
 
@@ -98,6 +98,10 @@ class StoryLogSO(SimpleSO):
     title: str | None
     data: dict[str, Any]
 
+    @classmethod
+    def from_story_log_dbm(cls, *, story_log_dbm: StoryLogDBM) -> StoryLogSO:
+        return cls.model_validate(story_log_dbm.simple_dict(include_sd_properties=True))
+
 
 class OperationSO(SimpleSO):
     execution_start_dt: datetime | None
@@ -108,6 +112,10 @@ class OperationSO(SimpleSO):
     output_data: dict[str, Any]
     error_data: dict[str, Any]
     duration_total_seconds: float | None
+
+    @classmethod
+    def from_operation_dbm(cls, *, operation_dbm: OperationDBM) -> OperationSO:
+        return cls.model_validate(operation_dbm.simple_dict(include_sd_properties=True))
 
 
 class APIJSONResponse(fastapi.responses.JSONResponse):
