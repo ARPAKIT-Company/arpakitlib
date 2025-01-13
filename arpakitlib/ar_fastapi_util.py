@@ -29,7 +29,7 @@ from arpakitlib.ar_base_worker_util import BaseWorker, safe_run_worker_in_backgr
 from arpakitlib.ar_dict_util import combine_dicts
 from arpakitlib.ar_enumeration_util import Enumeration
 from arpakitlib.ar_file_storage_in_dir_util import FileStorageInDir
-from arpakitlib.ar_func_util import raise_if_not_async_func, is_async_function
+from arpakitlib.ar_func_util import raise_if_not_async_func, is_async_function, is_async_object
 from arpakitlib.ar_json_util import safely_transfer_obj_to_json_str_to_json_obj
 from arpakitlib.ar_logging_util import setup_normal_logging
 from arpakitlib.ar_sqlalchemy_model_util import StoryLogDBM
@@ -596,7 +596,7 @@ def base_api_auth(
                 transmitted_api_data=transmitted_api_data,
                 request=request
             )
-            if is_async_function(validate_api_key_func_data):
+            if is_async_object(validate_api_key_func_data):
                 validate_api_key_func_data = await validate_api_key_func_data
             api_auth_data.is_api_key_string_correct = validate_api_key_func_data
 
@@ -610,7 +610,7 @@ def base_api_auth(
                 transmitted_api_data=transmitted_api_data,
                 request=request
             )
-            if is_async_function(validate_token_func_data):
+            if is_async_object(validate_token_func_data):
                 validate_token_func_data_data = await validate_token_func_data
             api_auth_data.is_token_string_correct = validate_token_func_data_data
 

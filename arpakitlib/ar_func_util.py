@@ -1,12 +1,16 @@
 import asyncio
 import inspect
-from typing import Callable
+from typing import Callable, Any
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
 
 
 def is_async_function(func: Callable) -> bool:
     return asyncio.iscoroutinefunction(func)
+
+
+def is_async_object(obj: object) -> bool:
+    return asyncio.iscoroutine(obj)
 
 
 def is_sync_function(func: Callable) -> bool:
