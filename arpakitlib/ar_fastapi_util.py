@@ -468,6 +468,9 @@ class BaseAPIAuthData(BaseModel):
     require_api_key_string: bool = False
     require_token_string: bool = False
 
+    require_correct_api_key: bool = False
+    require_correct_token: bool = False
+
     token_string: str | None = None
     api_key_string: str | None = None
 
@@ -518,7 +521,9 @@ def base_api_auth(
 
         api_auth_data = BaseAPIAuthData(
             require_api_key_string=require_api_key_string,
-            require_token_string=require_token_string
+            require_token_string=require_token_string,
+            require_correct_api_key=require_correct_api_key,
+            require_correct_token=require_correct_token
         )
 
         # api_key
