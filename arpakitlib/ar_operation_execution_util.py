@@ -306,11 +306,13 @@ class OperationExecutorWorker(BaseWorker):
             operation_executor: BaseOperationExecutor | None = None,
             filter_operation_types: str | list[str] | None = None,
             timeout_after_run=timedelta(seconds=0.1),
-            timeout_after_err_in_run=timedelta(seconds=1)
+            timeout_after_err_in_run=timedelta(seconds=1),
+            startup_funcs: list[Any] | None = None
     ):
         super().__init__(
             timeout_after_run=timeout_after_run,
-            timeout_after_err_in_run=timeout_after_err_in_run
+            timeout_after_err_in_run=timeout_after_err_in_run,
+            startup_funcs=startup_funcs
         )
         self.sqlalchemy_db = sqlalchemy_db
         if operation_executor is None:
@@ -320,6 +322,7 @@ class OperationExecutorWorker(BaseWorker):
 
     def sync_on_startup(self):
         self.sqlalchemy_db.init()
+        self.sync_run_startup_funcs()
 
     def sync_execute_operation(self, operation_dbm: OperationDBM) -> OperationDBM:
         return self.operation_executor.sync_safe_execute_operation(operation_dbm=operation_dbm)
@@ -338,6 +341,7 @@ class OperationExecutorWorker(BaseWorker):
 
     async def async_on_startup(self):
         self.sqlalchemy_db.init()
+        await self.async_run_startup_funcs()
 
     async def async_execute_operation(self, operation_dbm: OperationDBM) -> OperationDBM:
         return await self.operation_executor.async_safe_execute_operation(operation_dbm=operation_dbm)
@@ -371,11 +375,13 @@ class ScheduledOperationCreatorWorker(BaseWorker):
             sqlalchemy_db: SQLAlchemyDB,
             scheduled_operations: list[ScheduledOperation] | None = None,
             timeout_after_run=timedelta(seconds=0.1),
-            timeout_after_err_in_run=timedelta(seconds=1)
+            timeout_after_err_in_run=timedelta(seconds=1),
+            startup_funcs: list[Any] | None = None
     ):
         super().__init__(
             timeout_after_run=timeout_after_run,
-            timeout_after_err_in_run=timeout_after_err_in_run
+            timeout_after_err_in_run=timeout_after_err_in_run,
+            startup_funcs=startup_funcs
         )
         self.sqlalchemy_db = sqlalchemy_db
         if scheduled_operations is None:
@@ -384,6 +390,7 @@ class ScheduledOperationCreatorWorker(BaseWorker):
 
     def sync_on_startup(self):
         self.sqlalchemy_db.init()
+        self.sync_run_startup_funcs()
 
     def sync_run(self):
         timeout = None
@@ -414,6 +421,7 @@ class ScheduledOperationCreatorWorker(BaseWorker):
 
     async def async_on_startup(self):
         self.sqlalchemy_db.init()
+        await self.async_run_startup_funcs()
 
     async def async_run(self):
         timeout: timedelta | None = None
