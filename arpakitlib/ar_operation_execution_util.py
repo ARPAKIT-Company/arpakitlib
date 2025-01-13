@@ -305,13 +305,14 @@ class OperationExecutorWorker(BaseWorker):
             sqlalchemy_db: SQLAlchemyDB,
             operation_executor: BaseOperationExecutor | None = None,
             filter_operation_types: str | list[str] | None = None,
-            timeout_after_run=timedelta(seconds=0.1).total_seconds(),
-            timeout_after_err_in_run=timedelta(seconds=1).total_seconds()
+            timeout_after_run=timedelta(seconds=0.1),
+            timeout_after_err_in_run=timedelta(seconds=1)
     ):
-        super().__init__()
+        super().__init__(
+            timeout_after_run=timeout_after_run,
+            timeout_after_err_in_run=timeout_after_err_in_run
+        )
         self.sqlalchemy_db = sqlalchemy_db
-        self.timeout_after_run = timeout_after_run
-        self.timeout_after_err_in_run = timeout_after_err_in_run
         if operation_executor is None:
             operation_executor = BaseOperationExecutor(sqlalchemy_db=sqlalchemy_db)
         self.operation_executor = operation_executor
@@ -369,13 +370,14 @@ class ScheduledOperationCreatorWorker(BaseWorker):
             *,
             sqlalchemy_db: SQLAlchemyDB,
             scheduled_operations: list[ScheduledOperation] | None = None,
-            timeout_after_run=timedelta(seconds=0.1).total_seconds(),
-            timeout_after_err_in_run=timedelta(seconds=1).total_seconds()
+            timeout_after_run=timedelta(seconds=0.1),
+            timeout_after_err_in_run=timedelta(seconds=1)
     ):
-        super().__init__()
+        super().__init__(
+            timeout_after_run=timeout_after_run,
+            timeout_after_err_in_run=timeout_after_err_in_run
+        )
         self.sqlalchemy_db = sqlalchemy_db
-        self.timeout_after_run = timeout_after_run
-        self.timeout_after_err_in_run = timeout_after_err_in_run
         if scheduled_operations is None:
             scheduled_operations = []
         self.scheduled_operations = scheduled_operations

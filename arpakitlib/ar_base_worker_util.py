@@ -6,19 +6,39 @@ import multiprocessing
 import threading
 from abc import ABC
 from datetime import timedelta
+from typing import Any
 
 from arpakitlib.ar_enumeration_util import Enumeration
+from arpakitlib.ar_func_util import is_async_function, is_sync_function
 from arpakitlib.ar_sleep_util import sync_safe_sleep, async_safe_sleep
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
 
 
 class BaseWorker(ABC):
-    def __init__(self):
+    def __init__(
+            self,
+            *,
+            timeout_after_run=timedelta(seconds=0.1),
+            timeout_after_err_in_run=timedelta(seconds=1),
+            startup_funcs: list[Any] | None = None
+    ):
+        if startup_funcs is None:
+            startup_funcs = []
+        self.startup_funcs = startup_funcs
         self.worker_name = self.__class__.__name__
         self._logger = logging.getLogger(self.worker_name)
-        self.timeout_after_run = timedelta(seconds=0.1).total_seconds()
-        self.timeout_after_err_in_run = timedelta(seconds=1).total_seconds()
+        self.timeout_after_run = timeout_after_run.total_seconds()
+        self.timeout_after_err_in_run = timeout_after_err_in_run.total_seconds()
+
+    def sync_run_startup_funcs(self):
+        for startup_func in self.startup_funcs:
+            if is_async_function(startup_func):
+                asyncio.run(startup_func())
+            elif is_sync_function(startup_func):
+                startup_func()
+            else:
+                raise TypeError("no sync and not async")
 
     def sync_on_startup(self):
         pass
@@ -48,6 +68,15 @@ class BaseWorker(ABC):
                     raise exception_
             if self.timeout_after_run is not None:
                 sync_safe_sleep(self.timeout_after_run)
+
+    async def async_run_startup_funcs(self):
+        for startup_func in self.startup_funcs:
+            if is_async_function(startup_func):
+                await startup_func()
+            elif is_sync_function(startup_func):
+                startup_func()
+            else:
+                raise TypeError("no sync and not async")
 
     async def async_on_startup(self):
         pass
