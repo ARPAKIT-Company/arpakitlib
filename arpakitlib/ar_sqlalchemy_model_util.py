@@ -38,8 +38,8 @@ class BaseDBM(DeclarativeBase):
 
         if include_sd_properties:
             for attr_name in dir(self):
-                if attr_name.startswith("sdp_") and isinstance(getattr(type(self), attr_name, None), property):
-                    res[attr_name.removesuffix("sdp_")] = getattr(self, attr_name)
+                if attr_name.removeprefix("sdp_") and isinstance(getattr(type(self), attr_name, None), property):
+                    res[attr_name.removeprefix("sdp_")] = getattr(self, attr_name)
 
         return res
 
