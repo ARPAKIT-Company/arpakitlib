@@ -148,7 +148,9 @@ class BaseOperationExecutor:
             raise Exception("raise_fake_exception")
         return operation_dbm
 
-    def sync_safe_execute_operation(self, operation_dbm: OperationDBM) -> OperationDBM:
+    def sync_safe_execute_operation(
+            self, operation_dbm: OperationDBM, worker: OperationExecutorWorker
+    ) -> OperationDBM:
         self._logger.info(
             f"start "
             f"operation_dbm.id={operation_dbm.id}, "
@@ -162,6 +164,12 @@ class BaseOperationExecutor:
             )
             operation_dbm.execution_start_dt = now_utc_dt()
             operation_dbm.status = OperationDBM.Statuses.executing
+            operation_dbm.output_data = combine_dicts(
+                operation_dbm.output_data,
+                {
+                    worker.worker_fullname: True
+                }
+            )
             session.commit()
             session.refresh(operation_dbm)
 
@@ -231,7 +239,9 @@ class BaseOperationExecutor:
             raise Exception("raise_fake_exception")
         return operation_dbm
 
-    async def async_safe_execute_operation(self, operation_dbm: OperationDBM) -> OperationDBM:
+    async def async_safe_execute_operation(
+            self, operation_dbm: OperationDBM, worker: OperationExecutorWorker
+    ) -> OperationDBM:
         self._logger.info(
             f"start "
             f"operation_dbm.id={operation_dbm.id}, "
@@ -245,6 +255,12 @@ class BaseOperationExecutor:
             )
             operation_dbm.execution_start_dt = now_utc_dt()
             operation_dbm.status = OperationDBM.Statuses.executing
+            operation_dbm.output_data = combine_dicts(
+                operation_dbm.output_data,
+                {
+                    worker.worker_fullname: True
+                }
+            )
             session.commit()
             session.refresh(operation_dbm)
 
@@ -315,19 +331,15 @@ class OperationExecutorWorker(BaseWorker):
             sqlalchemy_db: SQLAlchemyDB,
             operation_executor: BaseOperationExecutor | None = None,
             filter_operation_types: str | list[str] | None = None,
-            timeout_after_run=timedelta(seconds=0.3),
-            timeout_after_err_in_run=timedelta(seconds=1),
             startup_funcs: list[Any] | None = None
     ):
-        super().__init__(
-            timeout_after_run=timeout_after_run,
-            timeout_after_err_in_run=timeout_after_err_in_run,
-            startup_funcs=startup_funcs
-        )
+        super().__init__(startup_funcs=startup_funcs)
         self.sqlalchemy_db = sqlalchemy_db
         if operation_executor is None:
             operation_executor = BaseOperationExecutor(sqlalchemy_db=sqlalchemy_db)
         self.operation_executor = operation_executor
+        if isinstance(filter_operation_types, str):
+            filter_operation_types = [filter_operation_types]
         self.filter_operation_types = filter_operation_types
 
     def sync_on_startup(self):
@@ -335,7 +347,7 @@ class OperationExecutorWorker(BaseWorker):
         self.sync_run_startup_funcs()
 
     def sync_execute_operation(self, operation_dbm: OperationDBM) -> OperationDBM:
-        return self.operation_executor.sync_safe_execute_operation(operation_dbm=operation_dbm)
+        return self.operation_executor.sync_safe_execute_operation(operation_dbm=operation_dbm, worker=self)
 
     def sync_run(self):
         operation_dbm: OperationDBM | None = get_operation_for_execution(
@@ -354,7 +366,7 @@ class OperationExecutorWorker(BaseWorker):
         await self.async_run_startup_funcs()
 
     async def async_execute_operation(self, operation_dbm: OperationDBM) -> OperationDBM:
-        return await self.operation_executor.async_safe_execute_operation(operation_dbm=operation_dbm)
+        return await self.operation_executor.async_safe_execute_operation(operation_dbm=operation_dbm, worker=self)
 
     async def async_run(self):
         operation_dbm: OperationDBM | None = get_operation_for_execution(
@@ -383,19 +395,15 @@ class ScheduledOperationCreatorWorker(BaseWorker):
             self,
             *,
             sqlalchemy_db: SQLAlchemyDB,
-            scheduled_operations: list[ScheduledOperation] | None = None,
-            timeout_after_run=timedelta(seconds=0.3),
-            timeout_after_err_in_run=timedelta(seconds=1),
+            scheduled_operations: ScheduledOperation | list[ScheduledOperation] | None = None,
             startup_funcs: list[Any] | None = None
     ):
-        super().__init__(
-            timeout_after_run=timeout_after_run,
-            timeout_after_err_in_run=timeout_after_err_in_run,
-            startup_funcs=startup_funcs
-        )
+        super().__init__(startup_funcs=startup_funcs)
         self.sqlalchemy_db = sqlalchemy_db
         if scheduled_operations is None:
             scheduled_operations = []
+        if isinstance(scheduled_operations, ScheduledOperation):
+            scheduled_operations = [scheduled_operations]
         self.scheduled_operations = scheduled_operations
 
     def sync_on_startup(self):
