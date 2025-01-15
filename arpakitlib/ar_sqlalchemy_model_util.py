@@ -34,12 +34,24 @@ class BaseDBM(DeclarativeBase):
         return self._bus_data
 
     def simple_dict(self, *, include_sd_properties: bool = True) -> dict[str, Any]:
-        res = {c.key: getattr(self, c.key) for c in inspect(self).mapper.column_attrs}
+        res = {}
+
+        for c in inspect(self).mapper.column_attrs:
+            value = getattr(self, c.key)
+            if isinstance(value, BaseDBM):
+                res[c.key] = value.simple_dict(include_sd_properties=include_sd_properties)
+            else:
+                res[c.key] = value
 
         if include_sd_properties:
             for attr_name in dir(self):
-                if attr_name.removeprefix("sdp_") and isinstance(getattr(type(self), attr_name, None), property):
-                    res[attr_name.removeprefix("sdp_")] = getattr(self, attr_name)
+                if attr_name.startswith("sdp_") and isinstance(getattr(type(self), attr_name, None), property):
+                    prop_name = attr_name.removeprefix("sdp_")
+                    value = getattr(self, attr_name)
+                    if isinstance(value, BaseDBM):
+                        res[prop_name] = value.simple_dict(include_sd_properties=include_sd_properties)
+                    else:
+                        res[prop_name] = value
 
         return res
 
