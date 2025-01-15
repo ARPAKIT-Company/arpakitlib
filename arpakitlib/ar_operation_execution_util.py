@@ -31,7 +31,8 @@ def get_operation_for_execution(
         *,
         session: Session | None = None,
         sqlalchemy_db: SQLAlchemyDB | None = None,
-        filter_operation_types: list[str] | str | None = None
+        filter_operation_types: list[str] | str | None = None,
+        lock: bool = False
 ) -> OperationDBM | None:
     if isinstance(filter_operation_types, str):
         filter_operation_types = [filter_operation_types]
@@ -44,6 +45,10 @@ def get_operation_for_execution(
         )
         if filter_operation_types:
             query = query.filter(OperationDBM.type.in_(filter_operation_types))
+
+        if lock:
+            query = query.with_for_update()
+
         query = query.order_by(asc(OperationDBM.creation_dt))
         operation_dbm: OperationDBM | None = query.first()
         return operation_dbm
@@ -160,7 +165,7 @@ class BaseOperationExecutor:
 
         with self.sql_alchemy_db.new_session() as session:
             operation_dbm: OperationDBM = get_operation_by_id(
-                session=session, filter_operation_id=operation_dbm.id, raise_if_not_found=True
+                session=session, filter_operation_id=operation_dbm.id, raise_if_not_found=True, lock=True
             )
             operation_dbm.execution_start_dt = now_utc_dt()
             operation_dbm.status = OperationDBM.Statuses.executing
@@ -189,7 +194,7 @@ class BaseOperationExecutor:
         with self.sql_alchemy_db.new_session() as session:
 
             operation_dbm: OperationDBM = get_operation_by_id(
-                session=session, filter_operation_id=operation_dbm.id, raise_if_not_found=True
+                session=session, filter_operation_id=operation_dbm.id, raise_if_not_found=True, lock=True
             )
             operation_dbm.execution_finish_dt = now_utc_dt()
             if exception:
@@ -251,7 +256,7 @@ class BaseOperationExecutor:
 
         with self.sql_alchemy_db.new_session() as session:
             operation_dbm: OperationDBM = get_operation_by_id(
-                session=session, filter_operation_id=operation_dbm.id, raise_if_not_found=True
+                session=session, filter_operation_id=operation_dbm.id, raise_if_not_found=True, lock=True
             )
             operation_dbm.execution_start_dt = now_utc_dt()
             operation_dbm.status = OperationDBM.Statuses.executing
@@ -280,7 +285,7 @@ class BaseOperationExecutor:
         with self.sql_alchemy_db.new_session() as session:
 
             operation_dbm: OperationDBM = get_operation_by_id(
-                session=session, filter_operation_id=operation_dbm.id, raise_if_not_found=True
+                session=session, filter_operation_id=operation_dbm.id, raise_if_not_found=True, lock=True
             )
             operation_dbm.execution_finish_dt = now_utc_dt()
             if exception:
@@ -352,7 +357,8 @@ class OperationExecutorWorker(BaseWorker):
     def sync_run(self):
         operation_dbm: OperationDBM | None = get_operation_for_execution(
             sqlalchemy_db=self.sqlalchemy_db,
-            filter_operation_types=self.filter_operation_types
+            filter_operation_types=self.filter_operation_types,
+            lock=True
         )
         if not operation_dbm:
             return
@@ -371,7 +377,8 @@ class OperationExecutorWorker(BaseWorker):
     async def async_run(self):
         operation_dbm: OperationDBM | None = get_operation_for_execution(
             sqlalchemy_db=self.sqlalchemy_db,
-            filter_operation_types=self.filter_operation_types
+            filter_operation_types=self.filter_operation_types,
+            lock=True
         )
         if not operation_dbm:
             return
