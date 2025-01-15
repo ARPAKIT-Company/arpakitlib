@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from typing import Any
 from uuid import uuid4
 
-from sqlalchemy import inspect, INTEGER, TEXT, TIMESTAMP
+from sqlalchemy import inspect, INTEGER, TEXT, TIMESTAMP, func
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
@@ -78,10 +78,12 @@ class SimpleDBM(BaseDBM):
         INTEGER, primary_key=True, autoincrement=True, sort_order=-3, nullable=False
     )
     long_id: Mapped[str] = mapped_column(
-        TEXT, insert_default=generate_default_long_id, unique=True, sort_order=-2, nullable=False
+        TEXT, insert_default=generate_default_long_id, server_default=func.gen_random_uuid(),
+        unique=True, sort_order=-2, nullable=False
     )
     creation_dt: Mapped[datetime] = mapped_column(
-        TIMESTAMP(timezone=True), insert_default=now_utc_dt, index=True, sort_order=-1, nullable=False
+        TIMESTAMP(timezone=True), insert_default=now_utc_dt, server_default=func.now(),
+        index=True, sort_order=-1, nullable=False
     )
 
     def __repr__(self):

@@ -11,6 +11,7 @@ from typing import Any, Callable
 from pydantic import ConfigDict
 from pydantic.v1 import BaseModel
 from sqlalchemy import asc
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 
 from arpakitlib.ar_base_worker_util import BaseWorker
@@ -61,7 +62,8 @@ def get_operation_by_id(
         session: Session | None = None,
         sqlalchemy_db: SQLAlchemyDB | None = None,
         filter_operation_id: int,
-        raise_if_not_found: bool = False
+        raise_if_not_found: bool = False,
+        lock: bool = False
 ) -> OperationDBM | None:
     def func(session_: Session):
         query = (
@@ -69,8 +71,16 @@ def get_operation_by_id(
             .query(OperationDBM)
             .filter(OperationDBM.id == filter_operation_id)
         )
+
+        if lock:
+            query = query.with_for_update()
+
         if raise_if_not_found:
-            return query.one()
+            try:
+                return query.one()
+            except NoResultFound:
+                if raise_if_not_found:
+                    raise ValueError("Operation not found")
         else:
             return query.one_or_none()
 
