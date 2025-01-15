@@ -315,7 +315,7 @@ class OperationExecutorWorker(BaseWorker):
             sqlalchemy_db: SQLAlchemyDB,
             operation_executor: BaseOperationExecutor | None = None,
             filter_operation_types: str | list[str] | None = None,
-            timeout_after_run=timedelta(seconds=0.1),
+            timeout_after_run=timedelta(seconds=0.3),
             timeout_after_err_in_run=timedelta(seconds=1),
             startup_funcs: list[Any] | None = None
     ):
@@ -384,7 +384,7 @@ class ScheduledOperationCreatorWorker(BaseWorker):
             *,
             sqlalchemy_db: SQLAlchemyDB,
             scheduled_operations: list[ScheduledOperation] | None = None,
-            timeout_after_run=timedelta(seconds=0.1),
+            timeout_after_run=timedelta(seconds=0.3),
             timeout_after_err_in_run=timedelta(seconds=1),
             startup_funcs: list[Any] | None = None
     ):

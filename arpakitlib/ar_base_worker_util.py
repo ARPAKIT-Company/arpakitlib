@@ -19,7 +19,7 @@ class BaseWorker(ABC):
     def __init__(
             self,
             *,
-            timeout_after_run=timedelta(seconds=0.1),
+            timeout_after_run=timedelta(seconds=0.3),
             timeout_after_err_in_run=timedelta(seconds=1),
             startup_funcs: list[Any] | None = None
     ):
