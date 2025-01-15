@@ -40,6 +40,12 @@ class BaseDBM(DeclarativeBase):
             value = getattr(self, c.key)
             if isinstance(value, BaseDBM):
                 res[c.key] = value.simple_dict(include_sd_properties=include_sd_properties)
+            elif isinstance(value, list):
+                res[c.key] = [
+                    item.simple_dict(include_sd_properties=include_sd_properties)
+                    if isinstance(item, BaseDBM) else item
+                    for item in value
+                ]
             else:
                 res[c.key] = value
 
@@ -50,6 +56,12 @@ class BaseDBM(DeclarativeBase):
                     value = getattr(self, attr_name)
                     if isinstance(value, BaseDBM):
                         res[prop_name] = value.simple_dict(include_sd_properties=include_sd_properties)
+                    elif isinstance(value, list):
+                        res[prop_name] = [
+                            item.simple_dict(include_sd_properties=include_sd_properties)
+                            if isinstance(item, BaseDBM) else item
+                            for item in value
+                        ]
                     else:
                         res[prop_name] = value
 
