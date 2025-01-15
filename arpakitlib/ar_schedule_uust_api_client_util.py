@@ -189,18 +189,25 @@ class ScheduleUUSTAPIClient:
             return False
         return True
 
-    async def check_all(self):
+    async def check_all(self) -> dict[str, Any]:
+        current_semester = await self.get_current_semester()
+        self._logger.info(f"current_semester: {current_semester}")
+
+        current_week = await self.get_current_week()
+        self._logger.info(f"current_week: {current_week}")
+
         groups = await self.get_groups()
         self._logger.info(f"groups len: {len(groups)}")
 
         teachers = await self.get_teachers()
         self._logger.info(f"teachers len: {len(teachers)}")
 
-        current_semester = await self.get_current_semester()
-        self._logger.info(f"current_semester: {current_semester}")
-
-        current_week = await self.get_current_week()
-        self._logger.info(f"current_week: {current_week}")
+        return {
+            "current_semester": current_semester,
+            "current_week": current_week,
+            "len(groups)": len(groups),
+            "len(teachers)": len(teachers)
+        }
 
 
 def __example():
