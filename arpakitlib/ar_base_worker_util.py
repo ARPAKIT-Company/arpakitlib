@@ -34,7 +34,7 @@ class BaseWorker(ABC):
             worker_name = self.__class__.__name__
         self.worker_name = worker_name
         self.worker_creation_dt = now_utc_dt()
-        self.worker_id = f"{str(uuid4()).replace(' - ', '')}_{randint(1000, 9999)}"
+        self.worker_id = f"{str(uuid4()).replace('-', '')}_{randint(1000, 99999)}"
         self.worker_fullname = (
             f"{self.worker_name}_{self.worker_creation_dt.isoformat()}_{self.worker_id}"
         )
