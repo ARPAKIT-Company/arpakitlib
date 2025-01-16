@@ -693,12 +693,6 @@ def simple_api_router_for_testing():
     return router
 
 
-DEFAULT_CONTACT = {
-    "name": "ARPAKIT Company",
-    "email": "support@arpakit.com"
-}
-
-
 def create_fastapi_app(
         *,
         title: str = "arpakitlib FastAPI",
@@ -719,9 +713,6 @@ def create_fastapi_app(
 
     if handle_exception_ is None:
         handle_exception_ = create_handle_exception()
-
-    if contact is None:
-        contact = DEFAULT_CONTACT
 
     if not startup_api_events:
         startup_api_events = [BaseStartupAPIEvent()]
