@@ -154,7 +154,7 @@ class BaseOperationExecutor:
         return operation_dbm
 
     def sync_safe_execute_operation(
-            self, operation_dbm: OperationDBM, worker: OperationExecutorWorker
+            self, operation_dbm: OperationDBM, worker: OperationExecutorWorker, session: Session
     ) -> OperationDBM:
         self._logger.info(
             f"start "
@@ -163,20 +163,16 @@ class BaseOperationExecutor:
             f"operation_dbm.status={operation_dbm.status}"
         )
 
-        with self.sql_alchemy_db.new_session() as session:
-            operation_dbm: OperationDBM = get_operation_by_id(
-                session=session, filter_operation_id=operation_dbm.id, raise_if_not_found=True, lock=True
-            )
-            operation_dbm.execution_start_dt = now_utc_dt()
-            operation_dbm.status = OperationDBM.Statuses.executing
-            operation_dbm.output_data = combine_dicts(
-                operation_dbm.output_data,
-                {
-                    worker.worker_fullname: True
-                }
-            )
-            session.commit()
-            session.refresh(operation_dbm)
+        operation_dbm.execution_start_dt = now_utc_dt()
+        operation_dbm.status = OperationDBM.Statuses.executing
+        operation_dbm.output_data = combine_dicts(
+            operation_dbm.output_data,
+            {
+                worker.worker_fullname: True
+            }
+        )
+        session.commit()
+        session.refresh(operation_dbm)
 
         exception: BaseException | None = None
         traceback_str: str | None = None
@@ -191,40 +187,35 @@ class BaseOperationExecutor:
             exception = exception_
             traceback_str = traceback.format_exc()
 
-        with self.sql_alchemy_db.new_session() as session:
-
-            operation_dbm: OperationDBM = get_operation_by_id(
-                session=session, filter_operation_id=operation_dbm.id, raise_if_not_found=True, lock=True
+        operation_dbm.execution_finish_dt = now_utc_dt()
+        if exception:
+            operation_dbm.status = OperationDBM.Statuses.executed_with_error
+            operation_dbm.error_data = combine_dicts(
+                {
+                    "exception_str": str(exception),
+                    "traceback_str": traceback_str
+                },
+                operation_dbm.error_data
             )
-            operation_dbm.execution_finish_dt = now_utc_dt()
-            if exception:
-                operation_dbm.status = OperationDBM.Statuses.executed_with_error
-                operation_dbm.error_data = combine_dicts(
-                    {
-                        "exception_str": str(exception),
-                        "traceback_str": traceback_str
-                    },
-                    operation_dbm.error_data
-                )
-            else:
-                operation_dbm.status = OperationDBM.Statuses.executed_without_error
+        else:
+            operation_dbm.status = OperationDBM.Statuses.executed_without_error
+        session.commit()
+
+        if exception:
+            story_log_dbm = StoryLogDBM(
+                level=StoryLogDBM.Levels.error,
+                title=f"error in sync_execute_operation (id={operation_dbm.id}, type={operation_dbm.type})",
+                data={
+                    "operation_id": operation_dbm.id,
+                    "exception_str": str(exception),
+                    "traceback_str": traceback_str
+                }
+            )
+            session.add(story_log_dbm)
             session.commit()
+            session.refresh(story_log_dbm)
 
-            if exception:
-                story_log_dbm = StoryLogDBM(
-                    level=StoryLogDBM.Levels.error,
-                    title=f"error in sync_execute_operation (id={operation_dbm.id}, type={operation_dbm.type})",
-                    data={
-                        "operation_id": operation_dbm.id,
-                        "exception_str": str(exception),
-                        "traceback_str": traceback_str
-                    }
-                )
-                session.add(story_log_dbm)
-                session.commit()
-                session.refresh(story_log_dbm)
-
-            session.refresh(operation_dbm)
+        session.refresh(operation_dbm)
 
         self._logger.info(
             f"finish sync_safe_execute_operation, "
@@ -351,18 +342,21 @@ class OperationExecutorWorker(BaseWorker):
         self.sqlalchemy_db.init()
         self.sync_run_startup_funcs()
 
-    def sync_execute_operation(self, operation_dbm: OperationDBM) -> OperationDBM:
-        return self.operation_executor.sync_safe_execute_operation(operation_dbm=operation_dbm, worker=self)
+    def sync_execute_operation(self, operation_dbm: OperationDBM, session: Session) -> OperationDBM:
+        return self.operation_executor.sync_safe_execute_operation(
+            operation_dbm=operation_dbm, worker=self, session=session
+        )
 
     def sync_run(self):
-        operation_dbm: OperationDBM | None = get_operation_for_execution(
-            sqlalchemy_db=self.sqlalchemy_db,
-            filter_operation_types=self.filter_operation_types,
-            lock=True
-        )
-        if not operation_dbm:
-            return
-        self.sync_execute_operation(operation_dbm=operation_dbm)
+        with self.sqlalchemy_db.new_session() as session:
+            operation_dbm: OperationDBM | None = get_operation_for_execution(
+                session=session,
+                filter_operation_types=self.filter_operation_types,
+                lock=True
+            )
+            if not operation_dbm:
+                return
+            self.sync_execute_operation(operation_dbm=operation_dbm, session=session)
 
     def sync_run_on_error(self, exception: BaseException, **kwargs):
         pass
