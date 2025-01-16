@@ -82,7 +82,7 @@ class SimpleDBM(BaseDBM):
         unique=True, sort_order=-2, nullable=False
     )
     creation_dt: Mapped[datetime] = mapped_column(
-        TIMESTAMP(timezone=True), insert_default=now_utc_dt, server_default=func.now(),
+        TIMESTAMP(timezone=True), insert_default=now_utc_dt,
         index=True, sort_order=-1, nullable=False
     )
 
