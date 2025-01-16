@@ -25,7 +25,7 @@ from starlette import status
 from starlette.middleware.cors import CORSMiddleware
 from starlette.staticfiles import StaticFiles
 
-from arpakitlib.ar_base_worker_util import BaseWorker, safe_run_worker_in_background, SafeRunInBackgroundModes
+from arpakitlib.ar_base_worker_util import BaseWorker, safe_run_worker_in_background
 from arpakitlib.ar_dict_util import combine_dicts
 from arpakitlib.ar_enumeration_util import Enumeration
 from arpakitlib.ar_file_storage_in_dir_util import FileStorageInDir
@@ -448,7 +448,7 @@ class SafeRunWorkerStartupAPIEvent(BaseStartupAPIEvent):
 
     async def async_on_startup(self, *args, **kwargs):
         for worker in self.workers:
-            _ = safe_run_worker_in_background(worker=worker, mode=SafeRunInBackgroundModes.async_task)
+            _ = safe_run_worker_in_background(worker=worker, mode=self.safe_run_in_background_mode)
 
 
 class InitFileStoragesInDir(BaseStartupAPIEvent):
