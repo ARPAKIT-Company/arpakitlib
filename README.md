@@ -25,6 +25,13 @@ poetry add arpakitlib
 pip install arpakitlib
 ```
 
+### Init template
+
+```
+# poetry run arpakitlib -c help
+poetry run arpakitlib -c init_arpakit_project_template -project_dirpath ./ -overwrite_if_exists true -project_name ... -sql_db_port ... (optional) -api_port ... (optional) -ignore_paths_startswith ... (optional) -only_paths_startswith ...(optional)
+```
+
 ---
 
 ### Links

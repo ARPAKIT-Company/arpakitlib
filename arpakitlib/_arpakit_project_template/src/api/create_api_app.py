@@ -2,7 +2,7 @@ from fastapi import FastAPI
 
 from arpakitlib.ar_base_worker_util import SafeRunInBackgroundModes
 from arpakitlib.ar_fastapi_util import create_fastapi_app, InitSqlalchemyDBStartupAPIEvent, InitFileStoragesInDir, \
-    create_handle_exception, create_story_log_before_response_in_handle_exception, DEFAULT_CONTACT, \
+    create_handle_exception, create_story_log_before_response_in_handle_exception, \
     SafeRunWorkerStartupAPIEvent
 from arpakitlib.ar_operation_execution_util import OperationExecutorWorker, ScheduledOperationCreatorWorker
 from arpakitlib.ar_sqlalchemy_util import SQLAlchemyDB
@@ -105,10 +105,13 @@ def create_api_app() -> FastAPI:
         shutdown_api_events=shutdown_api_events,
         transmitted_api_data=transmitted_api_data,
         main_api_router=main_api_router,
-        contact=DEFAULT_CONTACT,
         media_dirpath=settings.media_dirpath,
         static_dirpath=STATIC_DIRPATH
     )
+
+    if settings.api_enable_admin1:
+        from src.admin1.add_admin_in_app import add_admin1_in_app
+        add_admin1_in_app(app=api_app)
 
     return api_app
 

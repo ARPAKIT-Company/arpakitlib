@@ -4948,6 +4948,7 @@ files = [
 ]
 
 [package.dependencies]
+itsdangerous = {version = "*", optional = true, markers = "extra == \"full\""}
 jinja2 = "*"
 python-multipart = "*"
 sqlalchemy = ">=1.4"
@@ -5604,4 +5605,4 @@ propcache = ">=0.2.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "d2f17e3fdd31b78117e356a2bc2f6cc76af4ec1ec03d1de6a7ee4af73d343abc"
+content-hash = "ec1a52f8cd7d9ba6345d2761def4b23036578df0eee09c9d00acbcb431aee4ce"

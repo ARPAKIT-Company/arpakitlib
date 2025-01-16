@@ -37,6 +37,8 @@ class Settings(SimpleSettings):
 
     api_correct_token: str | None = "1"
 
+    api_enable_admin1: bool = True
+
     var_dirname: str | None = "var"
 
     var_dirpath: str | None = os.path.join(BASE_DIRPATH, var_dirname)
@@ -62,6 +64,8 @@ class Settings(SimpleSettings):
     @property
     def local_timezone_as_pytz(self) -> Any:
         return pytz.timezone(self.local_timezone)
+
+    admin1_secret_key: str | None = "85a9583cb91c4de7a78d7eb1e5306a04418c9c43014c447ea8ec8dd5deb4cf71"
 
     # ...
 

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "arpakitlib"
-version = "1.7.104"
+version = "1.7.105"
 description = "arpakitlib"
 authors = ["arpakit <arpakit@gmail.com>", "arpakit_support <support@arpakit.com>"]
 license = "Apache License 2.0"
@@ -40,7 +40,7 @@ asyncssh = "^2.18.0"
 aiohttp-socks = "^0.9.1"
 uvicorn = "^0.32.1"
 gunicorn = "^23.0.0"
-sqladmin = "^0.20.1"
+sqladmin = {extras = ["full"], version = "^0.20.1"}
 asyncpg = "^0.30.0"
 celery = "^5.4.0"
 redis = "^5.2.0"
