@@ -13,7 +13,7 @@ from uuid import uuid4
 from arpakitlib.ar_datetime_util import now_utc_dt
 from arpakitlib.ar_enumeration_util import Enumeration
 from arpakitlib.ar_func_util import is_async_function, is_sync_function
-from arpakitlib.ar_sleep_util import sync_safe_sleep
+from arpakitlib.ar_sleep_util import sync_safe_sleep, async_safe_sleep
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
 
@@ -57,7 +57,7 @@ class BaseWorker(ABC):
     def sync_run(self):
         self._logger.info(f"hello world, im {self.worker_fullname}")
 
-    def sync_run_on_error(self, exception: BaseException, **kwargs):
+    def sync_on_error(self, exception: BaseException, **kwargs):
         pass
 
     def sync_safe_run(self):
@@ -73,9 +73,9 @@ class BaseWorker(ABC):
             except BaseException as exception:
                 self._logger.error("error in sync_run", exc_info=exception)
                 try:
-                    self.sync_run_on_error(exception=exception)
+                    self.sync_on_error(exception=exception)
                 except BaseException as exception_:
-                    self._logger.error("error in sync_run_on_error", exc_info=exception_)
+                    self._logger.error("error in sync_on_error", exc_info=exception_)
                     raise exception_
                 sync_safe_sleep(self.timeout_after_err_in_run)
             sync_safe_sleep(self.timeout_after_run)
@@ -95,7 +95,7 @@ class BaseWorker(ABC):
     async def async_run(self):
         self._logger.info(f"hello world, im {self.worker_fullname}")
 
-    async def async_run_on_error(self, exception: BaseException, **kwargs):
+    async def async_on_error(self, exception: BaseException, **kwargs):
         pass
 
     async def async_safe_run(self):
@@ -111,12 +111,12 @@ class BaseWorker(ABC):
             except BaseException as exception:
                 self._logger.error("error in async_run", exc_info=exception)
                 try:
-                    await self.async_run_on_error(exception=exception)
+                    await self.async_on_error(exception=exception)
                 except BaseException as exception_:
-                    self._logger.error("error in async_run_on_error", exc_info=exception_)
+                    self._logger.error("error in async_on_error", exc_info=exception_)
                     raise exception_
-                sync_safe_sleep(self.timeout_after_err_in_run)
-            sync_safe_sleep(self.timeout_after_run)
+                await async_safe_sleep(self.timeout_after_err_in_run)
+            await async_safe_sleep(self.timeout_after_run)
 
 
 class SafeRunInBackgroundModes(Enumeration):

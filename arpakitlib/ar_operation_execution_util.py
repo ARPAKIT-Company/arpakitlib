@@ -345,9 +345,6 @@ class OperationExecutorWorker(BaseWorker):
                 return
             self.sync_execute_operation(operation_dbm=operation_dbm, session=session)
 
-    def sync_run_on_error(self, exception: BaseException, **kwargs):
-        pass
-
     async def async_on_startup(self):
         self.sqlalchemy_db.init()
         await self.async_run_startup_funcs()
@@ -367,9 +364,6 @@ class OperationExecutorWorker(BaseWorker):
             if not operation_dbm:
                 return
             await self.async_execute_operation(operation_dbm=operation_dbm, session=session)
-
-    async def async_run_on_error(self, exception: BaseException, **kwargs):
-        pass
 
 
 class ScheduledOperation(BaseModel):
