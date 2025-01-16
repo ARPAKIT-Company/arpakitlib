@@ -42,7 +42,8 @@ class SQLAlchemyDB:
             pool_size=5,
             max_overflow=10,
             poolclass=QueuePool,
-            pool_timeout=timedelta(seconds=30).total_seconds()
+            pool_timeout=timedelta(seconds=30).total_seconds(),
+            connect_args={"options": "-c timezone=UTC"}
         )
         self.sessionmaker = sessionmaker(bind=self.engine)
         self.func_new_session_counter = 0
