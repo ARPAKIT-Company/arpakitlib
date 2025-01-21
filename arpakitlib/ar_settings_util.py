@@ -33,7 +33,7 @@ class SimpleSettings(BaseSettings):
     @field_validator("mode_type")
     @classmethod
     def validate_mode_type(cls, v: str):
-        cls.ModeTypes.parse_and_validate_values(v)
+        cls.ModeTypes.parse_and_validate_values(v.lower().strip())
         return v
 
     @property

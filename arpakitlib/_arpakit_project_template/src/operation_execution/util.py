@@ -9,9 +9,7 @@ def create_scheduled_operation_creator_worker() -> ScheduledOperationCreatorWork
     from src.operation_execution.scheduled_operations import ALL_SCHEDULED_OPERATIONS
     scheduled_operation_creator_worker = ScheduledOperationCreatorWorker(
         sqlalchemy_db=get_cached_sqlalchemy_db(),
-        scheduled_operations=ALL_SCHEDULED_OPERATIONS,
-        timeout_after_run=timedelta(seconds=0.1).total_seconds(),
-        timeout_after_err_in_run=timedelta(seconds=1).total_seconds()
+        scheduled_operations=ALL_SCHEDULED_OPERATIONS
     )
     return scheduled_operation_creator_worker
 
