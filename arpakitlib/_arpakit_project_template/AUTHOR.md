@@ -1,4 +1,0 @@
-# Author
-
-- arpakit
-- ARPAKIT Company

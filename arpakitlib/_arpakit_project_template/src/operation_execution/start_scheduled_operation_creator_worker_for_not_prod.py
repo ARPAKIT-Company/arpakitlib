@@ -8,8 +8,7 @@ def start_create_scheduled_operation_worker_for_dev():
     setup_logging()
     worker = ScheduledOperationCreatorWorker(
         sqlalchemy_db=get_cached_sqlalchemy_db(),
-        scheduled_operations=SCHEDULED_OPERATIONS,
-        startup_funcs=[lambda: print("hello")]
+        scheduled_operations=SCHEDULED_OPERATIONS
     )
     worker.sync_safe_run()
 
