@@ -87,35 +87,35 @@ def raise_if_string_blank(string: str) -> str:
 
 def __example():
     print("str_in:")
-    print(str_in(string="hello", main_string="hello world"))  # True
-    print(str_in(string="bye", main_string="hello world"))  # False
-    print(str_in(string="hello", main_string="hello world", max_diff=6))  # True
-    print(str_in(string="hello", main_string="hello world", max_diff=1))  # False
+    print(str_in(string="hello", main_string="hello world"))
+    print(str_in(string="bye", main_string="hello world"))
+    print(str_in(string="hello", main_string="hello world", max_diff=6))
+    print(str_in(string="hello", main_string="hello world", max_diff=1))
 
     print("\nbidirectional_str_in:")
-    print(bidirectional_str_in(string1="hello", string2="hello world"))  # True
-    print(bidirectional_str_in(string1="world", string2="hello world"))  # True
+    print(bidirectional_str_in(string1="hello", string2="hello world"))
+    print(bidirectional_str_in(string1="world", string2="hello world"))
 
     print("\nstr_startswith:")
-    print(str_startswith(string="hello", main_string="hello world"))  # True
-    print(str_startswith(string="world", main_string="hello world"))  # False
+    print(str_startswith(string="hello", main_string="hello world"))
+    print(str_startswith(string="world", main_string="hello world"))
 
     print("\nbidirectional_str_startswith:")
-    print(bidirectional_str_startswith(string1="hello", string2="hello world"))  # True
-    print(bidirectional_str_startswith(string1="world", string2="hello world"))  # False
+    print(bidirectional_str_startswith(string1="hello", string2="hello world"))
+    print(bidirectional_str_startswith(string1="world", string2="hello world"))
 
     print("\nmake blank_if_none:")
-    print(make_blank_if_none())  # ""
-    print(make_blank_if_none(string="test"))  # "test"
+    print(make_blank_if_none())
+    print(make_blank_if_none(string="test"))
 
     print("\nremove_html:")
-    print(remove_html(string="<div>Hello <b>World</b></div>"))  # "Hello World"
+    print(remove_html(string="<div>Hello <b>World</b></div>"))
 
     print("\nremove_tags:")
-    print(remove_tags(string="<div>Hello <b>World</b></div>"))  # "divHello bWorldbdiv"
+    print(remove_tags(string="<div>Hello <b>World</b></div>"))
 
     print("\nremove_tags_and_html:")
-    print(remove_tags_and_html("<div>Hello <b>World</b></div>"))  # "Hello World"
+    print(remove_tags_and_html("<div>Hello <b>World</b></div>"))
 
 
 if __name__ == '__main__':

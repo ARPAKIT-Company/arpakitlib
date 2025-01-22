@@ -134,7 +134,7 @@ def __example():
     print("\nraise_for_types:")
     try:
         raise_for_types(comparable="test", need_types=[str, int])  # pass
-        raise_for_types(comparable=100.5, need_types=[str, int], comment_for_error="Ooops")  # raise
+        raise_for_types(comparable=100.5, need_types=[str, int], comment_for_error="ops")  # raise
     except TypeError as e:
         print(e)
 
