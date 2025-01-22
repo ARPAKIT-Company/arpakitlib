@@ -1,4 +1,4 @@
 # Author
 
-- arpakit.com
-- support@arpakit.com
+- arpakit
+- ARPAKIT Company
