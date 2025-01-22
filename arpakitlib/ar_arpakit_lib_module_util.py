@@ -79,6 +79,12 @@ class ArpakitLibModules(NamedTuple):
             if arpakit_lib_module.module_has_error
         ]
 
+    def have_modules_with_error(self) -> bool:
+        for arpakit_lib_module in self.arpakit_lib_modules:
+            if arpakit_lib_module.module_has_error:
+                return True
+        return False
+
     def module_name_to_module_exception(self, *, filter_module_has_error: bool = False) -> dict[str, BaseException]:
         if filter_module_has_error:
             return {
@@ -150,6 +156,7 @@ def __example():
         print(module_name)
         print(d)
         print()
+    print("have_modules_with_error", get_arpakit_lib_modules().have_modules_with_error())
 
 
 if __name__ == '__main__':
