@@ -9,7 +9,8 @@ def start_operation_executor_worker_for_dev():
     worker = OperationExecutorWorker(
         sqlalchemy_db=get_cached_sqlalchemy_db(),
         operation_executor=OperationExecutor(sqlalchemy_db=get_cached_sqlalchemy_db()),
-        filter_operation_types=None
+        filter_operation_types=None,
+        startup_funcs=[lambda: print("hello")]
     )
     worker.sync_safe_run()
 

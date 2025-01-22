@@ -40,9 +40,17 @@ class SimpleSettings(BaseSettings):
     def is_mode_type_not_prod(self) -> bool:
         return self.mode_type == self.ModeTypes.not_prod
 
+    def raise_if_mode_type_not_prod(self):
+        if self.is_mode_type_not_prod:
+            raise ValueError(f"mode type = {self.mode_type}")
+
     @property
     def is_mode_type_prod(self) -> bool:
         return self.mode_type == self.ModeTypes.prod
+
+    def raise_if_mode_type_prod(self):
+        if self.is_mode_type_prod:
+            raise ValueError(f"mode type = {self.mode_type}")
 
     @classmethod
     def generate_env_example(cls) -> str:

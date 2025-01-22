@@ -25,10 +25,8 @@ from starlette import status
 from starlette.middleware.cors import CORSMiddleware
 from starlette.staticfiles import StaticFiles
 
-from arpakitlib.ar_base_worker_util import BaseWorker, safe_run_worker_in_background
 from arpakitlib.ar_dict_util import combine_dicts
 from arpakitlib.ar_enumeration_util import Enumeration
-from arpakitlib.ar_file_storage_in_dir_util import FileStorageInDir
 from arpakitlib.ar_func_util import raise_if_not_async_func, is_async_function, is_async_object
 from arpakitlib.ar_json_util import safely_transfer_obj_to_json_str_to_json_obj
 from arpakitlib.ar_logging_util import setup_normal_logging
@@ -429,37 +427,6 @@ class BaseShutdownAPIEvent:
     async def async_on_shutdown(self, *args, **kwargs):
         self._logger.info("on_shutdown starts")
         self._logger.info("on_shutdown ends")
-
-
-class InitSqlalchemyDBStartupAPIEvent(BaseStartupAPIEvent):
-    def __init__(self, sqlalchemy_db: SQLAlchemyDB):
-        super().__init__()
-        self.sqlalchemy_db = sqlalchemy_db
-
-    async def async_on_startup(self, *args, **kwargs):
-        self.sqlalchemy_db.init()
-
-
-class SafeRunWorkerStartupAPIEvent(BaseStartupAPIEvent):
-    def __init__(self, workers: list[BaseWorker], safe_run_in_background_mode: str):
-        super().__init__()
-        self.workers = workers
-        self.safe_run_in_background_mode = safe_run_in_background_mode
-
-    async def async_on_startup(self, *args, **kwargs):
-        for worker in self.workers:
-            _ = safe_run_worker_in_background(worker=worker, mode=self.safe_run_in_background_mode)
-
-
-class InitFileStoragesInDir(BaseStartupAPIEvent):
-    def __init__(self, file_storages_in_dir: list[FileStorageInDir | None]):
-        super().__init__()
-        file_storages_in_dir = [v for v in file_storages_in_dir if v is not None]
-        self.file_storages_in_dir = file_storages_in_dir
-
-    async def async_on_startup(self, *args, **kwargs):
-        for file_storage_in_dir in self.file_storages_in_dir:
-            file_storage_in_dir.init()
 
 
 class BaseTransmittedAPIData(BaseModel):
