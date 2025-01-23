@@ -69,11 +69,11 @@ def init_arpakit_project_template(
                 with open(os.path.join(root, file), "r", encoding="utf-8") as _file:
                     _content = _file.read()
                 if project_name is not None:
-                    _content = _content.replace("{PROJECT_NAME}", project_name)
+                    _content = _content.replace("{{PROJECT_NAME}}", project_name)
                 if sql_db_port is not None:
-                    _content = _content.replace("{SQL_DB_PORT}", str(sql_db_port))
+                    _content = _content.replace("{{SQL_DB_PORT}}", str(sql_db_port))
                 if api_port is not None:
-                    _content = _content.replace("{API_PORT}", str(api_port))
+                    _content = _content.replace("{{API_PORT}}", str(api_port))
                 res[rel_path] = _content
         return res
 

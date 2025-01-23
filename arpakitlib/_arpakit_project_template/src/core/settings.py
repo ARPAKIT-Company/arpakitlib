@@ -11,19 +11,21 @@ from src.core.const import BASE_DIRPATH, ENV_FILEPATH
 
 
 class Settings(SimpleSettings):
-    project_name: str = "{PROJECT_NAME}"
+    project_name: str = "{{PROJECT_NAME}}"
+
+    sql_db_port: int | None = int("{{SQL_DB_PORT}}") if "{{SQL_DB_PORT}}".strip() else None
 
     sql_db_url: str | None = (
-        "postgresql://{PROJECT_NAME}:{PROJECT_NAME}@127.0.0.1:{SQL_DB_PORT}/{PROJECT_NAME}"
-    ) if (str("{PROJECT_NAME}") and str("{SQL_DB_PORT}").strip().isdigit()) else None
+        f"postgresql://{{PROJECT_NAME}}:{{PROJECT_NAME}}@127.0.0.1:{sql_db_port}/{{PROJECT_NAME}}"
+    ) if sql_db_port is not None else None
 
     sql_db_echo: bool = False
 
     api_init_sql_db_at_start: bool = True
 
-    api_title: str = "{PROJECT_NAME}"
+    api_title: str = project_name
 
-    api_description: str = "{PROJECT_NAME} (arpakitlib)"
+    api_description: str = f"{project_name} (arpakitlib)"
 
     api_create_story_log_before_response_in_handle_exception: bool = True
 
@@ -31,7 +33,7 @@ class Settings(SimpleSettings):
 
     api_start_scheduled_operation_creator_worker: bool = False
 
-    api_port: int | None = int("{API_PORT}") if "{API_PORT}".strip().isdigit() else None
+    api_port: int | None = int("{{API_PORT}}") if "{{API_PORT}}".strip() else None
 
     api_correct_api_key: str | None = "1"
 

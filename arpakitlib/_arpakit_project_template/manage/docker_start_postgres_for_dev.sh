@@ -1,2 +1,2 @@
 cd ..
-docker start {PROJECT_NAME}_postgres
+docker start {{PROJECT_NAME}}_postgres
