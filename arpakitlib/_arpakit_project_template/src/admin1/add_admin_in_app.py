@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from sqladmin import Admin
 
 from src.admin1.admin_auth import AdminAuth
+from src.admin1.model_view import MODEL_VIEWS
 from src.api.transmitted_api_data import TransmittedAPIData
 
 
@@ -18,6 +19,7 @@ def add_admin1_in_app(*, app: FastAPI) -> FastAPI:
         title="{PROJECT_NAME}"
     )
 
-    # admin.add_model_view(CurrentSemesterMV)
+    for model_view in MODEL_VIEWS:
+        admin.add_model_view(model_view)
 
     return app

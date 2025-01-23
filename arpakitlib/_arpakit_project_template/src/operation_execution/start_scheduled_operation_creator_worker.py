@@ -1,11 +1,13 @@
 from arpakitlib.ar_operation_execution_util import ScheduledOperationCreatorWorker
+from src.core.settings import get_cached_settings
 from src.core.util import setup_logging
 from src.db.util import get_cached_sqlalchemy_db
 from src.operation_execution.scheduled_operations import SCHEDULED_OPERATIONS
 
 
-def start_create_scheduled_operation_worker_for_dev():
+def start_scheduled_operation_creator_worker():
     setup_logging()
+    get_cached_settings().raise_if_mode_type_prod()
     worker = ScheduledOperationCreatorWorker(
         sqlalchemy_db=get_cached_sqlalchemy_db(),
         scheduled_operations=SCHEDULED_OPERATIONS
@@ -14,4 +16,4 @@ def start_create_scheduled_operation_worker_for_dev():
 
 
 if __name__ == '__main__':
-    start_create_scheduled_operation_worker_for_dev()
+    start_scheduled_operation_creator_worker()

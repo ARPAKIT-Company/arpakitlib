@@ -12,3 +12,8 @@ class BaseModelView(ModelView):
     save_as = True
     save_as_continue = True
     export_types = ["xlsx", "csv", "json"]
+
+
+MODEL_VIEWS = []
+
+# ...

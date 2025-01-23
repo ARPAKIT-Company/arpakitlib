@@ -9,15 +9,13 @@ from src.core.settings import get_cached_settings
 class AdminAuth(AuthenticationBackend):
     def __init__(self):
         self._logger = logging.getLogger(self.__class__.__name__)
-        super().__init__(secret_key=get_cached_settings().sec)
+        super().__init__(secret_key=get_cached_settings().admin1_secret_key)
 
     async def login(self, request: Request) -> bool:
-        form = await request.form()
-
         # ...
-
+        # form = await request.form()
         # request.session.update(...)
-
+        # ...
         return True
 
     async def logout(self, request: Request) -> bool:
@@ -25,8 +23,7 @@ class AdminAuth(AuthenticationBackend):
         return True
 
     async def authenticate(self, request: Request) -> bool:
-        # request.session.get("...")
-
         # ...
-
+        # request.session.get("...")
+        # ...
         return True

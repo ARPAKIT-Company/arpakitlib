@@ -40,7 +40,7 @@ class StartupAPIEvent(BaseStartupAPIEvent):
                         self.transmitted_api_data.sqlalchemy_db.init
                     ]
                 ),
-                mode=SafeRunInBackgroundModes.async_task
+                mode=SafeRunInBackgroundModes.thread
             )
 
         if self.transmitted_api_data.settings.api_start_scheduled_operation_creator_worker:

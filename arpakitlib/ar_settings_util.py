@@ -21,19 +21,20 @@ def generate_env_example(settings_class: Union[BaseSettings, type[BaseSettings]]
     return res
 
 
+class ModeTypes(Enumeration):
+    not_prod: str = "not_prod"
+    prod: str = "prod"
+
+
 class SimpleSettings(BaseSettings):
     model_config = ConfigDict(extra="ignore")
-
-    class ModeTypes(Enumeration):
-        not_prod: str = "not_prod"
-        prod: str = "prod"
 
     mode_type: str = ModeTypes.not_prod
 
     @field_validator("mode_type")
     @classmethod
     def validate_mode_type(cls, v: str):
-        cls.ModeTypes.parse_and_validate_values(v.lower().strip())
+        ModeTypes.parse_and_validate_values(v.lower().strip())
         return v
 
     @property
