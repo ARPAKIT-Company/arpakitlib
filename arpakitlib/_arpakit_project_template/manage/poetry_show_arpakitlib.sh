@@ -1,2 +1,2 @@
 cd ..
-poetry show arpakitlib --no-dev
+poetry show arpakitlib --latest

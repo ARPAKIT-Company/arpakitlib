@@ -1,6 +1,6 @@
 [project]
 name = "arpakitlib"
-version = "1.7.126"
+version = "1.7.128"
 description = "arpakitlib"
 authors = [
     { name = "arpakit", email = "arpakit@gmail.com" },
@@ -65,6 +65,10 @@ documentation = "https://github.com/ARPAKIT-Company/arpakitlib"
 
 [tool.poetry]
 package-mode = true
+
+
+[tool.poetry.requires-plugins]
+poetry-plugin-export = ">=1.9.0"
 
 
 [[tool.poetry.source]]
