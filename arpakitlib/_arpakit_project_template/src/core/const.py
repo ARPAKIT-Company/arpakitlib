@@ -2,41 +2,40 @@ import asyncio
 import os
 import pathlib
 
-BASE_DIRPATH: str = str(pathlib.Path(__file__).parent.parent.parent)
+from arpakitlib.ar_enumeration_util import Enumeration
 
-ENV_FILENAME: str = ".env"
 
-ENV_FILEPATH: str = os.path.join(BASE_DIRPATH, ENV_FILENAME)
+class ProjectPaths(Enumeration):
+    base_dirpath: str = str(pathlib.Path(__file__).parent.parent.parent)
 
-SRC_DIRNAME: str = "src"
+    env_filename: str = ".env"
+    env_filepath: str = os.path.join(base_dirpath, env_filename)
 
-SRC_DIRPATH: str = os.path.join(BASE_DIRPATH, SRC_DIRNAME)
+    src_dirname: str = "src"
+    src_dirpath: str = os.path.join(base_dirpath, src_dirname)
 
-MANAGE_DIRNAME: str = "manage"
+    manage_dirname: str = "manage"
+    manage_dirpath: str = os.path.join(base_dirpath, manage_dirname)
 
-MANAGE_DIRPATH: str = os.path.join(BASE_DIRPATH, MANAGE_DIRNAME)
+    resource_dirname: str = "resource"
+    resource_dirpath: str = os.path.join(base_dirpath, resource_dirname)
 
-RESOURCE_DIRNAME: str = "resource"
-
-RESOURCE_DIRPATH: str = os.path.join(BASE_DIRPATH, RESOURCE_DIRNAME)
-
-STATIC_DIRNAME: str = "static"
-
-STATIC_DIRPATH: str = os.path.join(RESOURCE_DIRPATH, STATIC_DIRNAME)
+    static_dirname: str = "static"
+    static_dirpath: str = os.path.join(resource_dirpath, static_dirname)
 
 
 def __example():
-    print(f"BASE_DIRPATH: {BASE_DIRPATH}")
-    print(f"ENV_FILENAME: {ENV_FILENAME}")
-    print(f"ENV_FILEPATH: {ENV_FILEPATH}")
-    print(f"SRC_DIRNAME: {SRC_DIRNAME}")
-    print(f"SRC_DIRPATH: {SRC_DIRPATH}")
-    print(f"MANAGE_DIRNAME: {MANAGE_DIRNAME}")
-    print(f"MANAGE_DIRPATH: {MANAGE_DIRPATH}")
-    print(f"RESOURCE_DIRNAME: {RESOURCE_DIRNAME}")
-    print(f"RESOURCE_DIRPATH: {RESOURCE_DIRPATH}")
-    print(f"STATIC_DIRNAME: {STATIC_DIRNAME}")
-    print(f"STATIC_DIRPATH: {STATIC_DIRPATH}")
+    print(f"base_dirpath: {ProjectPaths.base_dirpath}")
+    print(f"env_filename: {ProjectPaths.env_filename}")
+    print(f"env_filepath: {ProjectPaths.env_filepath}")
+    print(f"src_dirname: {ProjectPaths.src_dirname}")
+    print(f"src_dirpath: {ProjectPaths.src_dirpath}")
+    print(f"manage_dirname: {ProjectPaths.manage_dirname}")
+    print(f"manage_dirpath: {ProjectPaths.manage_dirpath}")
+    print(f"resource_dirname: {ProjectPaths.resource_dirname}")
+    print(f"resource_dirpath: {ProjectPaths.resource_dirpath}")
+    print(f"static_dirname: {ProjectPaths.static_dirname}")
+    print(f"static_dirpath: {ProjectPaths.static_dirpath}")
 
 
 async def __async_example():
