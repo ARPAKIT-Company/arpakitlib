@@ -84,6 +84,19 @@ def raise_if_not_none(v: Any) -> Any:
     return v
 
 
+def get_setted_elements_as_dict_from_dict(d: dict) -> dict[str, Any]:
+    raise_for_type(d, dict)
+    setted_ = {}
+    for k, v in d.items():
+        if is_set(v):
+            setted_[k] = v
+    return setted_
+
+
+def get_setted_keys_from_dict(d: dict) -> list[Any]:
+    return list(get_setted_elements_as_dict_from_dict(d).keys())
+
+
 def __example():
     print("is_set:")
     print(is_set(v=NotSet))  # False
@@ -137,6 +150,8 @@ def __example():
         raise_for_types(comparable=100.5, need_types=[str, int], comment_for_error="ops")  # raise
     except TypeError as e:
         print(e)
+
+    print(get_setted_elements_as_dict_from_dict({"afs": "ASfa", "asfasf": NotSet}))
 
 
 if __name__ == '__main__':

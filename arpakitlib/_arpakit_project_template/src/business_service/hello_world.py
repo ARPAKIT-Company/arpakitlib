@@ -1,5 +1,7 @@
 import logging
 
+from src.core.util import setup_logging
+
 _logger = logging.getLogger(__name__)
 
 
@@ -9,4 +11,5 @@ def hello_world() -> str:
 
 
 if __name__ == '__main__':
-    print(hello_world())
+    setup_logging()
+    hello_world()

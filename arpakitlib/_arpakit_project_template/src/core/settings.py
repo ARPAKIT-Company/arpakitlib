@@ -1,4 +1,3 @@
-import asyncio
 import os
 from functools import lru_cache
 from typing import Any
@@ -79,14 +78,5 @@ def get_cached_settings() -> Settings:
     return Settings()
 
 
-def __example():
-    print(safely_transfer_obj_to_json_str(get_cached_settings().model_dump(mode="json")))
-
-
-async def __async_example():
-    pass
-
-
 if __name__ == '__main__':
-    __example()
-    asyncio.run(__async_example())
+    print(safely_transfer_obj_to_json_str(get_cached_settings().model_dump(mode="json")))

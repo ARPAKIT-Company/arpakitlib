@@ -35,10 +35,7 @@ class StartupAPIEvent(BaseStartupAPIEvent):
                 worker=OperationExecutorWorker(
                     sqlalchemy_db=self.transmitted_api_data.sqlalchemy_db,
                     operation_executor=OperationExecutor(sqlalchemy_db=self.transmitted_api_data.sqlalchemy_db),
-                    filter_operation_types=None,
-                    startup_funcs=[
-                        self.transmitted_api_data.sqlalchemy_db.init
-                    ]
+                    filter_operation_types=None
                 ),
                 mode=SafeRunInBackgroundModes.thread
             )
@@ -48,10 +45,7 @@ class StartupAPIEvent(BaseStartupAPIEvent):
             _ = safe_run_worker_in_background(
                 worker=ScheduledOperationCreatorWorker(
                     sqlalchemy_db=self.transmitted_api_data.sqlalchemy_db,
-                    scheduled_operations=SCHEDULED_OPERATIONS,
-                    startup_funcs=[
-                        self.transmitted_api_data.sqlalchemy_db.init
-                    ]
+                    scheduled_operations=SCHEDULED_OPERATIONS
                 ),
                 mode=SafeRunInBackgroundModes.async_task
             )
