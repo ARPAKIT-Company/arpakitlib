@@ -12,6 +12,7 @@ api_router = APIRouter()
 
 @api_router.get(
     "",
+    name="Get API Error info",
     response_model=APIErrorInfoSO | ErrorSO,
     status_code=status.HTTP_200_OK
 )
