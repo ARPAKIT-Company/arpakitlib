@@ -11,3 +11,5 @@ class TransmittedAPIData(BaseTransmittedAPIData):
     media_file_storage_in_dir: FileStorageInDir | None = None
     cache_file_storage_in_dir: FileStorageInDir | None = None
     dump_file_storage_in_dir: FileStorageInDir | None = None
+
+    # ...
