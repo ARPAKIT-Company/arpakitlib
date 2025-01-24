@@ -1,6 +1,6 @@
 # arpakit
 
-from typing import Union, Iterator, Iterable
+from typing import Union, Iterator, Iterable, Any
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
 
@@ -79,6 +79,24 @@ class Enumeration:
     @classmethod
     def print(cls):
         print(cls.str_for_print())
+
+    @classmethod
+    def key_to_value(cls) -> dict[str, Any]:
+        big_dict = {}
+        for class_ in reversed(cls.mro()):
+            big_dict.update(class_.__dict__)
+        big_dict.update(cls.__dict__)
+
+        result = {}
+        for key, value in big_dict.items():
+            if (
+                    isinstance(key, str)
+                    and not (key.startswith("__") or key.endswith("__"))
+                    and isinstance(value, (str, int))
+            ):
+                result[key] = value
+
+        return result
 
 
 def __example():
