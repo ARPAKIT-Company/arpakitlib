@@ -39,7 +39,7 @@ class SimpleSettings(BaseSettings):
 
     @property
     def is_mode_type_not_prod(self) -> bool:
-        return self.mode_type == self.ModeTypes.not_prod
+        return self.mode_type == ModeTypes.not_prod
 
     def raise_if_mode_type_not_prod(self):
         if self.is_mode_type_not_prod:
@@ -47,7 +47,7 @@ class SimpleSettings(BaseSettings):
 
     @property
     def is_mode_type_prod(self) -> bool:
-        return self.mode_type == self.ModeTypes.prod
+        return self.mode_type == ModeTypes.prod
 
     def raise_if_mode_type_prod(self):
         if self.is_mode_type_prod:
