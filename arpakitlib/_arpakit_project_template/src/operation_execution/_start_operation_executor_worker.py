@@ -4,7 +4,7 @@ from src.db.util import get_cached_sqlalchemy_db
 from src.operation_execution.operation_executor import OperationExecutor
 
 
-def start_operation_executor_worker():
+def _start_operation_executor_worker():
     setup_logging()
     worker = OperationExecutorWorker(
         sqlalchemy_db=get_cached_sqlalchemy_db(),
@@ -14,4 +14,4 @@ def start_operation_executor_worker():
 
 
 if __name__ == '__main__':
-    start_operation_executor_worker()
+    _start_operation_executor_worker()

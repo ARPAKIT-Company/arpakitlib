@@ -19,3 +19,5 @@ def create_sqlalchemy_db() -> SQLAlchemyDB:
 @lru_cache()
 def get_cached_sqlalchemy_db() -> SQLAlchemyDB:
     return create_sqlalchemy_db()
+
+# ...

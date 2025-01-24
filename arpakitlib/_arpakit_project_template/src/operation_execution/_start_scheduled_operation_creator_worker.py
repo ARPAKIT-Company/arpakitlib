@@ -4,7 +4,7 @@ from src.db.util import get_cached_sqlalchemy_db
 from src.operation_execution.scheduled_operations import SCHEDULED_OPERATIONS
 
 
-def start_scheduled_operation_creator_worker():
+def _start_scheduled_operation_creator_worker():
     setup_logging()
     worker = ScheduledOperationCreatorWorker(
         sqlalchemy_db=get_cached_sqlalchemy_db(),
@@ -14,4 +14,4 @@ def start_scheduled_operation_creator_worker():
 
 
 if __name__ == '__main__':
-    start_scheduled_operation_creator_worker()
+    _start_scheduled_operation_creator_worker()

@@ -3,6 +3,7 @@ import os
 import pathlib
 
 from arpakitlib.ar_enumeration_util import Enumeration
+from arpakitlib.ar_json_util import safely_transfer_obj_to_json_str
 
 
 class ProjectPaths(Enumeration):
@@ -24,18 +25,11 @@ class ProjectPaths(Enumeration):
     static_dirpath: str = os.path.join(resource_dirpath, static_dirname)
 
 
+# ...
+
+
 def __example():
-    print(f"base_dirpath: {ProjectPaths.base_dirpath}")
-    print(f"env_filename: {ProjectPaths.env_filename}")
-    print(f"env_filepath: {ProjectPaths.env_filepath}")
-    print(f"src_dirname: {ProjectPaths.src_dirname}")
-    print(f"src_dirpath: {ProjectPaths.src_dirpath}")
-    print(f"manage_dirname: {ProjectPaths.manage_dirname}")
-    print(f"manage_dirpath: {ProjectPaths.manage_dirpath}")
-    print(f"resource_dirname: {ProjectPaths.resource_dirname}")
-    print(f"resource_dirpath: {ProjectPaths.resource_dirpath}")
-    print(f"static_dirname: {ProjectPaths.static_dirname}")
-    print(f"static_dirpath: {ProjectPaths.static_dirpath}")
+    print(safely_transfer_obj_to_json_str(ProjectPaths.key_to_value()))
 
 
 async def __async_example():

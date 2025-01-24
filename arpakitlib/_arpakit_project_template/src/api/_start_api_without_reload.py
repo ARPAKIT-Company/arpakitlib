@@ -3,15 +3,15 @@ import uvicorn
 from src.core.settings import get_cached_settings
 
 
-def __start_api_for_dev_with_reload():
+def _start_api_for_dev_without_reload():
     uvicorn.run(
         "src.api.asgi:app",
         port=get_cached_settings().api_port,
         host="localhost",
         workers=1,
-        reload=True
+        reload=False
     )
 
 
 if __name__ == '__main__':
-    __start_api_for_dev_with_reload()
+    _start_api_for_dev_without_reload()
