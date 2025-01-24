@@ -7,7 +7,7 @@ from src.core.settings import get_cached_settings
 
 SCHEDULED_OPERATIONS = []
 
-if get_cached_settings().is_mode_type_prod:
+if get_cached_settings().is_mode_type_not_prod:
     healthcheck_1_scheduled_operation = ScheduledOperation(
         type=BaseOperationTypes.healthcheck_,
         input_data={"healthcheck_1": "healthcheck_1"},

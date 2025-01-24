@@ -411,6 +411,7 @@ class ScheduledOperationCreatorWorker(BaseWorker):
                 session.add(operation_dbm)
                 session.commit()
                 session.refresh(operation_dbm)
+                self._logger.info(f"scheduled operation (id={operation_dbm.id}) was created")
 
             if scheduled_operation.timeout_after_creation is not None:
                 if timeout is not None:
