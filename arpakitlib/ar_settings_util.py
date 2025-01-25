@@ -1,8 +1,8 @@
 # arpakit
 
-from typing import Union
+from typing import Union, Any
 
-from pydantic import ConfigDict, field_validator
+from pydantic import ConfigDict, field_validator, model_validator
 from pydantic_core import PydanticUndefined
 from pydantic_settings import BaseSettings
 
@@ -30,6 +30,14 @@ class SimpleSettings(BaseSettings):
     model_config = ConfigDict(extra="ignore")
 
     mode_type: str = ModeTypes.not_prod
+
+    @model_validator(mode="before")
+    @classmethod
+    def validate_all_fields(cls, values: dict[str, Any]) -> dict[str, Any]:
+        for key, value in values.items():
+            if isinstance(value, str) and value.lower().strip() in {"null", "none", "nil"}:
+                values[key] = None
+        return values
 
     @field_validator("mode_type")
     @classmethod
