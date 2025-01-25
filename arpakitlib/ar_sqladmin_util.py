@@ -56,7 +56,9 @@ class OperationMV(SimpleModelView, model=OperationDBM):
         OperationDBM.output_data,
         OperationDBM.error_data
     ]
-    column_default_sort = [(OperationDBM.creation_dt, True)]
+    column_default_sort = [
+        (OperationDBM.creation_dt, True)
+    ]
     column_searchable_list = [
         OperationDBM.id,
         OperationDBM.long_id,
@@ -66,8 +68,8 @@ class OperationMV(SimpleModelView, model=OperationDBM):
 
 
 class StoryLogMV(SimpleModelView, model=StoryLogDBM):
-    name = "Operation"
-    name_plural = "Operations"
+    name = "StoryLog"
+    name_plural = "StoryLogs"
     column_list = [
         StoryLogDBM.id,
         StoryLogDBM.long_id,
@@ -81,7 +83,9 @@ class StoryLogMV(SimpleModelView, model=StoryLogDBM):
         StoryLogDBM.title,
         StoryLogDBM.data
     ]
-    column_default_sort = [(StoryLogDBM.creation_dt, True)]
+    column_default_sort = [
+        (StoryLogDBM.creation_dt, True)
+    ]
     column_searchable_list = [
         StoryLogDBM.id,
         StoryLogDBM.long_id,
