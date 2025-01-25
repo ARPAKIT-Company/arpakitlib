@@ -3,6 +3,8 @@ from functools import lru_cache
 from typing import Any
 
 import pytz
+from pydantic import field_validator
+from pydantic_core.core_schema import ValidationInfo
 
 from arpakitlib.ar_json_util import safely_transfer_obj_to_json_str
 from arpakitlib.ar_settings_util import SimpleSettings
@@ -20,14 +22,19 @@ class Settings(SimpleSettings):
 
     sql_db_database: str | None = project_name
 
-    sql_db_url: str | None = (
-        f"postgresql://{sql_db_user}:{sql_db_password}@127.0.0.1:{sql_db_port}/{sql_db_database}"
-    ) if (
-            sql_db_user is not None
-            and sql_db_password is not None
-            and sql_db_port is not None
-            and sql_db_database is not None
-    ) else None
+    sql_db_url: str | None = None
+
+    @field_validator("sql_db_url", mode="after")
+    def validate_sql_db_url(cls, v: Any, validation_info: ValidationInfo) -> str | None:
+        if v is not None:
+            return None
+        user = validation_info.data.get('sql_db_user')
+        password = validation_info.data.get('sql_db_password')
+        port = validation_info.data.get('sql_db_port')
+        database = validation_info.data.get('sql_db_database')
+        if user is not None and password is not None and port is not None and database is not None:
+            return f"postgresql://{user}:{password}@127.0.0.1:{port}/{database}"
+        return None
 
     sql_db_echo: bool = False
 
