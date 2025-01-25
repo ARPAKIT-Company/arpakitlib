@@ -12,11 +12,22 @@ from src.core.const import ProjectPaths
 class Settings(SimpleSettings):
     project_name: str = "{{PROJECT_NAME}}"
 
+    sql_db_user: str | None = project_name
+
+    sql_db_password: str | None = project_name
+
     sql_db_port: int | None = int("{{SQL_DB_PORT}}") if "{{SQL_DB_PORT}}".strip().isdigit() else None
 
+    sql_db_database: str | None = project_name
+
     sql_db_url: str | None = (
-        f"postgresql://{{PROJECT_NAME}}:{{PROJECT_NAME}}@127.0.0.1:{sql_db_port}/{{PROJECT_NAME}}"
-    ) if sql_db_port is not None else None
+        f"postgresql://{sql_db_user}:{sql_db_password}@127.0.0.1:{sql_db_port}/{sql_db_database}"
+    ) if (
+            sql_db_user is not None
+            and sql_db_password is not None
+            and sql_db_port is not None
+            and sql_db_database is not None
+    ) else None
 
     sql_db_echo: bool = False
 
