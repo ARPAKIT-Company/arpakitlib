@@ -19,7 +19,7 @@ def create_combined_meta(*metas):
     return CombinedMeta
 
 
-class BaseModelView(ModelView, metaclass=create_combined_meta(CollectingSubclassesMeta, ModelViewMeta)):
+class SimpleModelView(ModelView, metaclass=create_combined_meta(CollectingSubclassesMeta, ModelViewMeta)):
     can_create = True
     can_edit = True
     can_delete = True
@@ -32,7 +32,7 @@ class BaseModelView(ModelView, metaclass=create_combined_meta(CollectingSubclass
     export_types = ["xlsx", "csv", "json"]
 
 
-class OperationMV(BaseModelView, model=OperationDBM):
+class OperationMV(SimpleModelView, model=OperationDBM):
     name = "Operation"
     name_plural = "Operations"
     column_list = [
@@ -65,7 +65,7 @@ class OperationMV(BaseModelView, model=OperationDBM):
     ]
 
 
-class StoryLogMV(BaseModelView, model=StoryLogDBM):
+class StoryLogMV(SimpleModelView, model=StoryLogDBM):
     name = "Operation"
     name_plural = "Operations"
     column_list = [
@@ -89,3 +89,13 @@ class StoryLogMV(BaseModelView, model=StoryLogDBM):
         StoryLogDBM.title,
         StoryLogDBM.data
     ]
+
+
+def __example():
+    print(len(SimpleModelView.all_subclasses))
+    for model_view in SimpleModelView.all_subclasses:
+        print(model_view)
+
+
+if __name__ == '__main__':
+    __example()

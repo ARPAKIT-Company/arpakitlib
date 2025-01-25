@@ -9,8 +9,8 @@ class CollectingSubclassesMeta(type):
     Метакласс для автоматического сбора всех наследников в поле ALL_SUBCLASSES.
     """
 
-    def __init__(cls, name, bases, dct):
-        super().__init__(name, bases, dct)
+    def __init__(cls, name, bases, dct, **kwargs):
+        super().__init__(name, bases, dct, **kwargs)
         if not hasattr(cls, "all_subclasses"):
             cls.all_subclasses = []
         elif bases:
