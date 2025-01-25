@@ -1,3 +1,6 @@
+import importlib
+from contextlib import suppress
+
 from fastapi import FastAPI
 from sqladmin import Admin
 
@@ -19,6 +22,9 @@ def add_admin1_in_app(*, app: FastAPI) -> FastAPI:
         authentication_backend=authentication_backend,
         title=get_cached_settings().project_name
     )
+
+    with suppress(Exception):
+        importlib.import_module("src.admin1.model_view")
 
     for model_view in SimpleModelView.all_subclasses:
         admin.add_model_view(model_view)
