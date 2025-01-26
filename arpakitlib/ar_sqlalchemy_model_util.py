@@ -4,8 +4,7 @@ from datetime import datetime, timedelta
 from typing import Any
 from uuid import uuid4
 
-from sqlalchemy import inspect, INTEGER, TEXT, TIMESTAMP, func
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy import inspect, INTEGER, TEXT, TIMESTAMP, func, JSON
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 from arpakitlib.ar_datetime_util import now_utc_dt
@@ -103,7 +102,7 @@ class StoryLogDBM(SimpleDBM):
     )
     title: Mapped[str | None] = mapped_column(TEXT, index=True, default=None, nullable=True)
     data: Mapped[dict[str, Any]] = mapped_column(
-        JSONB, insert_default={}, server_default="{}", index=True, nullable=False
+        JSON, insert_default={}, server_default="{}", index=True, nullable=False
     )
 
 
@@ -131,13 +130,13 @@ class OperationDBM(SimpleDBM):
     execution_start_dt: Mapped[datetime | None] = mapped_column(TIMESTAMP(timezone=True), nullable=True)
     execution_finish_dt: Mapped[datetime | None] = mapped_column(TIMESTAMP(timezone=True), nullable=True)
     input_data: Mapped[dict[str, Any]] = mapped_column(
-        JSONB,
+        JSON,
         insert_default={},
         server_default="{}",
         nullable=False
     )
-    output_data: Mapped[dict[str, Any]] = mapped_column(JSONB, insert_default={}, server_default="{}", nullable=False)
-    error_data: Mapped[dict[str, Any]] = mapped_column(JSONB, insert_default={}, server_default="{}", nullable=False)
+    output_data: Mapped[dict[str, Any]] = mapped_column(JSON, insert_default={}, server_default="{}", nullable=False)
+    error_data: Mapped[dict[str, Any]] = mapped_column(JSON, insert_default={}, server_default="{}", nullable=False)
 
     def raise_if_executed_with_error(self):
         if self.status == self.Statuses.executed_with_error:
