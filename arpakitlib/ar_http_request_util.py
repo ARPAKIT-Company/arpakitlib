@@ -26,6 +26,7 @@ def sync_make_http_request(
         max_tries_: int = 9,
         proxy_url_: str | None = None,
         raise_for_status_: bool = False,
+        not_raise_for_statuses: list[int] | None = None,
         timeout_: timedelta | float = timedelta(seconds=15).total_seconds(),
         enable_logging_: bool = False,
         **kwargs
@@ -53,21 +54,25 @@ def sync_make_http_request(
         kwargs["allow_redirects"] = True
 
     if enable_logging_:
-        _logger.info(f"TRY HTTP {method} {url} {params}")
+        _logger.info(f"try http {method} {url} {params}")
 
     while True:
         tries_counter += 1
         try:
             response = requests.request(**kwargs)
             if raise_for_status_:
-                response.raise_for_status()
+                if not_raise_for_statuses and response.status_code in not_raise_for_statuses:
+                    if enable_logging_:
+                        _logger.info(f"ignored status {response.status_code} for http {method} {url} {params}")
+                else:
+                    response.raise_for_status()
             if enable_logging_:
-                _logger.info(f"GOOD TRY HTTP {method} {url} {params}")
+                _logger.info(f"good try http {method} {url} {params}")
             return response
         except BaseException as exception:
             if enable_logging_:
                 _logger.warning(
-                    f"{tries_counter}/{max_tries_}. RETRY {method} {url} {params}, exception={exception}"
+                    f"{tries_counter}/{max_tries_}. retry {method} {url} {params}, exception={exception}"
                 )
             if tries_counter >= max_tries_:
                 raise exception
