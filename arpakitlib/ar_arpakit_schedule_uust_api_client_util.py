@@ -16,6 +16,7 @@ from aiohttp import ClientResponse, ClientTimeout, ClientResponseError
 from pydantic import ConfigDict, BaseModel
 
 from arpakitlib.ar_enumeration_util import Enumeration
+from arpakitlib.ar_http_request_util import async_make_http_request
 from arpakitlib.ar_sleep_util import async_safe_sleep
 from arpakitlib.ar_type_util import raise_for_type
 
@@ -53,17 +54,20 @@ class BaseAPIModel(BaseModel):
 
 class CurrentSemesterAPIModel(BaseAPIModel):
     id: int
+    long_id: str
     creation_dt: datetime
-    sync_from_uust_api_dt: datetime
+    entity_type: str
+    actualization_dt: datetime
     value: str
-    raw_value: str
 
 
 class CurrentWeekAPIModel(BaseAPIModel):
     id: int
+    long_id: str
     creation_dt: datetime
-    sync_from_uust_api_dt: datetime
-    value: str
+    entity_type: str
+    actualization_dt: datetime
+    value: int
 
 
 class GroupAPIModel(BaseAPIModel):
@@ -209,40 +213,26 @@ class ARPAKITScheduleUUSTAPIClient:
         if self.ttl_cache is not None:
             self.ttl_cache.clear()
 
-    async def _async_make_request(self, *, method: str = "GET", url: str, **kwargs) -> ClientResponse:
-        max_tries = 7
-        tries = 0
-
-        kwargs["url"] = url
-        kwargs["method"] = method
-        kwargs["timeout"] = ClientTimeout(total=timedelta(seconds=15).total_seconds())
-        kwargs["headers"] = self.headers
-
-        cache_key = (
-            "_async_make_request",
-            hashlib.sha256(json.dumps(kwargs, ensure_ascii=False, default=str).encode()).hexdigest()
+    async def _async_make_request(
+            self,
+            *,
+            method: str = "GET",
+            url: str,
+            params: dict[str, Any] | None = None,
+            **kwargs
+    ) -> ClientResponse:
+        response = await async_make_http_request(
+            method=method,
+            url=url,
+            headers=self.headers,
+            params=params,
+            raise_for_status_=True,
+            **kwargs
         )
-
-        if self.use_cache and self.ttl_cache is not None:
-            if cache_key in self.ttl_cache:
-                return self.ttl_cache[cache_key]
-
-        while True:
-            tries += 1
-            self._logger.info(f"{method} {url}")
-            try:
-                async with aiohttp.ClientSession() as session:
-                    async with session.request(**kwargs) as response:
-                        await response.read()
-                        if self.use_cache and self.ttl_cache is not None:
-                            self.ttl_cache[cache_key] = response
-                        return response
-            except Exception as err:
-                self._logger.warning(f"{tries}/{max_tries} {err} {method} {url}")
-                if tries >= max_tries:
-                    raise err
-                await async_safe_sleep(timedelta(seconds=0.1).total_seconds())
-                continue
+        json_data = await response.json()
+        if "error" in json_data.keys():
+            raise Exception(f"error in json_data, {json_data}")
+        return response
 
     async def healthcheck(self) -> bool:
         response = await self._async_make_request(method="GET", url=urljoin(self.base_url, "healthcheck"))

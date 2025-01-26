@@ -84,6 +84,7 @@ async def async_make_http_request(
         max_tries_: int = 9,
         proxy_url_: str | None = None,
         raise_for_status_: bool = False,
+        not_raise_for_statuses: list[int] | None = None,
         timeout_: timedelta | None = timedelta(seconds=15),
         enable_logging_: bool = False,
         **kwargs
@@ -106,7 +107,7 @@ async def async_make_http_request(
         proxy_connector = ProxyConnector.from_url(proxy_url_)
 
     if enable_logging_:
-        _logger.info(f"TRY HTTP {method} {url} {params}")
+        _logger.info(f"try http {method} {url} {params}")
 
     while True:
         tries_counter += 1
@@ -114,15 +115,21 @@ async def async_make_http_request(
             async with aiohttp.ClientSession(connector=proxy_connector) as session:
                 async with session.request(**kwargs) as response:
                     if raise_for_status_:
-                        response.raise_for_status()
+                        if not_raise_for_statuses and response.status in not_raise_for_statuses:
+                            if enable_logging_:
+                                _logger.info(
+                                    f"ignored status {response.status} for http {method} {url} {params}"
+                                )
+                        else:
+                            response.raise_for_status()
                     await response.read()
                     if enable_logging_:
-                        _logger.info(f"GOOD TRY HTTP {method} {url} {params}")
+                        _logger.info(f"good try http {method} {url} {params}")
                     return response
         except BaseException as exception:
             if enable_logging_:
                 _logger.warning(
-                    f"{tries_counter}/{max_tries_}. RETRY HTTP {method} {url} {params}, exception={exception}"
+                    f"{tries_counter}/{max_tries_}. retry http {method} {url} {params}, exception={exception}"
                 )
             if tries_counter >= max_tries_:
                 raise exception

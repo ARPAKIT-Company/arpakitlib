@@ -77,7 +77,8 @@ class ScheduleUUSTAPIClient:
             *,
             method: str = "GET",
             url: str,
-            params: dict[str, Any] | None = None
+            params: dict[str, Any] | None = None,
+            **kwargs
     ) -> ClientResponse:
         response = await async_make_http_request(
             method=method,
@@ -85,7 +86,8 @@ class ScheduleUUSTAPIClient:
             headers=self.headers,
             params=combine_dicts(params, self.auth_params()),
             proxy_url_=self.api_proxy_url,
-            raise_for_status_=True
+            raise_for_status_=True,
+            **kwargs
         )
         json_data = await response.json()
         if "error" in json_data.keys():
