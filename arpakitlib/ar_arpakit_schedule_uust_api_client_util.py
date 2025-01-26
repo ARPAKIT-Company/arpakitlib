@@ -15,9 +15,7 @@ import cachetools
 from aiohttp import ClientResponse, ClientTimeout, ClientResponseError
 from pydantic import ConfigDict, BaseModel
 
-from arpakitlib.ar_dict_util import combine_dicts
 from arpakitlib.ar_enumeration_util import Enumeration
-from arpakitlib.ar_json_util import safely_transfer_obj_to_json_str
 from arpakitlib.ar_sleep_util import async_safe_sleep
 from arpakitlib.ar_type_util import raise_for_type
 
@@ -52,8 +50,20 @@ class Months(Enumeration):
 class BaseAPIModel(BaseModel):
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True, from_attributes=True)
 
-    def simple_json(self) -> str:
-        return safely_transfer_obj_to_json_str(self.model_dump(mode="json"))
+
+class CurrentSemesterAPIModel(BaseAPIModel):
+    id: int
+    creation_dt: datetime
+    sync_from_uust_api_dt: datetime
+    value: str
+    raw_value: str
+
+
+class CurrentWeekAPIModel(BaseAPIModel):
+    id: int
+    creation_dt: datetime
+    sync_from_uust_api_dt: datetime
+    value: str
 
 
 class GroupAPIModel(BaseAPIModel):
@@ -66,15 +76,6 @@ class GroupAPIModel(BaseAPIModel):
     course: int | None
     difference_level: int | None = None
     uust_api_data: dict[str, Any]
-
-    arpakit_uust_api_data: dict[str, Any]
-
-    @classmethod
-    def from_arpakit_uust_api_data(cls, arpakit_uust_api_data: dict[str, Any]) -> GroupAPIModel:
-        return GroupAPIModel.model_validate(combine_dicts(
-            arpakit_uust_api_data,
-            {"arpakit_uust_api_data": arpakit_uust_api_data}
-        ))
 
 
 class TeacherAPIModel(BaseAPIModel):
@@ -93,15 +94,6 @@ class TeacherAPIModel(BaseAPIModel):
     unit: str | None
     difference_level: int | None
     uust_api_data: dict[str, Any]
-
-    arpakit_uust_api_data: dict[str, Any]
-
-    @classmethod
-    def from_arpakit_uust_api_data(cls, arpakit_uust_api_data: dict[str, Any]) -> TeacherAPIModel:
-        return TeacherAPIModel.model_validate(combine_dicts(
-            arpakit_uust_api_data,
-            {"arpakit_uust_api_data": arpakit_uust_api_data}
-        ))
 
 
 class GroupLessonAPIModel(BaseAPIModel):
@@ -124,29 +116,6 @@ class GroupLessonAPIModel(BaseAPIModel):
     group: GroupAPIModel
     teacher: TeacherAPIModel | None
     uust_api_data: dict[str, Any]
-
-    arpakit_uust_api_data: dict[str, Any]
-
-    @classmethod
-    def from_arpakit_uust_api_data(cls, arpakit_uust_api_data: dict[str, Any]) -> GroupLessonAPIModel:
-        return GroupLessonAPIModel.model_validate(combine_dicts(
-            arpakit_uust_api_data,
-            {"arpakit_uust_api_data": arpakit_uust_api_data},
-            {
-                "group": GroupAPIModel.from_arpakit_uust_api_data(
-                    arpakit_uust_api_data=arpakit_uust_api_data["group"]
-                )
-            },
-            {
-                "teacher": (
-                    TeacherAPIModel.from_arpakit_uust_api_data(
-                        arpakit_uust_api_data=arpakit_uust_api_data["teacher"]
-                    )
-                    if arpakit_uust_api_data["teacher"] is not None
-                    else None
-                )
-            },
-        ))
 
     def compare_type(self, *types: str | list[str]) -> bool:
         type_ = self.type.strip().lower()
@@ -184,26 +153,6 @@ class TeacherLessonAPIModel(BaseAPIModel):
     groups: list[GroupAPIModel]
     uust_api_data: dict[str, Any]
 
-    arpakit_uust_api_data: dict[str, Any]
-
-    @classmethod
-    def from_arpakit_uust_api_data(cls, arpakit_uust_api_data: dict[str, Any]) -> TeacherLessonAPIModel:
-        return TeacherLessonAPIModel.model_validate(combine_dicts(
-            arpakit_uust_api_data,
-            {"arpakit_uust_api_data": arpakit_uust_api_data},
-            {
-                "teacher": TeacherAPIModel.from_arpakit_uust_api_data(
-                    arpakit_uust_api_data=arpakit_uust_api_data["teacher"]
-                )
-            },
-            {
-                "groups": [
-                    GroupAPIModel.from_arpakit_uust_api_data(arpakit_uust_api_data=d)
-                    for d in arpakit_uust_api_data["groups"]
-                ]
-            },
-        ))
-
     def compare_type(self, *types: str | list[str]) -> bool:
         type_ = self.type.strip().lower()
         for type__ in types:
@@ -219,39 +168,6 @@ class TeacherLessonAPIModel(BaseAPIModel):
         return False
 
 
-class CurrentSemesterAPIModel(BaseAPIModel):
-    id: int
-    creation_dt: datetime
-    sync_from_uust_api_dt: datetime
-    value: str
-    raw_value: str
-
-    arpakit_uust_api_data: dict[str, Any]
-
-    @classmethod
-    def from_arpakit_uust_api_data(cls, *, arpakit_uust_api_data: dict[str, Any]) -> CurrentSemesterAPIModel:
-        return CurrentSemesterAPIModel.model_validate(combine_dicts(
-            arpakit_uust_api_data,
-            {"arpakit_uust_api_data": arpakit_uust_api_data}
-        ))
-
-
-class CurrentWeekAPIModel(BaseAPIModel):
-    id: int
-    creation_dt: datetime
-    sync_from_uust_api_dt: datetime
-    value: str
-
-    arpakit_uust_api_data: dict[str, Any]
-
-    @classmethod
-    def from_arpakit_uust_api_data(cls, *, arpakit_uust_api_data: dict[str, Any]) -> CurrentWeekAPIModel:
-        return CurrentWeekAPIModel.model_validate(combine_dicts(
-            arpakit_uust_api_data,
-            {"arpakit_uust_api_data": arpakit_uust_api_data}
-        ))
-
-
 class WeatherInUfaAPIModel(BaseAPIModel):
     temperature: float
     temperature_feels_like: float
@@ -263,15 +179,6 @@ class WeatherInUfaAPIModel(BaseAPIModel):
     has_snow: bool
     data: dict
 
-    arpakit_uust_api_data: dict[str, Any]
-
-    @classmethod
-    def from_arpakit_uust_api_data(cls, arpakit_uust_api_data: dict[float, Any]) -> WeatherInUfaAPIModel:
-        return WeatherInUfaAPIModel.model_validate(combine_dicts(
-            arpakit_uust_api_data,
-            {"arpakit_uust_api_data": arpakit_uust_api_data}
-        ))
-
 
 class ARPAKITScheduleUUSTAPIClient:
     def __init__(
@@ -280,7 +187,7 @@ class ARPAKITScheduleUUSTAPIClient:
             base_url: str = "https://api.schedule-uust.arpakit.com/api/v1",
             api_key: str | None = "viewer",
             use_cache: bool = False,
-            cache_ttl: int | float | None = timedelta(minutes=10).total_seconds()
+            cache_ttl: timedelta | None = timedelta(minutes=10)
     ):
         self._logger = logging.getLogger(__name__)
         self.api_key = api_key
@@ -290,15 +197,15 @@ class ARPAKITScheduleUUSTAPIClient:
         self.base_url = base_url
         self.headers = {"Content-Type": "application/json"}
         if api_key is not None:
-            self.headers.update({"apikey": api_key})
+            self.headers.update({"apikey": self.api_key})
         self.use_cache = use_cache
         self.cache_ttl = cache_ttl
         if cache_ttl is not None:
-            self.ttl_cache = cachetools.TTLCache(maxsize=100, ttl=cache_ttl)
+            self.ttl_cache = cachetools.TTLCache(maxsize=100, ttl=cache_ttl.total_seconds())
         else:
             self.ttl_cache = None
 
-    def clear_a_s_u_api_client(self):
+    def clear_cache(self):
         if self.ttl_cache is not None:
             self.ttl_cache.clear()
 
@@ -350,7 +257,7 @@ class ARPAKITScheduleUUSTAPIClient:
             return False
 
     async def auth_healthcheck(self) -> bool:
-        response = await self._async_make_request(method="GET", url=urljoin(self.base_url, "auth_healthcheck"))
+        response = await self._async_make_request(method="GET", url=urljoin(self.base_url, "check_auth"))
         response.raise_for_status()
         json_data = await response.json()
         return json_data["data"]["auth_healthcheck"]

@@ -391,7 +391,10 @@ def add_needed_api_router_to_app(*, app: FastAPI):
     async def _():
         return APIJSONResponse(
             status_code=starlette.status.HTTP_200_OK,
-            content=RawDataSO(data={"healthcheck": "healthcheck"})
+            content=RawDataSO(data={
+                "healthcheck": "healthcheck",
+                "is_ok": True
+            })
         )
 
     @api_router.get(
@@ -449,8 +452,8 @@ class BaseAPIAuthData(BaseModel):
     token_string: str | None = None
     api_key_string: str | None = None
 
-    is_token_string_correct: bool | None = None
-    is_api_key_string_correct: bool | None = None
+    is_token_correct: bool | None = None
+    is_api_key_correct: bool | None = None
 
 
 def base_api_auth(
@@ -580,7 +583,7 @@ def base_api_auth(
             )
             if is_async_object(validate_api_key_func_data):
                 validate_api_key_func_data = await validate_api_key_func_data
-            api_auth_data.is_api_key_string_correct = validate_api_key_func_data
+            api_auth_data.is_api_key_correct = validate_api_key_func_data
 
         # token
 
@@ -595,25 +598,27 @@ def base_api_auth(
             )
             if is_async_object(validate_token_func_data):
                 validate_token_func_data_data = await validate_token_func_data
-            api_auth_data.is_token_string_correct = validate_token_func_data_data
+            api_auth_data.is_token_correct = validate_token_func_data_data
 
         # api_key
 
         if require_correct_api_key:
-            if not api_auth_data.is_api_key_string_correct:
+            if not api_auth_data.is_api_key_correct:
                 raise APIException(
                     status_code=starlette.status.HTTP_401_UNAUTHORIZED,
                     error_code=BaseAPIErrorCodes.cannot_authorize,
-                    error_data=safely_transfer_obj_to_json_str_to_json_obj(api_auth_data.model_dump())
+                    error_description="not api_auth_data.is_api_key_correct",
+                    error_data=safely_transfer_obj_to_json_str_to_json_obj(api_auth_data.model_dump()),
                 )
 
         # token
 
         if require_correct_token:
-            if not api_auth_data.is_token_string_correct:
+            if not api_auth_data.is_token_correct:
                 raise APIException(
                     status_code=starlette.status.HTTP_401_UNAUTHORIZED,
                     error_code=BaseAPIErrorCodes.cannot_authorize,
+                    error_description="not api_auth_data.is_token_correct",
                     error_data=safely_transfer_obj_to_json_str_to_json_obj(api_auth_data.model_dump())
                 )
 
