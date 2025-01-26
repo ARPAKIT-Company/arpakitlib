@@ -3,22 +3,18 @@
 from __future__ import annotations
 
 import asyncio
-import hashlib
-import json
 import logging
 from datetime import timedelta, datetime, time
 from typing import Any
 from urllib.parse import urljoin
 
-import aiohttp
 import cachetools
-from aiohttp import ClientResponse, ClientTimeout, ClientResponseError
+from aiohttp import ClientResponse
 from pydantic import ConfigDict, BaseModel
 
 from arpakitlib.ar_enumeration_util import Enumeration
 from arpakitlib.ar_http_request_util import async_make_http_request
-from arpakitlib.ar_sleep_util import async_safe_sleep
-from arpakitlib.ar_type_util import raise_for_type
+from arpakitlib.ar_json_util import safely_transfer_obj_to_json_str
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
 
@@ -229,61 +225,31 @@ class ARPAKITScheduleUUSTAPIClient:
             raise_for_status_=True,
             **kwargs
         )
-        json_data = await response.json()
-        if "error" in json_data.keys():
-            raise Exception(f"error in json_data, {json_data}")
         return response
 
-    async def healthcheck(self) -> bool:
-        response = await self._async_make_request(method="GET", url=urljoin(self.base_url, "healthcheck"))
-        response.raise_for_status()
-        json_data = await response.json()
-        return json_data["data"]["healthcheck"]
-
-    async def is_healthcheck_good(self) -> bool:
-        try:
-            return await self.healthcheck()
-        except ClientResponseError:
-            return False
-
-    async def auth_healthcheck(self) -> bool:
+    async def check_auth(self) -> dict[str, Any]:
         response = await self._async_make_request(method="GET", url=urljoin(self.base_url, "check_auth"))
-        response.raise_for_status()
         json_data = await response.json()
-        return json_data["data"]["auth_healthcheck"]
-
-    async def is_auth_healthcheck_good(self) -> bool:
-        try:
-            return await self.auth_healthcheck()
-        except ClientResponseError:
-            return False
-
-    async def get_required_current_week_value(self) -> int:
-        response = await self._async_make_request(method="GET", url=urljoin(self.base_url, "get_current_week"))
-        response.raise_for_status()
-        json_data = await response.json()
-        raise_for_type(json_data["value"], int)
-        return json_data["value"]
-
-    async def get_current_semester(self) -> CurrentSemesterAPIModel | None:
-        response = await self._async_make_request(method="GET", url=urljoin(self.base_url, "get_current_semester"))
-        json_data = await response.json()
-        if json_data is None:
-            return None
-        if "error_code" in json_data and json_data["error_code"] == "CURRENT_SEMESTER_NOT_FOUND":
-            return None
-        response.raise_for_status()
-        return CurrentSemesterAPIModel.from_arpakit_uust_api_data(arpakit_uust_api_data=json_data)
+        return json_data
 
     async def get_current_week(self) -> CurrentWeekAPIModel | None:
         response = await self._async_make_request(method="GET", url=urljoin(self.base_url, "get_current_week"))
         json_data = await response.json()
         if json_data is None:
             return None
-        if "error_code" in json_data and json_data["error_code"] == "CURRENT_WEEK_NOT_FOUND":
+        return CurrentWeekAPIModel.model_validate(json_data)
+
+    async def get_current_semester(self) -> CurrentSemesterAPIModel | None:
+        response = await self._async_make_request(method="GET", url=urljoin(self.base_url, "get_current_semester"))
+        json_data = await response.json()
+        if json_data is None:
             return None
-        response.raise_for_status()
-        return CurrentWeekAPIModel.from_arpakit_uust_api_data(arpakit_uust_api_data=json_data)
+        return CurrentSemesterAPIModel.model_validate(json_data)
+
+    async def get_weather_in_ufa(self) -> WeatherInUfaAPIModel:
+        response = await self._async_make_request(method="GET", url=urljoin(self.base_url, "get_weather_in_ufa"))
+        json_data = await response.json()
+        return WeatherInUfaAPIModel.model_validate(json_data)
 
     async def get_log_file_content(self) -> str | None:
 
@@ -406,40 +372,26 @@ class ARPAKITScheduleUUSTAPIClient:
         json_data = await response.json()
         return [TeacherLessonAPIModel.from_arpakit_uust_api_data(arpakit_uust_api_data=d) for d in json_data]
 
-    async def get_weather_in_ufa(self) -> WeatherInUfaAPIModel:
-        response = await self._async_make_request(method="GET", url=urljoin(self.base_url, "get_weather_in_ufa"))
-        response.raise_for_status()
-        json_data = await response.json()
-        return WeatherInUfaAPIModel.from_arpakit_uust_api_data(json_data)
-
 
 def __example():
     pass
 
 
 async def __async_example():
-    client = ARPAKITScheduleUUSTAPIClient(api_key="TEST_API_KEY", use_cache=True)
+    client = ARPAKITScheduleUUSTAPIClient(api_key="viewer", use_cache=True)
 
-    healthcheck = await client.healthcheck()
-    print(f"Healthcheck: {healthcheck}")
+    print(f"check_auth")
+    print(safely_transfer_obj_to_json_str(await client.check_auth()))
+    print()
 
-    auth_healthcheck = await client.auth_healthcheck()
-    print(f"Auth Healthcheck: {auth_healthcheck}")
+    print(f"get_weather_in_ufa")
+    print(safely_transfer_obj_to_json_str((await client.get_weather_in_ufa()).model_dump()))
 
-    current_week = await client.get_current_week()
-    print(f"Текущая неделя: {current_week.simple_json() if current_week else 'Не найдено'}")
+    print(f"get_current_week")
+    print(safely_transfer_obj_to_json_str((await client.get_current_week()).model_dump()))
 
-    current_semester = await client.get_current_semester()
-    print(f"Текущий семестр: {current_semester.simple_json() if current_semester else 'Не найдено'}")
-
-    groups = await client.get_groups()
-    print(f"Группы: {[group.simple_json() for group in groups]}")
-
-    teachers = await client.get_teachers()
-    print(f"Преподаватели: {[teacher.simple_json() for teacher in teachers]}")
-
-    weather = await client.get_weather_in_ufa()
-    print(f"Погода в Уфе: {weather.simple_json()}")
+    print(f"get_current_semester")
+    print(safely_transfer_obj_to_json_str((await client.get_current_semester()).model_dump()))
 
 
 if __name__ == '__main__':
