@@ -241,21 +241,27 @@ class ARPAKITScheduleUUSTAPIClient:
         return json_data
 
     async def get_current_week(self) -> CurrentWeekAPIModel | None:
-        response = await self._async_make_http_request(method="GET", url=urljoin(self.base_url, "get_current_week"))
+        response = await self._async_make_http_request(
+            method="GET", url=urljoin(self.base_url, "get_current_week")
+        )
         json_data = await response.json()
         if json_data is None:
             return None
         return CurrentWeekAPIModel.model_validate(json_data)
 
     async def get_current_semester(self) -> CurrentSemesterAPIModel | None:
-        response = await self._async_make_http_request(method="GET", url=urljoin(self.base_url, "get_current_semester"))
+        response = await self._async_make_http_request(
+            method="GET", url=urljoin(self.base_url, "get_current_semester")
+        )
         json_data = await response.json()
         if json_data is None:
             return None
         return CurrentSemesterAPIModel.model_validate(json_data)
 
     async def get_weather_in_ufa(self) -> WeatherInUfaAPIModel:
-        response = await self._async_make_http_request(method="GET", url=urljoin(self.base_url, "get_weather_in_ufa"))
+        response = await self._async_make_http_request(
+            method="GET", url=urljoin(self.base_url, "get_weather_in_ufa")
+        )
         json_data = await response.json()
         return WeatherInUfaAPIModel.model_validate(json_data)
 
@@ -264,11 +270,9 @@ class ARPAKITScheduleUUSTAPIClient:
         text_data = await response.text()
         return text_data
 
-    async def get_groups(self) -> list[GroupAPIModel] | None:
+    async def get_groups(self) -> list[GroupAPIModel]:
         response = await self._async_make_http_request(method="GET", url=urljoin(self.base_url, "get_groups"))
         json_data = await response.json()
-        if json_data is None:
-            return None
         return [GroupAPIModel.model_validate(d) for d in json_data]
 
     async def get_group(
@@ -294,11 +298,9 @@ class ARPAKITScheduleUUSTAPIClient:
         json_data = await response.json()
         return [GroupAPIModel.model_validate(d) for d in json_data]
 
-    async def get_teachers(self) -> list[TeacherAPIModel] | None:
+    async def get_teachers(self) -> list[TeacherAPIModel]:
         response = await self._async_make_http_request(method="GET", url=urljoin(self.base_url, "get_teachers"))
         json_data = await response.json()
-        if json_data is None:
-            return None
         return [TeacherAPIModel.model_validate(d) for d in json_data]
 
     async def get_teacher(
@@ -323,7 +325,6 @@ class ARPAKITScheduleUUSTAPIClient:
                                                        params={"q": q.strip()})
         json_data = await response.json()
         return [TeacherAPIModel.model_validate(d) for d in json_data]
-
 
     async def find_any(
             self, *, q: str
@@ -353,8 +354,9 @@ class ARPAKITScheduleUUSTAPIClient:
             params["filter_group_id"] = filter_group_id
         if filter_group_uust_api_id is not None:
             params["filter_group_uust_api_id"] = filter_group_uust_api_id
-        response = await self._async_make_http_request(method="GET", url=urljoin(self.base_url, "get_group_lessons"),
-                                                       params=params)
+        response = await self._async_make_http_request(
+            method="GET", url=urljoin(self.base_url, "get_group_lessons"), params=params
+        )
         json_data = await response.json()
         return [GroupLessonAPIModel.model_validate(d) for d in json_data]
 
@@ -369,8 +371,9 @@ class ARPAKITScheduleUUSTAPIClient:
             params["filter_teacher_id"] = filter_teacher_id
         if filter_teacher_uust_api_id is not None:
             params["filter_teacher_uust_api_id"] = filter_teacher_uust_api_id
-        response = await self._async_make_http_request(method="GET", url=urljoin(self.base_url, "get_teacher_lessons"),
-                                                       params=params)
+        response = await self._async_make_http_request(
+            method="GET", url=urljoin(self.base_url, "get_teacher_lessons"), params=params
+        )
         json_data = await response.json()
         return [TeacherLessonAPIModel.model_validate(d) for d in json_data]
 
@@ -400,7 +403,8 @@ async def __async_example():
 
     print(f"get_group")
     if await client.get_group(filter_id=25285, filter_uust_api_id=6674):
-        print(safely_transfer_obj_to_json_str((await client.get_group(filter_id=25285, filter_uust_api_id=6674)).model_dump()))
+        print(safely_transfer_obj_to_json_str(
+            (await client.get_group(filter_id=25285, filter_uust_api_id=6674)).model_dump()))
     else:
         print("Group is none")
 
@@ -413,7 +417,8 @@ async def __async_example():
 
     print(f"get_teacher")
     if await client.get_teacher(filter_id=16975, filter_uust_api_id=112978):
-        print(safely_transfer_obj_to_json_str((await client.get_teacher(filter_id=16975, filter_uust_api_id=112978)).model_dump()))
+        print(safely_transfer_obj_to_json_str(
+            (await client.get_teacher(filter_id=16975, filter_uust_api_id=112978)).model_dump()))
     else:
         print("Teacher is none")
 
