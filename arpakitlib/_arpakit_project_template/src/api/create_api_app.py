@@ -1,9 +1,11 @@
 from fastapi import FastAPI
+from starlette import status
 
 from arpakitlib.ar_fastapi_util import create_fastapi_app, \
     create_handle_exception, create_story_log_before_response_in_handle_exception
 from arpakitlib.ar_sqlalchemy_util import SQLAlchemyDB
 from arpakitlib.ar_type_util import raise_for_type
+from src.api.const import APIErrorCodes
 from src.api.event import StartupAPIEvent, ShutdownAPIEvent
 from src.api.router.main_router import main_api_router
 from src.api.transmitted_api_data import TransmittedAPIData
@@ -36,7 +38,8 @@ def create_api_app() -> FastAPI:
         funcs_before_response.append(
             create_story_log_before_response_in_handle_exception(
                 sqlalchemy_db=sqlalchemy_db,
-                ignore_api_error_code_not_found=True
+                ignore_api_error_codes=[APIErrorCodes.not_found],
+                ignore_status_codes=[status.HTTP_404_NOT_FOUND]
             )
         )
 
