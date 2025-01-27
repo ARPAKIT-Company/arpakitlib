@@ -1,6 +1,6 @@
 [project]
 name = "arpakitlib"
-version = "1.7.216"
+version = "1.7.217"
 description = "arpakitlib"
 authors = [
     { name = "arpakit", email = "arpakit@gmail.com" },
@@ -61,6 +61,7 @@ dependencies = [
 homepage = "https://github.com/ARPAKIT-Company/arpakitlib"
 repository = "https://github.com/ARPAKIT-Company/arpakitlib"
 documentation = "https://github.com/ARPAKIT-Company/arpakitlib"
+telegram_channel = "https://t.me/arpakitlib"
 
 
 [tool.poetry]
