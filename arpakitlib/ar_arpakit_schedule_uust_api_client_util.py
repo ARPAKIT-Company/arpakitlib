@@ -217,7 +217,7 @@ class ARPAKITScheduleUUSTAPIClient:
         if self.ttl_cache is not None:
             self.ttl_cache.clear()
 
-    async def _async_make_request(
+    async def _async_make_http_request(
             self,
             *,
             method: str = "GET",
@@ -236,38 +236,36 @@ class ARPAKITScheduleUUSTAPIClient:
         return response
 
     async def check_auth(self) -> dict[str, Any]:
-        response = await self._async_make_request(method="GET", url=urljoin(self.base_url, "check_auth"))
+        response = await self._async_make_http_request(method="GET", url=urljoin(self.base_url, "check_auth"))
         json_data = await response.json()
         return json_data
 
     async def get_current_week(self) -> CurrentWeekAPIModel | None:
-        response = await self._async_make_request(method="GET", url=urljoin(self.base_url, "get_current_week"))
+        response = await self._async_make_http_request(method="GET", url=urljoin(self.base_url, "get_current_week"))
         json_data = await response.json()
         if json_data is None:
             return None
         return CurrentWeekAPIModel.model_validate(json_data)
 
     async def get_current_semester(self) -> CurrentSemesterAPIModel | None:
-        response = await self._async_make_request(method="GET", url=urljoin(self.base_url, "get_current_semester"))
+        response = await self._async_make_http_request(method="GET", url=urljoin(self.base_url, "get_current_semester"))
         json_data = await response.json()
         if json_data is None:
             return None
         return CurrentSemesterAPIModel.model_validate(json_data)
 
     async def get_weather_in_ufa(self) -> WeatherInUfaAPIModel:
-        response = await self._async_make_request(method="GET", url=urljoin(self.base_url, "get_weather_in_ufa"))
+        response = await self._async_make_http_request(method="GET", url=urljoin(self.base_url, "get_weather_in_ufa"))
         json_data = await response.json()
         return WeatherInUfaAPIModel.model_validate(json_data)
 
     async def get_log_file_content(self) -> str | None:
-        response = await self._async_make_request(method="GET", url=urljoin(self.base_url, "get_log_file"))
-        response.raise_for_status()
+        response = await self._async_make_http_request(method="GET", url=urljoin(self.base_url, "get_log_file"))
         text_data = await response.text()
         return text_data
 
     async def get_groups(self) -> list[GroupAPIModel] | None:
-        response = await self._async_make_request(method="GET", url=urljoin(self.base_url, "get_groups"))
-        response.raise_for_status()
+        response = await self._async_make_http_request(method="GET", url=urljoin(self.base_url, "get_groups"))
         json_data = await response.json()
         if json_data is None:
             return None
@@ -281,12 +279,8 @@ class ARPAKITScheduleUUSTAPIClient:
             params["filter_id"] = filter_id
         if filter_uust_api_id is not None:
             params["filter_uust_api_id"] = filter_uust_api_id
-        response = await self._async_make_request(
-            method="GET",
-            url=urljoin(self.base_url, "get_group"),
-            params=params
-        )
-        response.raise_for_status()
+        response = await self._async_make_http_request(method="GET", url=urljoin(self.base_url, "get_group"),
+                                                       params=params)
         json_data = await response.json()
         if json_data is None:
             return None
@@ -295,18 +289,13 @@ class ARPAKITScheduleUUSTAPIClient:
     async def find_groups(
             self, *, q: str
     ) -> list[GroupAPIModel]:
-        response = await self._async_make_request(
-            method="GET",
-            url=urljoin(self.base_url, "find_groups"),
-            params={"q": q.strip()}
-        )
-        response.raise_for_status()
+        response = await self._async_make_http_request(method="GET", url=urljoin(self.base_url, "find_groups"),
+                                                       params={"q": q.strip()})
         json_data = await response.json()
         return [GroupAPIModel.model_validate(d) for d in json_data]
 
     async def get_teachers(self) -> list[TeacherAPIModel] | None:
-        response = await self._async_make_request(method="GET", url=urljoin(self.base_url, "get_teachers"))
-        response.raise_for_status()
+        response = await self._async_make_http_request(method="GET", url=urljoin(self.base_url, "get_teachers"))
         json_data = await response.json()
         if json_data is None:
             return None
@@ -320,12 +309,8 @@ class ARPAKITScheduleUUSTAPIClient:
             params["filter_id"] = filter_id
         if filter_uust_api_id is not None:
             params["filter_uust_api_id"] = filter_uust_api_id
-        response = await self._async_make_request(
-            method="GET",
-            url=urljoin(self.base_url, "get_teacher"),
-            params=params
-        )
-        response.raise_for_status()
+        response = await self._async_make_http_request(method="GET", url=urljoin(self.base_url, "get_teacher"),
+                                                       params=params)
         json_data = await response.json()
         if json_data is None:
             return None
@@ -334,12 +319,8 @@ class ARPAKITScheduleUUSTAPIClient:
     async def find_teachers(
             self, *, q: str
     ) -> list[TeacherAPIModel]:
-        response = await self._async_make_request(
-            method="GET",
-            url=urljoin(self.base_url, "find_teachers"),
-            params={"q": q.strip()}
-        )
-        response.raise_for_status()
+        response = await self._async_make_http_request(method="GET", url=urljoin(self.base_url, "find_teachers"),
+                                                       params={"q": q.strip()})
         json_data = await response.json()
         return [TeacherAPIModel.model_validate(d) for d in json_data]
 
@@ -347,12 +328,8 @@ class ARPAKITScheduleUUSTAPIClient:
     async def find_any(
             self, *, q: str
     ) -> list[TeacherAPIModel | GroupLessonAPIModel]:
-        response = await self._async_make_request(
-            method="GET",
-            url=urljoin(self.base_url, "find_any"),
-            params={"q": q.strip()}
-        )
-        response.raise_for_status()
+        response = await self._async_make_http_request(method="GET", url=urljoin(self.base_url, "find_any"),
+                                                       params={"q": q.strip()})
         json_data = await response.json()
 
         results = []
@@ -376,12 +353,8 @@ class ARPAKITScheduleUUSTAPIClient:
             params["filter_group_id"] = filter_group_id
         if filter_group_uust_api_id is not None:
             params["filter_group_uust_api_id"] = filter_group_uust_api_id
-        response = await self._async_make_request(
-            method="GET",
-            url=urljoin(self.base_url, "get_group_lessons"),
-            params=params
-        )
-        response.raise_for_status()
+        response = await self._async_make_http_request(method="GET", url=urljoin(self.base_url, "get_group_lessons"),
+                                                       params=params)
         json_data = await response.json()
         return [GroupLessonAPIModel.model_validate(d) for d in json_data]
 
@@ -396,12 +369,8 @@ class ARPAKITScheduleUUSTAPIClient:
             params["filter_teacher_id"] = filter_teacher_id
         if filter_teacher_uust_api_id is not None:
             params["filter_teacher_uust_api_id"] = filter_teacher_uust_api_id
-        response = await self._async_make_request(
-            method="GET",
-            url=urljoin(self.base_url, "get_teacher_lessons"),
-            params=params
-        )
-        response.raise_for_status()
+        response = await self._async_make_http_request(method="GET", url=urljoin(self.base_url, "get_teacher_lessons"),
+                                                       params=params)
         json_data = await response.json()
         return [TeacherLessonAPIModel.model_validate(d) for d in json_data]
 
