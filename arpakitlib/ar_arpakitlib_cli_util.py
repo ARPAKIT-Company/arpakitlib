@@ -44,7 +44,7 @@ def execute_arpakitlib_cli(*, full_command: str | None = None):
             allow_none=False
         )
         project_name: str = parsed_command.get_value_by_keys(keys=["pm", "project_name"])
-        project_name = project_name.strip() if project_name.strip() else None
+        project_name = project_name.strip() if project_name and project_name.strip() else None
         sql_db_port: int | None = parse_need_type(
             value=parsed_command.get_value_by_keys(keys=["sdp", "sql_db_port"]),
             need_type=NeedTypes.int_,
