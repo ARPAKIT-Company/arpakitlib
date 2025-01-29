@@ -421,7 +421,7 @@ def add_needed_api_router_to_app(*, app: FastAPI):
 
 class BaseStartupAPIEvent:
     def __init__(self, *args, **kwargs):
-        self._logger = logging.getLogger(self.__class__.__name__)
+        self._logger = logging.getLogger()
 
     async def async_on_startup(self, *args, **kwargs):
         self._logger.info("on_startup starts")
@@ -430,7 +430,7 @@ class BaseStartupAPIEvent:
 
 class BaseShutdownAPIEvent:
     def __init__(self, *args, **kwargs):
-        self._logger = logging.getLogger(self.__class__.__name__)
+        self._logger = logging.getLogger()
 
     async def async_on_shutdown(self, *args, **kwargs):
         self._logger.info("on_shutdown starts")

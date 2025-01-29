@@ -9,8 +9,8 @@ from src.operation_execution.scheduled_operations import SCHEDULED_OPERATIONS
 
 
 class StartupAPIEvent(BaseStartupAPIEvent):
-    def __init__(self, transmitted_api_data: TransmittedAPIData):
-        super().__init__()
+    def __init__(self, transmitted_api_data: TransmittedAPIData, **kwargs):
+        super().__init__(**kwargs)
         self.transmitted_api_data = transmitted_api_data
 
     async def async_on_startup(self, *args, **kwargs):
@@ -54,8 +54,8 @@ class StartupAPIEvent(BaseStartupAPIEvent):
 
 
 class ShutdownAPIEvent(BaseShutdownAPIEvent):
-    def __init__(self, transmitted_api_data: TransmittedAPIData):
-        super().__init__()
+    def __init__(self, transmitted_api_data: TransmittedAPIData, **kwargs):
+        super().__init__(**kwargs)
         self.transmitted_api_data = transmitted_api_data
 
     async def async_on_shutdown(self, *args, **kwargs):

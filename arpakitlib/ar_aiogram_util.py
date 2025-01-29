@@ -112,10 +112,6 @@ class WithFromCD(BaseCD, prefix="WithFromCD"):
     from_: Optional[str] = None
 
 
-class RemoveMessageCD(WithFromCD, prefix=generate_cd_prefix("RemoveMessageCD")):
-    pass
-
-
 class BadTgCommandFormat(BadCommandFormat):
     pass
 
@@ -326,11 +322,11 @@ class BaseTransmittedTgBotData(BaseModel):
     model_config = ConfigDict(extra="ignore", arbitrary_types_allowed=True, from_attributes=True)
 
 
-def create_aiogram_tg_bot(*, tg_bot_token: str, tg_bot_proxy_url: str | None = None, **kwargs) -> Bot:
-    kwargs["token"] = tg_bot_token
+def create_aiogram_tg_bot(*, token: str, proxy_url_: str | None = None, **kwargs) -> Bot:
+    kwargs["token"] = token
 
-    if tg_bot_proxy_url:
-        kwargs["session"] = AiohttpSession(proxy=tg_bot_proxy_url)
+    if proxy_url_:
+        kwargs["session"] = AiohttpSession(proxy=proxy_url_)
 
     if kwargs.get("default") is None:
         kwargs["default"] = DefaultBotProperties(
@@ -342,6 +338,11 @@ def create_aiogram_tg_bot(*, tg_bot_token: str, tg_bot_proxy_url: str | None = N
     tg_bot = Bot(**kwargs)
 
     return tg_bot
+
+
+def create_tg_bot_dispatcher():
+    # TODO
+    pass
 
 
 def __example():
