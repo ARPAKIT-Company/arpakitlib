@@ -384,22 +384,23 @@ def add_cors_to_app(*, app: FastAPI):
     return app
 
 
+class HealthcheckSO(BaseSO):
+    is_ok: bool = True
+
+
 def add_needed_api_router_to_app(*, app: FastAPI):
     api_router = APIRouter()
 
     @api_router.get(
         "/healthcheck",
-        response_model=RawDataSO | ErrorSO,
+        response_model=HealthcheckSO | ErrorSO,
         status_code=starlette.status.HTTP_200_OK,
         tags=["Healthcheck"]
     )
     async def _():
         return APIJSONResponse(
             status_code=starlette.status.HTTP_200_OK,
-            content=RawDataSO(data={
-                "healthcheck": "healthcheck",
-                "is_ok": True
-            })
+            content=HealthcheckSO(is_ok=True)
         )
 
     @api_router.get(
