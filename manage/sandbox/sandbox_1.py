@@ -11,60 +11,6 @@ from aio_pika.exceptions import QueueEmpty
 from arpakitlib.ar_sleep_util import sync_safe_sleep, async_safe_sleep
 
 
-async def async_retry_func(
-        *,
-        async_func: Any,
-        async_func_args: tuple[Any, ...] | None = None,
-        async_func_kwargs: dict[str, Any] | None = None,
-        max_tries: int = 5,
-        endlessly: bool = False,
-        timeout_after_exception: timedelta | None = None,
-        raise_if_exception: bool = True
-):
-    tries = 0
-    async_func_args = async_func_args or ()
-    async_func_kwargs = async_func_kwargs or {}
-
-    while True:
-        try:
-            return await async_func(*async_func_args, **async_func_kwargs)
-        except Exception:
-            tries += 1
-            if not endlessly and tries >= max_tries:
-                if raise_if_exception:
-                    raise
-                return None
-            if timeout_after_exception:
-                await async_safe_sleep(timeout_after_exception.total_seconds())
-
-
-def sync_retry_func(
-        *,
-        sync_func: Any,
-        sync_func_args: tuple[Any, ...] | None = None,
-        sync_func_kwargs: dict[str, Any] | None = None,
-        max_tries: int = 5,
-        endlessly: bool = False,
-        timeout_after_exception: timedelta | None = None,
-        raise_if_exception: bool = True
-):
-    tries = 0
-    sync_func_args = sync_func_args or ()
-    sync_func_kwargs = sync_func_kwargs or {}
-
-    while True:
-        try:
-            return sync_func(*sync_func_args, **sync_func_kwargs)
-        except Exception:
-            tries += 1
-            if not endlessly and tries >= max_tries:
-                if raise_if_exception:
-                    raise
-                return None
-            if timeout_after_exception:
-                sync_safe_sleep(timeout_after_exception.total_seconds())
-
-
 class BaseRMQConsumer:
     def __init__(self, *, url: str = "amqp://guest:guest@localhost/", queue_name: str = "order_offer_tt", **kwargs):
         self.kwargs = kwargs
