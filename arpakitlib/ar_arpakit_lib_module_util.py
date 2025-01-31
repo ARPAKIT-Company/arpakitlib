@@ -15,7 +15,7 @@ class ArpakitLibModule(NamedTuple):
     module_content: str
     module_hash: str
     module_has_error: bool
-    module_exception: BaseException | None
+    module_exception: Exception | None
     filename: str
     filepath: str
 
@@ -85,7 +85,7 @@ class ArpakitLibModules(NamedTuple):
                 return True
         return False
 
-    def module_name_to_module_exception(self, *, filter_module_has_error: bool = False) -> dict[str, BaseException]:
+    def module_name_to_module_exception(self, *, filter_module_has_error: bool = False) -> dict[str, Exception]:
         if filter_module_has_error:
             return {
                 module.module_name: module.module_exception
@@ -124,7 +124,7 @@ def get_arpakit_lib_modules() -> ArpakitLibModules:
             module_version = getattr(module, "_ARPAKIT_LIB_MODULE_VERSION", None)
             module_has_error = False
             module_exception = None
-        except BaseException as error:
+        except Exception as error:
             module_has_error = True
             module_exception = error
         if module_version is not None and not isinstance(module_version, str):

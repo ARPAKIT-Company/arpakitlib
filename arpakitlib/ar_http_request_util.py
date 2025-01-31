@@ -69,7 +69,7 @@ def sync_make_http_request(
             if enable_logging_:
                 _logger.info(f"good try http {method} {url} {params}")
             return response
-        except BaseException as exception:
+        except Exception as exception:
             if enable_logging_:
                 _logger.warning(
                     f"{tries_counter}/{max_tries_}. retry {method} {url} {params}, exception={exception}"
@@ -131,7 +131,7 @@ async def async_make_http_request(
                     if enable_logging_:
                         _logger.info(f"good try http {method} {url} {params}")
                     return response
-        except BaseException as exception:
+        except Exception as exception:
             if enable_logging_:
                 _logger.warning(
                     f"{tries_counter}/{max_tries_}. retry http {method} {url} {params}, exception={exception}"

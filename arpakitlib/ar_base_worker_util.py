@@ -57,26 +57,26 @@ class BaseWorker(ABC):
     def sync_run(self):
         self._logger.info(f"hello world, im {self.worker_fullname}")
 
-    def sync_on_error(self, exception: BaseException, **kwargs):
+    def sync_on_error(self, exception: Exception, **kwargs):
         pass
 
     def sync_safe_run(self):
         self._logger.info("start")
         try:
             self.sync_on_startup()
-        except BaseException as exception:
+        except Exception as exception:
             self._logger.error("error in sync_on_startup", exc_info=exception)
-            raise exception
+            raise
         while True:
             try:
                 self.sync_run()
-            except BaseException as exception:
+            except Exception as exception:
                 self._logger.error("error in sync_run", exc_info=exception)
                 try:
                     self.sync_on_error(exception=exception)
-                except BaseException as exception_:
+                except Exception as exception_:
                     self._logger.error("error in sync_on_error", exc_info=exception_)
-                    raise exception_
+                    raise
                 sync_safe_sleep(self.timeout_after_err_in_run)
             sync_safe_sleep(self.timeout_after_run)
 
@@ -95,26 +95,26 @@ class BaseWorker(ABC):
     async def async_run(self):
         self._logger.info(f"hello world, im {self.worker_fullname}")
 
-    async def async_on_error(self, exception: BaseException, **kwargs):
+    async def async_on_error(self, exception: Exception, **kwargs):
         pass
 
     async def async_safe_run(self):
         self._logger.info("start async_safe_run")
         try:
             await self.async_on_startup()
-        except BaseException as exception:
+        except Exception as exception:
             self._logger.error("error in async_on_startup", exc_info=exception)
-            raise exception
+            raise
         while True:
             try:
                 await self.async_run()
-            except BaseException as exception:
+            except Exception as exception:
                 self._logger.error("error in async_run", exc_info=exception)
                 try:
                     await self.async_on_error(exception=exception)
-                except BaseException as exception_:
+                except Exception as exception_:
                     self._logger.error("error in async_on_error", exc_info=exception_)
-                    raise exception_
+                    raise
                 await async_safe_sleep(self.timeout_after_err_in_run)
             await async_safe_sleep(self.timeout_after_run)
 

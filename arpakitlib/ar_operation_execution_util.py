@@ -173,12 +173,12 @@ class BaseOperationExecutor:
         )
         session.commit()
 
-        exception: BaseException | None = None
+        exception: Exception | None = None
         traceback_str: str | None = None
 
         try:
             self.sync_execute_operation(operation_dbm=operation_dbm, session=session)
-        except BaseException as exception_:
+        except Exception as exception_:
             self._logger.error(
                 f"error in sync_execute_operation (id={operation_dbm.id}, type={operation_dbm.type})",
                 exc_info=exception_
@@ -253,12 +253,12 @@ class BaseOperationExecutor:
         )
         session.commit()
 
-        exception: BaseException | None = None
+        exception: Exception | None = None
         traceback_str: str | None = None
 
         try:
             await self.async_execute_operation(operation_dbm=operation_dbm, session=session)
-        except BaseException as exception_:
+        except Exception as exception_:
             self._logger.error(
                 f"error in async_execute_operation (id={operation_dbm.id}, type={operation_dbm.type})",
                 exc_info=exception_
