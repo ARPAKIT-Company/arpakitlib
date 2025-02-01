@@ -1,6 +1,6 @@
 # arpakit
 
-from urllib.parse import urlencode
+from urllib.parse import urlencode, urljoin
 
 from arpakitlib.ar_type_util import raise_for_type
 
@@ -54,8 +54,8 @@ def generate_arpakit_schedule_uust_site_url(base_url: str = "https://schedule-uu
 
 
     if params:
-        params_string = urlencode(params)
-        result_url = f"{base_url}schedule?{params_string}"
+        query_string  = urlencode(params)
+        result_url = urljoin(base_url, f"schedule?{query_string}")
     else:
         result_url = base_url
 
