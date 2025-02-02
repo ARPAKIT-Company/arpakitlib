@@ -187,6 +187,15 @@ class WeatherInUfaAPIModel(BaseAPIModel):
     has_snow: bool
     data: dict
 
+class DatetimeInUfa(BaseAPIModel):
+    datetime_in_ufa: datetime
+    date: datetime.date
+    year: int
+    month: int
+    day: int
+    hour: int
+    minute: int
+
 
 class ARPAKITScheduleUUSTAPIClient:
     def __init__(
@@ -264,6 +273,13 @@ class ARPAKITScheduleUUSTAPIClient:
         )
         json_data = await response.json()
         return WeatherInUfaAPIModel.model_validate(json_data)
+
+    async def get_now_datetime_in_ufa(self) -> DatetimeInUfa:
+        response = await self._async_make_http_request(
+            method="GET", url=urljoin(self.base_url, "get_now_datetime_in_ufa")
+        )
+        json_data = await response.json()
+        return DatetimeInUfa.model_validate(json_data)
 
     async def get_log_file_content(self) -> str | None:
         response = await self._async_make_http_request(method="GET", url=urljoin(self.base_url, "get_log_file"))
@@ -391,59 +407,62 @@ async def __async_example():
     print(f"get_weather_in_ufa")
     print(safely_transfer_obj_to_json_str((await client.get_weather_in_ufa()).model_dump()))
 
-    print(f"get_current_week")
-    print(safely_transfer_obj_to_json_str((await client.get_current_week()).model_dump()))
+    print(f"get_now_datetime_in_ufa")
+    print(safely_transfer_obj_to_json_str((await client.get_now_datetime_in_ufa()).model_dump()))
 
-    print(f"get_current_semester")
-    print(safely_transfer_obj_to_json_str((await client.get_current_semester()).model_dump()))
-
-    # Group
-    print(f"get_groups")
-    print(safely_transfer_obj_to_json_str((await client.get_groups())))
-
-    print(f"get_group")
-    if await client.get_group(filter_id=25285, filter_uust_api_id=6674):
-        print(safely_transfer_obj_to_json_str(
-            (await client.get_group(filter_id=25285, filter_uust_api_id=6674)).model_dump()))
-    else:
-        print("Group is none")
-
-    print(f"find_groups")
-    print(safely_transfer_obj_to_json_str((await client.find_groups(q="ПИ-427Б"))))
-
-    # Teacher
-    print(f"get_teachers")
-    print(safely_transfer_obj_to_json_str((await client.get_teachers())))
-
-    print(f"get_teacher")
-    if await client.get_teacher(filter_id=16975, filter_uust_api_id=112978):
-        print(safely_transfer_obj_to_json_str(
-            (await client.get_teacher(filter_id=16975, filter_uust_api_id=112978)).model_dump()))
-    else:
-        print("Teacher is none")
-
-    print(f"find_teachers")
-    print(safely_transfer_obj_to_json_str((await client.find_teachers(q="Казанцев"))))
-
-    # Group Lesson
-    print(f"get_group_lessons")
-    if await client.get_group_lessons(filter_group_id=25285, filter_group_uust_api_id=6674):
-        print(safely_transfer_obj_to_json_str((await client.get_group_lessons(filter_group_id=25285,
-                                                                              filter_group_uust_api_id=6674))))
-    else:
-        print("Group lessons is none")
-
-    # Teacher Lesson
-    print(f"get_teacher_lessons")
-    if await client.get_teacher_lessons(filter_teacher_id=16975, filter_teacher_uust_api_id=112978):
-        print(safely_transfer_obj_to_json_str((await client.get_teacher_lessons(filter_teacher_id=16975,
-                                                                                filter_teacher_uust_api_id=112978))))
-    else:
-        print("Teacher lessons is none")
-
-    # Find Any
-    print(f"find_any")
-    print(safely_transfer_obj_to_json_str((await client.find_any(q="ПИ"))))
+    # print(f"get_current_week")
+    # print(safely_transfer_obj_to_json_str((await client.get_current_week()).model_dump()))
+    #
+    # print(f"get_current_semester")
+    # print(safely_transfer_obj_to_json_str((await client.get_current_semester()).model_dump()))
+    #
+    # # Group
+    # print(f"get_groups")
+    # print(safely_transfer_obj_to_json_str((await client.get_groups())))
+    #
+    # print(f"get_group")
+    # if await client.get_group(filter_id=25285, filter_uust_api_id=6674):
+    #     print(safely_transfer_obj_to_json_str(
+    #         (await client.get_group(filter_id=25285, filter_uust_api_id=6674)).model_dump()))
+    # else:
+    #     print("Group is none")
+    #
+    # print(f"find_groups")
+    # print(safely_transfer_obj_to_json_str((await client.find_groups(q="ПИ-427Б"))))
+    #
+    # # Teacher
+    # print(f"get_teachers")
+    # print(safely_transfer_obj_to_json_str((await client.get_teachers())))
+    #
+    # print(f"get_teacher")
+    # if await client.get_teacher(filter_id=16975, filter_uust_api_id=112978):
+    #     print(safely_transfer_obj_to_json_str(
+    #         (await client.get_teacher(filter_id=16975, filter_uust_api_id=112978)).model_dump()))
+    # else:
+    #     print("Teacher is none")
+    #
+    # print(f"find_teachers")
+    # print(safely_transfer_obj_to_json_str((await client.find_teachers(q="Казанцев"))))
+    #
+    # # Group Lesson
+    # print(f"get_group_lessons")
+    # if await client.get_group_lessons(filter_group_id=25285, filter_group_uust_api_id=6674):
+    #     print(safely_transfer_obj_to_json_str((await client.get_group_lessons(filter_group_id=25285,
+    #                                                                           filter_group_uust_api_id=6674))))
+    # else:
+    #     print("Group lessons is none")
+    #
+    # # Teacher Lesson
+    # print(f"get_teacher_lessons")
+    # if await client.get_teacher_lessons(filter_teacher_id=16975, filter_teacher_uust_api_id=112978):
+    #     print(safely_transfer_obj_to_json_str((await client.get_teacher_lessons(filter_teacher_id=16975,
+    #                                                                             filter_teacher_uust_api_id=112978))))
+    # else:
+    #     print("Teacher lessons is none")
+    #
+    # # Find Any
+    # print(f"find_any")
+    # print(safely_transfer_obj_to_json_str((await client.find_any(q="ПИ"))))
 
 
 if __name__ == '__main__':
