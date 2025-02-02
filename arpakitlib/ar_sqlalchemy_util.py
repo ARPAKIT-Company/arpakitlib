@@ -27,15 +27,10 @@ class SQLAlchemyDB:
             *,
             db_url: str = "postgresql://arpakitlib:arpakitlib@localhost:50629/arpakitlib",
             db_echo: bool = False,
-            need_include_operation_dbm: bool = False,
-            need_include_story_dbm: bool = False,
-            db_models: list[Any] | None = None
+            base_declarative_base: Any | None = None,
+            db_models: list[Any] | None = None,
     ):
         self._logger = logging.getLogger(self.__class__.__name__)
-        self.need_include_operation_dbm = need_include_operation_dbm
-        self.need_include_story_dbm = need_include_story_dbm
-        if self.need_include_operation_dbm:
-            self.need_include_story_dbm = True
         self.engine = create_engine(
             url=db_url,
             echo=db_echo,
@@ -46,6 +41,7 @@ class SQLAlchemyDB:
         )
         self.sessionmaker = sessionmaker(bind=self.engine)
         self.func_new_session_counter = 0
+        self.base_declarative_base = base_declarative_base
 
     def drop_celery_tables(self):
         with self.engine.connect() as connection:
