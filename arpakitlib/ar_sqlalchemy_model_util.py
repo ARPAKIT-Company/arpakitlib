@@ -4,7 +4,8 @@ from datetime import datetime, timedelta
 from typing import Any
 from uuid import uuid4
 
-from sqlalchemy import inspect, INTEGER, TEXT, TIMESTAMP, func, JSON
+from sqlalchemy import inspect, INTEGER, TEXT, TIMESTAMP, func
+from sqlalchemy.dialects.postgresql import JSON
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 from arpakitlib.ar_datetime_util import now_utc_dt
