@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 import asyncio
+import datetime as dt
 import logging
-from datetime import timedelta, datetime, time
 from typing import Any
 from urllib.parse import urljoin
 
@@ -45,33 +45,33 @@ class Months(Enumeration):
 
 
 class BaseAPIModel(BaseModel):
-    model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True, from_attributes=True)
+    model_config = ConfigDict(extra="ignore", arbitrary_types_allowed=True, from_attributes=True)
 
 
 class CurrentSemesterAPIModel(BaseAPIModel):
     id: int
     long_id: str
-    creation_dt: datetime
+    creation_dt: dt.datetime
     entity_type: str
-    actualization_dt: datetime
+    actualization_dt: dt.datetime
     value: str
 
 
 class CurrentWeekAPIModel(BaseAPIModel):
     id: int
     long_id: str
-    creation_dt: datetime
+    creation_dt: dt.datetime
     entity_type: str
-    actualization_dt: datetime
+    actualization_dt: dt.datetime
     value: int
 
 
 class GroupAPIModel(BaseAPIModel):
     id: int
     long_id: str
-    creation_dt: datetime
+    creation_dt: dt.datetime
     entity_type: str
-    actualization_dt: datetime
+    actualization_dt: dt.datetime
     uust_api_id: int
     title: str
     faculty: str | None
@@ -83,9 +83,9 @@ class GroupAPIModel(BaseAPIModel):
 class TeacherAPIModel(BaseAPIModel):
     id: int
     long_id: str
-    creation_dt: datetime
+    creation_dt: dt.datetime
     entity_type: str
-    actualization_dt: datetime
+    actualization_dt: dt.datetime
     uust_api_id: int
     name: str | None
     surname: str | None
@@ -103,9 +103,9 @@ class TeacherAPIModel(BaseAPIModel):
 class GroupLessonAPIModel(BaseAPIModel):
     id: int
     long_id: str
-    creation_dt: datetime
+    creation_dt: dt.datetime
     entity_type: str
-    actualization_dt: datetime
+    actualization_dt: dt.datetime
     uust_api_id: int
     type: str
     title: str
@@ -113,8 +113,8 @@ class GroupLessonAPIModel(BaseAPIModel):
     weekday: int
     comment: str | None
     time_title: str | None
-    time_start: time | None
-    time_end: time | None
+    time_start: dt.time | None
+    time_end: dt.time | None
     numbers: list[int]
     location: str | None
     teacher_uust_api_id: int | None
@@ -141,9 +141,9 @@ class GroupLessonAPIModel(BaseAPIModel):
 class TeacherLessonAPIModel(BaseAPIModel):
     id: int
     long_id: str
-    creation_dt: datetime
+    creation_dt: dt.datetime
     entity_type: str
-    actualization_dt: datetime
+    actualization_dt: dt.datetime
     uust_api_id: int
     type: str
     title: str
@@ -151,8 +151,8 @@ class TeacherLessonAPIModel(BaseAPIModel):
     weekday: int
     comment: str | None
     time_title: str | None
-    time_start: time | None
-    time_end: time | None
+    time_start: dt.time | None
+    time_end: dt.time | None
     numbers: list[int]
     location: str | None
     group_uust_api_ids: list[int]
@@ -181,20 +181,23 @@ class WeatherInUfaAPIModel(BaseAPIModel):
     temperature_feels_like: float
     description: str
     wind_speed: float
-    sunrise_dt: datetime
-    sunset_dt: datetime
+    sunrise_dt: dt.datetime
+    sunset_dt: dt.datetime
     has_rain: bool
     has_snow: bool
     data: dict
 
-class DatetimeInUfa(BaseAPIModel):
-    datetime_in_ufa: datetime
-    date: datetime.date
+
+class DatetimeAPIModel(BaseAPIModel):
+    date: dt.date
+    datetime: dt.datetime | None = None
     year: int
     month: int
     day: int
-    hour: int
-    minute: int
+    hour: int | None = None
+    minute: int | None = None
+    second: int | None = None
+    microsecond: int | None = None
 
 
 class ARPAKITScheduleUUSTAPIClient:
@@ -204,7 +207,7 @@ class ARPAKITScheduleUUSTAPIClient:
             base_url: str = "https://api.schedule-uust.arpakit.com/api/v1",
             api_key: str | None = "viewer",
             use_cache: bool = False,
-            cache_ttl: timedelta | None = timedelta(minutes=10)
+            cache_ttl: dt.timedelta | None = dt.timedelta(minutes=10)
     ):
         self._logger = logging.getLogger(__name__)
         self.api_key = api_key
@@ -245,7 +248,9 @@ class ARPAKITScheduleUUSTAPIClient:
         return response
 
     async def check_auth(self) -> dict[str, Any]:
-        response = await self._async_make_http_request(method="GET", url=urljoin(self.base_url, "check_auth"))
+        response = await self._async_make_http_request(
+            method="GET", url=urljoin(self.base_url, "check_auth")
+        )
         json_data = await response.json()
         return json_data
 
@@ -274,20 +279,24 @@ class ARPAKITScheduleUUSTAPIClient:
         json_data = await response.json()
         return WeatherInUfaAPIModel.model_validate(json_data)
 
-    async def get_now_datetime_in_ufa(self) -> DatetimeInUfa:
+    async def get_now_datetime_in_ufa(self) -> DatetimeAPIModel:
         response = await self._async_make_http_request(
             method="GET", url=urljoin(self.base_url, "get_now_datetime_in_ufa")
         )
         json_data = await response.json()
-        return DatetimeInUfa.model_validate(json_data)
+        return DatetimeAPIModel.model_validate(json_data)
 
     async def get_log_file_content(self) -> str | None:
-        response = await self._async_make_http_request(method="GET", url=urljoin(self.base_url, "get_log_file"))
+        response = await self._async_make_http_request(
+            method="GET", url=urljoin(self.base_url, "get_log_file")
+        )
         text_data = await response.text()
         return text_data
 
     async def get_groups(self) -> list[GroupAPIModel]:
-        response = await self._async_make_http_request(method="GET", url=urljoin(self.base_url, "get_groups"))
+        response = await self._async_make_http_request(
+            method="GET", url=urljoin(self.base_url, "get_groups")
+        )
         json_data = await response.json()
         return [GroupAPIModel.model_validate(d) for d in json_data]
 
@@ -299,8 +308,8 @@ class ARPAKITScheduleUUSTAPIClient:
             params["filter_id"] = filter_id
         if filter_uust_api_id is not None:
             params["filter_uust_api_id"] = filter_uust_api_id
-        response = await self._async_make_http_request(method="GET", url=urljoin(self.base_url, "get_group"),
-                                                       params=params)
+        response = await self._async_make_http_request(
+            method="GET", url=urljoin(self.base_url, "get_group"), params=params)
         json_data = await response.json()
         if json_data is None:
             return None
@@ -309,13 +318,16 @@ class ARPAKITScheduleUUSTAPIClient:
     async def find_groups(
             self, *, q: str
     ) -> list[GroupAPIModel]:
-        response = await self._async_make_http_request(method="GET", url=urljoin(self.base_url, "find_groups"),
-                                                       params={"q": q.strip()})
+        response = await self._async_make_http_request(
+            method="GET", url=urljoin(self.base_url, "find_groups"), params={"q": q.strip()}
+        )
         json_data = await response.json()
         return [GroupAPIModel.model_validate(d) for d in json_data]
 
     async def get_teachers(self) -> list[TeacherAPIModel]:
-        response = await self._async_make_http_request(method="GET", url=urljoin(self.base_url, "get_teachers"))
+        response = await self._async_make_http_request(
+            method="GET", url=urljoin(self.base_url, "get_teachers")
+        )
         json_data = await response.json()
         return [TeacherAPIModel.model_validate(d) for d in json_data]
 
@@ -327,8 +339,9 @@ class ARPAKITScheduleUUSTAPIClient:
             params["filter_id"] = filter_id
         if filter_uust_api_id is not None:
             params["filter_uust_api_id"] = filter_uust_api_id
-        response = await self._async_make_http_request(method="GET", url=urljoin(self.base_url, "get_teacher"),
-                                                       params=params)
+        response = await self._async_make_http_request(
+            method="GET", url=urljoin(self.base_url, "get_teacher"), params=params
+        )
         json_data = await response.json()
         if json_data is None:
             return None
@@ -337,24 +350,26 @@ class ARPAKITScheduleUUSTAPIClient:
     async def find_teachers(
             self, *, q: str
     ) -> list[TeacherAPIModel]:
-        response = await self._async_make_http_request(method="GET", url=urljoin(self.base_url, "find_teachers"),
-                                                       params={"q": q.strip()})
+        response = await self._async_make_http_request(
+            method="GET", url=urljoin(self.base_url, "find_teachers"), params={"q": q.strip()}
+        )
         json_data = await response.json()
         return [TeacherAPIModel.model_validate(d) for d in json_data]
 
     async def find_any(
             self, *, q: str
     ) -> list[TeacherAPIModel | GroupLessonAPIModel]:
-        response = await self._async_make_http_request(method="GET", url=urljoin(self.base_url, "find_any"),
-                                                       params={"q": q.strip()})
+        response = await self._async_make_http_request(
+            method="GET", url=urljoin(self.base_url, "find_any"), params={"q": q.strip()}
+        )
         json_data = await response.json()
 
         results = []
-        for i in json_data:
-            if i.get("entity_type") == "group":
-                results.append(GroupAPIModel.model_validate(i))
-            elif i.get("entity_type") == "teacher":
-                results.append(TeacherAPIModel.model_validate(i))
+        for d in json_data:
+            if d["entity_type"] == "group":
+                results.append(GroupAPIModel.model_validate(d))
+            elif d["entity_type"] == "teacher":
+                results.append(TeacherAPIModel.model_validate(d))
             else:
                 pass
         return results

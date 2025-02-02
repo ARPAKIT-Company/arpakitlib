@@ -3,12 +3,12 @@
 from __future__ import annotations
 
 import asyncio
+import datetime as dt
 import logging
 import os.path
 import pathlib
 import traceback
 from contextlib import suppress
-from datetime import datetime
 from typing import Any, Callable
 
 import fastapi.exceptions
@@ -65,7 +65,7 @@ class BaseSO(BaseSchema):
 class SimpleSO(BaseSO):
     id: int
     long_id: str
-    creation_dt: datetime
+    creation_dt: dt.datetime
 
 
 class BaseAPIErrorCodes(Enumeration):
@@ -91,6 +91,41 @@ class RawDataSO(BaseSO):
     data: dict[str, Any] = {}
 
 
+class DatetimeSO(BaseSO):
+    date: dt.date
+    datetime: dt.datetime | None = None
+    year: int
+    month: int
+    day: int
+    hour: int | None = None
+    minute: int | None = None
+    second: int | None = None
+    microsecond: int | None = None
+
+    @classmethod
+    def from_datetime(cls, datetime_: dt.datetime):
+        return cls(
+            date=datetime_.date(),
+            datetime=datetime_,
+            year=datetime_.year,
+            month=datetime_.month,
+            day=datetime_.day,
+            hour=datetime_.hour,
+            minute=datetime_.minute,
+            second=datetime_.second,
+            microsecond=datetime_.microsecond
+        )
+
+    @classmethod
+    def from_date(cls, date_: dt.date):
+        return cls(
+            date=date_,
+            year=date_.year,
+            month=date_.month,
+            day=date_.day
+        )
+
+
 class StoryLogSO(SimpleSO):
     level: str
     title: str | None
@@ -102,8 +137,8 @@ class StoryLogSO(SimpleSO):
 
 
 class OperationSO(SimpleSO):
-    execution_start_dt: datetime | None
-    execution_finish_dt: datetime | None
+    execution_start_dt: dt.datetime | None
+    execution_finish_dt: dt.datetime | None
     status: str
     type: str
     input_data: dict[str, Any]

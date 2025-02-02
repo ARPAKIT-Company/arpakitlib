@@ -15,7 +15,7 @@ _ARPAKIT_LIB_MODULE_VERSION = "3.0"
 
 
 class BaseAPIModel(BaseModel):
-    model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True, from_attributes=True)
+    model_config = ConfigDict(extra="ignore", arbitrary_types_allowed=True, from_attributes=True)
 
 
 class GenerateImageFromNumberResApiModel(BaseAPIModel):
@@ -76,7 +76,8 @@ class DREAMAIAPIClient:
 
     async def generate_image_from_number(self, *, number: int) -> GenerateImageFromNumberResApiModel:
         response = await self._async_make_http_request(
-            method="GET", url=urljoin(self.base_url, "generate_image_from_number"),
+            method="GET",
+            url=urljoin(self.base_url, "generate_image_from_number"),
             params={"number": number}
         )
         json_data = await response.json()

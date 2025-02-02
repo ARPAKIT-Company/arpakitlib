@@ -55,7 +55,10 @@ class YookassaAPIClient:
             method=method,
             url=url,
             headers=combine_dicts(self.headers, (headers if headers is not None else {})),
+            max_tries_=5,
+            raise_for_status_=True,
             timeout_=self.timeout_,
+            not_raise_for_statuses_=[404],
             auth=(self.shop_id, self.secret_key),
             **kwargs
         )
@@ -119,6 +122,9 @@ class YookassaAPIClient:
             method=method,
             url=url,
             headers=combine_dicts(self.headers, (headers if headers is not None else {})),
+            max_tries_=5,
+            raise_for_status_=True,
+            not_raise_for_statuses_=[404],
             timeout_=self.timeout_,
             auth=aiohttp.BasicAuth(login=str(self.shop_id), password=self.secret_key),
             **kwargs
