@@ -168,6 +168,10 @@ class OperationDBM(SimpleDBM):
         return self.duration_total_seconds
 
 
+def import_ar_sqlalchemy_models():
+    pass
+
+
 def __example():
     pass
 

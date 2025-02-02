@@ -8,6 +8,9 @@ from src.core.settings import get_cached_settings
 
 
 def get_base_dbm() -> Any:
+    from arpakitlib.ar_sqlalchemy_model_util import import_ar_sqlalchemy_models
+    import_ar_sqlalchemy_models()
+
     with suppress(Exception):
         importlib.import_module("src.db.sqlalchemy_model")
 
@@ -16,13 +19,10 @@ def get_base_dbm() -> Any:
 
 
 def create_sqlalchemy_db() -> SQLAlchemyDB:
-    from arpakitlib.ar_sqlalchemy_model_util import OperationDBM, StoryLogDBM
-
     return SQLAlchemyDB(
         db_url=get_cached_settings().sql_db_url,
         db_echo=get_cached_settings().sql_db_echo,
-        base_declarative_base=get_base_dbm(),
-        db_models=[OperationDBM, StoryLogDBM]
+        base_declarative_base=get_base_dbm()
     )
 
 
