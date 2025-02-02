@@ -10,6 +10,7 @@ from sqlalchemy.orm import sessionmaker, DeclarativeBase
 from sqlalchemy.orm.session import Session
 
 from arpakitlib.ar_datetime_util import now_utc_dt
+from arpakitlib.ar_sqlalchemy_model_util import BaseDBM
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
 
@@ -27,7 +28,7 @@ class SQLAlchemyDB:
             *,
             db_url: str = "postgresql://arpakitlib:arpakitlib@localhost:50629/arpakitlib",
             db_echo: bool = False,
-            base_declarative_base: Any | None = None,
+            base_dbm: type[BaseDBM] | None = None,
             db_models: list[Any] | None = None,
     ):
         self._logger = logging.getLogger(self.__class__.__name__)
@@ -41,7 +42,7 @@ class SQLAlchemyDB:
         )
         self.sessionmaker = sessionmaker(bind=self.engine)
         self.func_new_session_counter = 0
-        self.base_declarative_base = base_declarative_base
+        self.base_dbm = base_dbm
 
     def drop_celery_tables(self):
         with self.engine.connect() as connection:
