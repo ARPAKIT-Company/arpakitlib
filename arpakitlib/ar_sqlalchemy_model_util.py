@@ -103,7 +103,7 @@ class StoryLogDBM(SimpleDBM):
     )
     title: Mapped[str | None] = mapped_column(TEXT, index=True, default=None, nullable=True)
     data: Mapped[dict[str, Any]] = mapped_column(
-        JSON, insert_default={}, server_default="{}", index=True, nullable=False
+        JSON, insert_default={}, server_default="{}", nullable=False
     )
 
 

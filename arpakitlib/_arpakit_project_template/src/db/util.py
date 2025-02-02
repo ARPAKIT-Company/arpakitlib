@@ -16,10 +16,13 @@ def get_base_dbm() -> Any:
 
 
 def create_sqlalchemy_db() -> SQLAlchemyDB:
+    from arpakitlib.ar_sqlalchemy_model_util import OperationDBM, StoryLogDBM
+
     return SQLAlchemyDB(
         db_url=get_cached_settings().sql_db_url,
         db_echo=get_cached_settings().sql_db_echo,
-        base_declarative_base=get_base_dbm()
+        base_declarative_base=get_base_dbm(),
+        db_models=[OperationDBM, StoryLogDBM]
     )
 
 
