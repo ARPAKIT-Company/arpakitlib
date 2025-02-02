@@ -1,8 +1,13 @@
+# arpakit
+
+
 import asyncio
 from datetime import timedelta
 from typing import Any
 
 from arpakitlib.ar_sleep_util import sync_safe_sleep, async_safe_sleep
+
+_ARPAKIT_LIB_MODULE_VERSION = "3.0"
 
 
 async def async_retry_func(

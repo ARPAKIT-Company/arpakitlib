@@ -388,6 +388,10 @@ class HealthcheckSO(BaseSO):
     is_ok: bool = True
 
 
+class ARPAKITLibSO(BaseSO):
+    arpakitlib: bool = True
+
+
 def add_needed_api_router_to_app(*, app: FastAPI):
     api_router = APIRouter()
 
@@ -405,14 +409,14 @@ def add_needed_api_router_to_app(*, app: FastAPI):
 
     @api_router.get(
         "/arpakitlib",
-        response_model=RawDataSO | ErrorSO,
+        response_model=ARPAKITLibSO | ErrorSO,
         status_code=starlette.status.HTTP_200_OK,
         tags=["arpakitlib"]
     )
     async def _():
         return APIJSONResponse(
             status_code=starlette.status.HTTP_200_OK,
-            content=RawDataSO(data={"arpakitlib": True})
+            content=ARPAKITLibSO(arpakitlib=True)
         )
 
     app.include_router(router=api_router, prefix="")
