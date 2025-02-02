@@ -58,6 +58,12 @@ class SQLAlchemyDB:
             connection.commit()
             self._logger.info("celery tables data were removed")
 
+    def remove_alembic_tables_data(self):
+        with self.engine.connect() as connection:
+            connection.execute(text("DELETE FROM alembic_version;"))
+            connection.commit()
+            self._logger.info("alembic tables data were removed")
+
     def init(self):
         from arpakitlib.ar_sqlalchemy_model_util import BaseDBM
         BaseDBM.metadata.create_all(bind=self.engine, checkfirst=True)
