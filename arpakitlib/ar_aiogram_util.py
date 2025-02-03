@@ -2,10 +2,9 @@
 
 import asyncio
 import logging
-from abc import ABC
 from typing import Optional, Any, Union, Callable, Iterable
 
-from aiogram import types, BaseMiddleware, Bot
+from aiogram import types, Bot
 from aiogram.client.default import DefaultBotProperties
 from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.enums import ChatType, ParseMode
@@ -310,12 +309,6 @@ def as_tg_command(
         return new_handler
 
     return decorator
-
-
-class SimpleMiddleware(BaseMiddleware, ABC):
-    def __init__(self):
-        self.middleware_name = self.__class__.__name__
-        self._logger = logging.getLogger(self.__class__.__name__)
 
 
 class BaseTransmittedTgBotData(BaseModel):
