@@ -19,30 +19,30 @@ lerna-debug.log*
 *.njsproj
 *.sln
 *.sw?
+*_ardb
 
 # dirs
 media
+media/*
 .idea
 var
+var/*
 dump
 dump/*
-var/*
 .vscode/*
 !.vscode/extensions.json
 .DS_Store
 logs
+cache
 cache/*
-media/*
 node_modules
 .venv
 venv
 dist
-*_ardb
 .pytest_cache
 file_storage
 mongo_dumps
 __pycache__
-cache
 wgconfigs
 foo
 bar
