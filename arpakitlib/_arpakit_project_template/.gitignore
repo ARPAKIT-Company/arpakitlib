@@ -9,6 +9,16 @@ ignore*
 *.sqlite
 *.xlsx#
 *_ardb.json
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
 
 # dirs
 media
@@ -17,8 +27,13 @@ var
 dump
 dump/*
 var/*
+.vscode/*
+!.vscode/extensions.json
+.DS_Store
+logs
 cache/*
 media/*
+node_modules
 .venv
 venv
 dist
@@ -31,7 +46,6 @@ cache
 wgconfigs
 foo
 bar
-logs
 cache_dir
 cachedir
 config
