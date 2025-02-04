@@ -1,11 +1,7 @@
 from fastapi import FastAPI
-from starlette import status
 
-from arpakitlib.ar_fastapi_util import create_fastapi_app, \
-    create_handle_exception, create_story_log_before_response_in_handle_exception
-from arpakitlib.ar_sqlalchemy_util import SQLAlchemyDB
-from arpakitlib.ar_type_util import raise_for_type
-from src.api.const import APIErrorCodes
+from arpakitlib.ar_fastapi_util import create_fastapi_app
+from src.api.create_handle_exception_ import create_handle_exception_
 from src.api.event import StartupAPIEvent, ShutdownAPIEvent
 from src.api.router.main_router import main_api_router
 from src.api.transmitted_api_data import TransmittedAPIData
@@ -31,23 +27,6 @@ def create_api_app() -> FastAPI:
         dump_file_storage_in_dir=get_cached_dump_file_storage_in_dir()
     )
 
-    funcs_before_response = []
-
-    if settings.api_create_story_log_before_response_in_handle_exception:
-        raise_for_type(sqlalchemy_db, SQLAlchemyDB)
-        funcs_before_response.append(
-            create_story_log_before_response_in_handle_exception(
-                sqlalchemy_db=sqlalchemy_db,
-                ignore_api_error_codes=[APIErrorCodes.not_found],
-                ignore_status_codes=[status.HTTP_404_NOT_FOUND]
-            )
-        )
-
-    handle_exception = create_handle_exception(
-        funcs_before_response=funcs_before_response,
-        async_funcs_after_response=[]
-    )
-
     startup_api_events = []
 
     startup_api_events.append(StartupAPIEvent(transmitted_api_data=transmitted_api_data))
@@ -56,11 +35,13 @@ def create_api_app() -> FastAPI:
 
     shutdown_api_events.append(ShutdownAPIEvent(transmitted_api_data=transmitted_api_data))
 
+    handle_exception_ = create_handle_exception_(transmitted_api_data=transmitted_api_data)
+
     api_app = create_fastapi_app(
         title=settings.api_title.strip(),
         description=settings.api_description.strip(),
         log_filepath=settings.log_filepath,
-        handle_exception_=handle_exception,
+        handle_exception_=handle_exception_,
         startup_api_events=startup_api_events,
         shutdown_api_events=shutdown_api_events,
         transmitted_api_data=transmitted_api_data,

@@ -7,7 +7,6 @@ import datetime as dt
 import logging
 import os.path
 import pathlib
-import traceback
 from contextlib import suppress
 from typing import Any, Callable
 
@@ -27,8 +26,9 @@ from starlette.staticfiles import StaticFiles
 
 from arpakitlib.ar_dict_util import combine_dicts
 from arpakitlib.ar_enumeration_util import Enumeration
-from arpakitlib.ar_func_util import raise_if_not_async_func, is_async_function, is_async_object
-from arpakitlib.ar_json_util import safely_transfer_obj_to_json_str_to_json_obj
+from arpakitlib.ar_exception_util import exception_to_traceback_str
+from arpakitlib.ar_func_util import raise_if_not_async_func, is_async_object
+from arpakitlib.ar_json_util import safely_transfer_obj_to_json_str_to_json_obj, safely_transfer_obj_to_json_str
 from arpakitlib.ar_logging_util import setup_normal_logging
 from arpakitlib.ar_sqlalchemy_model_util import StoryLogDBM, OperationDBM
 from arpakitlib.ar_sqlalchemy_util import SQLAlchemyDB
@@ -239,19 +239,15 @@ def create_handle_exception(
             old_error_data = error_so.error_data
             error_so = exception.error_so
             error_so.error_data = combine_dicts(old_error_data, error_so.error_data)
-            _need_exc_info = False
 
         elif isinstance(exception, starlette.exceptions.HTTPException):
             status_code = exception.status_code
             if status_code in (starlette.status.HTTP_403_FORBIDDEN, starlette.status.HTTP_401_UNAUTHORIZED):
                 error_so.error_code = BaseAPIErrorCodes.cannot_authorize
-                _need_exc_info = False
             elif status_code == starlette.status.HTTP_404_NOT_FOUND:
                 error_so.error_code = BaseAPIErrorCodes.not_found
-                _need_exc_info = False
             else:
                 status_code = starlette.status.HTTP_500_INTERNAL_SERVER_ERROR
-                _need_exc_info = True
             with suppress(Exception):
                 error_so.error_data["exception.detail"] = exception.detail
 
@@ -260,13 +256,10 @@ def create_handle_exception(
             error_so.error_code = BaseAPIErrorCodes.error_in_request
             with suppress(Exception):
                 error_so.error_data["exception.errors"] = str(exception.errors()) if exception.errors() else {}
-            _need_exc_info = False
 
         else:
             status_code = starlette.status.HTTP_500_INTERNAL_SERVER_ERROR
             error_so.error_code = BaseAPIErrorCodes.unknown_error
-            _logger.exception(exception)
-            _need_exc_info = True
 
         if error_so.error_code:
             error_so.error_code = error_so.error_code.upper().replace(" ", "_").strip()
@@ -282,17 +275,12 @@ def create_handle_exception(
         if error_so.error_code == BaseAPIErrorCodes.cannot_authorize:
             status_code = status.HTTP_401_UNAUTHORIZED
 
-        if _need_exc_info:
-            _logger.error(str(exception), exc_info=exception)
-        else:
-            _logger.error(str(exception))
-
         _kwargs = {}
         for func in funcs_before_response:
             _func_data = func(
                 status_code=status_code, error_so=error_so, request=request, exception=exception, **_kwargs
             )
-            if is_async_function(_func_data):
+            if is_async_object(_func_data):
                 _func_data = await _func_data
             if _func_data is not None:
                 status_code, error_so, _kwargs = _func_data[0], _func_data[1], _func_data[2]
@@ -314,12 +302,13 @@ def create_handle_exception(
     return handle_exception
 
 
-def create_story_log_before_response_in_handle_exception(
+def logging_func_before_response(
         *,
-        sqlalchemy_db: SQLAlchemyDB,
         ignore_api_error_codes: list[str] | None = None,
-        ignore_status_codes: list[int] | None = None
-) -> Callable:
+        ignore_status_codes: list[int] | None = None,
+        ignore_exception_types: list[type[Exception]] | None = None,
+        need_exc_info: bool = False
+):
     def func(
             *,
             status_code: int,
@@ -328,31 +317,73 @@ def create_story_log_before_response_in_handle_exception(
             exception: Exception,
             **kwargs
     ) -> (int, ErrorSO, dict[str, Any]):
+        kwargs["logging_before_response_in_handle_exception"] = True
+
         if ignore_api_error_codes and error_so.error_code in ignore_api_error_codes:
             return status_code, error_so, kwargs
 
         if ignore_status_codes and status_code in ignore_status_codes:
             return status_code, error_so, kwargs
 
-        sqlalchemy_db.init()
-        traceback_str = "".join(traceback.format_exception(type(exception), exception, exception.__traceback__))
-        with sqlalchemy_db.new_session() as session:
+        if ignore_exception_types and (
+                exception in ignore_exception_types or type(exception) in ignore_exception_types
+        ):
+            return status_code, error_so, kwargs
+
+        _logger.error(safely_transfer_obj_to_json_str(error_so.model_dump()), exc_info=need_exc_info)
+
+    return func
+
+
+def story_log_func_before_response(
+        *,
+        sqlalchemy_db: SQLAlchemyDB,
+        ignore_api_error_codes: list[str] | None = None,
+        ignore_status_codes: list[int] | None = None,
+        ignore_exception_types: list[type[Exception]] | None = None
+) -> Callable:
+    raise_for_type(sqlalchemy_db, SQLAlchemyDB)
+
+    async def async_func(
+            *,
+            status_code: int,
+            error_so: ErrorSO,
+            request: starlette.requests.Request,
+            exception: Exception,
+            **kwargs
+    ) -> (int, ErrorSO, dict[str, Any]):
+        kwargs["create_story_log_before_response_in_handle_exception"] = True
+
+        if ignore_api_error_codes and error_so.error_code in ignore_api_error_codes:
+            return status_code, error_so, kwargs
+
+        if ignore_status_codes and status_code in ignore_status_codes:
+            return status_code, error_so, kwargs
+
+        if ignore_exception_types and (
+                exception in ignore_exception_types or type(exception) in ignore_exception_types
+        ):
+            return status_code, error_so, kwargs
+
+        async with sqlalchemy_db.new_async_session() as session:
             story_log_dbm = StoryLogDBM(
                 level=StoryLogDBM.Levels.error,
-                title=str(exception),
+                title=f"{status_code}, {type(exception)}",
                 data={
                     "error_so": error_so.model_dump(),
-                    "traceback_str": traceback_str
+                    "traceback_str": exception_to_traceback_str(exception=exception)
                 }
             )
             session.add(story_log_dbm)
-            session.commit()
-            session.refresh(story_log_dbm)
+            await session.commit()
+            await session.refresh(story_log_dbm)
+
         error_so.error_data.update({"story_log_long_id": story_log_dbm.long_id})
         kwargs["story_log_id"] = story_log_dbm.id
+
         return status_code, error_so, kwargs
 
-    return func
+    return async_func
 
 
 def add_exception_handler_to_app(*, app: FastAPI, handle_exception: Callable) -> FastAPI:

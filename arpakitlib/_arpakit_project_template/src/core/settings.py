@@ -44,7 +44,9 @@ class Settings(SimpleSettings):
 
     api_description: str = f"{project_name} (arpakitlib)"
 
-    api_create_story_log_before_response_in_handle_exception: bool = True
+    api_logging_func_before_response: bool = True
+
+    api_story_log_func_before_response: bool = True
 
     api_start_operation_executor_worker: bool = False
 
