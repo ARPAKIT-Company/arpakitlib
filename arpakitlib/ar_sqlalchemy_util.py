@@ -3,6 +3,7 @@ import asyncio
 import logging
 from datetime import timedelta, datetime
 from typing import Any
+from urllib.parse import quote_plus
 from uuid import uuid4
 
 from sqlalchemy import create_engine, QueuePool, text, func, inspect, AsyncAdaptedQueuePool
@@ -23,37 +24,98 @@ def get_string_info_from_declarative_base(class_: type[DeclarativeBase]):
     return res
 
 
+def generate_sqlalchemy_url(
+        *,
+        base: str = "postgresql",
+        user: str | None = None,
+        password: str | None = None,
+        host: str = "127.0.0.1",
+        port: int | None = None,
+        database: str | None = None,
+        **query_params
+) -> str:
+    """
+    Генерация URL для SQLAlchemy.
+
+    :param base: Базовая строка для подключения, например "postgresql+asyncpg" или "sqlite".
+    :param user: Имя пользователя (необязательно).
+    :param password: Пароль (необязательно).
+    :param host: Хост (по умолчанию "127.0.0.1").
+    :param port: Порт (необязательно).
+    :param database: Имя базы данных или путь к файлу для SQLite (необязательно).
+    :param query_params: Дополнительные параметры строки подключения.
+    :return: Строка подключения для SQLAlchemy.
+    """
+    # Формируем часть с авторизацией
+    auth_part = ""
+    if user and password:
+        auth_part = f"{quote_plus(user)}:{quote_plus(password)}@"
+    elif user:
+        auth_part = f"{quote_plus(user)}@"
+
+    # Формируем часть с хостом и портом
+    host_part = ""
+    if base.startswith("sqlite"):
+        # Для SQLite хост и порт не нужны
+        host_part = ""
+    else:
+        host_part = f"{host}"
+        if port:
+            host_part += f":{port}"
+
+    # Формируем часть с базой данных
+    database_part = f"/{database}" if database else ""
+    if base.startswith("sqlite") and database:
+        # Для SQLite путь указывается как абсолютный
+        database_part = f"/{database}"
+
+    # Дополнительные параметры
+    query_part = ""
+    if query_params:
+        query_items = [f"{key}={quote_plus(str(value))}" for key, value in query_params.items()]
+        query_part = f"?{'&'.join(query_items)}"
+
+    return f"{base}://{auth_part}{host_part}{database_part}{query_part}"
+
+
 class SQLAlchemyDB:
     def __init__(
             self,
             *,
-            db_url: str = "postgresql://arpakitlib:arpakitlib@localhost:50517/arpakitlib",
-            async_db_url: str = "postgresql+asyncpg://arpakitlib:arpakitlib@localhost:50517/arpakitlib",
+            db_url: str | None = "postgresql://arpakitlib:arpakitlib@localhost:50517/arpakitlib",
+            async_db_url: str | None = "postgresql+asyncpg://arpakitlib:arpakitlib@localhost:50517/arpakitlib",
             db_echo: bool = False,
             base_dbm: type[BaseDBM] | None = None,
             db_models: list[Any] | None = None,
     ):
-        self._logger = logging.getLogger(self.__class__.__name__)
-        self.engine = create_engine(
-            url=db_url,
-            echo=db_echo,
-            pool_size=10,
-            max_overflow=10,
-            poolclass=QueuePool,
-            pool_timeout=timedelta(seconds=30).total_seconds(),
-        )
+        self._logger = logging.getLogger()
+
+        self.db_url = db_url
+        if self.db_url is not None:
+            self.engine = create_engine(
+                url=db_url,
+                echo=db_echo,
+                pool_size=10,
+                max_overflow=10,
+                poolclass=QueuePool,
+                pool_timeout=timedelta(seconds=30).total_seconds(),
+            )
         self.sessionmaker = sessionmaker(bind=self.engine)
         self.func_new_session_counter = 0
-        self.async_engine = create_async_engine(
-            url=async_db_url,
-            echo=db_echo,
-            pool_size=10,
-            max_overflow=10,
-            poolclass=AsyncAdaptedQueuePool,
-            pool_timeout=timedelta(seconds=30).total_seconds()
-        )
+
+        self.async_db_url = async_db_url
+        if self.async_db_url is not None:
+            self.async_engine = create_async_engine(
+                url=async_db_url,
+                echo=db_echo,
+                pool_size=10,
+                max_overflow=10,
+                poolclass=AsyncAdaptedQueuePool,
+                pool_timeout=timedelta(seconds=30).total_seconds()
+            )
         self.async_sessionmaker = async_sessionmaker(bind=self.async_engine)
         self.func_new_async_session_counter = 0
+
         self.base_dbm = base_dbm
 
     def is_table_exists(self, table_name: str) -> bool:
