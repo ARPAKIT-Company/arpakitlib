@@ -26,7 +26,7 @@ class Settings(SimpleSettings):
     sql_db_url: str | None = None
 
     @field_validator("sql_db_url", mode="after")
-    def validate_sql_db_url(cls, v: Any, validation_info: ValidationInfo) -> str | None:
+    def validate_sql_db_url(cls, v: Any, validation_info: ValidationInfo, **kwargs) -> str | None:
         if v is not None:
             return v
 
@@ -46,7 +46,7 @@ class Settings(SimpleSettings):
     async_sql_db_url: str | None = None
 
     @field_validator("async_sql_db_url", mode="after")
-    def validate_async_sql_db_url(cls, v: Any, validation_info: ValidationInfo) -> str | None:
+    def validate_async_sql_db_url(cls, v: Any, validation_info: ValidationInfo, **kwargs) -> str | None:
         if v is not None:
             return v
 
