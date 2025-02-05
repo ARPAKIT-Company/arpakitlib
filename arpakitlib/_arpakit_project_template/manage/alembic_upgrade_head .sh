@@ -1,0 +1,2 @@
+cd ..
+alembic upgrade head
