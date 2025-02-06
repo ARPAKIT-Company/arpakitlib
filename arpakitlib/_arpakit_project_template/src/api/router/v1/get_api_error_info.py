@@ -2,9 +2,8 @@ import fastapi.requests
 from fastapi import APIRouter, Depends
 from starlette import status
 
-from arpakitlib.ar_fastapi_util import ErrorSO, get_transmitted_api_data
+from arpakitlib.ar_fastapi_util import ErrorSO, get_transmitted_api_data, APIErrorInfoSO
 from src.api.const import APIErrorCodes, APIErrorSpecificationCodes
-from src.api.schema.v1.out import APIErrorInfoSO
 from src.api.transmitted_api_data import TransmittedAPIData
 
 api_router = APIRouter()

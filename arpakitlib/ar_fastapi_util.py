@@ -151,6 +151,11 @@ class OperationSO(SimpleSO):
         return cls.model_validate(operation_dbm.simple_dict(include_sd_properties=True))
 
 
+class APIErrorInfoSO(BaseSO):
+    api_error_codes: list[str] = []
+    api_error_specification_codes: list[str] = []
+
+
 class APIJSONResponse(fastapi.responses.JSONResponse):
     def __init__(self, *, content: dict | list | BaseSO | None, status_code: int = starlette.status.HTTP_200_OK):
         if isinstance(content, dict):
