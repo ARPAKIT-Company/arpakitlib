@@ -13,7 +13,7 @@ from src.core.const import ProjectPaths
 
 
 class Settings(SimpleSettings):
-    project_name: str = "{{PROJECT_NAME}}"
+    project_name: str | None = "{{PROJECT_NAME}}"
 
     sql_db_user: str | None = project_name
 
@@ -67,9 +67,9 @@ class Settings(SimpleSettings):
 
     api_init_sql_db_at_start: bool = True
 
-    api_title: str = project_name
+    api_title: str | None = project_name
 
-    api_description: str = f"{project_name} (arpakitlib)"
+    api_description: str | None = f"{project_name} (arpakitlib)"
 
     api_logging_func_before_response: bool = True
 

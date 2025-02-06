@@ -67,6 +67,9 @@ class BaseDBM(DeclarativeBase):
 
         return res
 
+    def simple_dict_with_sd_properties(self) -> dict[str ,Any]:
+        return self.simple_dict(include_sd_properties=True)
+
     def simple_json(self, *, include_sd_properties: bool = True) -> str:
         return safely_transfer_obj_to_json_str(self.simple_dict(include_sd_properties=include_sd_properties))
 
