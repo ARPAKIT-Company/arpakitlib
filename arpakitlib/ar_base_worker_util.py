@@ -10,7 +10,6 @@ from random import randint
 from typing import Any
 from uuid import uuid4
 
-from arpakitlib.ar_datetime_util import now_utc_dt
 from arpakitlib.ar_enumeration_util import Enumeration
 from arpakitlib.ar_func_util import is_async_function, is_sync_function
 from arpakitlib.ar_sleep_util import sync_safe_sleep, async_safe_sleep
@@ -22,25 +21,26 @@ class BaseWorker(ABC):
     def __init__(
             self,
             *,
-            timeout_after_run=timedelta(seconds=0.3),
-            timeout_after_err_in_run=timedelta(seconds=1),
+            timeout_after_run: timedelta = timedelta(seconds=0.3),
+            timeout_after_err_in_run: timedelta = timedelta(seconds=1),
             startup_funcs: list[Any] | None = None,
-            worker_name: str | None = None
+            worker_name: str | None = None,
+            **kwargs
     ):
+        self.timeout_after_run = timeout_after_run
+        self.timeout_after_err_in_run = timeout_after_err_in_run
         if startup_funcs is None:
             startup_funcs = []
         self.startup_funcs = startup_funcs
         if worker_name is None:
             worker_name = self.__class__.__name__
         self.worker_name = worker_name
-        self.worker_creation_dt = now_utc_dt()
         self.worker_id = f"{str(uuid4()).replace('-', '')}_{randint(1000, 99999)}"
-        self.worker_fullname = (
-            f"{self.worker_name}_{self.worker_creation_dt.isoformat()}_{self.worker_id}"
-        )
         self._logger = logging.getLogger(self.worker_fullname)
-        self.timeout_after_run = timeout_after_run
-        self.timeout_after_err_in_run = timeout_after_err_in_run
+
+    @property
+    def worker_fullname(self) -> str:
+        return f"{self.worker_name}_{self.worker_id}"
 
     def sync_run_startup_funcs(self):
         for startup_func in self.startup_funcs:

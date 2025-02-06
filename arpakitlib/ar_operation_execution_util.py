@@ -141,7 +141,7 @@ def remove_operations(
 
 
 class BaseOperationExecutor:
-    def __init__(self, *, sqlalchemy_db: SQLAlchemyDB):
+    def __init__(self, *, sqlalchemy_db: SQLAlchemyDB, **kwargs):
         self._logger = logging.getLogger(self.__class__.__name__)
         self.sql_alchemy_db = sqlalchemy_db
 
@@ -314,9 +314,14 @@ class OperationExecutorWorker(BaseWorker):
             sqlalchemy_db: SQLAlchemyDB,
             operation_executor: BaseOperationExecutor | None = None,
             filter_operation_types: str | list[str] | None = None,
-            startup_funcs: list[Any] | None = None
+            startup_funcs: list[Any] | None = None,
+            **kwargs
     ):
-        super().__init__(startup_funcs=startup_funcs)
+        super().__init__(
+            timeout_after_run=timedelta(seconds=0.3),
+            timeout_after_err_in_run=timedelta(seconds=0.3),
+            startup_funcs=startup_funcs,
+        )
         self.sqlalchemy_db = sqlalchemy_db
         if operation_executor is None:
             operation_executor = BaseOperationExecutor(sqlalchemy_db=sqlalchemy_db)
@@ -383,7 +388,11 @@ class ScheduledOperationCreatorWorker(BaseWorker):
             scheduled_operations: ScheduledOperation | list[ScheduledOperation] | None = None,
             startup_funcs: list[Any] | None = None
     ):
-        super().__init__(startup_funcs=startup_funcs)
+        super().__init__(
+            timeout_after_run=timedelta(seconds=0.3),
+            timeout_after_err_in_run=timedelta(seconds=0.3),
+            startup_funcs=startup_funcs
+        )
         self.sqlalchemy_db = sqlalchemy_db
         if scheduled_operations is None:
             scheduled_operations = []
