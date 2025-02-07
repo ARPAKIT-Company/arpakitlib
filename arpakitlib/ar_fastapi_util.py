@@ -299,6 +299,8 @@ def create_handle_exception(
                 error_so=error_so, status_code=status_code, request=request, exception=exception
             ))
 
+        error_so.error_data["status_code"] = status_code
+
         return APIJSONResponse(
             content=error_so,
             status_code=status_code
