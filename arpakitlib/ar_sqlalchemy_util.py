@@ -82,7 +82,7 @@ class SQLAlchemyDB:
     def __init__(
             self,
             *,
-            db_url: str | None = "postgresql://arpakitlib:arpakitlib@localhost:50517/arpakitlib",
+            sync_db_url: str | None = "postgresql://arpakitlib:arpakitlib@localhost:50517/arpakitlib",
             async_db_url: str | None = "postgresql+asyncpg://arpakitlib:arpakitlib@localhost:50517/arpakitlib",
             db_echo: bool = False,
             base_dbm: type[BaseDBM] | None = None,
@@ -90,10 +90,10 @@ class SQLAlchemyDB:
     ):
         self._logger = logging.getLogger()
 
-        self.db_url = db_url
+        self.db_url = sync_db_url
         if self.db_url is not None:
             self.engine = create_engine(
-                url=db_url,
+                url=sync_db_url,
                 echo=db_echo,
                 pool_size=10,
                 max_overflow=10,

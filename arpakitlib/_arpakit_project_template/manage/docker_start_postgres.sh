@@ -1,3 +1,3 @@
 cd ..
 source .env
-docker start ${PROJECT_NAME}_postgres
+docker start ${project_name}_postgres

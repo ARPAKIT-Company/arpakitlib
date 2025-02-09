@@ -125,7 +125,7 @@ class AdvancedSettings(SimpleSettings):
             return v
 
         return generate_sqlalchemy_url(
-            base="postgresql+asyncpg",
+            base="postgresql",
             user=validation_info.data.get("sql_db_user"),
             password=validation_info.data.get("sql_db_password"),
             port=validation_info.data.get("sql_db_port"),

@@ -9,7 +9,7 @@ from src.core.const import ProjectPaths
 from src.core.settings import get_cached_settings
 from src.core.util import setup_logging, get_cached_media_file_storage_in_dir, get_cached_cache_file_storage_in_dir, \
     get_cached_dump_file_storage_in_dir
-from src.db.util import get_cached_sqlalchemy_db
+from src.sql_db.util import get_cached_sqlalchemy_db
 
 
 def create_api_app() -> FastAPI:
