@@ -29,47 +29,31 @@ def generate_sqlalchemy_url(
         base: str = "postgresql",
         user: str | None = None,
         password: str | None = None,
-        host: str = "127.0.0.1",
-        port: int | None = None,
+        host: str | None = "127.0.0.1",
+        port: int | None = 5432,
         database: str | None = None,
         **query_params
-) -> str:
-    """
-    Генерация URL для SQLAlchemy.
+) -> str | None:
+    if host is None or port is None:
+        return None
 
-    :param base: Базовая строка для подключения, например "postgresql+asyncpg" или "sqlite".
-    :param user: Имя пользователя (необязательно).
-    :param password: Пароль (необязательно).
-    :param host: Хост (по умолчанию "127.0.0.1").
-    :param port: Порт (необязательно).
-    :param database: Имя базы данных или путь к файлу для SQLite (необязательно).
-    :param query_params: Дополнительные параметры строки подключения.
-    :return: Строка подключения для SQLAlchemy.
-    """
-    # Формируем часть с авторизацией
     auth_part = ""
     if user and password:
         auth_part = f"{quote_plus(user)}:{quote_plus(password)}@"
     elif user:
         auth_part = f"{quote_plus(user)}@"
 
-    # Формируем часть с хостом и портом
-    host_part = ""
     if base.startswith("sqlite"):
-        # Для SQLite хост и порт не нужны
         host_part = ""
     else:
         host_part = f"{host}"
         if port:
             host_part += f":{port}"
 
-    # Формируем часть с базой данных
     database_part = f"/{database}" if database else ""
     if base.startswith("sqlite") and database:
-        # Для SQLite путь указывается как абсолютный
         database_part = f"/{database}"
 
-    # Дополнительные параметры
     query_part = ""
     if query_params:
         query_items = [f"{key}={quote_plus(str(value))}" for key, value in query_params.items()]

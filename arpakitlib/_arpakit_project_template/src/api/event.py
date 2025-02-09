@@ -29,6 +29,9 @@ class StartupAPIEvent(BaseStartupAPIEvent):
         if self.transmitted_api_data.settings.api_init_sql_db:
             self.transmitted_api_data.sqlalchemy_db.init()
 
+        if self.transmitted_api_data.settings.api_init_json_db:
+            self.transmitted_api_data.json_db.init()
+
         if self.transmitted_api_data.settings.api_start_operation_executor_worker:  # TODO
             _ = safe_run_worker_in_background(
                 worker=OperationExecutorWorker(

@@ -9,6 +9,7 @@ from src.core.const import ProjectPaths
 from src.core.settings import get_cached_settings
 from src.core.util import setup_logging, get_cached_media_file_storage_in_dir, get_cached_cache_file_storage_in_dir, \
     get_cached_dump_file_storage_in_dir
+from src.json_db.util import get_json_db
 from src.sql_db.util import get_cached_sqlalchemy_db
 
 
@@ -17,7 +18,9 @@ def create_api_app() -> FastAPI:
 
     settings = get_cached_settings()
 
-    sqlalchemy_db = get_cached_sqlalchemy_db() if settings.sql_db_url is not None else None
+    sqlalchemy_db = get_cached_sqlalchemy_db() if settings.sync_sql_db_url is not None else None
+
+    json_db = get_json_db() if settings.json_db_dirpath is not None else None
 
     media_file_storage_in_dir = (
         get_cached_media_file_storage_in_dir() if settings.media_dirpath is not None else None
@@ -32,11 +35,12 @@ def create_api_app() -> FastAPI:
     )
 
     transmitted_api_data = TransmittedAPIData(
-        settings=settings,
         sqlalchemy_db=sqlalchemy_db,
+        json_db=json_db,
         media_file_storage_in_dir=media_file_storage_in_dir,
         cache_file_storage_in_dir=cache_file_storage_in_dir,
-        dump_file_storage_in_dir=dump_file_storage_in_dir
+        dump_file_storage_in_dir=dump_file_storage_in_dir,
+        settings=settings
     )
 
     handle_exception_ = create_handle_exception_(transmitted_api_data=transmitted_api_data)

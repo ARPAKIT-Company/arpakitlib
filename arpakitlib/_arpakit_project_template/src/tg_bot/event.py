@@ -9,7 +9,7 @@ class StartupTgBotEvent:
         self.transmitted_tg_bot_data = transmitted_tg_bot_data
 
     async def on_startup(self, *args, **kwargs):
-        self._logger.info("on_startup start")
+        self._logger.info("start")
 
         if self.transmitted_tg_bot_data.media_file_storage_in_dir is not None:
             self.transmitted_tg_bot_data.media_file_storage_in_dir.init()
@@ -20,7 +20,13 @@ class StartupTgBotEvent:
         if self.transmitted_tg_bot_data.dump_file_storage_in_dir is not None:
             self.transmitted_tg_bot_data.dump_file_storage_in_dir.init()
 
-        self._logger.info("on_startup was done")
+        if self.transmitted_tg_bot_data.settings.api_init_sql_db:
+            self.transmitted_tg_bot_data.sqlalchemy_db.init()
+
+        if self.transmitted_tg_bot_data.settings.api_init_json_db:
+            self.transmitted_tg_bot_data.json_db.init()
+
+        self._logger.info("finish")
 
 
 class ShutdownTgBotEvent:

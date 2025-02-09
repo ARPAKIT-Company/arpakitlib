@@ -84,38 +84,13 @@ class AdvancedSettings(SimpleSettings):
 
     sql_db_user: str | None = None
 
-    @field_validator("sql_db_user", mode="after")
-    def validate_sql_db_user(cls, v: Any, validation_info: ValidationInfo, **kwargs) -> str | None:
-        if v is not None:
-            return v
-        res = validation_info.data.get("project_name")
-        if res is not None:
-            return res
-        return res
-
     sql_db_password: str | None = None
 
-    @field_validator("sql_db_password", mode="after")
-    def validate_sql_db_password(cls, v: Any, validation_info: ValidationInfo, **kwargs) -> str | None:
-        if v is not None:
-            return v
-        res = validation_info.data.get("project_name")
-        if res is not None:
-            return res
-        return res
+    sql_db_host: str | None = None
 
     sql_db_port: int | None = int("50506") if "50506".strip().isdigit() else None
 
     sql_db_database: str | None = None
-
-    @field_validator("sql_db_database", mode="after")
-    def validate_sql_db_database(cls, v: Any, validation_info: ValidationInfo, **kwargs) -> str | None:
-        if v is not None:
-            return v
-        res = validation_info.data.get("project_name")
-        if res is not None:
-            return res
-        return res
 
     sync_sql_db_url: str | None = None
 
@@ -128,6 +103,7 @@ class AdvancedSettings(SimpleSettings):
             base="postgresql",
             user=validation_info.data.get("sql_db_user"),
             password=validation_info.data.get("sql_db_password"),
+            host=validation_info.data.get("sql_db_host"),
             port=validation_info.data.get("sql_db_port"),
             database=validation_info.data.get("sql_db_database")
         )
@@ -143,9 +119,18 @@ class AdvancedSettings(SimpleSettings):
             base="postgresql+asyncpg",
             user=validation_info.data.get("sql_db_user"),
             password=validation_info.data.get("sql_db_password"),
+            host=validation_info.data.get("sql_db_host"),
             port=validation_info.data.get("sql_db_port"),
             database=validation_info.data.get("sql_db_database")
         )
+
+    @property
+    def is_any_sql_db_url_set(self) -> bool:
+        if self.sync_sql_db_url is not None:
+            return True
+        if self.async_sql_db_url is not None:
+            return True
+        return False
 
     sql_db_echo: bool = False
 
@@ -159,6 +144,8 @@ class AdvancedSettings(SimpleSettings):
         return None
 
     api_init_sql_db: bool = True
+
+    api_init_json_db: bool = True
 
     api_logging__api_func_before_in_handle_exception: bool = True
 
@@ -175,6 +162,10 @@ class AdvancedSettings(SimpleSettings):
     api_start_scheduled_operation_creator_worker: bool = False
 
     admin1_secret_key: str | None = "85a9583cb91c4de7a78d7eb1e5306a04418c9c43014c447ea8ec8dd5deb4cf71"
+
+    tg_bot_init_sql_db: bool = True
+
+    tg_bot_init_json_db: bool = True
 
     var_dirpath: str | None = "./var"
 
