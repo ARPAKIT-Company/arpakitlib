@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import datetime as dt
+import inspect
 import logging
 import os.path
 import pathlib
@@ -24,12 +25,14 @@ from starlette import status
 from starlette.middleware.cors import CORSMiddleware
 from starlette.staticfiles import StaticFiles
 
+from arpakitlib.ar_datetime_util import now_utc_dt
 from arpakitlib.ar_dict_util import combine_dicts
 from arpakitlib.ar_enumeration_util import Enumeration
 from arpakitlib.ar_exception_util import exception_to_traceback_str
+from arpakitlib.ar_file_storage_in_dir_util import FileStorageInDir
 from arpakitlib.ar_func_util import raise_if_not_async_func, is_async_object
 from arpakitlib.ar_json_util import safely_transfer_obj_to_json_str_to_json_obj, safely_transfer_obj_to_json_str
-from arpakitlib.ar_logging_util import setup_normal_logging
+from arpakitlib.ar_settings_util import SimpleSettings
 from arpakitlib.ar_sqlalchemy_model_util import StoryLogDBM, OperationDBM
 from arpakitlib.ar_sqlalchemy_util import SQLAlchemyDB
 from arpakitlib.ar_type_util import raise_for_type, raise_if_none
@@ -212,19 +215,20 @@ class APIException(fastapi.exceptions.HTTPException):
 
 def create_handle_exception(
         *,
-        funcs_before_response: list[Callable | None] | None = None,
-        async_funcs_after_response: list[Callable | None] | None = None,
+        funcs_before: list[Callable | None] | None = None,
+        async_funcs_after: list[Callable | None] | None = None,
 ) -> Callable:
-    if funcs_before_response is None:
-        funcs_before_response = []
-    funcs_before_response = [v for v in funcs_before_response if v is not None]
+    if funcs_before is None:
+        funcs_before = []
+    funcs_before = [v for v in funcs_before if v is not None]
 
-    if async_funcs_after_response is None:
-        async_funcs_after_response = []
-    async_funcs_after_response = [v for v in async_funcs_after_response if v is not None]
+    if async_funcs_after is None:
+        async_funcs_after = []
+    async_funcs_after = [v for v in async_funcs_after if v is not None]
 
-    async def handle_exception(
-            request: starlette.requests.Request, exception: Exception
+    async def func(
+            request: starlette.requests.Request,
+            exception: Exception
     ) -> APIJSONResponse:
         status_code = starlette.status.HTTP_500_INTERNAL_SERVER_ERROR
 
@@ -266,10 +270,10 @@ def create_handle_exception(
             status_code = starlette.status.HTTP_500_INTERNAL_SERVER_ERROR
             error_so.error_code = BaseAPIErrorCodes.unknown_error
 
-        if error_so.error_code:
+        if error_so.error_code is not None:
             error_so.error_code = error_so.error_code.upper().replace(" ", "_").strip()
 
-        if error_so.error_specification_code:
+        if error_so.error_specification_code is not None:
             error_so.error_specification_code = (
                 error_so.error_specification_code.upper().replace(" ", "_").strip()
             )
@@ -280,69 +284,76 @@ def create_handle_exception(
         if error_so.error_code == BaseAPIErrorCodes.cannot_authorize:
             status_code = status.HTTP_401_UNAUTHORIZED
 
-        _kwargs = {}
-        for func in funcs_before_response:
-            _func_data = func(
-                status_code=status_code, error_so=error_so, request=request, exception=exception, **_kwargs
+        error_so.error_data["status_code"] = status_code
+
+        # funcs_before
+
+        _transmitted_kwargs = {}
+        for func_before in funcs_before:
+            _func_data = func_before(
+                request=request, status_code=status_code, error_so=error_so, exception=exception,
+                transmitted_kwargs=_transmitted_kwargs
             )
             if is_async_object(_func_data):
                 _func_data = await _func_data
             if _func_data is not None:
-                status_code, error_so, _kwargs = _func_data[0], _func_data[1], _func_data[2]
-                raise_for_type(status_code, int)
+                error_so, _transmitted_kwargs = _func_data[0], _func_data[1]
                 raise_for_type(error_so, ErrorSO)
-                raise_for_type(_kwargs, dict)
+                raise_for_type(_transmitted_kwargs, dict)
 
-        for async_func_after_response in async_funcs_after_response:
-            raise_if_not_async_func(async_func_after_response)
-            _ = asyncio.create_task(async_func_after_response(
-                error_so=error_so, status_code=status_code, request=request, exception=exception
+        # async_funcs_after
+
+        for async_func_after in async_funcs_after:
+            raise_if_not_async_func(async_func_after)
+            _ = asyncio.create_task(async_func_after(
+                request=request, status_code=status_code, error_so=error_so, exception=exception
             ))
-
-        error_so.error_data["status_code"] = status_code
 
         return APIJSONResponse(
             content=error_so,
             status_code=status_code
         )
 
-    return handle_exception
+    return func
 
 
-def logging_func_before_response(
+def logging__api_func_before_in_handle_exception(
         *,
         ignore_api_error_codes: list[str] | None = None,
         ignore_status_codes: list[int] | None = None,
         ignore_exception_types: list[type[Exception]] | None = None,
         need_exc_info: bool = False
-):
+) -> Callable:
+    current_func_name = inspect.currentframe().f_code.co_name
+
     def func(
             *,
+            request: starlette.requests.Request,
             status_code: int,
             error_so: ErrorSO,
-            request: starlette.requests.Request,
             exception: Exception,
+            transmitted_kwargs: dict[str, Any],
             **kwargs
-    ) -> (int, ErrorSO, dict[str, Any]):
-        kwargs["logging_before_response_in_handle_exception"] = True
+    ) -> (ErrorSO, dict[str, Any]):
+        transmitted_kwargs[current_func_name] = now_utc_dt()
 
         if ignore_api_error_codes and error_so.error_code in ignore_api_error_codes:
-            return status_code, error_so, kwargs
+            return error_so, transmitted_kwargs
 
         if ignore_status_codes and status_code in ignore_status_codes:
-            return status_code, error_so, kwargs
+            return error_so, transmitted_kwargs
 
         if ignore_exception_types and (
                 exception in ignore_exception_types or type(exception) in ignore_exception_types
         ):
-            return status_code, error_so, kwargs
+            return error_so, transmitted_kwargs
 
         _logger.error(safely_transfer_obj_to_json_str(error_so.model_dump()), exc_info=need_exc_info)
 
     return func
 
 
-def story_log_func_before_response(
+def story_log__api_func_before_in_handle_exception(
         *,
         sqlalchemy_db: SQLAlchemyDB,
         ignore_api_error_codes: list[str] | None = None,
@@ -351,26 +362,29 @@ def story_log_func_before_response(
 ) -> Callable:
     raise_for_type(sqlalchemy_db, SQLAlchemyDB)
 
+    current_func_name = inspect.currentframe().f_code.co_name
+
     async def async_func(
             *,
+            request: starlette.requests.Request,
             status_code: int,
             error_so: ErrorSO,
-            request: starlette.requests.Request,
             exception: Exception,
+            transmitted_kwargs: dict[str, Any],
             **kwargs
-    ) -> (int, ErrorSO, dict[str, Any]):
-        kwargs["create_story_log_before_response_in_handle_exception"] = True
+    ) -> (ErrorSO, dict[str, Any]):
+        transmitted_kwargs[current_func_name] = now_utc_dt()
 
         if ignore_api_error_codes and error_so.error_code in ignore_api_error_codes:
-            return status_code, error_so, kwargs
+            return error_so, transmitted_kwargs
 
         if ignore_status_codes and status_code in ignore_status_codes:
-            return status_code, error_so, kwargs
+            return error_so, transmitted_kwargs
 
         if ignore_exception_types and (
                 exception in ignore_exception_types or type(exception) in ignore_exception_types
         ):
-            return status_code, error_so, kwargs
+            return error_so, transmitted_kwargs
 
         async with sqlalchemy_db.new_async_session() as session:
             story_log_dbm = StoryLogDBM(
@@ -386,9 +400,9 @@ def story_log_func_before_response(
             await session.refresh(story_log_dbm)
 
         error_so.error_data.update({"story_log_long_id": story_log_dbm.long_id})
-        kwargs["story_log_id"] = story_log_dbm.id
+        transmitted_kwargs["story_log_id"] = story_log_dbm.id
 
-        return status_code, error_so, kwargs
+        return error_so, transmitted_kwargs
 
     return async_func
 
@@ -465,7 +479,7 @@ class ARPAKITLibSO(BaseSO):
     arpakitlib: bool = True
 
 
-def add_needed_api_router_to_app(*, app: FastAPI):
+def create_needed_api_router():
     api_router = APIRouter()
 
     @api_router.get(
@@ -492,9 +506,7 @@ def add_needed_api_router_to_app(*, app: FastAPI):
             content=ARPAKITLibSO(arpakitlib=True)
         )
 
-    app.include_router(router=api_router, prefix="")
-
-    return app
+    return api_router
 
 
 class BaseStartupAPIEvent:
@@ -517,6 +529,17 @@ class BaseShutdownAPIEvent:
 
 class BaseTransmittedAPIData(BaseModel):
     model_config = ConfigDict(extra="ignore", arbitrary_types_allowed=True, from_attributes=True)
+
+
+class SimpleTransmittedAPIData(BaseTransmittedAPIData):
+    settings: SimpleSettings | None = None
+
+
+class AdvancedTransmittedAPIData(SimpleTransmittedAPIData):
+    sqlalchemy_db: SQLAlchemyDB | None = None
+    media_file_storage_in_dir: FileStorageInDir | None = None
+    cache_file_storage_in_dir: FileStorageInDir | None = None
+    dump_file_storage_in_dir: FileStorageInDir | None = None
 
 
 def get_transmitted_api_data(request: starlette.requests.Request) -> BaseTransmittedAPIData:
@@ -576,7 +599,9 @@ def base_api_auth(
             ac: fastapi.security.HTTPAuthorizationCredentials | None = fastapi.Security(
                 fastapi.security.HTTPBearer(auto_error=False)
             ),
-            api_key_string: str | None = Security(APIKeyHeader(name="apikey", auto_error=False)),
+            api_key_string: str | None = Security(
+                APIKeyHeader(name="apikey", auto_error=False)
+            ),
             request: starlette.requests.Request,
             transmitted_api_data: BaseTransmittedAPIData = Depends(get_transmitted_api_data)
     ) -> BaseAPIAuthData:
@@ -588,7 +613,7 @@ def base_api_auth(
             require_correct_token=require_correct_token
         )
 
-        # api_key
+        # parse api_key
 
         api_auth_data.api_key_string = api_key_string
 
@@ -606,7 +631,7 @@ def base_api_auth(
         if not api_auth_data.api_key_string and "apikey" in request.query_params.keys():
             api_auth_data.api_key_string = request.query_params["apikey"]
 
-        # token
+        # parse token
 
         api_auth_data.token_string = ac.credentials if ac and ac.credentials and ac.credentials.strip() else None
 
@@ -635,7 +660,7 @@ def base_api_auth(
         if not api_auth_data.token_string:
             api_auth_data.token_string = None
 
-        # api_key
+        # require_api_key_string
 
         if require_api_key_string and not api_auth_data.api_key_string:
             raise APIException(
@@ -644,7 +669,7 @@ def base_api_auth(
                 error_data=safely_transfer_obj_to_json_str_to_json_obj(api_auth_data.model_dump())
             )
 
-        # token
+        # require_token_string
 
         if require_token_string and not api_auth_data.token_string:
             raise APIException(
@@ -653,10 +678,10 @@ def base_api_auth(
                 error_data=safely_transfer_obj_to_json_str_to_json_obj(api_auth_data.model_dump())
             )
 
-        # api_key
+        # validate_api_key_func
 
         if validate_api_key_func is not None:
-            validate_api_key_func_data = validate_api_key_func(
+            validate_api_key_func_res = validate_api_key_func(
                 api_key_string=api_auth_data.api_key_string,
                 token_string=api_auth_data.token_string,
                 base_api_auth_data=api_auth_data,
@@ -664,14 +689,14 @@ def base_api_auth(
                 request=request,
                 **kwargs
             )
-            if is_async_object(validate_api_key_func_data):
-                validate_api_key_func_data = await validate_api_key_func_data
-            api_auth_data.is_api_key_correct = validate_api_key_func_data
+            if is_async_object(validate_api_key_func_res):
+                validate_api_key_func_res = await validate_api_key_func_res
+            api_auth_data.is_api_key_correct = validate_api_key_func_res
 
-        # token
+        # validate_token_func
 
         if validate_token_func is not None:
-            validate_token_func_data = validate_token_func(
+            validate_token_func_res = validate_token_func(
                 api_key_string=api_auth_data.api_key_string,
                 token_string=api_auth_data.token_string,
                 base_api_auth_data=api_auth_data,
@@ -679,11 +704,11 @@ def base_api_auth(
                 request=request,
                 **kwargs
             )
-            if is_async_object(validate_token_func_data):
-                validate_token_func_data_data = await validate_token_func_data
-            api_auth_data.is_token_correct = validate_token_func_data_data
+            if is_async_object(validate_token_func_res):
+                validate_token_func_res = await validate_token_func_res
+            api_auth_data.is_token_correct = validate_token_func_res
 
-        # api_key
+        # require_correct_api_key
 
         if require_correct_api_key:
             if not api_auth_data.is_api_key_correct:
@@ -694,7 +719,7 @@ def base_api_auth(
                     error_data=safely_transfer_obj_to_json_str_to_json_obj(api_auth_data.model_dump()),
                 )
 
-        # token
+        # require_correct_token
 
         if require_correct_token:
             if not api_auth_data.is_token_correct:
@@ -752,7 +777,6 @@ def create_fastapi_app(
         *,
         title: str = "arpakitlib FastAPI",
         description: str | None = "arpakitlib FastAPI",
-        log_filepath: str | None = "./story.log",
         handle_exception_: Callable | None = None,
         startup_api_events: list[BaseStartupAPIEvent | None] | None = None,
         shutdown_api_events: list[BaseShutdownAPIEvent | None] | None = None,
@@ -762,12 +786,14 @@ def create_fastapi_app(
         media_dirpath: str | None = None,
         static_dirpath: str | None = None
 ):
-    _logger.info("start create_fastapi_app")
-
-    setup_normal_logging(log_filepath=log_filepath)
+    _logger.info("start")
 
     if handle_exception_ is None:
-        handle_exception_ = create_handle_exception()
+        handle_exception_ = create_handle_exception(
+            funcs_before=[
+                logging__api_func_before_in_handle_exception()
+            ]
+        )
 
     if not startup_api_events:
         startup_api_events = [BaseStartupAPIEvent()]
@@ -809,11 +835,14 @@ def create_fastapi_app(
         handle_exception=handle_exception_
     )
 
-    add_needed_api_router_to_app(app=app)
+    app.include_router(
+        router=create_needed_api_router(),
+        prefix=""
+    )
 
     app.include_router(router=main_api_router)
 
-    _logger.info("finish create_fastapi_app")
+    _logger.info("finish")
 
     return app
 

@@ -2,18 +2,18 @@ import fastapi.exceptions
 import starlette.exceptions
 import starlette.status
 
-from arpakitlib.ar_fastapi_util import create_handle_exception, story_log_func_before_response, \
-    logging_func_before_response
+from arpakitlib.ar_fastapi_util import create_handle_exception, story_log__api_func_before_in_handle_exception, \
+    logging__api_func_before_in_handle_exception
 from src.api.const import APIErrorCodes
 from src.api.transmitted_api_data import TransmittedAPIData
 
 
-def create_handle_exception_(*, transmitted_api_data: TransmittedAPIData):
-    funcs_before_response = []
+def create_handle_exception_(*, transmitted_api_data: TransmittedAPIData, **kwargs):
+    funcs_before = []
 
-    if transmitted_api_data.settings.api_logging_func_before_response:
-        funcs_before_response.append(
-            logging_func_before_response(
+    if transmitted_api_data.settings.api_logging__api_func_before_in_handle_exception:
+        funcs_before.append(
+            logging__api_func_before_in_handle_exception(
                 ignore_api_error_codes=[
                     APIErrorCodes.cannot_authorize,
                     APIErrorCodes.error_in_request,
@@ -31,9 +31,9 @@ def create_handle_exception_(*, transmitted_api_data: TransmittedAPIData):
             )
         )
 
-    if transmitted_api_data.settings.api_story_log_func_before_response:
-        funcs_before_response.append(
-            story_log_func_before_response(
+    if transmitted_api_data.settings.api_story_log__api_func_before_in_handle_exception:
+        funcs_before.append(
+            story_log__api_func_before_in_handle_exception(
                 sqlalchemy_db=transmitted_api_data.sqlalchemy_db,
                 ignore_api_error_codes=[
                     APIErrorCodes.cannot_authorize,
@@ -51,9 +51,9 @@ def create_handle_exception_(*, transmitted_api_data: TransmittedAPIData):
             )
         )
 
-    async_funcs_after_response = []
+    async_funcs_after = []
 
     return create_handle_exception(
-        funcs_before_response=funcs_before_response,
-        async_funcs_after_response=async_funcs_after_response
+        funcs_before=funcs_before,
+        async_funcs_after=async_funcs_after
     )

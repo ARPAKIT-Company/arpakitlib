@@ -8,6 +8,9 @@ from src.operation_execution.operation_executor import OperationExecutor
 from src.operation_execution.scheduled_operations import SCHEDULED_OPERATIONS
 
 
+# STARTUP API EVENTS
+
+
 class StartupAPIEvent(BaseStartupAPIEvent):
     def __init__(self, transmitted_api_data: TransmittedAPIData, **kwargs):
         super().__init__(**kwargs)
@@ -53,6 +56,17 @@ class StartupAPIEvent(BaseStartupAPIEvent):
         self._logger.info("finish")
 
 
+def get_startup_api_events(
+        *, transmitted_api_data: TransmittedAPIData, **kwargs
+) -> list[BaseStartupAPIEvent]:
+    res = []
+    res.append(StartupAPIEvent(transmitted_api_data=transmitted_api_data))
+    return res
+
+
+# SHUTDOWN API EVENTS
+
+
 class ShutdownAPIEvent(BaseShutdownAPIEvent):
     def __init__(self, transmitted_api_data: TransmittedAPIData, **kwargs):
         super().__init__(**kwargs)
@@ -61,3 +75,11 @@ class ShutdownAPIEvent(BaseShutdownAPIEvent):
     async def async_on_shutdown(self, *args, **kwargs):
         self._logger.info("start")
         self._logger.info("finish")
+
+
+def get_shutdown_api_events(
+        *, transmitted_api_data: TransmittedAPIData, **kwargs
+) -> list[BaseShutdownAPIEvent]:
+    res = []
+    res.append(ShutdownAPIEvent(transmitted_api_data=transmitted_api_data))
+    return res

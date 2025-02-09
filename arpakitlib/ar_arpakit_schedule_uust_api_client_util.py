@@ -225,10 +225,6 @@ class ARPAKITScheduleUUSTAPIClient:
         else:
             self.ttl_cache = None
 
-    def clear_cache(self):
-        if self.ttl_cache is not None:
-            self.ttl_cache.clear()
-
     async def _async_make_http_request(
             self,
             *,
@@ -242,10 +238,15 @@ class ARPAKITScheduleUUSTAPIClient:
             url=url,
             headers=self.headers,
             params=params,
+            max_tries_=5,
             raise_for_status_=True,
             **kwargs
         )
         return response
+
+    def clear_cache(self):
+        if self.ttl_cache is not None:
+            self.ttl_cache.clear()
 
     async def check_auth(self) -> dict[str, Any]:
         response = await self._async_make_http_request(

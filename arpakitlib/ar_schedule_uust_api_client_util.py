@@ -43,6 +43,30 @@ class ScheduleUUSTAPIClient:
             )
         }
 
+    async def _async_make_http_request(
+            self,
+            *,
+            method: str = "GET",
+            url: str,
+            params: dict[str, Any] | None = None,
+            **kwargs
+    ) -> ClientResponse:
+        response = await async_make_http_request(
+            method=method,
+            url=url,
+            headers=self.headers,
+            params=combine_dicts(params, self.auth_params()),
+            max_tries_=9,
+            proxy_url_=self.api_proxy_url,
+            raise_for_status_=True,
+            timeout_=timedelta(seconds=15),
+            **kwargs
+        )
+        json_data = await response.json()
+        if "error" in json_data.keys():
+            raise Exception(f"error in json_data, {json_data}")
+        return response
+
     def auth_params(self) -> dict[str, Any]:
         if self.api_password:
             return {
@@ -71,30 +95,6 @@ class ScheduleUUSTAPIClient:
 
     def generate_v2_token(self) -> str:
         return self.generate_new_v2_token(password_first_part=self.api_password_first_part)
-
-    async def _async_make_http_request(
-            self,
-            *,
-            method: str = "GET",
-            url: str,
-            params: dict[str, Any] | None = None,
-            **kwargs
-    ) -> ClientResponse:
-        response = await async_make_http_request(
-            method=method,
-            url=url,
-            headers=self.headers,
-            params=combine_dicts(params, self.auth_params()),
-            max_tries_=9,
-            proxy_url_=self.api_proxy_url,
-            raise_for_status_=True,
-            timeout_=timedelta(seconds=15),
-            **kwargs
-        )
-        json_data = await response.json()
-        if "error" in json_data.keys():
-            raise Exception(f"error in json_data, {json_data}")
-        return response
 
     async def get_current_week(self) -> int:
         """

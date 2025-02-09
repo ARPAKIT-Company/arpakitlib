@@ -1,12 +1,15 @@
 # arpakit
-
+import os
 from typing import Union, Any
 
+import pytz
 from pydantic import ConfigDict, field_validator, model_validator
 from pydantic_core import PydanticUndefined
+from pydantic_core.core_schema import ValidationInfo
 from pydantic_settings import BaseSettings
 
 from arpakitlib.ar_enumeration_util import Enumeration
+from arpakitlib.ar_sqlalchemy_util import generate_sqlalchemy_url
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
 
@@ -26,10 +29,8 @@ class ModeTypes(Enumeration):
     prod: str = "prod"
 
 
-class SimpleSettings(BaseSettings):
+class BaseSettings2(BaseSettings):
     model_config = ConfigDict(extra="ignore")
-
-    mode_type: str = ModeTypes.not_prod
 
     @model_validator(mode="before")
     @classmethod
@@ -38,6 +39,21 @@ class SimpleSettings(BaseSettings):
             if isinstance(value, str) and value.lower().strip() in {"null", "none", "nil"}:
                 values[key] = None
         return values
+
+    @classmethod
+    def generate_env_example(cls) -> str:
+        return generate_env_example(settings_class=cls)
+
+    @classmethod
+    def save_env_example_to_file(cls, filepath: str) -> str:
+        env_example = cls.generate_env_example()
+        with open(filepath, mode="w") as f:
+            f.write(env_example)
+        return env_example
+
+
+class SimpleSettings(BaseSettings2):
+    mode_type: str = ModeTypes.not_prod
 
     @field_validator("mode_type")
     @classmethod
@@ -61,20 +77,129 @@ class SimpleSettings(BaseSettings):
         if self.is_mode_type_prod:
             raise ValueError(f"mode type = {self.mode_type}")
 
-    @classmethod
-    def generate_env_example(cls) -> str:
-        return generate_env_example(settings_class=cls)
 
-    @classmethod
-    def save_env_example_to_file(cls, filepath: str) -> str:
-        env_example = cls.generate_env_example()
-        with open(filepath, mode="w") as f:
-            f.write(env_example)
-        return env_example
+class AdvancedSettings(SimpleSettings):
+    project_name: str | None = None
+
+    sql_db_user: str | None = None
+
+    @field_validator("sql_db_user", mode="after")
+    def validate_sql_db_user(cls, v: Any, validation_info: ValidationInfo, **kwargs) -> str | None:
+        if v is not None:
+            return v
+        res = validation_info.data.get("project_name")
+        if res is not None:
+            return res
+        return res
+
+    sql_db_password: str | None = None
+
+    @field_validator("sql_db_password", mode="after")
+    def validate_sql_db_password(cls, v: Any, validation_info: ValidationInfo, **kwargs) -> str | None:
+        if v is not None:
+            return v
+        res = validation_info.data.get("project_name")
+        if res is not None:
+            return res
+        return res
+
+    sql_db_port: int | None = int("50506") if "50506".strip().isdigit() else None
+
+    sql_db_database: str | None = None
+
+    @field_validator("sql_db_database", mode="after")
+    def validate_sql_db_database(cls, v: Any, validation_info: ValidationInfo, **kwargs) -> str | None:
+        if v is not None:
+            return v
+        res = validation_info.data.get("project_name")
+        if res is not None:
+            return res
+        return res
+
+    sync_sql_db_url: str | None = None
+
+    @field_validator("sync_sql_db_url", mode="after")
+    def validate_sync_sql_db_url(cls, v: Any, validation_info: ValidationInfo, **kwargs) -> str | None:
+        if v is not None:
+            return v
+
+        user = validation_info.data.get("sql_db_user")
+        password = validation_info.data.get("sql_db_password")
+        port = validation_info.data.get("sql_db_port")
+        database = validation_info.data.get("sql_db_database")
+
+        return generate_sqlalchemy_url(
+            base="postgresql",
+            user=user,
+            password=password,
+            port=port,
+            database=database
+        )
+
+    async_sql_db_url: str | None = None
+
+    @field_validator("async_sql_db_url", mode="after")
+    def validate_async_sql_db_url(cls, v: Any, validation_info: ValidationInfo, **kwargs) -> str | None:
+        if v is not None:
+            return v
+
+        user = validation_info.data.get("sql_db_user")
+        password = validation_info.data.get("sql_db_password")
+        port = validation_info.data.get("sql_db_port")
+        database = validation_info.data.get("sql_db_database")
+
+        return generate_sqlalchemy_url(
+            base="postgresql+asyncpg",
+            user=user,
+            password=password,
+            port=port,
+            database=database
+        )
+
+    sql_db_echo: bool = False
+
+    api_port: int | None = None
+
+    @field_validator("api_port", mode="before")
+    def validate_api_port(cls, v: Any, validation_info: ValidationInfo, **kwargs) -> int | None:
+        if isinstance(v, str):
+            if v.isdigit():
+                return int(v)
+        return None
+
+    api_init_sql_db_at_start: bool = True
+
+    api_logging__api_func_before_in_handle_exception: bool = True
+
+    api_story_log__api_func_before_in_handle_exception: bool = True
+
+    api_correct_api_key: str | None = "1"
+
+    api_correct_token: str | None = "1"
+
+    api_enable_admin1: bool = True
+
+    admin1_secret_key: str | None = "85a9583cb91c4de7a78d7eb1e5306a04418c9c43014c447ea8ec8dd5deb4cf71"
+
+    var_dirpath: str | None = "./var"
+
+    log_filepath: str | None = os.path.join(var_dirpath, "story.log")
+
+    cache_dirpath: str | None = os.path.join(var_dirpath, "cache")
+
+    media_dirpath: str | None = os.path.join(var_dirpath, "media")
+
+    dump_dirpath: str | None = os.path.join(var_dirpath, "dump")
+
+    local_timezone: str | None = None
+
+    @property
+    def local_timezone_as_pytz(self) -> Any:
+        return pytz.timezone(self.local_timezone)
 
 
 def __example():
-    pass
+    print(AdvancedSettings(var_dirpath="asfa"))
 
 
 if __name__ == '__main__':
