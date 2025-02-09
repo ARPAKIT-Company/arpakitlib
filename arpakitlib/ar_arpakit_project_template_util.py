@@ -3,7 +3,7 @@
 import logging
 import os
 
-from arpakitlib.ar_str_util import make_none_if_blank, raise_if_string_blank
+from arpakitlib.ar_str_util import raise_if_string_blank
 from arpakitlib.ar_type_util import raise_for_type
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
@@ -15,23 +15,17 @@ def init_arpakit_project_template(
         *,
         project_dirpath: str = "./",
         overwrite_if_exists: bool = False,
-        project_name: str | None = None,
-        sql_db_port: int | None = None,
-        api_port: int | None = None,
+        params: dict[str, str] | None = None,
         ignore_paths_startswith: list[str] | str | None = None,
         only_paths_startswith: list[str] | str | None = None,
 ):
     raise_if_string_blank(project_dirpath)
 
-    if project_name:
-        project_name = project_name.strip()
-    project_name = make_none_if_blank(project_name)
+    raise_for_type(overwrite_if_exists, bool)
 
-    if sql_db_port is not None:
-        raise_for_type(sql_db_port, int)
-
-    if api_port is not None:
-        raise_for_type(api_port, int)
+    if params is None:
+        params = {}
+    raise_for_type(params, dict)
 
     if isinstance(ignore_paths_startswith, str):
         ignore_paths_startswith = [ignore_paths_startswith]
@@ -68,12 +62,8 @@ def init_arpakit_project_template(
                     continue
                 with open(os.path.join(root, file), "r", encoding="utf-8") as _file:
                     _content = _file.read()
-                if project_name is not None:
-                    _content = _content.replace("{{PROJECT_NAME}}", project_name)
-                if sql_db_port is not None:
-                    _content = _content.replace("{{SQL_DB_PORT}}", str(sql_db_port))
-                if api_port is not None:
-                    _content = _content.replace("{{API_PORT}}", str(api_port))
+                for key, value in params.items():
+                    _content = _content.replace("{{" + key.upper().strip() + "}}", value)
                 res[rel_path] = _content
         return res
 

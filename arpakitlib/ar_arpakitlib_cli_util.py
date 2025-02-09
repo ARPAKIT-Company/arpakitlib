@@ -29,46 +29,34 @@ def execute_arpakitlib_cli(*, full_command: str | None = None):
         print("-c init_arpakit_project_template")
         print("-project_dirpath ...")
         print("-overwrite_if_exists ...")
-        print("-project_name ...")
-        print("-sql_db_port ...")
-        print("-api_port ...")
         print("-ignore_paths_startswith ...")
         print("-only_paths_startswith ...")
         print("\n")
 
     elif command == "init_arpakit_project_template":
-        project_dirpath = raise_if_string_blank(parsed_command.get_value_by_keys(keys=["pd", "project_dirpath"]))
+        project_dirpath = raise_if_string_blank(parsed_command.get_value_by_keys(keys=["project_dirpath"]))
         overwrite_if_exists: bool = parse_need_type(
-            value=parsed_command.get_value_by_keys(keys=["oie", "overwrite_if_exists"]),
+            value=parsed_command.get_value_by_keys(keys=["overwrite_if_exists"]),
             need_type=NeedTypes.bool_,
             allow_none=False
         )
-        project_name: str = parsed_command.get_value_by_keys(keys=["pm", "project_name"])
-        project_name = project_name.strip() if project_name and project_name.strip() else None
-        sql_db_port: int | None = parse_need_type(
-            value=parsed_command.get_value_by_keys(keys=["sdp", "sql_db_port"]),
-            need_type=NeedTypes.int_,
-            allow_none=True
-        )
-        api_port: int | None = parse_need_type(
-            value=parsed_command.get_value_by_keys(keys=["ap", "api_port"]),
-            need_type=NeedTypes.int_,
-            allow_none=True
-        )
+        params = parsed_command.key_to_value
         ignore_paths_startswith: list[str] | None = parse_need_type(
-            value=parsed_command.get_value_by_keys(keys=["ipsw", "ignore_paths_startswith"]),
+            value=parsed_command.get_value_by_keys(keys=["ignore_paths_startswith"]),
             need_type=NeedTypes.list_of_str,
             allow_none=True
         )
         only_paths_startswith: list[str] | None = parse_need_type(
-            value=parsed_command.get_value_by_keys(keys=["ops", "only_paths_startswith"]),
+            value=parsed_command.get_value_by_keys(keys=["only_paths_startswith"]),
             need_type=NeedTypes.list_of_str,
             allow_none=True
         )
         init_arpakit_project_template(
-            project_dirpath=project_dirpath, overwrite_if_exists=overwrite_if_exists,
-            project_name=project_name, sql_db_port=sql_db_port, api_port=api_port,
-            ignore_paths_startswith=ignore_paths_startswith, only_paths_startswith=only_paths_startswith
+            project_dirpath=project_dirpath,
+            overwrite_if_exists=overwrite_if_exists,
+            params=params,
+            ignore_paths_startswith=ignore_paths_startswith,
+            only_paths_startswith=only_paths_startswith
         )
 
     else:

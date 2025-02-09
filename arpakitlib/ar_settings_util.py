@@ -9,6 +9,7 @@ from pydantic_core.core_schema import ValidationInfo
 from pydantic_settings import BaseSettings
 
 from arpakitlib.ar_enumeration_util import Enumeration
+from arpakitlib.ar_json_util import safely_transfer_obj_to_json_str
 from arpakitlib.ar_sqlalchemy_util import generate_sqlalchemy_url
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
@@ -123,17 +124,12 @@ class AdvancedSettings(SimpleSettings):
         if v is not None:
             return v
 
-        user = validation_info.data.get("sql_db_user")
-        password = validation_info.data.get("sql_db_password")
-        port = validation_info.data.get("sql_db_port")
-        database = validation_info.data.get("sql_db_database")
-
         return generate_sqlalchemy_url(
-            base="postgresql",
-            user=user,
-            password=password,
-            port=port,
-            database=database
+            base="postgresql+asyncpg",
+            user=validation_info.data.get("sql_db_user"),
+            password=validation_info.data.get("sql_db_password"),
+            port=validation_info.data.get("sql_db_port"),
+            database=validation_info.data.get("sql_db_database")
         )
 
     async_sql_db_url: str | None = None
@@ -143,17 +139,12 @@ class AdvancedSettings(SimpleSettings):
         if v is not None:
             return v
 
-        user = validation_info.data.get("sql_db_user")
-        password = validation_info.data.get("sql_db_password")
-        port = validation_info.data.get("sql_db_port")
-        database = validation_info.data.get("sql_db_database")
-
         return generate_sqlalchemy_url(
             base="postgresql+asyncpg",
-            user=user,
-            password=password,
-            port=port,
-            database=database
+            user=validation_info.data.get("sql_db_user"),
+            password=validation_info.data.get("sql_db_password"),
+            port=validation_info.data.get("sql_db_port"),
+            database=validation_info.data.get("sql_db_database")
         )
 
     sql_db_echo: bool = False
@@ -183,13 +174,49 @@ class AdvancedSettings(SimpleSettings):
 
     var_dirpath: str | None = "./var"
 
-    log_filepath: str | None = os.path.join(var_dirpath, "story.log")
+    log_filepath: str | None = None
 
-    cache_dirpath: str | None = os.path.join(var_dirpath, "cache")
+    @field_validator("log_filepath", mode="after")
+    def validate_log_filepath(cls, v: Any, validation_info: ValidationInfo, **kwargs) -> str | None:
+        if v is not None:
+            return v
+        var_dirpath = validation_info.data.get("var_dirpath")
+        if var_dirpath is None:
+            return None
+        return os.path.join(var_dirpath, "story.log")
 
-    media_dirpath: str | None = os.path.join(var_dirpath, "media")
+    cache_dirpath: str | None = None
 
-    dump_dirpath: str | None = os.path.join(var_dirpath, "dump")
+    @field_validator("cache_dirpath", mode="after")
+    def validate_cache_dirpath(cls, v: Any, validation_info: ValidationInfo, **kwargs) -> str | None:
+        if v is not None:
+            return v
+        var_dirpath = validation_info.data.get("var_dirpath")
+        if var_dirpath is None:
+            return None
+        return os.path.join(var_dirpath, "cache")
+
+    media_dirpath: str | None = None
+
+    @field_validator("media_dirpath", mode="after")
+    def validate_media_dirpath(cls, v: Any, validation_info: ValidationInfo, **kwargs) -> str | None:
+        if v is not None:
+            return v
+        var_dirpath = validation_info.data.get("var_dirpath")
+        if var_dirpath is None:
+            return None
+        return os.path.join(var_dirpath, "media")
+
+    dump_dirpath: str | None = None
+
+    @field_validator("dump_dirpath", mode="after")
+    def validate_dump_dirpath(cls, v: Any, validation_info: ValidationInfo, **kwargs) -> str | None:
+        if v is not None:
+            return v
+        var_dirpath = validation_info.data.get("var_dirpath")
+        if var_dirpath is None:
+            return None
+        return os.path.join(var_dirpath, "dump")
 
     local_timezone: str | None = None
 
@@ -199,7 +226,7 @@ class AdvancedSettings(SimpleSettings):
 
 
 def __example():
-    print(AdvancedSettings(var_dirpath="asfa"))
+    print(safely_transfer_obj_to_json_str(AdvancedSettings(var_dirpath="./var").model_dump(mode="json")))
 
 
 if __name__ == '__main__':

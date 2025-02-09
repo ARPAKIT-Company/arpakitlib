@@ -32,7 +32,7 @@ class StartupAPIEvent(BaseStartupAPIEvent):
             raise_for_type(self.transmitted_api_data.sqlalchemy_db, SQLAlchemyDB)
             self.transmitted_api_data.sqlalchemy_db.init()
 
-        if self.transmitted_api_data.settings.api_start_operation_executor_worker:
+        if self.transmitted_api_data.settings.api_start_operation_executor_worker:  # TODO
             raise_for_type(self.transmitted_api_data.sqlalchemy_db, SQLAlchemyDB)
             _ = safe_run_worker_in_background(
                 worker=OperationExecutorWorker(
@@ -43,7 +43,7 @@ class StartupAPIEvent(BaseStartupAPIEvent):
                 mode=SafeRunInBackgroundModes.thread
             )
 
-        if self.transmitted_api_data.settings.api_start_scheduled_operation_creator_worker:
+        if self.transmitted_api_data.settings.api_start_scheduled_operation_creator_worker:  # TODO
             raise_for_type(self.transmitted_api_data.sqlalchemy_db, SQLAlchemyDB)
             _ = safe_run_worker_in_background(
                 worker=ScheduledOperationCreatorWorker(
