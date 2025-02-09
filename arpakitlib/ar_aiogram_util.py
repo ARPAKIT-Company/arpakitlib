@@ -4,7 +4,7 @@ import asyncio
 import logging
 from typing import Optional, Any, Union, Callable, Iterable
 
-from aiogram import types, Bot, Dispatcher
+from aiogram import types, Bot
 from aiogram.client.default import DefaultBotProperties
 from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.enums import ChatType, ParseMode
@@ -14,10 +14,10 @@ from aiogram.filters.callback_data import CallbackData
 from pydantic import BaseModel, ConfigDict
 
 from arpakitlib.ar_file_storage_in_dir_util import FileStorageInDir
-from arpakitlib.ar_json_db_util import JSONDb
+from arpakitlib.ar_json_db_util import BaseJSONDb
 from arpakitlib.ar_need_type_util import parse_need_type, NeedTypes
 from arpakitlib.ar_parse_command import BadCommandFormat, parse_command
-from arpakitlib.ar_settings_util import SimpleSettings, BaseSettings2
+from arpakitlib.ar_settings_util import BaseSettings2
 from arpakitlib.ar_sqlalchemy_util import SQLAlchemyDb
 from arpakitlib.ar_type_util import raise_for_types, raise_for_type
 
@@ -325,7 +325,7 @@ class SimpleTransmittedTgBotData(BaseTransmittedTgBotData):
 
 class AdvancedTransmittedTgBotData(SimpleTransmittedTgBotData):
     sqlalchemy_db: SQLAlchemyDb | None = None
-    json_db: JSONDb | None = None
+    json_db: BaseJSONDb | None = None
     media_file_storage_in_dir: FileStorageInDir | None = None
     cache_file_storage_in_dir: FileStorageInDir | None = None
     dump_file_storage_in_dir: FileStorageInDir | None = None

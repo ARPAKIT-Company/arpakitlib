@@ -13,7 +13,7 @@ _ARPAKIT_LIB_MODULE_VERSION = "3.0"
 
 class JSONDbFile:
 
-    def __init__(self, *, filepath: str, use_memory: bool = True, beautify_json: bool = True):
+    def __init__(self, *, filepath: str, use_memory: bool = True, beautify_json: bool = True, **kwargs):
         self._logger = logging.getLogger(self.__class__.__name__)
         raise_for_type(filepath, str)
         filepath = os.path.abspath(filepath.strip())
@@ -173,9 +173,9 @@ class JSONDbFile:
             os.remove(self.filepath)
 
 
-class JSONDb:
+class BaseJSONDb:
 
-    def __init__(self, json_db_files: Optional[list[JSONDbFile]] = None):
+    def __init__(self, json_db_files: list[JSONDbFile] | None = None, **kwargs):
         self._logger = logging.getLogger(self.__class__.__name__)
         if json_db_files is None:
             json_db_files = []
@@ -190,7 +190,9 @@ class JSONDb:
     def __len__(self) -> int:
         return len(self.json_db_files)
 
-    def create_json_db_file(self, filepath: str, use_memory: bool = False, beautify_json: bool = False) -> JSONDbFile:
+    def create_json_db_file(
+            self, filepath: str, use_memory: bool = False, beautify_json: bool = False, **kwargs
+    ) -> JSONDbFile:
         json_db_file = JSONDbFile(filepath=filepath, use_memory=use_memory, beautify_json=beautify_json)
         self.json_db_files.append(json_db_file)
         return json_db_file
@@ -215,7 +217,7 @@ class JSONDb:
             json_db_file.rm_all_records()
 
     def copy_files_to_dir(self, to_dirpath: str) -> Self:
-        json_db = JSONDb()
+        json_db = BaseJSONDb()
         for json_db_file in self.json_db_files:
             filepath = os.path.join(to_dirpath, json_db_file.filename)
             json_db_file.copy(filepath)

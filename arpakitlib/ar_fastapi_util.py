@@ -31,7 +31,7 @@ from arpakitlib.ar_enumeration_util import Enumeration
 from arpakitlib.ar_exception_util import exception_to_traceback_str
 from arpakitlib.ar_file_storage_in_dir_util import FileStorageInDir
 from arpakitlib.ar_func_util import raise_if_not_async_func, is_async_object
-from arpakitlib.ar_json_db_util import JSONDb
+from arpakitlib.ar_json_db_util import BaseJSONDb
 from arpakitlib.ar_json_util import safely_transfer_obj_to_json_str_to_json_obj, safely_transfer_obj_to_json_str
 from arpakitlib.ar_settings_util import BaseSettings2
 from arpakitlib.ar_sqlalchemy_model_util import StoryLogDBM, OperationDBM
@@ -538,7 +538,7 @@ class SimpleTransmittedAPIData(BaseTransmittedAPIData):
 
 class AdvancedTransmittedAPIData(SimpleTransmittedAPIData):
     sqlalchemy_db: SQLAlchemyDb | None = None
-    json_db: JSONDb | None = None
+    json_db: BaseJSONDb | None = None
     media_file_storage_in_dir: FileStorageInDir | None = None
     cache_file_storage_in_dir: FileStorageInDir | None = None
     dump_file_storage_in_dir: FileStorageInDir | None = None

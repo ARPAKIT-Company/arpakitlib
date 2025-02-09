@@ -224,6 +224,18 @@ class AdvancedSettings(SimpleSettings):
     def local_timezone_as_pytz(self) -> Any:
         return pytz.timezone(self.local_timezone)
 
+    json_db_dirpath: str | None = None
+
+    @field_validator("json_db_dirpath", mode="after")
+    def validate_json_db_dirpath(cls, v: Any, validation_info: ValidationInfo, **kwargs) -> str | None:
+        if v is not None:
+            return v
+        var_dirpath = validation_info.data.get("var_dirpath")
+        if var_dirpath is None:
+            return None
+        project_name = validation_info.data.get("project_name")
+        return os.path.join(var_dirpath, f"{project_name}_json_db")
+
 
 def __example():
     print(safely_transfer_obj_to_json_str(AdvancedSettings(var_dirpath="./var").model_dump(mode="json")))
