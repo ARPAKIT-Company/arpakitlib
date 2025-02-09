@@ -322,6 +322,7 @@ class OperationExecutorWorker(BaseWorker):
             timeout_after_err_in_run=timedelta(seconds=0.3),
             startup_funcs=startup_funcs,
         )
+        raise_for_type(sqlalchemy_db, SQLAlchemyDb)
         self.sqlalchemy_db = sqlalchemy_db
         if operation_executor is None:
             operation_executor = BaseOperationExecutor(sqlalchemy_db=sqlalchemy_db)
@@ -393,6 +394,7 @@ class ScheduledOperationCreatorWorker(BaseWorker):
             timeout_after_err_in_run=timedelta(seconds=0.3),
             startup_funcs=startup_funcs
         )
+        raise_for_type(sqlalchemy_db, SQLAlchemyDb)
         self.sqlalchemy_db = sqlalchemy_db
         if scheduled_operations is None:
             scheduled_operations = []
