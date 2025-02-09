@@ -1,2 +1,3 @@
 cd ..
-docker stop {{PROJECT_NAME}}_postgres
+source .env
+docker stop ${PROJECT_NAME}_postgres
