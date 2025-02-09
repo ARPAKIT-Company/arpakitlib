@@ -1,7 +1,7 @@
 from arpakitlib.ar_base_worker_util import safe_run_worker_in_background, SafeRunInBackgroundModes
 from arpakitlib.ar_fastapi_util import BaseStartupAPIEvent, BaseShutdownAPIEvent
 from arpakitlib.ar_operation_execution_util import OperationExecutorWorker, ScheduledOperationCreatorWorker
-from arpakitlib.ar_sqlalchemy_util import SQLAlchemyDB
+from arpakitlib.ar_sqlalchemy_util import SQLAlchemyDb
 from arpakitlib.ar_type_util import raise_for_type
 from src.api.transmitted_api_data import TransmittedAPIData
 from src.operation_execution.operation_executor import OperationExecutor
@@ -29,11 +29,11 @@ class StartupAPIEvent(BaseStartupAPIEvent):
             self.transmitted_api_data.dump_file_storage_in_dir.init()
 
         if self.transmitted_api_data.settings.api_init_sql_db_at_start:
-            raise_for_type(self.transmitted_api_data.sqlalchemy_db, SQLAlchemyDB)
+            raise_for_type(self.transmitted_api_data.sqlalchemy_db, SQLAlchemyDb)
             self.transmitted_api_data.sqlalchemy_db.init()
 
         if self.transmitted_api_data.settings.api_start_operation_executor_worker:  # TODO
-            raise_for_type(self.transmitted_api_data.sqlalchemy_db, SQLAlchemyDB)
+            raise_for_type(self.transmitted_api_data.sqlalchemy_db, SQLAlchemyDb)
             _ = safe_run_worker_in_background(
                 worker=OperationExecutorWorker(
                     sqlalchemy_db=self.transmitted_api_data.sqlalchemy_db,
@@ -44,7 +44,7 @@ class StartupAPIEvent(BaseStartupAPIEvent):
             )
 
         if self.transmitted_api_data.settings.api_start_scheduled_operation_creator_worker:  # TODO
-            raise_for_type(self.transmitted_api_data.sqlalchemy_db, SQLAlchemyDB)
+            raise_for_type(self.transmitted_api_data.sqlalchemy_db, SQLAlchemyDb)
             _ = safe_run_worker_in_background(
                 worker=ScheduledOperationCreatorWorker(
                     sqlalchemy_db=self.transmitted_api_data.sqlalchemy_db,

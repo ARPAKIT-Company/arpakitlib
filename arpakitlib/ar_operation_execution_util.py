@@ -19,7 +19,7 @@ from arpakitlib.ar_datetime_util import now_utc_dt
 from arpakitlib.ar_dict_util import combine_dicts
 from arpakitlib.ar_sleep_util import sync_safe_sleep, async_safe_sleep
 from arpakitlib.ar_sqlalchemy_model_util import OperationDBM, StoryLogDBM, BaseOperationTypes
-from arpakitlib.ar_sqlalchemy_util import SQLAlchemyDB
+from arpakitlib.ar_sqlalchemy_util import SQLAlchemyDb
 from arpakitlib.ar_type_util import raise_for_type
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
@@ -30,7 +30,7 @@ _logger = logging.getLogger(__name__)
 def get_operation_for_execution(
         *,
         session: Session | None = None,
-        sqlalchemy_db: SQLAlchemyDB | None = None,
+        sqlalchemy_db: SQLAlchemyDb | None = None,
         filter_operation_types: list[str] | str | None = None,
         lock: bool = False
 ) -> OperationDBM | None:
@@ -65,7 +65,7 @@ def get_operation_for_execution(
 def get_operation_by_id(
         *,
         session: Session | None = None,
-        sqlalchemy_db: SQLAlchemyDB | None = None,
+        sqlalchemy_db: SQLAlchemyDb | None = None,
         filter_operation_id: int,
         raise_if_not_found: bool = False,
         lock: bool = False
@@ -101,7 +101,7 @@ def get_operation_by_id(
 def remove_operations(
         *,
         session: Session | None = None,
-        sqlalchemy_db: SQLAlchemyDB | None = None,
+        sqlalchemy_db: SQLAlchemyDb | None = None,
         filter_operation_ids: list[int] | int | None = None,
         filter_operation_types: list[str] | str | None = None,
         filter_operation_statuses: list[str] | str | None = None
@@ -141,7 +141,7 @@ def remove_operations(
 
 
 class BaseOperationExecutor:
-    def __init__(self, *, sqlalchemy_db: SQLAlchemyDB, **kwargs):
+    def __init__(self, *, sqlalchemy_db: SQLAlchemyDb, **kwargs):
         self._logger = logging.getLogger(self.__class__.__name__)
         self.sql_alchemy_db = sqlalchemy_db
 
@@ -311,7 +311,7 @@ class OperationExecutorWorker(BaseWorker):
     def __init__(
             self,
             *,
-            sqlalchemy_db: SQLAlchemyDB,
+            sqlalchemy_db: SQLAlchemyDb,
             operation_executor: BaseOperationExecutor | None = None,
             filter_operation_types: str | list[str] | None = None,
             startup_funcs: list[Any] | None = None,
@@ -384,7 +384,7 @@ class ScheduledOperationCreatorWorker(BaseWorker):
     def __init__(
             self,
             *,
-            sqlalchemy_db: SQLAlchemyDB,
+            sqlalchemy_db: SQLAlchemyDb,
             scheduled_operations: ScheduledOperation | list[ScheduledOperation] | None = None,
             startup_funcs: list[Any] | None = None
     ):

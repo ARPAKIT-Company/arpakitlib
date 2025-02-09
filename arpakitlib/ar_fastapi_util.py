@@ -31,10 +31,11 @@ from arpakitlib.ar_enumeration_util import Enumeration
 from arpakitlib.ar_exception_util import exception_to_traceback_str
 from arpakitlib.ar_file_storage_in_dir_util import FileStorageInDir
 from arpakitlib.ar_func_util import raise_if_not_async_func, is_async_object
+from arpakitlib.ar_json_db_util import JSONDb
 from arpakitlib.ar_json_util import safely_transfer_obj_to_json_str_to_json_obj, safely_transfer_obj_to_json_str
-from arpakitlib.ar_settings_util import SimpleSettings
+from arpakitlib.ar_settings_util import BaseSettings2
 from arpakitlib.ar_sqlalchemy_model_util import StoryLogDBM, OperationDBM
-from arpakitlib.ar_sqlalchemy_util import SQLAlchemyDB
+from arpakitlib.ar_sqlalchemy_util import SQLAlchemyDb
 from arpakitlib.ar_type_util import raise_for_type, raise_if_none
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
@@ -355,12 +356,12 @@ def logging__api_func_before_in_handle_exception(
 
 def story_log__api_func_before_in_handle_exception(
         *,
-        sqlalchemy_db: SQLAlchemyDB,
+        sqlalchemy_db: SQLAlchemyDb,
         ignore_api_error_codes: list[str] | None = None,
         ignore_status_codes: list[int] | None = None,
         ignore_exception_types: list[type[Exception]] | None = None
 ) -> Callable:
-    raise_for_type(sqlalchemy_db, SQLAlchemyDB)
+    raise_for_type(sqlalchemy_db, SQLAlchemyDb)
 
     current_func_name = inspect.currentframe().f_code.co_name
 
@@ -532,11 +533,12 @@ class BaseTransmittedAPIData(BaseModel):
 
 
 class SimpleTransmittedAPIData(BaseTransmittedAPIData):
-    settings: SimpleSettings | None = None
+    settings: BaseSettings2 | None = None
 
 
 class AdvancedTransmittedAPIData(SimpleTransmittedAPIData):
-    sqlalchemy_db: SQLAlchemyDB | None = None
+    sqlalchemy_db: SQLAlchemyDb | None = None
+    json_db: JSONDb | None = None
     media_file_storage_in_dir: FileStorageInDir | None = None
     cache_file_storage_in_dir: FileStorageInDir | None = None
     dump_file_storage_in_dir: FileStorageInDir | None = None

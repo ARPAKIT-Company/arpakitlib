@@ -78,7 +78,7 @@ def generate_sqlalchemy_url(
     return f"{base}://{auth_part}{host_part}{database_part}{query_part}"
 
 
-class SQLAlchemyDB:
+class SQLAlchemyDb:
     def __init__(
             self,
             *,

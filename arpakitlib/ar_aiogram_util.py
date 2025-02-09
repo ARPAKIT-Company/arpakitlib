@@ -4,7 +4,7 @@ import asyncio
 import logging
 from typing import Optional, Any, Union, Callable, Iterable
 
-from aiogram import types, Bot
+from aiogram import types, Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.enums import ChatType, ParseMode
@@ -13,8 +13,12 @@ from aiogram.filters import CommandObject, Filter
 from aiogram.filters.callback_data import CallbackData
 from pydantic import BaseModel, ConfigDict
 
+from arpakitlib.ar_file_storage_in_dir_util import FileStorageInDir
+from arpakitlib.ar_json_db_util import JSONDb
 from arpakitlib.ar_need_type_util import parse_need_type, NeedTypes
 from arpakitlib.ar_parse_command import BadCommandFormat, parse_command
+from arpakitlib.ar_settings_util import SimpleSettings, BaseSettings2
+from arpakitlib.ar_sqlalchemy_util import SQLAlchemyDb
 from arpakitlib.ar_type_util import raise_for_types, raise_for_type
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
@@ -315,6 +319,18 @@ class BaseTransmittedTgBotData(BaseModel):
     model_config = ConfigDict(extra="ignore", arbitrary_types_allowed=True, from_attributes=True)
 
 
+class SimpleTransmittedTgBotData(BaseTransmittedTgBotData):
+    settings: BaseSettings2 | None = None
+
+
+class AdvancedTransmittedTgBotData(SimpleTransmittedTgBotData):
+    sqlalchemy_db: SQLAlchemyDb | None = None
+    json_db: JSONDb | None = None
+    media_file_storage_in_dir: FileStorageInDir | None = None
+    cache_file_storage_in_dir: FileStorageInDir | None = None
+    dump_file_storage_in_dir: FileStorageInDir | None = None
+
+
 def create_aiogram_tg_bot(*, token: str, proxy_url_: str | None = None, **kwargs) -> Bot:
     kwargs["token"] = token
 
@@ -333,9 +349,16 @@ def create_aiogram_tg_bot(*, token: str, proxy_url_: str | None = None, **kwargs
     return tg_bot
 
 
-def create_tg_bot_dispatcher():
-    # TODO
-    pass
+# def create_tg_bot_dispatcher(
+#         *,
+#         settings:
+# ):
+#     tg_dp = Dispatcher(
+#         storage=MemoryStorage(),
+#         settings=get_settings(),
+#         db=db,
+#         transmitted_tg_bot_data=transmitted_tg_bot_data
+#     )
 
 
 def __example():
