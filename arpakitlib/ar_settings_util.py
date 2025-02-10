@@ -88,57 +88,57 @@ class AdvancedSettings(SimpleSettings):
             return v.strip()
         return v
 
-    sql_db_user: str | None = None
+    sqlalchemy_db_user: str | None = None
 
-    sql_db_password: str | None = None
+    sqlalchemy_db_password: str | None = None
 
-    sql_db_host: str | None = None
+    sqlalchemy_db_host: str | None = None
 
-    sql_db_port: int | None = None
+    sqlalchemy_db_port: int | None = None
 
-    sql_db_database: str | None = None
+    sqlalchemy_db_database: str | None = None
 
-    sync_sql_db_url: str | None = None
+    sqlalchemy_sync_db_url: str | None = None
 
-    @field_validator("sync_sql_db_url", mode="after")
-    def validate_sync_sql_db_url(cls, v: Any, validation_info: ValidationInfo, **kwargs) -> str | None:
+    @field_validator("sqlalchemy_sync_db_url", mode="after")
+    def validate_sqlalchemy_sync_db_url(cls, v: Any, validation_info: ValidationInfo, **kwargs) -> str | None:
         if v is not None:
             return v
 
         return generate_sqlalchemy_url(
             base="postgresql",
-            user=validation_info.data.get("sql_db_user"),
-            password=validation_info.data.get("sql_db_password"),
-            host=validation_info.data.get("sql_db_host"),
-            port=validation_info.data.get("sql_db_port"),
-            database=validation_info.data.get("sql_db_database")
+            user=validation_info.data.get("sqlalchemy_db_user"),
+            password=validation_info.data.get("sqlalchemy_db_password"),
+            host=validation_info.data.get("sqlalchemy_db_host"),
+            port=validation_info.data.get("sqlalchemy_db_port"),
+            database=validation_info.data.get("sqlalchemy_db_database")
         )
 
-    async_sql_db_url: str | None = None
+    sqlalchemy_async_db_url: str | None = None
 
-    @field_validator("async_sql_db_url", mode="after")
-    def validate_async_sql_db_url(cls, v: Any, validation_info: ValidationInfo, **kwargs) -> str | None:
+    @field_validator("sqlalchemy_async_db_url", mode="after")
+    def validate_sqlalchemy_async_db_url(cls, v: Any, validation_info: ValidationInfo, **kwargs) -> str | None:
         if v is not None:
             return v
 
         return generate_sqlalchemy_url(
-            base="postgresql+asyncpg",
-            user=validation_info.data.get("sql_db_user"),
-            password=validation_info.data.get("sql_db_password"),
-            host=validation_info.data.get("sql_db_host"),
-            port=validation_info.data.get("sql_db_port"),
-            database=validation_info.data.get("sql_db_database")
+            base="postgresql",
+            user=validation_info.data.get("sqlalchemy_db_user"),
+            password=validation_info.data.get("sqlalchemy_db_password"),
+            host=validation_info.data.get("sqlalchemy_db_host"),
+            port=validation_info.data.get("sqlalchemy_db_port"),
+            database=validation_info.data.get("sqlalchemy_db_database")
         )
 
     @property
     def is_any_sql_db_url_set(self) -> bool:
-        if self.sync_sql_db_url is not None:
+        if self.sqlalchemy_sync_db_url is not None:
             return True
-        if self.async_sql_db_url is not None:
+        if self.sqlalchemy_async_db_url is not None:
             return True
         return False
 
-    sql_db_echo: bool = False
+    sqlalchemy_db_echo: bool = False
 
     api_port: int | None = None
 
@@ -149,7 +149,7 @@ class AdvancedSettings(SimpleSettings):
                 return int(v)
         return None
 
-    api_init_sql_db: bool = False
+    api_init_sqlalchemy_db: bool = False
 
     api_init_json_db: bool = False
 
@@ -173,7 +173,7 @@ class AdvancedSettings(SimpleSettings):
 
     tg_bot_proxy_url: str | None = None
 
-    tg_bot_init_sql_db: bool = False
+    tg_bot_init_sqlalchemy_db: bool = False
 
     tg_bot_init_json_db: bool = False
 

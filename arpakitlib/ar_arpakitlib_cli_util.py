@@ -27,10 +27,12 @@ def execute_arpakitlib_cli(*, full_command: str | None = None):
         print("Commands:")
         print()
         print("-c init_arpakit_project_template")
-        print("-project_dirpath ...")
         print("-overwrite_if_exists ...")
         print("-ignore_paths_startswith ...")
         print("-only_paths_startswith ...")
+        print("-param1 ...")
+        print("-param2 ...")
+        print("-param3 ...")
         print("\n")
 
     elif command == "init_arpakit_project_template":
@@ -54,9 +56,9 @@ def execute_arpakitlib_cli(*, full_command: str | None = None):
         init_arpakit_project_template(
             project_dirpath=project_dirpath,
             overwrite_if_exists=overwrite_if_exists,
-            params=params,
             ignore_paths_startswith=ignore_paths_startswith,
-            only_paths_startswith=only_paths_startswith
+            only_paths_startswith=only_paths_startswith,
+            params=params,
         )
 
     else:

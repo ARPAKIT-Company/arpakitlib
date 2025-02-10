@@ -15,9 +15,9 @@ def init_arpakit_project_template(
         *,
         project_dirpath: str = "./",
         overwrite_if_exists: bool = False,
-        params: dict[str, str] | None = None,
         ignore_paths_startswith: list[str] | str | None = None,
         only_paths_startswith: list[str] | str | None = None,
+        params: dict[str, str] | None = None,
 ):
     raise_if_string_blank(project_dirpath)
 

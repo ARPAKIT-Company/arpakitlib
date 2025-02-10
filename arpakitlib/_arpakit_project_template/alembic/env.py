@@ -4,14 +4,16 @@ from alembic import context
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
+from arpakitlib.ar_type_util import raise_for_type
 from src.core.settings import get_cached_settings
-from src.sql_db.util import get_base_dbm
+from src.sqlalchemy_db.util import get_base_dbm
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
 
-config.set_section_option("alembic", "sqlalchemy.url", get_cached_settings().sync_sql_db_url)
+raise_for_type(get_cached_settings().sqlalchemy_sync_db_url, str)
+config.set_section_option("alembic", "sqlalchemy.url", get_cached_settings().sqlalchemy_sync_db_url)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.

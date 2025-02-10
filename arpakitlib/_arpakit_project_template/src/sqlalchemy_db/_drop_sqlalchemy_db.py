@@ -1,6 +1,6 @@
 from src.core.settings import get_cached_settings
 from src.core.util import setup_logging
-from src.sql_db.util import get_cached_sqlalchemy_db
+from src.sqlalchemy_db.util import get_cached_sqlalchemy_db
 
 
 def _reinit_sqlalchemy_db():

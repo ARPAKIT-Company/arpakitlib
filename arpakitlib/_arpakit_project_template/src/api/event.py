@@ -26,7 +26,7 @@ class StartupAPIEvent(BaseStartupAPIEvent):
         if self.transmitted_api_data.dump_file_storage_in_dir is not None:
             self.transmitted_api_data.dump_file_storage_in_dir.init()
 
-        if self.transmitted_api_data.settings.api_init_sql_db:
+        if self.transmitted_api_data.settings.api_init_sqlalchemy_db:
             self.transmitted_api_data.sqlalchemy_db.init()
 
         if self.transmitted_api_data.settings.api_init_json_db:
