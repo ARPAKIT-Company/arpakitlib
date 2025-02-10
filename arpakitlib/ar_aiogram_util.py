@@ -334,7 +334,7 @@ class AdvancedTransmittedTgBotData(SimpleTransmittedTgBotData):
 def create_aiogram_tg_bot(*, token: str, proxy_url_: str | None = None, **kwargs) -> Bot:
     kwargs["token"] = token
 
-    if proxy_url_:
+    if proxy_url_ is not None:
         kwargs["session"] = AiohttpSession(proxy=proxy_url_)
 
     if kwargs.get("default") is None:
@@ -347,18 +347,6 @@ def create_aiogram_tg_bot(*, token: str, proxy_url_: str | None = None, **kwargs
     tg_bot = Bot(**kwargs)
 
     return tg_bot
-
-
-# def create_tg_bot_dispatcher(
-#         *,
-#         settings:
-# ):
-#     tg_dp = Dispatcher(
-#         storage=MemoryStorage(),
-#         settings=get_settings(),
-#         db=db,
-#         transmitted_tg_bot_data=transmitted_tg_bot_data
-#     )
 
 
 def __example():

@@ -82,13 +82,19 @@ class SimpleSettings(BaseSettings2):
 class AdvancedSettings(SimpleSettings):
     project_name: str | None = None
 
+    @field_validator("project_name", mode="after")
+    def validate_project_name(cls, v: Any, validation_info: ValidationInfo, **kwargs) -> str | None:
+        if isinstance(v, str):
+            return v.strip()
+        return v
+
     sql_db_user: str | None = None
 
     sql_db_password: str | None = None
 
     sql_db_host: str | None = None
 
-    sql_db_port: int | None = int("50506") if "50506".strip().isdigit() else None
+    sql_db_port: int | None = None
 
     sql_db_database: str | None = None
 
@@ -143,19 +149,19 @@ class AdvancedSettings(SimpleSettings):
                 return int(v)
         return None
 
-    api_init_sql_db: bool = True
+    api_init_sql_db: bool = False
 
-    api_init_json_db: bool = True
+    api_init_json_db: bool = False
 
     api_logging__api_func_before_in_handle_exception: bool = True
 
-    api_story_log__api_func_before_in_handle_exception: bool = True
+    api_story_log__api_func_before_in_handle_exception: bool = False
 
-    api_correct_api_key: str | None = "1"
+    api_correct_api_key: str | None = "test"
 
-    api_correct_token: str | None = "1"
+    api_correct_token: str | None = "test"
 
-    api_enable_admin1: bool = True
+    api_enable_admin1: bool = False
 
     api_start_operation_executor_worker: bool = False
 
@@ -163,11 +169,15 @@ class AdvancedSettings(SimpleSettings):
 
     admin1_secret_key: str | None = "85a9583cb91c4de7a78d7eb1e5306a04418c9c43014c447ea8ec8dd5deb4cf71"
 
-    tg_bot_init_sql_db: bool = True
+    tg_bot_token: str | None = None
 
-    tg_bot_init_json_db: bool = True
+    tg_bot_proxy_url: str | None = None
 
-    var_dirpath: str | None = "./var"
+    tg_bot_init_sql_db: bool = False
+
+    tg_bot_init_json_db: bool = False
+
+    var_dirpath: str | None = None
 
     log_filepath: str | None = None
 
