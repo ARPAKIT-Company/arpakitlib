@@ -1,2 +1,3 @@
 cd ..
-docker stop arpakitlib_postgres
+source .env
+docker stop ${project_name}_postgres

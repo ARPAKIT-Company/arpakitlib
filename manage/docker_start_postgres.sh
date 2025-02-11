@@ -1,2 +1,3 @@
 cd ..
-docker start arpakitlib_postgres
+source .env
+docker start ${project_name}_postgres

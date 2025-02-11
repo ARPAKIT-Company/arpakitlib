@@ -23,6 +23,9 @@ def parse_need_type(value: Any, need_type: str, allow_none: bool = False) -> Any
     if allow_none and value is None:
         return None
 
+    if not allow_none and value is None:
+        raise ValueError("value is None")
+
     NeedTypes.parse_and_validate_values(need_type)
 
     if need_type == NeedTypes.str_:

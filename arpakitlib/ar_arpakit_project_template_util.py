@@ -19,6 +19,7 @@ def init_arpakit_project_template(
         only_paths_startswith: list[str] | str | None = None,
         params: dict[str, str] | None = None,
 ):
+    raise_for_type(project_dirpath, str)
     raise_if_string_blank(project_dirpath)
 
     raise_for_type(overwrite_if_exists, bool)
@@ -31,11 +32,13 @@ def init_arpakit_project_template(
         ignore_paths_startswith = [ignore_paths_startswith]
     if ignore_paths_startswith is None:
         ignore_paths_startswith = []
+    raise_for_type(ignore_paths_startswith, list)
 
     if isinstance(only_paths_startswith, str):
         only_paths_startswith = [only_paths_startswith]
     if only_paths_startswith is None:
         only_paths_startswith = []
+    raise_for_type(only_paths_startswith, list)
 
     def _generate_filepath_to_content() -> dict[str, str]:
         arpakit_project_template_dirpath = os.path.join(

@@ -5,7 +5,6 @@ import sys
 from arpakitlib.ar_arpakit_project_template_util import init_arpakit_project_template
 from arpakitlib.ar_need_type_util import parse_need_type, NeedTypes
 from arpakitlib.ar_parse_command import parse_command
-from arpakitlib.ar_str_util import raise_if_string_blank
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
 
@@ -27,6 +26,7 @@ def execute_arpakitlib_cli(*, full_command: str | None = None):
         print("Commands:")
         print()
         print("-c init_arpakit_project_template")
+        print("-project_dirpath ./")
         print("-overwrite_if_exists ...")
         print("-ignore_paths_startswith ...")
         print("-only_paths_startswith ...")
@@ -36,13 +36,16 @@ def execute_arpakitlib_cli(*, full_command: str | None = None):
         print("\n")
 
     elif command == "init_arpakit_project_template":
-        project_dirpath = raise_if_string_blank(parsed_command.get_value_by_keys(keys=["project_dirpath"]))
+        project_dirpath: str = parse_need_type(
+            value=parsed_command.get_value_by_keys(keys=["project_dirpath"]),
+            need_type=NeedTypes.str_,
+            allow_none=False
+        )
         overwrite_if_exists: bool = parse_need_type(
             value=parsed_command.get_value_by_keys(keys=["overwrite_if_exists"]),
             need_type=NeedTypes.bool_,
             allow_none=False
         )
-        params = parsed_command.key_to_value
         ignore_paths_startswith: list[str] | None = parse_need_type(
             value=parsed_command.get_value_by_keys(keys=["ignore_paths_startswith"]),
             need_type=NeedTypes.list_of_str,
@@ -58,7 +61,7 @@ def execute_arpakitlib_cli(*, full_command: str | None = None):
             overwrite_if_exists=overwrite_if_exists,
             ignore_paths_startswith=ignore_paths_startswith,
             only_paths_startswith=only_paths_startswith,
-            params=params,
+            params=parsed_command.key_to_value,
         )
 
     else:
