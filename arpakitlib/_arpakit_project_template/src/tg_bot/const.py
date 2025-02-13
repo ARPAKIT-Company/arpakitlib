@@ -1,11 +1,14 @@
 from arpakitlib.ar_enumeration_util import Enumeration
 
 
-class TgBotPublicCommands(Enumeration):
+class TgBotCommands(Enumeration):
+    # public
+    healthcheck = "healthcheck"
+    arpakitlib = "arpakitlib"
     start = "start"
+    about = "about"
 
-
-class TgBotPrivateCommands(Enumeration):
+    # private
     init_db = "init_db"
     reinit_db = "reinit_db"
     drop_db = "drop_db"

@@ -108,15 +108,16 @@ def remove_operations(
 ):
     if isinstance(filter_operation_ids, int):
         filter_operation_ids = [filter_operation_ids]
-    if isinstance(filter_operation_types, str):
-        filter_operation_types = [filter_operation_types]
-    if isinstance(filter_operation_statuses, str):
-        filter_operation_statuses = [filter_operation_statuses]
-
     if filter_operation_ids is not None:
         raise_for_type(filter_operation_ids, list)
+
+    if isinstance(filter_operation_types, str):
+        filter_operation_types = [filter_operation_types]
     if filter_operation_types is not None:
         raise_for_type(filter_operation_types, list)
+
+    if isinstance(filter_operation_statuses, str):
+        filter_operation_statuses = [filter_operation_statuses]
     if filter_operation_statuses is not None:
         raise_for_type(filter_operation_statuses, list)
 

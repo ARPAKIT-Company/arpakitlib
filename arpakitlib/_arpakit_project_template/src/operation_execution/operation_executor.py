@@ -1,7 +1,7 @@
+from arpakitlib.ar_sqlalchemy_model_util import OperationDBM
 from sqlalchemy.orm import Session
 
 from arpakitlib.ar_operation_execution_util import BaseOperationExecutor
-from arpakitlib.ar_sqlalchemy_model_util import OperationDBM
 
 
 class OperationExecutor(BaseOperationExecutor):

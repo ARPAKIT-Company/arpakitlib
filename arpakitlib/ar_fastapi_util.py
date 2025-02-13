@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import asyncio
-import datetime as dt
 import inspect
 import logging
 import os.path
@@ -17,7 +16,7 @@ import fastapi.security
 import starlette.exceptions
 import starlette.requests
 import starlette.status
-from fastapi import FastAPI, APIRouter, Query, Security, Depends
+from fastapi import FastAPI, APIRouter, Security, Depends
 from fastapi.openapi.docs import get_swagger_ui_html, get_redoc_html
 from fastapi.security import APIKeyHeader
 from pydantic import BaseModel, ConfigDict
@@ -29,12 +28,8 @@ from arpakitlib.ar_datetime_util import now_utc_dt
 from arpakitlib.ar_dict_util import combine_dicts
 from arpakitlib.ar_enumeration_util import Enumeration
 from arpakitlib.ar_exception_util import exception_to_traceback_str
-from arpakitlib.ar_file_storage_in_dir_util import FileStorageInDir
 from arpakitlib.ar_func_util import raise_if_not_async_func, is_async_object
-from arpakitlib.ar_json_db_util import BaseJSONDb
 from arpakitlib.ar_json_util import safely_transfer_obj_to_json_str_to_json_obj, safely_transfer_obj_to_json_str
-from arpakitlib.ar_settings_util import BaseSettings2
-from arpakitlib.ar_sqlalchemy_model_util import StoryLogDBM, OperationDBM
 from arpakitlib.ar_sqlalchemy_util import SQLAlchemyDb
 from arpakitlib.ar_type_util import raise_for_type, raise_if_none
 
@@ -66,10 +61,12 @@ class BaseSO(BaseSchema):
     pass
 
 
-class SimpleSO(BaseSO):
-    id: int
-    long_id: str
-    creation_dt: dt.datetime
+class ErrorSO(BaseSO):
+    has_error: bool = True
+    error_code: str | None = None
+    error_specification_code: str | None = None
+    error_description: str | None = None
+    error_data: dict[str, Any] = {}
 
 
 class BaseAPIErrorCodes(Enumeration):
@@ -81,83 +78,6 @@ class BaseAPIErrorCodes(Enumeration):
 
 class BaseAPIErrorSpecificationCodes(Enumeration):
     pass
-
-
-class ErrorSO(BaseSO):
-    has_error: bool = True
-    error_code: str | None = None
-    error_specification_code: str | None = None
-    error_description: str | None = None
-    error_data: dict[str, Any] = {}
-
-
-class RawDataSO(BaseSO):
-    data: dict[str, Any] = {}
-
-
-class DatetimeSO(BaseSO):
-    date: dt.date
-    datetime: dt.datetime | None = None
-    year: int
-    month: int
-    day: int
-    hour: int | None = None
-    minute: int | None = None
-    second: int | None = None
-    microsecond: int | None = None
-
-    @classmethod
-    def from_datetime(cls, datetime_: dt.datetime):
-        return cls(
-            date=datetime_.date(),
-            datetime=datetime_,
-            year=datetime_.year,
-            month=datetime_.month,
-            day=datetime_.day,
-            hour=datetime_.hour,
-            minute=datetime_.minute,
-            second=datetime_.second,
-            microsecond=datetime_.microsecond
-        )
-
-    @classmethod
-    def from_date(cls, date_: dt.date):
-        return cls(
-            date=date_,
-            year=date_.year,
-            month=date_.month,
-            day=date_.day
-        )
-
-
-class StoryLogSO(SimpleSO):
-    level: str
-    title: str | None
-    data: dict[str, Any]
-
-    @classmethod
-    def from_story_log_dbm(cls, *, story_log_dbm: StoryLogDBM) -> StoryLogSO:
-        return cls.model_validate(story_log_dbm.simple_dict(include_sd_properties=True))
-
-
-class OperationSO(SimpleSO):
-    execution_start_dt: dt.datetime | None
-    execution_finish_dt: dt.datetime | None
-    status: str
-    type: str
-    input_data: dict[str, Any]
-    output_data: dict[str, Any]
-    error_data: dict[str, Any]
-    duration_total_seconds: float | None
-
-    @classmethod
-    def from_operation_dbm(cls, *, operation_dbm: OperationDBM) -> OperationSO:
-        return cls.model_validate(operation_dbm.simple_dict(include_sd_properties=True))
-
-
-class APIErrorInfoSO(BaseSO):
-    api_error_codes: list[str] = []
-    api_error_specification_codes: list[str] = []
 
 
 class APIJSONResponse(fastapi.responses.JSONResponse):
@@ -218,6 +138,7 @@ def create_handle_exception(
         *,
         funcs_before: list[Callable | None] | None = None,
         async_funcs_after: list[Callable | None] | None = None,
+        **kwargs
 ) -> Callable:
     if funcs_before is None:
         funcs_before = []
@@ -472,47 +393,9 @@ def add_cors_to_app(*, app: FastAPI):
     return app
 
 
-class HealthcheckSO(BaseSO):
-    is_ok: bool = True
-
-
-class ARPAKITLibSO(BaseSO):
-    arpakitlib: bool = True
-
-
-def create_needed_api_router():
-    api_router = APIRouter()
-
-    @api_router.get(
-        "/healthcheck",
-        response_model=HealthcheckSO | ErrorSO,
-        status_code=starlette.status.HTTP_200_OK,
-        tags=["Healthcheck"]
-    )
-    async def _():
-        return APIJSONResponse(
-            status_code=starlette.status.HTTP_200_OK,
-            content=HealthcheckSO(is_ok=True)
-        )
-
-    @api_router.get(
-        "/arpakitlib",
-        response_model=ARPAKITLibSO | ErrorSO,
-        status_code=starlette.status.HTTP_200_OK,
-        tags=["arpakitlib"]
-    )
-    async def _():
-        return APIJSONResponse(
-            status_code=starlette.status.HTTP_200_OK,
-            content=ARPAKITLibSO(arpakitlib=True)
-        )
-
-    return api_router
-
-
 class BaseStartupAPIEvent:
     def __init__(self, *args, **kwargs):
-        self._logger = logging.getLogger()
+        self._logger = logging.getLogger(self.__class__.__name__)
 
     async def async_on_startup(self, *args, **kwargs):
         self._logger.info("on_startup starts")
@@ -521,7 +404,7 @@ class BaseStartupAPIEvent:
 
 class BaseShutdownAPIEvent:
     def __init__(self, *args, **kwargs):
-        self._logger = logging.getLogger()
+        self._logger = logging.getLogger(self.__class__.__name__)
 
     async def async_on_shutdown(self, *args, **kwargs):
         self._logger.info("on_shutdown starts")
@@ -530,18 +413,6 @@ class BaseShutdownAPIEvent:
 
 class BaseTransmittedAPIData(BaseModel):
     model_config = ConfigDict(extra="ignore", arbitrary_types_allowed=True, from_attributes=True)
-
-
-class SimpleTransmittedAPIData(BaseTransmittedAPIData):
-    settings: BaseSettings2 | None = None
-
-
-class AdvancedTransmittedAPIData(SimpleTransmittedAPIData):
-    sqlalchemy_db: SQLAlchemyDb | None = None
-    json_db: BaseJSONDb | None = None
-    media_file_storage_in_dir: FileStorageInDir | None = None
-    cache_file_storage_in_dir: FileStorageInDir | None = None
-    dump_file_storage_in_dir: FileStorageInDir | None = None
 
 
 def get_transmitted_api_data(request: starlette.requests.Request) -> BaseTransmittedAPIData:
@@ -737,58 +608,24 @@ def base_api_auth(
     return func
 
 
-def simple_api_router_for_testing():
-    router = APIRouter(tags=["Testing"])
-
-    @router.get(
-        "/raise_fake_exception_1",
-        response_model=ErrorSO
-    )
-    async def _():
-        raise fastapi.HTTPException(status_code=starlette.status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-    @router.get(
-        "/raise_fake_exception_2",
-        response_model=ErrorSO
-    )
-    async def _():
-        raise APIException(
-            error_code="raise_fake_exception_2",
-            error_specification_code="raise_fake_exception_2",
-            error_description="raise_fake_exception_2"
-        )
-
-    @router.get(
-        "/raise_fake_exception_3",
-        response_model=ErrorSO
-    )
-    async def _():
-        raise Exception("raise_fake_exception_3")
-
-    @router.get(
-        "/check_params_1",
-        response_model=ErrorSO
-    )
-    async def _(name: int = Query()):
-        return RawDataSO(data={"name": name})
-
-    return router
-
-
 def create_fastapi_app(
         *,
-        title: str = "arpakitlib FastAPI",
+        title: str | None = "arpakitlib FastAPI",
         description: str | None = "arpakitlib FastAPI",
         handle_exception_: Callable | None = None,
         startup_api_events: list[BaseStartupAPIEvent | None] | None = None,
         shutdown_api_events: list[BaseShutdownAPIEvent | None] | None = None,
         transmitted_api_data: BaseTransmittedAPIData = BaseTransmittedAPIData(),
-        main_api_router: APIRouter = simple_api_router_for_testing(),
+        main_api_router: APIRouter | None = None,
         contact: dict[str, Any] | None = None,
         media_dirpath: str | None = None,
-        static_dirpath: str | None = None
+        static_dirpath: str | None = None,
+        **kwargs
 ):
     _logger.info("start")
+
+    if title is None:
+        title = "arpakitlib FastAPI"
 
     if handle_exception_ is None:
         handle_exception_ = create_handle_exception(
@@ -813,7 +650,7 @@ def create_fastapi_app(
         openapi_url="/openapi",
         on_startup=[api_startup_event.async_on_startup for api_startup_event in startup_api_events],
         on_shutdown=[api_shutdown_event.async_on_shutdown for api_shutdown_event in shutdown_api_events],
-        contact=contact
+        contact=contact,
     )
 
     if media_dirpath is not None:
@@ -837,12 +674,8 @@ def create_fastapi_app(
         handle_exception=handle_exception_
     )
 
-    app.include_router(
-        router=create_needed_api_router(),
-        prefix=""
-    )
-
-    app.include_router(router=main_api_router)
+    if main_api_router is not None:
+        app.include_router(router=main_api_router)
 
     _logger.info("finish")
 

@@ -1,11 +1,8 @@
-import importlib
-from contextlib import suppress
-
 from fastapi import FastAPI
 from sqladmin import Admin
 
-from arpakitlib.ar_sqladmin_util import SimpleModelView
-from src.admin1.admin_auth import AdminAuth
+from src.admin1.admin_auth import Admin1Auth
+from src.admin1.model_view import SimpleMV
 from src.api.transmitted_api_data import TransmittedAPIData
 from src.core.settings import get_cached_settings
 
@@ -13,7 +10,7 @@ from src.core.settings import get_cached_settings
 def add_admin1_in_app(*, app: FastAPI) -> FastAPI:
     transmitted_api_data: TransmittedAPIData = app.state.transmitted_api_data
 
-    authentication_backend = AdminAuth()
+    authentication_backend = Admin1Auth()
 
     admin = Admin(
         app=app,
@@ -23,10 +20,7 @@ def add_admin1_in_app(*, app: FastAPI) -> FastAPI:
         title=get_cached_settings().project_name
     )
 
-    with suppress(Exception):
-        importlib.import_module("src.admin1.model_view")
-
-    for model_view in SimpleModelView.all_subclasses:
+    for model_view in SimpleMV.__subclasses__():
         admin.add_model_view(model_view)
 
     return app

@@ -45,9 +45,6 @@ def now_local_dt() -> datetime:
     return now_dt(tz=get_cached_settings().local_timezone_as_pytz)
 
 
-# ...
-
-
 def __example():
     pass
 

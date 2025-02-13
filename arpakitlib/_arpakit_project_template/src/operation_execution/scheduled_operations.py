@@ -1,8 +1,9 @@
 from datetime import timedelta, time
 
+from arpakitlib.ar_sqlalchemy_model_util import BaseOperationTypes
+
 from arpakitlib.ar_operation_execution_util import ScheduledOperation, every_timedelta_is_time_func, \
     between_different_times_is_time_func
-from arpakitlib.ar_sqlalchemy_model_util import BaseOperationTypes
 from src.core.settings import get_cached_settings
 
 SCHEDULED_OPERATIONS = []

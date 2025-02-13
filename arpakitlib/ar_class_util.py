@@ -14,3 +14,14 @@ class CollectingSubclassesMeta(type):
             cls.all_subclasses = []
         elif bases:
             cls.all_subclasses.append(cls)
+
+
+def create_combined_meta(*metas):
+    """
+    Создает объединённый метакласс для устранения конфликтов.
+    """
+
+    class CombinedMeta(*metas):
+        pass
+
+    return CombinedMeta

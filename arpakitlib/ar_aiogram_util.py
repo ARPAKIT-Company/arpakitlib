@@ -4,21 +4,23 @@ import asyncio
 import logging
 from typing import Optional, Any, Union, Callable, Iterable
 
-from aiogram import types, Bot
+import aiogram
+import aiohttp
+import aiohttp.web
+from aiogram import types
 from aiogram.client.default import DefaultBotProperties
-from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.enums import ChatType, ParseMode
 from aiogram.exceptions import AiogramError
 from aiogram.filters import CommandObject, Filter
 from aiogram.filters.callback_data import CallbackData
+from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_application
+from aiohttp import web
 from pydantic import BaseModel, ConfigDict
 
-from arpakitlib.ar_file_storage_in_dir_util import FileStorageInDir
+from arpakitlib.ar_enumeration_util import Enumeration
 from arpakitlib.ar_json_db_util import BaseJSONDb
 from arpakitlib.ar_need_type_util import parse_need_type, NeedTypes
 from arpakitlib.ar_parse_command import BadCommandFormat, parse_command
-from arpakitlib.ar_settings_util import BaseSettings2
-from arpakitlib.ar_sqlalchemy_util import SQLAlchemyDb
 from arpakitlib.ar_type_util import raise_for_types, raise_for_type
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
@@ -319,34 +321,28 @@ class BaseTransmittedTgBotData(BaseModel):
     model_config = ConfigDict(extra="ignore", arbitrary_types_allowed=True, from_attributes=True)
 
 
-class SimpleTransmittedTgBotData(BaseTransmittedTgBotData):
-    settings: BaseSettings2 | None = None
-
-
-class AdvancedTransmittedTgBotData(SimpleTransmittedTgBotData):
-    sqlalchemy_db: SQLAlchemyDb | None = None
-    json_db: BaseJSONDb | None = None
-    media_file_storage_in_dir: FileStorageInDir | None = None
-    cache_file_storage_in_dir: FileStorageInDir | None = None
-    dump_file_storage_in_dir: FileStorageInDir | None = None
-
-
-def create_aiogram_tg_bot(*, token: str, proxy_url_: str | None = None, **kwargs) -> Bot:
-    kwargs["token"] = token
-
-    if proxy_url_ is not None:
-        kwargs["session"] = AiohttpSession(proxy=proxy_url_)
-
-    if kwargs.get("default") is None:
-        kwargs["default"] = DefaultBotProperties(
-            parse_mode=ParseMode.HTML,
-            disable_notification=False,
-            link_preview_is_disabled=True
-        )
-
-    tg_bot = Bot(**kwargs)
-
-    return tg_bot
+def start_aiogram_tg_bot_with_webhook(
+        *,
+        dispatcher: aiogram.Dispatcher,
+        bot: aiogram.Bot,
+        webhook_secret: str = "123",
+        webhook_path: str = "/tg_bot_webhook",
+        webhook_server_hostname: str = "127.0.0.1",
+        webhook_server_port: int = 8080
+):
+    app = aiohttp.web.Application()
+    simple_requests_handler = SimpleRequestHandler(
+        dispatcher=dispatcher,
+        bot=bot,
+        secret_token=webhook_secret
+    )
+    simple_requests_handler.register(app, path=webhook_path)
+    setup_application(app, dispatcher, bot=bot)
+    web.run_app(
+        app=app,
+        host=webhook_server_hostname,
+        port=webhook_server_port
+    )
 
 
 def __example():

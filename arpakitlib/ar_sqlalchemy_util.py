@@ -12,13 +12,13 @@ from sqlalchemy.orm import sessionmaker, DeclarativeBase
 from sqlalchemy.orm.session import Session
 
 from arpakitlib.ar_datetime_util import now_utc_dt
-from arpakitlib.ar_sqlalchemy_model_util import BaseDBM
+from arpakitlib.ar_json_util import safely_transfer_obj_to_json_str
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
 
 
 def get_string_info_from_declarative_base(class_: type[DeclarativeBase]):
-    res = f"Models: {len(class_.__subclasses__())}"
+    res = f"Db Models: {len(class_.__subclasses__())}"
     for i, cls in enumerate(class_.__subclasses__()):
         res += f"\n{i + 1}. {cls.__name__}"
     return res
@@ -62,6 +62,59 @@ def generate_sqlalchemy_url(
     return f"{base}://{auth_part}{host_part}{database_part}{query_part}"
 
 
+
+class BaseDBM(DeclarativeBase):
+    __abstract__ = True
+    _bus_data: dict[str, Any] | None = None
+
+    @property
+    def bus_data(self) -> dict[str, Any]:
+        if self._bus_data is None:
+            self._bus_data = {}
+        return self._bus_data
+
+    def simple_dict(self, *, include_sd_properties: bool = True) -> dict[str, Any]:
+        res = {}
+
+        for c in inspect(self).mapper.column_attrs:
+            value = getattr(self, c.key)
+            if isinstance(value, BaseDBM):
+                res[c.key] = value.simple_dict(include_sd_properties=include_sd_properties)
+            elif isinstance(value, list):
+                res[c.key] = [
+                    item.simple_dict(include_sd_properties=include_sd_properties)
+                    if isinstance(item, BaseDBM) else item
+                    for item in value
+                ]
+            else:
+                res[c.key] = value
+
+        if include_sd_properties:
+            for attr_name in dir(self):
+                if attr_name.startswith("sdp_") and isinstance(getattr(type(self), attr_name, None), property):
+                    prop_name = attr_name.removeprefix("sdp_")
+                    value = getattr(self, attr_name)
+                    if isinstance(value, BaseDBM):
+                        res[prop_name] = value.simple_dict(include_sd_properties=include_sd_properties)
+                    elif isinstance(value, list):
+                        res[prop_name] = [
+                            item.simple_dict(include_sd_properties=include_sd_properties)
+                            if isinstance(item, BaseDBM) else item
+                            for item in value
+                        ]
+                    else:
+                        res[prop_name] = value
+
+        return res
+
+    def simple_dict_with_sd_properties(self) -> dict[str, Any]:
+        return self.simple_dict(include_sd_properties=True)
+
+    def simple_json(self, *, include_sd_properties: bool = True) -> str:
+        return safely_transfer_obj_to_json_str(self.simple_dict(include_sd_properties=include_sd_properties))
+
+
+
 class SQLAlchemyDb:
     def __init__(
             self,
@@ -72,7 +125,7 @@ class SQLAlchemyDb:
             base_dbm: type[BaseDBM] | None = None,
             db_models: list[Any] | None = None,
     ):
-        self._logger = logging.getLogger()
+        self._logger = logging.getLogger(self.__class__.__name__)
 
         self.db_url = sync_db_url
         if self.db_url is not None:
@@ -101,6 +154,7 @@ class SQLAlchemyDb:
         self.func_new_async_session_counter = 0
 
         self.base_dbm = base_dbm
+        self.db_models = db_models
 
     def is_table_exists(self, table_name: str) -> bool:
         with self.engine.connect() as connection:
