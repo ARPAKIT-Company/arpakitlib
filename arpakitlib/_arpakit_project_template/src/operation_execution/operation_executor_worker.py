@@ -31,12 +31,16 @@ class OperationExecutorWorker(BaseWorker):
             timeout_after_err_in_run=timedelta(seconds=0.1),
             startup_funcs=startup_funcs,
         )
+
         self.startup_funcs.insert(0, sqlalchemy_db.init)
+
         raise_for_type(sqlalchemy_db, SQLAlchemyDb)
         self.sqlalchemy_db = sqlalchemy_db
+
         if operation_executor is None:
             operation_executor = OperationExecutionLogic(sqlalchemy_db=sqlalchemy_db)
         self.operation_executor = operation_executor
+
         if isinstance(filter_operation_types, str):
             filter_operation_types = [filter_operation_types]
         self.filter_operation_types = filter_operation_types
