@@ -11,7 +11,7 @@ from typing import Any
 from uuid import uuid4
 
 from arpakitlib.ar_enumeration_util import Enumeration
-from arpakitlib.ar_func_util import is_async_function, is_sync_function
+from arpakitlib.ar_func_util import is_async_function, is_sync_function, is_async_object
 from arpakitlib.ar_sleep_util import sync_safe_sleep, async_safe_sleep
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
@@ -43,19 +43,23 @@ class BaseWorker(ABC):
         return f"{self.worker_name}_{self.worker_id}"
 
     def sync_run_startup_funcs(self):
+        self._logger.info("start")
         for startup_func in self.startup_funcs:
             if is_async_function(startup_func):
                 asyncio.run(startup_func())
+            elif is_async_object(startup_func):
+                asyncio.run(startup_func)
             elif is_sync_function(startup_func):
                 startup_func()
             else:
                 raise TypeError("no sync and not async")
+        self._logger.info("finish")
 
     def sync_on_startup(self):
         self.sync_run_startup_funcs()
 
     def sync_run(self):
-        self._logger.info(f"hello world, im {self.worker_fullname}")
+        pass
 
     def sync_on_error(self, exception: Exception, **kwargs):
         pass
@@ -81,19 +85,23 @@ class BaseWorker(ABC):
             sync_safe_sleep(self.timeout_after_run)
 
     async def async_run_startup_funcs(self):
+        self._logger.info("start")
         for startup_func in self.startup_funcs:
             if is_async_function(startup_func):
                 await startup_func()
+            elif is_async_object(startup_func):
+                await startup_func
             elif is_sync_function(startup_func):
                 startup_func()
             else:
                 raise TypeError("no sync and not async")
+        self._logger.info("finish")
 
     async def async_on_startup(self):
         await self.async_run_startup_funcs()
 
     async def async_run(self):
-        self._logger.info(f"hello world, im {self.worker_fullname}")
+        pass
 
     async def async_on_error(self, exception: Exception, **kwargs):
         pass
