@@ -4,12 +4,13 @@ from arpakitlib.ar_fastapi_util import BaseTransmittedAPIData
 from arpakitlib.ar_file_storage_in_dir_util import FileStorageInDir
 from arpakitlib.ar_json_db_util import BaseJSONDb
 from arpakitlib.ar_sqlalchemy_util import SQLAlchemyDb
+from src.core.cache_file_storage_in_dir import get_cached_cache_file_storage_in_dir
+from src.core.dump_file_storage_in_dir import get_cached_dump_file_storage_in_dir
+from src.core.media_file_storage_in_dir import get_cached_media_file_storage_in_dir
 from src.core.settings import Settings
 from src.core.settings import get_cached_settings
-from src.core.util import get_cached_media_file_storage_in_dir, get_cached_cache_file_storage_in_dir, \
-    get_cached_dump_file_storage_in_dir
 from src.json_db.util import get_json_db
-from src.sqlalchemy_db.util import get_cached_sqlalchemy_db
+from src.sqlalchemy_db.sqlalchemy_db import get_cached_sqlalchemy_db
 
 
 class TransmittedAPIData(BaseTransmittedAPIData):

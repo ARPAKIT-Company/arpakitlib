@@ -1,6 +1,5 @@
 from datetime import datetime, timedelta
 from typing import Any
-from uuid import uuid4
 
 import sqlalchemy
 from sqlalchemy import func
@@ -10,14 +9,7 @@ from sqlalchemy.orm import mapped_column, Mapped
 from arpakitlib.ar_datetime_util import now_utc_dt
 from arpakitlib.ar_enumeration_util import Enumeration
 from arpakitlib.ar_sqlalchemy_util import get_string_info_from_declarative_base, BaseDBM
-
-
-def generate_default_long_id():
-    return (
-        f"longid"
-        f"{str(uuid4()).replace('-', '')}"
-        f"{str(now_utc_dt().timestamp()).replace('.', '')}"
-    )
+from src.sqlalchemy_db.util import generate_default_long_id
 
 
 class SimpleDBM(BaseDBM):
@@ -47,9 +39,13 @@ class StoryLogDBM(SimpleDBM):
         warning = "warning"
         error = "error"
 
+    class Types(Enumeration):
+        pass
+
     level: Mapped[str] = mapped_column(
         sqlalchemy.TEXT, insert_default=Levels.info, server_default=Levels.info, index=True, nullable=False
     )
+    type: Mapped[str | None] = mapped_column(sqlalchemy.TEXT, index=True, default=None, nullable=True)
     title: Mapped[str | None] = mapped_column(sqlalchemy.TEXT, index=True, default=None, nullable=True)
     data: Mapped[dict[str, Any]] = mapped_column(
         postgresql.JSON, insert_default={}, server_default="{}", nullable=False

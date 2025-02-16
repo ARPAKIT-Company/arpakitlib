@@ -1,19 +1,28 @@
-from functools import lru_cache
+from uuid import uuid4
 
-from arpakitlib.ar_sqlalchemy_util import SQLAlchemyDb
-from src.core.settings import get_cached_settings
-from src.sqlalchemy_db.sqlalchemy_model import get_simple_dbm
+from arpakitlib.ar_datetime_util import now_utc_dt
 
 
-def create_sqlalchemy_db() -> SQLAlchemyDb:
-    return SQLAlchemyDb(
-        sync_db_url=get_cached_settings().sqlalchemy_sync_db_url,
-        async_db_url=get_cached_settings().sqlalchemy_async_db_url,
-        db_echo=get_cached_settings().sqlalchemy_db_echo,
-        base_dbm=get_simple_dbm()
+def generate_api_key() -> str:
+    return (
+        f"apikey"
+        f"{str(uuid4()).replace('-', '')}"
+        f"{str(now_utc_dt().timestamp()).replace('.', '')}"
     )
 
 
-@lru_cache()
-def get_cached_sqlalchemy_db() -> SQLAlchemyDb:
-    return create_sqlalchemy_db()
+def generate_default_long_id():
+    return (
+        f"longid"
+        f"{str(uuid4()).replace('-', '')}"
+        f"{str(now_utc_dt().timestamp()).replace('.', '')}"
+    )
+
+
+def __example():
+    print(generate_api_key())
+    print(generate_default_long_id())
+
+
+if __name__ == '__main__':
+    __example()

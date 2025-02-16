@@ -17,13 +17,6 @@ from arpakitlib.ar_json_util import safely_transfer_obj_to_json_str
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
 
 
-def get_string_info_from_declarative_base(class_: type[DeclarativeBase]):
-    res = f"Db Models: {len(class_.__subclasses__())}"
-    for i, cls in enumerate(class_.__subclasses__()):
-        res += f"\n{i + 1}. {cls.__name__}"
-    return res
-
-
 def generate_sqlalchemy_url(
         *,
         base: str = "postgresql",
@@ -243,6 +236,13 @@ class SQLAlchemyDb:
 
     def generate_creation_dt(self) -> datetime:
         return now_utc_dt()
+
+
+def get_string_info_from_declarative_base(class_: type[DeclarativeBase]):
+    res = f"Db Models: {len(class_.__subclasses__())}"
+    for i, cls in enumerate(class_.__subclasses__()):
+        res += f"\n{i + 1}. {cls.__name__}"
+    return res
 
 
 def __example():

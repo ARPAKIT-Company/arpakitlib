@@ -25,9 +25,6 @@ class ProjectPaths(Enumeration):
     static_dirpath: str = os.path.join(resource_dirpath, static_dirname)
 
 
-# ...
-
-
 def __example():
     print(safely_transfer_obj_to_json_str(ProjectPaths.key_to_value()))
 

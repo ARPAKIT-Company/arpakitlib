@@ -45,17 +45,17 @@ class Settings(SimpleSettings):
         if self.is_mode_type_prod:
             raise ValueError(f"mode type = {self.mode_type}")
 
-    project_name: str | None = "{{PROJECT_NAME}}"
+    project_name: str | None = "arpakitlib"
 
-    sqlalchemy_db_user: str | None = None
+    sqlalchemy_db_user: str | None = "arpakitlib"
 
-    sqlalchemy_db_password: str | None = None
+    sqlalchemy_db_password: str | None = "arpakitlib"
 
-    sqlalchemy_db_host: str | None = None
+    sqlalchemy_db_host: str | None = "127.0.0.1"
 
-    sqlalchemy_db_port: int | None = None
+    sqlalchemy_db_port: int | None = 50517
 
-    sqlalchemy_db_database: str | None = None
+    sqlalchemy_db_database: str | None = "arpakitlib"
 
     sqlalchemy_sync_db_url: str | None = None
 
@@ -81,7 +81,7 @@ class Settings(SimpleSettings):
             return v
 
         return generate_sqlalchemy_url(
-            base="postgresql",
+            base="postgresql+asyncpg",
             user=validation_info.data.get("sqlalchemy_db_user"),
             password=validation_info.data.get("sqlalchemy_db_password"),
             host=validation_info.data.get("sqlalchemy_db_host"),
@@ -99,7 +99,7 @@ class Settings(SimpleSettings):
 
     sqlalchemy_db_echo: bool = False
 
-    api_port: int | None = None
+    api_port: int | None = 50519
 
     api_init_sqlalchemy_db: bool = False
 
@@ -114,6 +114,10 @@ class Settings(SimpleSettings):
     api_start_operation_executor_worker: bool = False
 
     api_start_scheduled_operation_creator_worker: bool = False
+
+    api_logging__api_func_before_in_handle_exception: bool = True
+
+    api_story_log__api_func_before_in_handle_exception: bool = False
 
     admin1_secret_key: str | None = "85a9583cb91c4de7a78d7eb1e5306a04418c9c43014c447ea8ec8dd5deb4cf71"
 

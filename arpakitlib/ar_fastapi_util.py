@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import asyncio
-import inspect
 import logging
 import os.path
 import pathlib
@@ -21,16 +20,12 @@ from fastapi.openapi.docs import get_swagger_ui_html, get_redoc_html
 from fastapi.security import APIKeyHeader
 from pydantic import BaseModel, ConfigDict
 from starlette import status
-from starlette.middleware.cors import CORSMiddleware
 from starlette.staticfiles import StaticFiles
 
-from arpakitlib.ar_datetime_util import now_utc_dt
 from arpakitlib.ar_dict_util import combine_dicts
 from arpakitlib.ar_enumeration_util import Enumeration
-from arpakitlib.ar_exception_util import exception_to_traceback_str
 from arpakitlib.ar_func_util import raise_if_not_async_func, is_async_object
-from arpakitlib.ar_json_util import safely_transfer_obj_to_json_str_to_json_obj, safely_transfer_obj_to_json_str
-from arpakitlib.ar_sqlalchemy_util import SQLAlchemyDb
+from arpakitlib.ar_json_util import safely_transfer_obj_to_json_str_to_json_obj
 from arpakitlib.ar_type_util import raise_for_type, raise_if_none
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
@@ -134,7 +129,7 @@ class APIException(fastapi.exceptions.HTTPException):
         )
 
 
-def create_handle_exception(
+def create_exception_handler(
         *,
         funcs_before: list[Callable | None] | None = None,
         async_funcs_after: list[Callable | None] | None = None,
@@ -239,96 +234,6 @@ def create_handle_exception(
     return func
 
 
-def logging__api_func_before_in_handle_exception(
-        *,
-        ignore_api_error_codes: list[str] | None = None,
-        ignore_status_codes: list[int] | None = None,
-        ignore_exception_types: list[type[Exception]] | None = None,
-        need_exc_info: bool = False
-) -> Callable:
-    current_func_name = inspect.currentframe().f_code.co_name
-
-    def func(
-            *,
-            request: starlette.requests.Request,
-            status_code: int,
-            error_so: ErrorSO,
-            exception: Exception,
-            transmitted_kwargs: dict[str, Any],
-            **kwargs
-    ) -> (ErrorSO, dict[str, Any]):
-        transmitted_kwargs[current_func_name] = now_utc_dt()
-
-        if ignore_api_error_codes and error_so.error_code in ignore_api_error_codes:
-            return error_so, transmitted_kwargs
-
-        if ignore_status_codes and status_code in ignore_status_codes:
-            return error_so, transmitted_kwargs
-
-        if ignore_exception_types and (
-                exception in ignore_exception_types or type(exception) in ignore_exception_types
-        ):
-            return error_so, transmitted_kwargs
-
-        _logger.error(safely_transfer_obj_to_json_str(error_so.model_dump()), exc_info=need_exc_info)
-
-    return func
-
-
-def story_log__api_func_before_in_handle_exception(
-        *,
-        sqlalchemy_db: SQLAlchemyDb,
-        ignore_api_error_codes: list[str] | None = None,
-        ignore_status_codes: list[int] | None = None,
-        ignore_exception_types: list[type[Exception]] | None = None
-) -> Callable:
-    raise_for_type(sqlalchemy_db, SQLAlchemyDb)
-
-    current_func_name = inspect.currentframe().f_code.co_name
-
-    async def async_func(
-            *,
-            request: starlette.requests.Request,
-            status_code: int,
-            error_so: ErrorSO,
-            exception: Exception,
-            transmitted_kwargs: dict[str, Any],
-            **kwargs
-    ) -> (ErrorSO, dict[str, Any]):
-        transmitted_kwargs[current_func_name] = now_utc_dt()
-
-        if ignore_api_error_codes and error_so.error_code in ignore_api_error_codes:
-            return error_so, transmitted_kwargs
-
-        if ignore_status_codes and status_code in ignore_status_codes:
-            return error_so, transmitted_kwargs
-
-        if ignore_exception_types and (
-                exception in ignore_exception_types or type(exception) in ignore_exception_types
-        ):
-            return error_so, transmitted_kwargs
-
-        async with sqlalchemy_db.new_async_session() as session:
-            story_log_dbm = StoryLogDBM(
-                level=StoryLogDBM.Levels.error,
-                title=f"{status_code}, {type(exception)}",
-                data={
-                    "error_so": error_so.model_dump(),
-                    "traceback_str": exception_to_traceback_str(exception=exception)
-                }
-            )
-            session.add(story_log_dbm)
-            await session.commit()
-            await session.refresh(story_log_dbm)
-
-        error_so.error_data.update({"story_log_long_id": story_log_dbm.long_id})
-        transmitted_kwargs["story_log_id"] = story_log_dbm.id
-
-        return error_so, transmitted_kwargs
-
-    return async_func
-
-
 def add_exception_handler_to_app(*, app: FastAPI, handle_exception: Callable) -> FastAPI:
     app.add_exception_handler(
         exc_class_or_status_code=Exception,
@@ -382,33 +287,13 @@ def add_swagger_to_app(
     return app
 
 
-def add_cors_to_app(*, app: FastAPI):
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=["*"],
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
-    return app
-
-
-class BaseStartupAPIEvent:
+class BaseAPIEvent:
     def __init__(self, *args, **kwargs):
         self._logger = logging.getLogger(self.__class__.__name__)
 
     async def async_on_startup(self, *args, **kwargs):
-        self._logger.info("on_startup starts")
-        self._logger.info("on_startup ends")
-
-
-class BaseShutdownAPIEvent:
-    def __init__(self, *args, **kwargs):
-        self._logger = logging.getLogger(self.__class__.__name__)
-
-    async def async_on_shutdown(self, *args, **kwargs):
-        self._logger.info("on_shutdown starts")
-        self._logger.info("on_shutdown ends")
+        self._logger.info("start")
+        self._logger.info("finish")
 
 
 class BaseTransmittedAPIData(BaseModel):
@@ -612,7 +497,7 @@ def create_fastapi_app(
         *,
         title: str | None = "arpakitlib FastAPI",
         description: str | None = "arpakitlib FastAPI",
-        handle_exception_: Callable | None = None,
+        exception_handler: Callable | None = None,
         startup_api_events: list[BaseStartupAPIEvent | None] | None = None,
         shutdown_api_events: list[BaseShutdownAPIEvent | None] | None = None,
         transmitted_api_data: BaseTransmittedAPIData = BaseTransmittedAPIData(),
@@ -627,8 +512,8 @@ def create_fastapi_app(
     if title is None:
         title = "arpakitlib FastAPI"
 
-    if handle_exception_ is None:
-        handle_exception_ = create_handle_exception(
+    if exception_handler is None:
+        exception_handler = create_exception_handler(
             funcs_before=[
                 logging__api_func_before_in_handle_exception()
             ]
@@ -671,7 +556,7 @@ def create_fastapi_app(
 
     add_exception_handler_to_app(
         app=app,
-        handle_exception=handle_exception_
+        handle_exception=exception_handler
     )
 
     if main_api_router is not None:

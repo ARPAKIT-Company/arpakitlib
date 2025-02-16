@@ -1,8 +1,7 @@
-from arpakitlib.ar_sqlalchemy_model_util import StoryLogDBM
-
 from src.core.settings import get_cached_settings
 from src.core.util import setup_logging
-from src.sqlalchemy_db.util import get_cached_sqlalchemy_db
+from src.sqlalchemy_db.sqlalchemy_db import get_cached_sqlalchemy_db
+from src.sqlalchemy_db.sqlalchemy_model import StoryLogDBM
 
 
 def _remove_story_logs():

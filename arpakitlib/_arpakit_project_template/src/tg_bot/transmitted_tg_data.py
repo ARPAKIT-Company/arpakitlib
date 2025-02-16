@@ -8,7 +8,7 @@ from src.core.settings import Settings, get_cached_settings
 from src.core.util import get_cached_media_file_storage_in_dir, get_cached_cache_file_storage_in_dir, \
     get_cached_dump_file_storage_in_dir
 from src.json_db.util import get_json_db
-from src.sqlalchemy_db.util import get_cached_sqlalchemy_db
+from src.sqlalchemy_db.sqlalchemy_db import get_cached_sqlalchemy_db
 
 
 class TransmittedTgBotData(BaseTransmittedTgBotData):
