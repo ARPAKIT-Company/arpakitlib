@@ -1,3 +1,4 @@
+import inspect
 import logging
 import traceback
 
@@ -62,9 +63,9 @@ class OperationExecutionLogic:
             operation_dbm.status = OperationDBM.Statuses.executed_with_error
             operation_dbm.error_data = combine_dicts(
                 {
-                    "exception_str": str(exception_in_sync_execute_operation),
+                    "exception_in_sync_execute_operation": str(exception_in_sync_execute_operation),
                     "traceback_str_in_sync_execute_operation": traceback_str_in_sync_execute_operation,
-                    "sync_safe_execute_operation": True
+                    f"{inspect.currentframe().f_code.co_name}": True
                 },
                 operation_dbm.error_data
             )
@@ -147,7 +148,7 @@ class OperationExecutionLogic:
                 {
                     "exception_in_async_execute_operation": str(exception_in_async_execute_operation),
                     "traceback_str_in_async_execute_operation": traceback_str_in_async_execute_operation,
-                    "async_safe_execute_operation": True
+                    f"{inspect.currentframe().f_code.co_name}": True
                 },
                 operation_dbm.error_data
             )
