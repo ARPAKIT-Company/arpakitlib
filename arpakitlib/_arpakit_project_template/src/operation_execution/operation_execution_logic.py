@@ -45,25 +45,25 @@ class OperationExecutionLogic:
         session.commit()
 
         exception_in_sync_execute_operation: Exception | None = None
-        traceback_str: str | None = None
+        traceback_str_in_sync_execute_operation: str | None = None
 
         try:
             self.sync_execute_operation(operation_dbm=operation_dbm, session=session)
-        except Exception as exception_:
+        except Exception as exception:
             self._logger.error(
                 f"exception in sync_execute_operation (id={operation_dbm.id}, type={operation_dbm.type})",
                 exc_info=True
             )
-            exception_in_sync_execute_operation = exception_
-            traceback_str = traceback.format_exc()
+            exception_in_sync_execute_operation = exception
+            traceback_str_in_sync_execute_operation = traceback.format_exc()
 
         operation_dbm.execution_finish_dt = now_utc_dt()
-        if exception_in_sync_execute_operation:
+        if exception_in_sync_execute_operation is not None:
             operation_dbm.status = OperationDBM.Statuses.executed_with_error
             operation_dbm.error_data = combine_dicts(
                 {
                     "exception_str": str(exception_in_sync_execute_operation),
-                    "traceback_str": traceback_str,
+                    "traceback_str_in_sync_execute_operation": traceback_str_in_sync_execute_operation,
                     "sync_safe_execute_operation": True
                 },
                 operation_dbm.error_data
@@ -77,9 +77,9 @@ class OperationExecutionLogic:
                 level=StoryLogDBM.Levels.error,
                 title=f"error in sync_execute_operation (id={operation_dbm.id}, type={operation_dbm.type})",
                 data={
-                    "operation_id": operation_dbm.id,
-                    "exception_str": str(exception_in_sync_execute_operation),
-                    "traceback_str": traceback_str
+                    "operation_dbm.id": operation_dbm.id,
+                    "exception_in_sync_execute_operation": str(exception_in_sync_execute_operation),
+                    "traceback_str_in_sync_execute_operation": traceback_str_in_sync_execute_operation
                 }
             )
             session.add(story_log_dbm)
@@ -128,25 +128,25 @@ class OperationExecutionLogic:
         await async_session.commit()
 
         exception_in_async_execute_operation: Exception | None = None
-        traceback_str: str | None = None
+        traceback_str_in_async_execute_operation: str | None = None
 
         try:
             await self.async_execute_operation(operation_dbm=operation_dbm, async_session=async_session)
-        except Exception as exception_:
+        except Exception as exception:
             self._logger.error(
                 f"exception in async_execute_operation (id={operation_dbm.id}, type={operation_dbm.type})",
                 exc_info=True
             )
-            exception_in_async_execute_operation = exception_
-            traceback_str = traceback.format_exc()
+            exception_in_async_execute_operation = exception
+            traceback_str_in_async_execute_operation = traceback.format_exc()
 
         operation_dbm.execution_finish_dt = now_utc_dt()
-        if exception_in_async_execute_operation:
+        if exception_in_async_execute_operation is not None:
             operation_dbm.status = OperationDBM.Statuses.executed_with_error
             operation_dbm.error_data = combine_dicts(
                 {
-                    "exception_str": str(exception_in_async_execute_operation),
-                    "traceback_str": traceback_str,
+                    "exception_in_async_execute_operation": str(exception_in_async_execute_operation),
+                    "traceback_str_in_async_execute_operation": traceback_str_in_async_execute_operation,
                     "async_safe_execute_operation": True
                 },
                 operation_dbm.error_data
@@ -160,9 +160,9 @@ class OperationExecutionLogic:
                 level=StoryLogDBM.Levels.error,
                 title=f"error in async_execute_operation (id={operation_dbm.id}, type={operation_dbm.type})",
                 data={
-                    "operation_id": operation_dbm.id,
-                    "exception_str": str(exception_in_async_execute_operation),
-                    "traceback_str": traceback_str
+                    "operation_dbm.id": operation_dbm.id,
+                    "exception_in_async_execute_operation": str(exception_in_async_execute_operation),
+                    "traceback_str_in_async_execute_operation": traceback_str_in_async_execute_operation
                 }
             )
             async_session.add(story_log_dbm)

@@ -24,7 +24,7 @@ from starlette.staticfiles import StaticFiles
 
 from arpakitlib.ar_dict_util import combine_dicts
 from arpakitlib.ar_enumeration_util import Enumeration
-from arpakitlib.ar_func_util import raise_if_not_async_func, is_async_object
+from arpakitlib.ar_func_util import raise_if_not_async_callable, is_async_object
 from arpakitlib.ar_json_util import safely_transfer_obj_to_json_str_to_json_obj
 from arpakitlib.ar_type_util import raise_for_type, raise_if_none
 
@@ -221,7 +221,7 @@ def create_exception_handler(
         # async_funcs_after
 
         for async_func_after in async_funcs_after:
-            raise_if_not_async_func(async_func_after)
+            raise_if_not_async_callable(async_func_after)
             _ = asyncio.create_task(async_func_after(
                 request=request, status_code=status_code, error_so=error_so, exception=exception
             ))

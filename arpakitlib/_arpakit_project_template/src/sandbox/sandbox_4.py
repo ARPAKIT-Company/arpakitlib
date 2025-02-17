@@ -1,9 +1,6 @@
 import asyncio
 
 
-# ...
-
-
 def __example():
     pass
 

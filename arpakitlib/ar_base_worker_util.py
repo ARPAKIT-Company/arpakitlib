@@ -11,7 +11,7 @@ from typing import Any
 from uuid import uuid4
 
 from arpakitlib.ar_enumeration_util import Enumeration
-from arpakitlib.ar_func_util import is_async_function, is_sync_function, is_async_object
+from arpakitlib.ar_func_util import is_async_callable, is_sync_function, is_async_object
 from arpakitlib.ar_sleep_util import sync_safe_sleep, async_safe_sleep
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
@@ -45,7 +45,7 @@ class BaseWorker(ABC):
     def sync_run_startup_funcs(self):
         self._logger.info("start")
         for startup_func in self.startup_funcs:
-            if is_async_function(startup_func):
+            if is_async_callable(startup_func):
                 asyncio.run(startup_func())
             elif is_async_object(startup_func):
                 asyncio.run(startup_func)
@@ -87,7 +87,7 @@ class BaseWorker(ABC):
     async def async_run_startup_funcs(self):
         self._logger.info("start")
         for startup_func in self.startup_funcs:
-            if is_async_function(startup_func):
+            if is_async_callable(startup_func):
                 await startup_func()
             elif is_async_object(startup_func):
                 await startup_func

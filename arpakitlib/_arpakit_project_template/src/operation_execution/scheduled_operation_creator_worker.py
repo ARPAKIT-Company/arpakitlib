@@ -23,10 +23,10 @@ class ScheduledOperationCreatorWorker(BaseWorker):
             startup_funcs=startup_funcs
         )
 
-        self.startup_funcs.insert(0, sqlalchemy_db.init)
-
         raise_for_type(sqlalchemy_db, SQLAlchemyDb)
         self.sqlalchemy_db = sqlalchemy_db
+
+        self.startup_funcs.insert(0, self.sqlalchemy_db.init)
 
         if scheduled_operations is None:
             scheduled_operations = []
@@ -71,14 +71,15 @@ class ScheduledOperationCreatorWorker(BaseWorker):
             if not scheduled_operation.is_time_func():
                 continue
 
-            with self.sqlalchemy_db.new_async_session() as async_session:
+            async with self.sqlalchemy_db.new_async_session() as async_session:
                 operation_dbm = OperationDBM(
                     type=scheduled_operation.type,
                     input_data=scheduled_operation.input_data
                 )
-                await async_session.add(operation_dbm)
+                async_session.add(operation_dbm)
                 await async_session.commit()
                 await async_session.refresh(operation_dbm)
+                self._logger.info(f"scheduled operation (id={operation_dbm.id}) was created")
 
             if scheduled_operation.timeout_after_creation is not None:
                 if timeout is not None:

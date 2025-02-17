@@ -32,10 +32,10 @@ class OperationExecutorWorker(BaseWorker):
             startup_funcs=startup_funcs,
         )
 
-        self.startup_funcs.insert(0, sqlalchemy_db.init)
-
         raise_for_type(sqlalchemy_db, SQLAlchemyDb)
         self.sqlalchemy_db = sqlalchemy_db
+
+        self.startup_funcs.insert(0, self.sqlalchemy_db.init)
 
         if operation_executor is None:
             operation_executor = OperationExecutionLogic(sqlalchemy_db=sqlalchemy_db)
