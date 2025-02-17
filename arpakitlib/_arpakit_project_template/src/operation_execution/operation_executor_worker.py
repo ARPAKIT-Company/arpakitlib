@@ -21,14 +21,14 @@ class OperationExecutorWorker(BaseWorker):
             self,
             *,
             sqlalchemy_db: SQLAlchemyDb,
-            operation_executor: OperationExecutionLogic | None = None,
+            operation_execution_logic: OperationExecutionLogic | None = None,
             filter_operation_types: str | list[str] | None = None,
             startup_funcs: list[Any] | None = None,
             **kwargs
     ):
         super().__init__(
             timeout_after_run=timedelta(seconds=0.1),
-            timeout_after_err_in_run=timedelta(seconds=0.1),
+            timeout_after_error_in_run=timedelta(seconds=0.1),
             startup_funcs=startup_funcs,
         )
 
@@ -37,9 +37,9 @@ class OperationExecutorWorker(BaseWorker):
 
         self.startup_funcs.insert(0, self.sqlalchemy_db.init)
 
-        if operation_executor is None:
-            operation_executor = OperationExecutionLogic(sqlalchemy_db=sqlalchemy_db)
-        self.operation_executor = operation_executor
+        if operation_execution_logic is None:
+            operation_execution_logic = OperationExecutionLogic(sqlalchemy_db=sqlalchemy_db)
+        self.operation_execution_logic = operation_execution_logic
 
         if isinstance(filter_operation_types, str):
             filter_operation_types = [filter_operation_types]
@@ -77,7 +77,7 @@ class OperationExecutorWorker(BaseWorker):
             )
             if operation_dbm is None:
                 return
-            self.operation_executor.sync_safe_execute_operation(
+            self.operation_execution_logic.sync_safe_execute_operation(
                 operation_dbm=operation_dbm, executor_name=self.worker_name, session=session
             )
 
@@ -100,8 +100,10 @@ class OperationExecutorWorker(BaseWorker):
         if lock:
             query = query.with_for_update()
 
-        result = await session.execute(query)
-        return result.scalars().first()
+        query = await session.execute(query)
+        operation_dbm: OperationDBM | None = query.scalars().first()
+
+        return operation_dbm
 
     async def async_run(self):
         with self.sqlalchemy_db.new_async_session() as async_session:
@@ -112,6 +114,6 @@ class OperationExecutorWorker(BaseWorker):
             )
             if operation_dbm is None:
                 return
-            await self.operation_executor.async_safe_execute_operation(
+            await self.operation_execution_logic.async_safe_execute_operation(
                 operation_dbm=operation_dbm, executor_name=self.worker_name, async_session=async_session
             )

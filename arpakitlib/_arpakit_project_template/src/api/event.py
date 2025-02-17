@@ -42,7 +42,7 @@ class StartupAPIEvent(BaseAPIEvent):
             _ = safe_run_worker_in_background(
                 worker=OperationExecutorWorker(
                     sqlalchemy_db=self.transmitted_api_data.sqlalchemy_db,
-                    operation_executor=OperationExecutionLogic(sqlalchemy_db=self.transmitted_api_data.sqlalchemy_db),
+                    operation_execution_logic=OperationExecutionLogic(sqlalchemy_db=self.transmitted_api_data.sqlalchemy_db),
                     filter_operation_types=None
                 ),
                 mode=SafeRunInBackgroundModes.thread

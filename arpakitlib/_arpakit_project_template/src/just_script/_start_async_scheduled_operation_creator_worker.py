@@ -6,7 +6,7 @@ from src.operation_execution.scheduled_operations import SCHEDULED_OPERATIONS
 from src.sqlalchemy_db.sqlalchemy_db import get_cached_sqlalchemy_db
 
 
-async def _start_async_scheduled_operation_creator_worker():
+async def _just_script():
     setup_logging()
     worker = ScheduledOperationCreatorWorker(
         sqlalchemy_db=get_cached_sqlalchemy_db(),
@@ -16,4 +16,4 @@ async def _start_async_scheduled_operation_creator_worker():
 
 
 if __name__ == '__main__':
-    asyncio.run(_start_async_scheduled_operation_creator_worker())
+    asyncio.run(_just_script())

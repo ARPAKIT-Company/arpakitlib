@@ -19,7 +19,7 @@ class ScheduledOperationCreatorWorker(BaseWorker):
     ):
         super().__init__(
             timeout_after_run=timedelta(seconds=0.1),
-            timeout_after_err_in_run=timedelta(seconds=0.1),
+            timeout_after_error_in_run=timedelta(seconds=0.1),
             startup_funcs=startup_funcs
         )
 

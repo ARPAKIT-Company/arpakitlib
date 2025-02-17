@@ -73,7 +73,7 @@ class OperationExecutionLogic:
             operation_dbm.status = OperationDBM.Statuses.executed_without_error
         session.commit()
 
-        if exception_in_sync_execute_operation:
+        if exception_in_sync_execute_operation is not None:
             story_log_dbm = StoryLogDBM(
                 level=StoryLogDBM.Levels.error,
                 title=f"error in sync_execute_operation (id={operation_dbm.id}, type={operation_dbm.type})",
@@ -89,7 +89,7 @@ class OperationExecutionLogic:
         session.refresh(operation_dbm)
 
         self._logger.info(
-            f"finish sync_safe_execute_operation, "
+            f"finish, "
             f"operation_dbm.id={operation_dbm.id}, "
             f"operation_dbm.type={operation_dbm.type}, "
             f"operation_dbm.status={operation_dbm.status}, "
@@ -156,7 +156,7 @@ class OperationExecutionLogic:
             operation_dbm.status = OperationDBM.Statuses.executed_without_error
         await async_session.commit()
 
-        if exception_in_async_execute_operation:
+        if exception_in_async_execute_operation is not None:
             story_log_dbm = StoryLogDBM(
                 level=StoryLogDBM.Levels.error,
                 title=f"error in async_execute_operation (id={operation_dbm.id}, type={operation_dbm.type})",
@@ -172,7 +172,7 @@ class OperationExecutionLogic:
         await async_session.refresh(operation_dbm)
 
         self._logger.info(
-            f"finish async_safe_execute_operation, "
+            f"finish, "
             f"operation_dbm.id={operation_dbm.id}, "
             f"operation_dbm.type={operation_dbm.type}, "
             f"operation_dbm.status={operation_dbm.status}, "

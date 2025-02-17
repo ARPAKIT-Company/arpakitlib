@@ -4,14 +4,14 @@ from src.operation_execution.operation_executor_worker import OperationExecutorW
 from src.sqlalchemy_db.sqlalchemy_db import get_cached_sqlalchemy_db
 
 
-def _start_operation_executor_worker():
+def _just_script():
     setup_logging()
     worker = OperationExecutorWorker(
         sqlalchemy_db=get_cached_sqlalchemy_db(),
-        operation_executor=OperationExecutionLogic(sqlalchemy_db=get_cached_sqlalchemy_db())
+        operation_execution_logic=OperationExecutionLogic(sqlalchemy_db=get_cached_sqlalchemy_db())
     )
     worker.sync_safe_run()
 
 
 if __name__ == '__main__':
-    _start_operation_executor_worker()
+    _just_script()
