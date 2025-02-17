@@ -22,20 +22,23 @@ class BaseWorker(ABC):
             self,
             *,
             timeout_after_run: timedelta = timedelta(seconds=0.3),
-            timeout_after_err_in_run: timedelta = timedelta(seconds=1),
+            timeout_after_error_in_run: timedelta = timedelta(seconds=1),
             startup_funcs: list[Any] | None = None,
             worker_name: str | None = None,
             **kwargs
     ):
         self.timeout_after_run = timeout_after_run
-        self.timeout_after_err_in_run = timeout_after_err_in_run
+        self.timeout_after_error_in_run = timeout_after_error_in_run
+
         if startup_funcs is None:
             startup_funcs = []
         self.startup_funcs = startup_funcs
+
         if worker_name is None:
             worker_name = self.__class__.__name__
         self.worker_name = worker_name
         self.worker_id = f"{str(uuid4()).replace('-', '')}_{randint(1000, 99999)}"
+
         self._logger = logging.getLogger(self.worker_fullname)
 
     @property
@@ -52,7 +55,7 @@ class BaseWorker(ABC):
             elif is_sync_function(startup_func):
                 startup_func()
             else:
-                raise TypeError("no sync and not async")
+                raise TypeError("unknown startup_func type")
         self._logger.info("finish")
 
     def sync_on_startup(self):
@@ -69,19 +72,19 @@ class BaseWorker(ABC):
         try:
             self.sync_on_startup()
         except Exception as exception:
-            self._logger.error("error in sync_on_startup", exc_info=exception)
+            self._logger.error("exception in sync_on_startup", exc_info=exception)
             raise
         while True:
             try:
                 self.sync_run()
             except Exception as exception:
-                self._logger.error("error in sync_run", exc_info=exception)
+                self._logger.error("exception in sync_run", exc_info=exception)
                 try:
                     self.sync_on_error(exception=exception)
                 except Exception as exception_:
-                    self._logger.error("error in sync_on_error", exc_info=exception_)
+                    self._logger.error("exception in sync_on_error", exc_info=exception_)
                     raise
-                sync_safe_sleep(self.timeout_after_err_in_run)
+                sync_safe_sleep(self.timeout_after_error_in_run)
             sync_safe_sleep(self.timeout_after_run)
 
     async def async_run_startup_funcs(self):
@@ -94,7 +97,7 @@ class BaseWorker(ABC):
             elif is_sync_function(startup_func):
                 startup_func()
             else:
-                raise TypeError("no sync and not async")
+                raise TypeError("unknown startup_func type")
         self._logger.info("finish")
 
     async def async_on_startup(self):
@@ -111,19 +114,19 @@ class BaseWorker(ABC):
         try:
             await self.async_on_startup()
         except Exception as exception:
-            self._logger.error("error in async_on_startup", exc_info=exception)
+            self._logger.error("exception in async_on_startup", exc_info=exception)
             raise
         while True:
             try:
                 await self.async_run()
             except Exception as exception:
-                self._logger.error("error in async_run", exc_info=exception)
+                self._logger.error("exception in async_run", exc_info=exception)
                 try:
                     await self.async_on_error(exception=exception)
                 except Exception as exception_:
-                    self._logger.error("error in async_on_error", exc_info=exception_)
+                    self._logger.error("exception in async_on_error", exc_info=exception_)
                     raise
-                await async_safe_sleep(self.timeout_after_err_in_run)
+                await async_safe_sleep(self.timeout_after_error_in_run)
             await async_safe_sleep(self.timeout_after_run)
 
 
