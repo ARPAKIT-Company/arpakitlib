@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from sqladmin import Admin
 
 from src.admin1.admin_auth import Admin1Auth
-from src.admin1.model_view import SimpleMV
+from src.admin1.model_view import get_simple_mv
 from src.api.transmitted_api_data import TransmittedAPIData
 from src.core.settings import get_cached_settings
 
@@ -20,7 +20,7 @@ def add_admin1_in_app(*, app: FastAPI) -> FastAPI:
         title=get_cached_settings().project_name
     )
 
-    for model_view in SimpleMV.__subclasses__():
+    for model_view in get_simple_mv().__subclasses__():
         admin.add_model_view(model_view)
 
     return app

@@ -3,7 +3,7 @@ from src.core.util import setup_logging
 from src.sqlalchemy_db.sqlalchemy_db import get_cached_sqlalchemy_db
 
 
-def __just_script():
+def __command():
     setup_logging()
     get_cached_settings().raise_if_mode_type_prod()
     get_cached_sqlalchemy_db().drop()
@@ -11,4 +11,4 @@ def __just_script():
 
 
 if __name__ == '__main__':
-    __just_script()
+    __command()

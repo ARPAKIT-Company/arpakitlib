@@ -5,10 +5,10 @@ from src.core.util import setup_logging
 _logger = logging.getLogger(__name__)
 
 
-def __just_script():
+def __command():
     setup_logging()
     _logger.info("logging is good")
 
 
 if __name__ == '__main__':
-    __just_script()
+    __command()

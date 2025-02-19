@@ -1,6 +1,6 @@
-def __hello_world():
+def __command():
     print("Hello world")
 
 
 if __name__ == '__main__':
-    __hello_world()
+    __command()

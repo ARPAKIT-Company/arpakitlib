@@ -3,11 +3,11 @@ from src.core.util import setup_logging
 from src.json_db.util import get_json_db
 
 
-def __just_script():
+def __command():
     setup_logging()
     get_cached_settings().raise_if_mode_type_prod()
-    get_json_db().drop()
+    get_json_db().reinit()
 
 
 if __name__ == '__main__':
-    __just_script()
+    __command()

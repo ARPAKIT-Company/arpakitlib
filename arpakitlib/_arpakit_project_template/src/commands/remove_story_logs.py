@@ -4,7 +4,7 @@ from src.sqlalchemy_db.sqlalchemy_db import get_cached_sqlalchemy_db
 from src.sqlalchemy_db.sqlalchemy_model import StoryLogDBM
 
 
-def __just_script():
+def __command():
     setup_logging()
     get_cached_settings().raise_if_mode_type_prod()
     with get_cached_sqlalchemy_db().new_session() as session:
@@ -13,4 +13,4 @@ def __just_script():
 
 
 if __name__ == '__main__':
-    __just_script()
+    __command()
