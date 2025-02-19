@@ -13,8 +13,7 @@ api_router = APIRouter()
 @api_router.get(
     "/healthcheck",
     response_model=HealthcheckSO | ErrorSO,
-    status_code=starlette.status.HTTP_200_OK,
-    tags=["Healthcheck"]
+    status_code=starlette.status.HTTP_200_OK
 )
 async def _(
         *,

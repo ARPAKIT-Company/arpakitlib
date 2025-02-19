@@ -3,25 +3,12 @@ from __future__ import annotations
 import datetime as dt
 from typing import Any
 
-from arpakitlib.ar_fastapi_util import BaseSO
+from src.api.schema.base_schema import BaseSchema
 from src.sqlalchemy_db.sqlalchemy_model import OperationDBM, StoryLogDBM
 
 
-class HealthcheckSO(BaseSO):
-    is_ok: bool = True
-
-
-class ARPAKITLIBSO(BaseSO):
-    arpakitlib: bool = True
-
-
-class RawDataSO(BaseSO):
-    data: dict[str, Any] = {}
-
-
-class APIErrorInfoSO(BaseSO):
-    api_error_codes: list[str] = []
-    api_error_specification_codes: list[str] = []
+class BaseSO(BaseSchema):
+    pass
 
 
 class DatetimeSO(BaseSO):
@@ -59,6 +46,31 @@ class DatetimeSO(BaseSO):
         )
 
 
+class RawDataSO(BaseSO):
+    data: dict[str, Any] = {}
+
+
+class HealthcheckSO(BaseSO):
+    is_ok: bool = True
+
+
+class ARPAKITLIBInfoSO(BaseSO):
+    arpakitlib: bool = True
+
+
+class InfoAboutErrorsSO(BaseSO):
+    api_error_codes: list[str] = []
+    api_error_specification_codes: list[str] = []
+
+
+class ErrorSO(BaseSO):
+    has_error: bool = True
+    error_code: str | None = None
+    error_specification_code: str | None = None
+    error_description: str | None = None
+    error_data: dict[str, Any] = {}
+
+
 class SimpleSO(BaseSO):
     id: int
     long_id: str
@@ -67,6 +79,7 @@ class SimpleSO(BaseSO):
 
 class StoryLogSO(SimpleSO):
     level: str
+    type: str | None = None
     title: str | None = None
     data: dict[str, Any] = {}
 
@@ -83,7 +96,7 @@ class OperationSO(SimpleSO):
     input_data: dict[str, Any] = {}
     output_data: dict[str, Any] = {}
     error_data: dict[str, Any] = {}
-    duration_total_seconds: float | None
+    duration_total_seconds: float | None = None
 
     @classmethod
     def from_operation_dbm(cls, *, operation_dbm: OperationDBM) -> OperationSO:

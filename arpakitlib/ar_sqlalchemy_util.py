@@ -159,7 +159,7 @@ class SQLAlchemyDb:
             connection.execute(text("DROP TABLE IF EXISTS celery_tasksetmeta CASCADE;"))
             connection.execute(text("DROP TABLE IF EXISTS celery_taskmeta CASCADE;"))
             connection.commit()
-            self._logger.info("celery tables were dropped")
+        self._logger.info("celery tables were dropped")
 
     def remove_celery_tables_data(self):
         if not self.is_table_exists("celery_tasksetmeta"):
@@ -169,14 +169,14 @@ class SQLAlchemyDb:
             connection.execute(text("DELETE FROM celery_tasksetmeta;"))
             connection.execute(text("DELETE FROM celery_taskmeta;"))
             connection.commit()
-            self._logger.info("celery tables data were removed")
+        self._logger.info("celery tables data were removed")
 
     def drop_alembic_tables(self):
         with self.engine.connect() as connection:
             connection.execute(text("DROP TABLE IF EXISTS alembic_version CASCADE;"))
             connection.execute(text("DROP TABLE IF EXISTS alembic_version CASCADE;"))
             connection.commit()
-            self._logger.info("alembic_version tables were dropped")
+        self._logger.info("alembic_version tables were dropped")
 
     def remove_alembic_tables_data(self):
         if not self.is_table_exists("alembic_version"):
@@ -185,7 +185,7 @@ class SQLAlchemyDb:
         with self.engine.connect() as connection:
             connection.execute(text("DELETE FROM alembic_version;"))
             connection.commit()
-            self._logger.info("alembic tables data were removed")
+        self._logger.info("alembic tables data were removed")
 
     def init(self):
         self.base_dbm.metadata.create_all(bind=self.engine, checkfirst=True)

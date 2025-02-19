@@ -5,7 +5,8 @@ from arpakitlib.ar_base_worker_util import BaseWorker
 from arpakitlib.ar_sleep_util import sync_safe_sleep, async_safe_sleep
 from arpakitlib.ar_sqlalchemy_util import SQLAlchemyDb
 from arpakitlib.ar_type_util import raise_for_type
-from src.operation_execution.scheduled_operations import ScheduledOperation
+from src.operation_execution.scheduled_operations import ScheduledOperation, get_scheduled_operations
+from src.sqlalchemy_db.sqlalchemy_db import get_cached_sqlalchemy_db
 from src.sqlalchemy_db.sqlalchemy_model import OperationDBM
 
 
@@ -90,3 +91,10 @@ class ScheduledOperationCreatorWorker(BaseWorker):
 
         if timeout is not None:
             await async_safe_sleep(n=timeout)
+
+
+def create_scheduled_operation_creator_worker() -> ScheduledOperationCreatorWorker:
+    return ScheduledOperationCreatorWorker(
+        sqlalchemy_db=get_cached_sqlalchemy_db(),
+        scheduled_operations=get_scheduled_operations()
+    )

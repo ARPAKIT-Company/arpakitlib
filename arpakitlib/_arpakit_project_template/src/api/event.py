@@ -1,20 +1,18 @@
+import logging
 from typing import Callable
 
 from arpakitlib.ar_base_worker_util import safe_run_worker_in_background, SafeRunInBackgroundModes
-from arpakitlib.ar_fastapi_util import BaseAPIEvent
 from src.api.transmitted_api_data import TransmittedAPIData
-from src.operation_execution.operation_execution_logic import OperationExecutionLogic
-from src.operation_execution.operation_executor_worker import OperationExecutorWorker
-from src.operation_execution.scheduled_operation_creator_worker import ScheduledOperationCreatorWorker
-from src.operation_execution.scheduled_operations import SCHEDULED_OPERATIONS
+from src.operation_execution.operation_executor_worker import create_operation_executor_worker
+from src.operation_execution.scheduled_operation_creator_worker import create_scheduled_operation_creator_worker
 
 
 # STARTUP API EVENTS
 
 
-class StartupAPIEvent(BaseAPIEvent):
+class StartupAPIEvent:
     def __init__(self, transmitted_api_data: TransmittedAPIData, **kwargs):
-        super().__init__(**kwargs)
+        self._logger = logging.getLogger(self.__class__.__name__)
         self.transmitted_api_data = transmitted_api_data
 
     async def async_on_startup(self, *args, **kwargs):
@@ -40,20 +38,13 @@ class StartupAPIEvent(BaseAPIEvent):
 
         if self.transmitted_api_data.settings.api_start_operation_executor_worker:
             _ = safe_run_worker_in_background(
-                worker=OperationExecutorWorker(
-                    sqlalchemy_db=self.transmitted_api_data.sqlalchemy_db,
-                    operation_execution_logic=OperationExecutionLogic(sqlalchemy_db=self.transmitted_api_data.sqlalchemy_db),
-                    filter_operation_types=None
-                ),
+                worker=create_operation_executor_worker(),
                 mode=SafeRunInBackgroundModes.thread
             )
 
         if self.transmitted_api_data.settings.api_start_scheduled_operation_creator_worker:
             _ = safe_run_worker_in_background(
-                worker=ScheduledOperationCreatorWorker(
-                    sqlalchemy_db=self.transmitted_api_data.sqlalchemy_db,
-                    scheduled_operations=SCHEDULED_OPERATIONS
-                ),
+                worker=create_scheduled_operation_creator_worker(),
                 mode=SafeRunInBackgroundModes.async_task
             )
 
@@ -71,9 +62,9 @@ def get_startup_api_events(
 # SHUTDOWN API EVENTS
 
 
-class ShutdownAPIEvent(BaseAPIEvent):
+class ShutdownAPIEvent:
     def __init__(self, transmitted_api_data: TransmittedAPIData, **kwargs):
-        super().__init__(**kwargs)
+        self._logger = logging.getLogger(self.__class__.__name__)
         self.transmitted_api_data = transmitted_api_data
 
     async def async_on_shutdown(self, *args, **kwargs):

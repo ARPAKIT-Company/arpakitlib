@@ -1,6 +1,8 @@
 from functools import lru_cache
 
-from arpakitlib.ar_fastapi_util import BaseTransmittedAPIData
+import starlette.requests
+from pydantic import BaseModel, ConfigDict
+
 from arpakitlib.ar_file_storage_in_dir_util import FileStorageInDir
 from arpakitlib.ar_json_db_util import BaseJSONDb
 from arpakitlib.ar_sqlalchemy_util import SQLAlchemyDb
@@ -13,13 +15,19 @@ from src.json_db.util import get_json_db
 from src.sqlalchemy_db.sqlalchemy_db import get_cached_sqlalchemy_db
 
 
-class TransmittedAPIData(BaseTransmittedAPIData):
+class TransmittedAPIData(BaseModel):
+    model_config = ConfigDict(extra="ignore", arbitrary_types_allowed=True, from_attributes=True)
+
     settings: Settings | None = None
     sqlalchemy_db: SQLAlchemyDb | None = None
     json_db: BaseJSONDb | None = None
     media_file_storage_in_dir: FileStorageInDir | None = None
     cache_file_storage_in_dir: FileStorageInDir | None = None
     dump_file_storage_in_dir: FileStorageInDir | None = None
+
+
+def get_transmitted_api_data(request: starlette.requests.Request) -> TransmittedAPIData:
+    return request.app.state.transmitted_api_data
 
 
 def create_transmitted_api_data() -> TransmittedAPIData:
