@@ -1,8 +1,10 @@
-from arpakitlib.ar_sqladmin_util import BaseMV, get_string_info_from_model_view
+from sqladmin import ModelView
+
+from arpakitlib.ar_sqladmin_util import get_string_info_from_model_view
 from src.sqlalchemy_db.sqlalchemy_model import StoryLogDBM, OperationDBM
 
 
-class SimpleMV(BaseMV):
+class SimpleMV(ModelView):
     can_create = True
     can_edit = True
     can_delete = True
@@ -23,11 +25,13 @@ class StoryLogMV(SimpleMV, model=StoryLogDBM):
         StoryLogDBM.long_id,
         StoryLogDBM.creation_dt,
         StoryLogDBM.level,
+        StoryLogDBM.type,
         StoryLogDBM.title,
         StoryLogDBM.data
     ]
     form_columns = [
         StoryLogDBM.level,
+        StoryLogDBM.type,
         StoryLogDBM.title,
         StoryLogDBM.data
     ]
@@ -38,6 +42,7 @@ class StoryLogMV(SimpleMV, model=StoryLogDBM):
         StoryLogDBM.id,
         StoryLogDBM.long_id,
         StoryLogDBM.level,
+        StoryLogDBM.type,
         StoryLogDBM.title,
         StoryLogDBM.data
     ]
