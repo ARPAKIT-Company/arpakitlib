@@ -52,7 +52,11 @@ class ScheduledOperationCreatorWorker(BaseWorker):
                 session.add(operation_dbm)
                 session.commit()
                 session.refresh(operation_dbm)
-                self._logger.info(f"scheduled operation (id={operation_dbm.id}) was created")
+            self._logger.info(
+                f"scheduled operation was created"
+                f", operation_id={operation_dbm.id}"
+                f", operation_type={operation_dbm.type}"
+            )
 
             if scheduled_operation.timeout_after_creation is not None:
                 if timeout is not None:
@@ -80,7 +84,11 @@ class ScheduledOperationCreatorWorker(BaseWorker):
                 async_session.add(operation_dbm)
                 await async_session.commit()
                 await async_session.refresh(operation_dbm)
-                self._logger.info(f"scheduled operation (id={operation_dbm.id}) was created")
+            self._logger.info(
+                f"scheduled operation was created"
+                f", operation_id={operation_dbm.id}"
+                f", operation_type={operation_dbm.type}"
+            )
 
             if scheduled_operation.timeout_after_creation is not None:
                 if timeout is not None:
@@ -96,5 +104,6 @@ class ScheduledOperationCreatorWorker(BaseWorker):
 def create_scheduled_operation_creator_worker() -> ScheduledOperationCreatorWorker:
     return ScheduledOperationCreatorWorker(
         sqlalchemy_db=get_cached_sqlalchemy_db(),
-        scheduled_operations=get_scheduled_operations()
+        scheduled_operations=get_scheduled_operations(),
+        startup_funcs=[get_cached_sqlalchemy_db().init]
     )

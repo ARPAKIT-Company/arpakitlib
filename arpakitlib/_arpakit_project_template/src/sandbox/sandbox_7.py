@@ -1,14 +1,14 @@
 import asyncio
 
 
-def __example():
+def __sandbox():
     pass
 
 
-async def __async_example():
+async def __async_sandbox():
     pass
 
 
 if __name__ == '__main__':
-    __example()
-    asyncio.run(__async_example())
+    __sandbox()
+    asyncio.run(__async_sandbox())

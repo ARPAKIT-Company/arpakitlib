@@ -1,17 +1,12 @@
 import asyncio
 
 from src.core.util import setup_logging
-from src.operation_execution.scheduled_operation_creator_worker import ScheduledOperationCreatorWorker
-from src.operation_execution.scheduled_operations import get_scheduled_operations
-from src.sqlalchemy_db.sqlalchemy_db import get_cached_sqlalchemy_db
+from src.operation_execution.scheduled_operation_creator_worker import create_scheduled_operation_creator_worker
 
 
 async def __just_script():
     setup_logging()
-    worker = ScheduledOperationCreatorWorker(
-        sqlalchemy_db=get_cached_sqlalchemy_db(),
-        scheduled_operations=get_scheduled_operations()
-    )
+    worker = create_scheduled_operation_creator_worker()
     await worker.async_safe_run()
 
 

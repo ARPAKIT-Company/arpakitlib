@@ -8,8 +8,7 @@ import aiogram
 import aiohttp
 import aiohttp.web
 from aiogram import types
-from aiogram.client.default import DefaultBotProperties
-from aiogram.enums import ChatType, ParseMode
+from aiogram.enums import ChatType
 from aiogram.exceptions import AiogramError
 from aiogram.filters import CommandObject, Filter
 from aiogram.filters.callback_data import CallbackData
@@ -17,8 +16,6 @@ from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_applicati
 from aiohttp import web
 from pydantic import BaseModel, ConfigDict
 
-from arpakitlib.ar_enumeration_util import Enumeration
-from arpakitlib.ar_json_db_util import BaseJSONDb
 from arpakitlib.ar_need_type_util import parse_need_type, NeedTypes
 from arpakitlib.ar_parse_command import BadCommandFormat, parse_command
 from arpakitlib.ar_type_util import raise_for_types, raise_for_type

@@ -84,13 +84,22 @@ class OperationExecutorWorker(BaseWorker):
             sync_session.refresh(operation_dbm)
 
         # 2
+        self._logger.info(
+            f"start sync_execute_operation"
+            f", operation_id={operation_dbm.id}"
+            f", operation_type={operation_dbm.type})"
+            f", worker_fullname={self.worker_fullname}"
+        )
         exception_in_sync_execute_operation: Exception | None = None
         traceback_str_in_sync_execute_operation: str | None = None
         try:
             self.sync_execute_operation(operation_dbm=operation_dbm)
         except Exception as exception:
             self._logger.error(
-                f"exception in sync_execute_operation (id={operation_dbm.id}, type={operation_dbm.type})",
+                f"exception in sync_execute_operation"
+                f", operation_id={operation_dbm.id}"
+                f", operation_type={operation_dbm.type}"
+                f", worker_fullname={self.worker_fullname}",
                 exc_info=True
             )
             exception_in_sync_execute_operation = exception
@@ -116,17 +125,25 @@ class OperationExecutorWorker(BaseWorker):
                 operation_dbm.status = OperationDBM.Statuses.executed_without_error
             sync_session.commit()
             sync_session.refresh(operation_dbm)
+        self._logger.info(
+            f"finish sync_execute_operation"
+            f", operation_id={operation_dbm.id}"
+            f", operation_type={operation_dbm.type}"
+            f", worker_fullname={self.worker_fullname}"
+        )
 
         # 4
         if exception_in_sync_execute_operation is not None:
             with self.sqlalchemy_db.new_session() as sync_session:
                 story_log_dbm = StoryLogDBM(
                     level=StoryLogDBM.Levels.error,
+                    type=StoryLogDBM.Types.error_in_execute_operation,
                     title=f"error in sync_execute_operation (id={operation_dbm.id}, type={operation_dbm.type})",
                     data={
                         "operation_dbm.id": operation_dbm.id,
                         "exception_in_sync_execute_operation": str(exception_in_sync_execute_operation),
-                        "traceback_str_in_sync_execute_operation": traceback_str_in_sync_execute_operation
+                        "traceback_str_in_sync_execute_operation": traceback_str_in_sync_execute_operation,
+                        f"{inspect.currentframe().f_code.co_name}": True
                     }
                 )
                 sync_session.add(story_log_dbm)
@@ -158,13 +175,22 @@ class OperationExecutorWorker(BaseWorker):
             await async_session.refresh(operation_dbm)
 
         # 2
+        self._logger.info(
+            f"start sync_execute_operation"
+            f", operation_id={operation_dbm.id}"
+            f", operation_type={operation_dbm.type})"
+            f", worker_fullname={self.worker_fullname}"
+        )
         exception_in_async_execute_operation = None
         traceback_str_in_async_execute_operation = None
         try:
             await self.async_execute_operation(operation_dbm=operation_dbm)
         except Exception as exception:
             self._logger.error(
-                f"exception in async_execute_operation (id={operation_dbm.id}, type={operation_dbm.type})",
+                f"exception in sync_execute_operation"
+                f", operation_id={operation_dbm.id}"
+                f", operation_type={operation_dbm.type}"
+                f", worker_fullname={self.worker_fullname}",
                 exc_info=True
             )
             exception_in_async_execute_operation = exception
@@ -191,17 +217,25 @@ class OperationExecutorWorker(BaseWorker):
                 operation_dbm.status = OperationDBM.Statuses.executed_without_error
             await async_session.commit()
             await async_session.refresh(operation_dbm)
+        self._logger.info(
+            f"finish sync_execute_operation"
+            f", operation_id={operation_dbm.id}"
+            f", operation_type={operation_dbm.type}"
+            f", worker_fullname={self.worker_fullname}"
+        )
 
         # 4
         if exception_in_async_execute_operation is not None:
             async with self.sqlalchemy_db.new_async_session() as async_session:
                 story_log_dbm = StoryLogDBM(
                     level=StoryLogDBM.Levels.error,
+                    type=StoryLogDBM.Types.error_in_execute_operation,
                     title=f"error in async_execute_operation (id={operation_dbm.id}, type={operation_dbm.type})",
                     data={
                         "operation_dbm.id": operation_dbm.id,
                         "exception_in_async_execute_operation": str(exception_in_async_execute_operation),
-                        "traceback_str_in_async_execute_operation": traceback_str_in_async_execute_operation
+                        "traceback_str_in_async_execute_operation": traceback_str_in_async_execute_operation,
+                        f"{inspect.currentframe().f_code.co_name}": True
                     }
                 )
                 async_session.add(story_log_dbm)
@@ -209,7 +243,12 @@ class OperationExecutorWorker(BaseWorker):
                 await async_session.refresh(story_log_dbm)
 
 
-def create_operation_executor_worker() -> OperationExecutorWorker:
+def create_operation_executor_worker(
+        *,
+        filter_operation_types: str | list[str] | None = None
+) -> OperationExecutorWorker:
     return OperationExecutorWorker(
-        sqlalchemy_db=get_cached_sqlalchemy_db()
+        sqlalchemy_db=get_cached_sqlalchemy_db(),
+        filter_operation_types=filter_operation_types,
+        startup_funcs=[get_cached_sqlalchemy_db().init]
     )

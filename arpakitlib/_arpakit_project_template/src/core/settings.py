@@ -113,6 +113,10 @@ class Settings(SimpleSettings):
             v = [v]
         if isinstance(v, int):
             v = [str(v)]
+        if isinstance(v, list):
+            for i, v_ in enumerate(v):
+                if isinstance(v_, int):
+                    v[i] = str(v_)
         return v
 
     api_correct_tokens: list[str] | None = "1"
@@ -123,6 +127,10 @@ class Settings(SimpleSettings):
             v = [v]
         if isinstance(v, int):
             v = [str(v)]
+        if isinstance(v, list):
+            for i, v_ in enumerate(v):
+                if isinstance(v_, int):
+                    v[i] = str(v_)
         return v
 
     api_enable_admin1: bool = True

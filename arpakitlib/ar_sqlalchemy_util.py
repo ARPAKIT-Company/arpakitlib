@@ -55,7 +55,6 @@ def generate_sqlalchemy_url(
     return f"{base}://{auth_part}{host_part}{database_part}{query_part}"
 
 
-
 class BaseDBM(DeclarativeBase):
     __abstract__ = True
     _bus_data: dict[str, Any] | None = None
@@ -105,7 +104,6 @@ class BaseDBM(DeclarativeBase):
 
     def simple_json(self, *, include_sd_properties: bool = True) -> str:
         return safely_transfer_obj_to_json_str(self.simple_dict(include_sd_properties=include_sd_properties))
-
 
 
 class SQLAlchemyDb:

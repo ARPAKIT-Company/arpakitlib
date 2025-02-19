@@ -40,7 +40,7 @@ class StoryLogDBM(SimpleDBM):
         error = "error"
 
     class Types(Enumeration):
-        pass
+        error_in_execute_operation = "error_in_execute_operation"
 
     level: Mapped[str] = mapped_column(
         sqlalchemy.TEXT, insert_default=Levels.info, server_default=Levels.info, index=True, nullable=False
