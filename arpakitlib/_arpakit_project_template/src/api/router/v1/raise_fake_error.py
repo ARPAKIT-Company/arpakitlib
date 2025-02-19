@@ -1,20 +1,19 @@
-import fastapi.requests
+import fastapi
+import starlette
 from fastapi import APIRouter, Depends
 from starlette import status
 
-from src.api.auth import APIAuthData, api_auth, correct_api_key_from_settings__validate_api_key_func
-from src.api.const import APIErrorCodes, APIErrorSpecificationCodes
-from src.api.schema.v1.out import InfoAboutErrorsSO, ErrorSO
+from src.api.auth import APIAuthData, correct_api_key_from_settings__validate_api_key_func, api_auth
+from src.api.schema.v1.out import ErrorSO
 from src.api.transmitted_api_data import TransmittedAPIData, get_transmitted_api_data
 
 api_router = APIRouter()
 
 
 @api_router.get(
-    "",
-    name="Get info about errors",
-    response_model=InfoAboutErrorsSO | ErrorSO,
-    status_code=status.HTTP_200_OK
+    "/raise_fake_error",
+    response_model=ErrorSO,
+    status_code=starlette.status.HTTP_200_OK
 )
 async def _(
         *,
@@ -26,7 +25,4 @@ async def _(
             require_correct_api_key=True,
         )),
 ):
-    return InfoAboutErrorsSO(
-        api_error_codes=APIErrorCodes.values_list(),
-        api_error_specification_codes=APIErrorSpecificationCodes.values_list()
-    )
+    raise Exception("raise_fake_error")

@@ -36,7 +36,7 @@ class APIAuthData(BaseModel):
     is_api_key_correct: bool | None = None
 
 
-def base_api_auth(
+def api_auth(
         *,
         require_api_key_string: bool = False,
         require_token_string: bool = False,
@@ -156,8 +156,6 @@ def base_api_auth(
 
         if validate_api_key_func is not None:
             validate_api_key_func_res = validate_api_key_func(
-                api_key_string=api_auth_data.api_key_string,
-                token_string=api_auth_data.token_string,
                 api_auth_data=api_auth_data,
                 transmitted_api_data=transmitted_api_data,
                 request=request,
@@ -171,8 +169,6 @@ def base_api_auth(
 
         if validate_token_func is not None:
             validate_token_func_res = validate_token_func(
-                api_key_string=api_auth_data.api_key_string,
-                token_string=api_auth_data.token_string,
                 api_auth_data=api_auth_data,
                 transmitted_api_data=transmitted_api_data,
                 request=request,
@@ -209,46 +205,38 @@ def base_api_auth(
     return func
 
 
-def correct_api_key_from_settings__validate_api_key_func(
-        *args, **kwargs
-) -> Callable:
+def correct_api_key_from_settings__validate_api_key_func() -> Callable:
     async def func(
             *,
-            api_key_string: str | None,
-            token_string: str | None,
             api_auth_data: APIAuthData,
             transmitted_api_data: TransmittedAPIData,
             request: starlette.requests.Request,
             **kwargs_
     ):
-        if transmitted_api_data.settings.api_correct_api_key is None:
+        if transmitted_api_data.settings.api_correct_api_keys is None:
             return True
-        if not api_key_string:
+        if api_auth_data.api_key_string is None:
             return False
-        if api_key_string.strip() != transmitted_api_data.settings.api_correct_api_key.strip():
+        if api_auth_data.api_key_string.strip() not in transmitted_api_data.settings.api_correct_api_keys:
             return False
         return True
 
     return func
 
 
-def correct_token_from_settings__validate_api_key_func(
-        *args, **kwargs
-) -> Callable:
+def correct_token_from_settings__validate_api_key_func() -> Callable:
     async def func(
             *,
-            api_key_string: str | None,
-            token_string: str | None,
             api_auth_data: APIAuthData,
             transmitted_api_data: TransmittedAPIData,
             request: starlette.requests.Request,
             **kwargs_
     ):
-        if transmitted_api_data.settings.api_correct_token is None:
+        if transmitted_api_data.settings.api_correct_tokens is None:
             return True
-        if not token_string:
+        if api_auth_data.token_string is None:
             return False
-        if token_string.strip() != transmitted_api_data.settings.api_correct_token.strip():
+        if api_auth_data.token_string.strip() not in transmitted_api_data.settings.api_correct_tokens:
             return False
         return True
 

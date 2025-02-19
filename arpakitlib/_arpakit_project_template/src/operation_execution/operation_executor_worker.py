@@ -24,8 +24,7 @@ class OperationExecutorWorker(BaseWorker):
             *,
             sqlalchemy_db: SQLAlchemyDb,
             filter_operation_types: str | list[str] | None = None,
-            startup_funcs: list[Any] | None = None,
-            **kwargs
+            startup_funcs: list[Any] | None = None
     ):
         super().__init__(
             timeout_after_run=timedelta(seconds=0.1),

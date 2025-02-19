@@ -12,19 +12,20 @@ import starlette.exceptions
 import starlette.exceptions
 import starlette.requests
 import starlette.status
+from fastapi import FastAPI
 
 from arpakitlib.ar_datetime_util import now_utc_dt
 from arpakitlib.ar_dict_util import combine_dicts
 from arpakitlib.ar_exception_util import exception_to_traceback_str
 from arpakitlib.ar_func_util import is_async_object, raise_if_not_async_callable
 from arpakitlib.ar_json_util import safely_transfer_obj_to_json_str
-from arpakitlib.ar_sqlalchemy_util import SQLAlchemyDb
 from arpakitlib.ar_type_util import raise_for_type
 from src.api.const import APIErrorCodes
 from src.api.exception import APIException
 from src.api.response import APIJSONResponse
 from src.api.schema.v1.out import ErrorSO
-from src.api.transmitted_api_data import TransmittedAPIData
+from src.core.settings import get_cached_settings
+from src.sqlalchemy_db.sqlalchemy_db import get_cached_sqlalchemy_db
 from src.sqlalchemy_db.sqlalchemy_model import StoryLogDBM
 
 _logger = logging.getLogger(__name__)
@@ -33,8 +34,7 @@ _logger = logging.getLogger(__name__)
 def create_exception_handler(
         *,
         funcs_before: list[Callable | None] | None = None,
-        async_funcs_after: list[Callable | None] | None = None,
-        **kwargs
+        async_funcs_after: list[Callable | None] | None = None
 ) -> Callable:
     if funcs_before is None:
         funcs_before = []
@@ -138,8 +138,7 @@ def logging__api_func_before_in_handle_exception(
         *,
         ignore_api_error_codes: list[str] | None = None,
         ignore_status_codes: list[int] | None = None,
-        ignore_exception_types: list[type[Exception]] | None = None,
-        need_exc_info: bool = False
+        ignore_exception_types: list[type[Exception]] | None = None
 ) -> Callable:
     current_func_name = inspect.currentframe().f_code.co_name
 
@@ -165,20 +164,17 @@ def logging__api_func_before_in_handle_exception(
         ):
             return error_so, transmitted_kwargs
 
-        _logger.error(safely_transfer_obj_to_json_str(error_so.model_dump()), exc_info=need_exc_info)
+        _logger.error(safely_transfer_obj_to_json_str(error_so.model_dump()), exc_info=False)
 
     return func
 
 
 def story_log__api_func_before_in_handle_exception(
         *,
-        sqlalchemy_db: SQLAlchemyDb,
         ignore_api_error_codes: list[str] | None = None,
         ignore_status_codes: list[int] | None = None,
-        ignore_exception_types: list[type[Exception]] | None = None
+        ignore_exception_types: list[type[Exception]] | None = None,
 ) -> Callable:
-    raise_for_type(sqlalchemy_db, SQLAlchemyDb)
-
     current_func_name = inspect.currentframe().f_code.co_name
 
     async def async_func(
@@ -203,7 +199,7 @@ def story_log__api_func_before_in_handle_exception(
         ):
             return error_so, transmitted_kwargs
 
-        async with sqlalchemy_db.new_async_session() as session:
+        async with get_cached_sqlalchemy_db().new_async_session() as session:
             story_log_dbm = StoryLogDBM(
                 level=StoryLogDBM.Levels.error,
                 title=f"{status_code}, {type(exception)}",
@@ -224,7 +220,7 @@ def story_log__api_func_before_in_handle_exception(
     return async_func
 
 
-def create_exception_handler_(*, transmitted_api_data: TransmittedAPIData, **kwargs):
+def get_exception_handler() -> Callable:
     funcs_before = []
     async_funcs_after = []
 
@@ -243,14 +239,12 @@ def create_exception_handler_(*, transmitted_api_data: TransmittedAPIData, **kwa
             ignore_exception_types=[
                 fastapi.exceptions.RequestValidationError
             ],
-            need_exc_info=False
         )
     )
 
-    if transmitted_api_data.settings.api_story_log__api_func_before_in_handle_exception:
+    if get_cached_settings().api_story_log__api_func_before_in_exception_handler:
         funcs_before.append(
             story_log__api_func_before_in_handle_exception(
-                sqlalchemy_db=transmitted_api_data.sqlalchemy_db,
                 ignore_api_error_codes=[
                     APIErrorCodes.cannot_authorize,
                     APIErrorCodes.error_in_request,
@@ -271,3 +265,26 @@ def create_exception_handler_(*, transmitted_api_data: TransmittedAPIData, **kwa
         funcs_before=funcs_before,
         async_funcs_after=async_funcs_after
     )
+
+
+def add_exception_handler_to_app(*, app: FastAPI) -> FastAPI:
+    exception_handler = get_exception_handler()
+
+    app.add_exception_handler(
+        exc_class_or_status_code=Exception,
+        handler=exception_handler
+    )
+    app.add_exception_handler(
+        exc_class_or_status_code=ValueError,
+        handler=exception_handler
+    )
+    app.add_exception_handler(
+        exc_class_or_status_code=fastapi.exceptions.RequestValidationError,
+        handler=exception_handler
+    )
+    app.add_exception_handler(
+        exc_class_or_status_code=starlette.exceptions.HTTPException,
+        handler=exception_handler
+    )
+
+    return app
