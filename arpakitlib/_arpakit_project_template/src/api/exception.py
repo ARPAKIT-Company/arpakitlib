@@ -4,7 +4,7 @@ import fastapi.security
 import starlette.status
 
 from src.api.const import APIErrorCodes
-from src.api.schema.v1.out import ErrorSO
+from src.api.schema.common.out import ErrorCommonSO
 
 
 class APIException(fastapi.exceptions.HTTPException):
@@ -25,7 +25,7 @@ class APIException(fastapi.exceptions.HTTPException):
             error_data = {}
         self.error_data = error_data
 
-        self.error_so = ErrorSO(
+        self.error_common_so = ErrorCommonSO(
             has_error=True,
             error_code=self.error_code,
             error_specification_code=self.error_specification_code,
@@ -35,5 +35,5 @@ class APIException(fastapi.exceptions.HTTPException):
 
         super().__init__(
             status_code=self.status_code,
-            detail=self.error_so.model_dump(mode="json")
+            detail=self.error_common_so.model_dump(mode="json")
         )

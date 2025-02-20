@@ -11,6 +11,7 @@ from sqlalchemy import asc
 from arpakitlib.ar_base_worker_util import BaseWorker
 from arpakitlib.ar_datetime_util import now_utc_dt
 from arpakitlib.ar_dict_util import combine_dicts
+from arpakitlib.ar_exception_util import exception_to_traceback_str
 from arpakitlib.ar_sqlalchemy_util import SQLAlchemyDb
 from arpakitlib.ar_type_util import raise_for_type
 from src.sqlalchemy_db.sqlalchemy_db import get_cached_sqlalchemy_db
@@ -90,7 +91,6 @@ class OperationExecutorWorker(BaseWorker):
             f", worker_fullname={self.worker_fullname}"
         )
         exception_in_execute_operation: Exception | None = None
-        traceback_str_in_execute_operation: str | None = None
         try:
             self.sync_execute_operation(operation_dbm=operation_dbm)
         except Exception as exception:
@@ -101,7 +101,6 @@ class OperationExecutorWorker(BaseWorker):
                 f", worker_fullname={self.worker_fullname}",
             )
             exception_in_execute_operation = exception
-            traceback_str_in_execute_operation = traceback.format_exc()
 
         # 3
         with self.sqlalchemy_db.new_session() as sync_session:
@@ -115,7 +114,9 @@ class OperationExecutorWorker(BaseWorker):
                     operation_dbm.error_data,
                     {
                         "exception_in_execute_operation": str(exception_in_execute_operation),
-                        "traceback_str_in_execute_operation": traceback_str_in_execute_operation,
+                        "traceback_str_in_execute_operation": exception_to_traceback_str(
+                            exception=exception_in_execute_operation
+                        ),
                     }
                 )
             else:
@@ -185,7 +186,6 @@ class OperationExecutorWorker(BaseWorker):
             f", worker_fullname={self.worker_fullname}"
         )
         exception_in_execute_operation = None
-        traceback_str_in_execute_operation = None
         try:
             await self.async_execute_operation(operation_dbm=operation_dbm)
         except Exception as exception:
@@ -196,7 +196,6 @@ class OperationExecutorWorker(BaseWorker):
                 f", worker_fullname={self.worker_fullname}",
             )
             exception_in_execute_operation = exception
-            traceback_str_in_execute_operation = traceback.format_exc()
 
         # 3
         async with self.sqlalchemy_db.new_async_session() as async_session:
@@ -210,7 +209,9 @@ class OperationExecutorWorker(BaseWorker):
                 operation_dbm.error_data = combine_dicts(
                     {
                         "exception_in_execute_operation": str(exception_in_execute_operation),
-                        "traceback_str_in_execute_operation": traceback_str_in_execute_operation
+                        "traceback_str_in_execute_operation": exception_to_traceback_str(
+                            exception=exception_in_execute_operation
+                        )
                     },
                     operation_dbm.error_data
                 )

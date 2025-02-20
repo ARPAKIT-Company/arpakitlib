@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from src.api.router.v1 import get_info_about_errors, healthcheck, arpakitlib_, raise_fake_error
+from src.api.router.v1 import get_info_about_errors, healthcheck, raise_fake_error
 
 main_v1_api_router = APIRouter()
 

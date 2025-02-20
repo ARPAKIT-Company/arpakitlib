@@ -1,5 +1,6 @@
 from src.api.schema.base_schema import BaseSI
 
 
-class BaseV1SI(BaseSI):
+class BaseCommonSI(BaseSI):
     pass
+

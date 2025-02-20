@@ -1,6 +1,8 @@
 import logging
 from typing import Callable
 
+from aiogram import Dispatcher
+
 from src.tg_bot.transmitted_tg_data import get_cached_transmitted_tg_bot_data
 
 _logger = logging.getLogger(__name__)
@@ -27,13 +29,23 @@ async def on_startup():
     _logger.info("finish")
 
 
-async def on_shutdown(self, *args, **kwargs):
-    self._logger.info("on_shutdown start")
-    self._logger.info("on_shutdown was done")
+async def on_shutdown(*args, **kwargs):
+    _logger.info("start")
+    _logger.info("finish")
 
 
-def get_tg_bot_events() -> list[Callable]:
-    res = []
-    res.append(on_startup)
-    res.append(TgBotShutdownEvent(transmitted_tg_bot_data=get_cached_transmitted_tg_bot_data()).on_shutdown)
+def get_tg_bot_startup_events() -> list[Callable]:
+    res = [on_startup]
     return res
+
+
+def get_tg_bot_shutdown_events() -> list[Callable]:
+    res = [on_shutdown]
+    return res
+
+
+def add_events_to_tg_bot_dispatcher(*, tg_bot_dispatcher: Dispatcher):
+    for tg_bot_event in get_tg_bot_startup_events():
+        tg_bot_dispatcher.startup.register(tg_bot_event)
+    for tg_bot_event in get_tg_bot_shutdown_events():
+        tg_bot_dispatcher.shutdown.register(tg_bot_event)

@@ -16,3 +16,12 @@ class BaseSchema(BaseModel):
         ):
             raise ValueError("APISchema class should ends with SO | SI | SchemaIn | SchemaOut")
         super().__init_subclass__(**kwargs)
+
+
+class BaseSI(BaseSchema):
+    pass
+
+
+class BaseSO(BaseSchema):
+    pass
+

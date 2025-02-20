@@ -24,6 +24,8 @@ class ProjectPaths(Enumeration):
     static_dirname: str = "static"
     static_dirpath: str = os.path.join(resource_dirpath, static_dirname)
 
+    arpakit_lib_project_template_filepath: str = os.path.join(base_dirpath, "arpakitlib_project_template.json")
+
 
 def __example():
     print(safely_transfer_obj_to_json_str(ProjectPaths.key_to_value()))

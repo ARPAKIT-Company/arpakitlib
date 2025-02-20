@@ -44,6 +44,6 @@ raise_fake_error_every_3_seconds_scheduled_operation = ScheduledOperation(
 
 def get_scheduled_operations() -> list[ScheduledOperation]:
     res = []
-    res.append(raise_fake_error_every_3_seconds_scheduled_operation)
+    res.append(healthcheck_every_3_seconds_scheduled_operation)
     res.append(healthcheck_every_24_hours_scheduled_operation)
     return res
