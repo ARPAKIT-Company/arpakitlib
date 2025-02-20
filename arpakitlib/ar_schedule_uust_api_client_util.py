@@ -189,7 +189,7 @@ class ScheduleUUSTAPIClient:
         try:
             await self.check_conn()
         except Exception as e:
-            self._logger.error(f"connection is bad", exc_info=e)
+            self._logger.error(f"connection is bad, {e}")
             return False
         return True
 

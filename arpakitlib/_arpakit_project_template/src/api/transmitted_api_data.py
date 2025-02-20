@@ -50,12 +50,12 @@ def create_transmitted_api_data() -> TransmittedAPIData:
     )
 
     transmitted_api_data = TransmittedAPIData(
+        settings=settings,
         sqlalchemy_db=sqlalchemy_db,
         json_db=json_db,
         media_file_storage_in_dir=media_file_storage_in_dir,
         cache_file_storage_in_dir=cache_file_storage_in_dir,
-        dump_file_storage_in_dir=dump_file_storage_in_dir,
-        settings=settings
+        dump_file_storage_in_dir=dump_file_storage_in_dir
     )
 
     return transmitted_api_data

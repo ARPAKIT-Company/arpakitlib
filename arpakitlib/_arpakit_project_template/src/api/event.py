@@ -12,7 +12,7 @@ _logger = logging.getLogger(__name__)
 # STARTUP API EVENTS
 
 
-async def async_on_startup():
+async def async_api_startup_event():
     _logger.info("start")
 
     if get_cached_transmitted_api_data().media_file_storage_in_dir is not None:
@@ -49,18 +49,18 @@ async def async_on_startup():
 
 
 def get_api_startup_events() -> list[Callable]:
-    res = [async_on_startup]
+    res = [async_api_startup_event]
     return res
 
 
 # SHUTDOWN API EVENTS
 
 
-async def async_on_shutdown():
+async def async_api_shutdown_event():
     _logger.info("start")
     _logger.info("finish")
 
 
 def get_api_shutdown_events() -> list[Callable]:
-    res = [async_on_shutdown]
+    res = [async_api_shutdown_event]
     return res

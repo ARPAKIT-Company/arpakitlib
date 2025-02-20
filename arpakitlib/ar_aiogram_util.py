@@ -14,7 +14,7 @@ from aiogram.filters import CommandObject, Filter
 from aiogram.filters.callback_data import CallbackData
 from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_application
 from aiohttp import web
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel
 
 from arpakitlib.ar_need_type_util import parse_need_type, NeedTypes
 from arpakitlib.ar_parse_command import BadCommandFormat, parse_command
@@ -312,10 +312,6 @@ def as_tg_command(
         return new_handler
 
     return decorator
-
-
-class BaseTransmittedTgBotData(BaseModel):
-    model_config = ConfigDict(extra="ignore", arbitrary_types_allowed=True, from_attributes=True)
 
 
 def start_aiogram_tg_bot_with_webhook(

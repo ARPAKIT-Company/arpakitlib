@@ -7,7 +7,7 @@ import threading
 from abc import ABC
 from datetime import timedelta
 from random import randint
-from typing import Any
+from typing import Callable
 from uuid import uuid4
 
 from arpakitlib.ar_enumeration_util import Enumeration
@@ -23,7 +23,7 @@ class BaseWorker(ABC):
             *,
             timeout_after_run: timedelta = timedelta(seconds=0.3),
             timeout_after_error_in_run: timedelta = timedelta(seconds=1),
-            startup_funcs: list[Any] | None = None,
+            startup_funcs: list[Callable] | None = None,
             worker_name: str | None = None,
             **kwargs
     ):

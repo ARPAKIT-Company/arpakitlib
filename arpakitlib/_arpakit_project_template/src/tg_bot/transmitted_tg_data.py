@@ -1,17 +1,19 @@
 from functools import lru_cache
 
-from arpakitlib.ar_aiogram_util import BaseTransmittedTgBotData
+from pydantic import BaseModel
+
 from arpakitlib.ar_file_storage_in_dir_util import FileStorageInDir
 from arpakitlib.ar_json_db_util import BaseJSONDb
 from arpakitlib.ar_sqlalchemy_util import SQLAlchemyDb
+from src.core.cache_file_storage_in_dir import get_cached_cache_file_storage_in_dir
+from src.core.dump_file_storage_in_dir import get_cached_dump_file_storage_in_dir
+from src.core.media_file_storage_in_dir import get_cached_media_file_storage_in_dir
 from src.core.settings import Settings, get_cached_settings
-from src.core.util import get_cached_media_file_storage_in_dir, get_cached_cache_file_storage_in_dir, \
-    get_cached_dump_file_storage_in_dir
 from src.json_db.util import get_json_db
 from src.sqlalchemy_db.sqlalchemy_db import get_cached_sqlalchemy_db
 
 
-class TransmittedTgBotData(BaseTransmittedTgBotData):
+class TransmittedTgBotData(BaseModel):
     settings: Settings | None = None
     sqlalchemy_db: SQLAlchemyDb | None = None
     json_db: BaseJSONDb | None = None
@@ -40,12 +42,12 @@ def create_transmitted_tg_bot_data() -> TransmittedTgBotData:
     )
 
     transmitted_api_data = TransmittedTgBotData(
+        settings=settings,
         sqlalchemy_db=sqlalchemy_db,
         json_db=json_db,
         media_file_storage_in_dir=media_file_storage_in_dir,
         cache_file_storage_in_dir=cache_file_storage_in_dir,
         dump_file_storage_in_dir=dump_file_storage_in_dir,
-        settings=settings
     )
 
     return transmitted_api_data
