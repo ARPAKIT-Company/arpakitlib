@@ -1,7 +1,7 @@
+import datetime as dt
 from typing import Any
 
 from src.api.schema.base_schema import BaseSO
-import datetime as dt
 
 
 class BaseCommonSO(BaseSO):

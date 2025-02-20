@@ -24,4 +24,3 @@ class BaseSI(BaseSchema):
 
 class BaseSO(BaseSchema):
     pass
-

@@ -25,7 +25,7 @@ async def _(
             require_correct_api_key=True,
         )),
 ):
-    return InfoAboutErrorsSO(
+    return ErrorsInfoCommonSO(
         api_error_codes=APIErrorCodes.values_list(),
         api_error_specification_codes=APIErrorSpecificationCodes.values_list()
     )

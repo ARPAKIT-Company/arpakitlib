@@ -1,6 +1,5 @@
 from aiogram import Router
 
-from src.core.settings import get_cached_settings
 from src.tg_bot.router import error, healthcheck
 
 main_tg_bot_router = Router()

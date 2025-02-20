@@ -11,7 +11,6 @@ class BaseV1SO(BaseSO):
     pass
 
 
-
 class SimpleDBMV1SO(BaseV1SO):
     id: int
     long_id: str

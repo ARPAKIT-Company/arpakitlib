@@ -4,7 +4,6 @@ from fastapi import APIRouter, Depends
 
 from src.api.schema.common.out import ARPAKITLIBInfoCommonSO, ErrorCommonSO
 from src.api.transmitted_api_data import TransmittedAPIData, get_transmitted_api_data
-from src.core.const import ProjectPaths
 from src.util.read_arpakitlib_project_template import read_arpakitlib_project_template
 
 api_router = APIRouter()

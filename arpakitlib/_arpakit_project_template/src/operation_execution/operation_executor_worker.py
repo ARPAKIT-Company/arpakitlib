@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import inspect
-import traceback
 from datetime import timedelta
 from typing import Callable
 
