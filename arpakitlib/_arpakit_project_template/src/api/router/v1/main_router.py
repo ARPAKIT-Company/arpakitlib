@@ -1,10 +1,18 @@
 from fastapi import APIRouter
 
-from src.api.router.v1 import healthcheck, raise_fake_error
+from src.api.router.v1 import arpakitlib_, healthcheck, raise_fake_error, get_errors_info
 
 main_v1_api_router = APIRouter()
 
-# healthcheck
+# arpakitlib_
+
+main_v1_api_router.include_router(
+    router=arpakitlib_.api_router,
+    prefix="/arpakitlib",
+    tags=["arpakitlib"]
+)
+
+# Healthcheck
 
 main_v1_api_router.include_router(
     router=healthcheck.api_router,
@@ -12,10 +20,18 @@ main_v1_api_router.include_router(
     tags=["Healthcheck"]
 )
 
-# raise fake error
+# Raise fake error
 
 main_v1_api_router.include_router(
     router=raise_fake_error.api_router,
     prefix="/raise_fake_error",
-    tags=["raise_fake_error"]
+    tags=["Fake error"]
+)
+
+# Get errors info
+
+main_v1_api_router.include_router(
+    router=get_errors_info.api_router,
+    prefix="/get_errors_info",
+    tags=["Errors info"]
 )
