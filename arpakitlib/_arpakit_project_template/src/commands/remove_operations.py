@@ -1,13 +1,12 @@
 from src.business_service.remove_operations import remove_operations
 from src.core.settings import get_cached_settings
 from src.core.util import setup_logging
-from src.sqlalchemy_db.sqlalchemy_db import get_cached_sqlalchemy_db
 
 
 def __command():
     setup_logging()
     get_cached_settings().raise_if_mode_type_prod()
-    remove_operations(sqlalchemy_db=get_cached_sqlalchemy_db())
+    remove_operations()
 
 
 if __name__ == '__main__':

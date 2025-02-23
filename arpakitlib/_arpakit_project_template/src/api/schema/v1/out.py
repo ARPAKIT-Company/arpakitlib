@@ -25,14 +25,6 @@ class RawDataV1SO(BaseV1SO):
     data: dict[str, Any] = {}
 
 
-class ErrorV1SO(BaseV1SO):
-    has_error: bool = True
-    error_code: str | None = None
-    error_specification_code: str | None = None
-    error_description: str | None = None
-    error_data: dict[str, Any] = {}
-
-
 class ErrorsInfoV1SO(BaseV1SO):
     api_error_codes: list[str] = []
     api_error_specification_codes: list[str] = []

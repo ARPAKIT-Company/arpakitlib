@@ -8,7 +8,6 @@ def get_operation(
         *,
         filter_operation_id: int,
         raise_if_not_found: bool = False,
-        lock: bool = False
 ) -> OperationDBM | None:
     with get_cached_sqlalchemy_db().new_session() as session:
         query = (
@@ -16,9 +15,6 @@ def get_operation(
             .query(OperationDBM)
             .filter(OperationDBM.id == filter_operation_id)
         )
-
-        if lock:
-            query = query.with_for_update()
 
         if raise_if_not_found:
             try:
