@@ -64,7 +64,7 @@ async def rat_async_func(
 
 def __example():
     def go():
-        return "asfaf"
+        return "go"
 
     a = rat_sync_func(sync_func=go)
     print(a.has_exception)

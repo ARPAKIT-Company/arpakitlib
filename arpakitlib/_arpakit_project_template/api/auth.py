@@ -45,8 +45,7 @@ def api_auth(
         correct_api_keys: str | list[str] | None = None,
         correct_tokens: str | list[str] | None = None,
         require_correct_api_key: bool = False,
-        require_correct_token: bool = False,
-        **kwargs
+        require_correct_token: bool = False
 ) -> Callable:
     if isinstance(correct_api_keys, str):
         correct_api_keys = [correct_api_keys]
@@ -158,8 +157,7 @@ def api_auth(
             validate_api_key_func_res = validate_api_key_func(
                 api_auth_data=api_auth_data,
                 transmitted_api_data=transmitted_api_data,
-                request=request,
-                **kwargs
+                request=request
             )
             if is_async_object(validate_api_key_func_res):
                 validate_api_key_func_res = await validate_api_key_func_res
@@ -172,7 +170,6 @@ def api_auth(
                 api_auth_data=api_auth_data,
                 transmitted_api_data=transmitted_api_data,
                 request=request,
-                **kwargs
             )
             if is_async_object(validate_token_func_res):
                 validate_token_func_res = await validate_token_func_res
@@ -211,7 +208,6 @@ def correct_api_key_from_settings__validate_api_key_func() -> Callable:
             api_auth_data: APIAuthData,
             transmitted_api_data: TransmittedAPIData,
             request: starlette.requests.Request,
-            **kwargs
     ):
         if transmitted_api_data.settings.api_correct_api_keys is None:
             return True
@@ -230,7 +226,6 @@ def correct_token_from_settings__validate_api_key_func() -> Callable:
             api_auth_data: APIAuthData,
             transmitted_api_data: TransmittedAPIData,
             request: starlette.requests.Request,
-            **kwargs
     ):
         if transmitted_api_data.settings.api_correct_tokens is None:
             return True

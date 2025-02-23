@@ -151,8 +151,6 @@ def __example():
     except TypeError as e:
         print(e)
 
-    print(get_setted_elements_as_dict_from_dict({"afs": "ASfa", "asfasf": NotSet}))
-
 
 if __name__ == '__main__':
     __example()
