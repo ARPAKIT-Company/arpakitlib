@@ -5,8 +5,8 @@ from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
 from arpakitlib.ar_type_util import raise_for_type
-from core import get_cached_settings
-from sqlalchemy_db import get_simple_dbm
+from core.settings import get_cached_settings
+from sqlalchemy_db.sqlalchemy_model import get_simple_dbm
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
