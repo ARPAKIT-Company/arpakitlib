@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import inspect
 from datetime import timedelta
-from typing import Callable
+from typing import Any
 
 import sqlalchemy
 from sqlalchemy import asc
@@ -24,7 +24,7 @@ class OperationExecutorWorker(BaseWorker):
             *,
             sqlalchemy_db: SQLAlchemyDb,
             filter_operation_types: str | list[str] | None = None,
-            startup_funcs: list[Callable] | None = None
+            startup_funcs: list[Any] | None = None
     ):
         super().__init__(
             timeout_after_run=timedelta(seconds=0.1),

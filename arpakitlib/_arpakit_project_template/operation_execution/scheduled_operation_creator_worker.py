@@ -1,5 +1,5 @@
 from datetime import timedelta
-from typing import Callable
+from typing import Any
 
 from arpakitlib.ar_base_worker_util import BaseWorker
 from arpakitlib.ar_sleep_util import sync_safe_sleep, async_safe_sleep
@@ -16,7 +16,7 @@ class ScheduledOperationCreatorWorker(BaseWorker):
             *,
             sqlalchemy_db: SQLAlchemyDb,
             scheduled_operations: ScheduledOperation | list[ScheduledOperation] | None = None,
-            startup_funcs: list[Callable] | None = None
+            startup_funcs: list[Any] | None = None
     ):
         super().__init__(
             timeout_after_run=timedelta(seconds=0.1),

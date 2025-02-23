@@ -15,9 +15,9 @@ from pydantic import BaseModel, ConfigDict
 from api.const import APIErrorCodes
 from api.exception import APIException
 from api.transmitted_api_data import TransmittedAPIData, get_transmitted_api_data
-from arpakitlib.ar_func_util import is_async_object
+from arpakitlib.ar_func_util import is_async_callable, is_sync_function
 from arpakitlib.ar_json_util import safely_transfer_obj_to_json_str_to_json_obj
-from arpakitlib.ar_type_util import raise_for_type, raise_if_none
+from arpakitlib.ar_type_util import raise_for_type
 
 
 class APIAuthData(BaseModel):
@@ -51,20 +51,22 @@ def api_auth(
         correct_api_keys = [correct_api_keys]
     if correct_api_keys is not None:
         raise_for_type(correct_api_keys, list)
-        validate_api_key_func = lambda *args, **kwargs_: kwargs_["api_key_string"] in correct_api_keys
+
+    if validate_api_key_func is None and correct_api_keys is not None:
+        validate_api_key_func = lambda *args, **kwargs_: kwargs_["api_auth_data"].api_key_string in correct_api_keys
 
     if isinstance(correct_tokens, str):
         correct_tokens = [correct_tokens]
     if correct_tokens is not None:
         raise_for_type(correct_tokens, list)
-        validate_token_func = lambda *args, **kwargs_: kwargs_["token_string"] in correct_tokens
 
-    if require_correct_api_key:
-        raise_if_none(validate_api_key_func)
+    if validate_token_func is None and correct_tokens is not None:
+        validate_token_func = lambda *args, **kwargs_: kwargs_["api_auth_data"].token_string in correct_tokens
+
+    if require_correct_api_key is True:
         require_api_key_string = True
 
-    if require_correct_token:
-        raise_if_none(validate_token_func)
+    if require_correct_token is True:
         require_token_string = True
 
     async def func(
@@ -154,26 +156,30 @@ def api_auth(
         # validate_api_key_func
 
         if validate_api_key_func is not None:
-            validate_api_key_func_res = validate_api_key_func(
-                api_auth_data=api_auth_data,
-                transmitted_api_data=transmitted_api_data,
-                request=request
-            )
-            if is_async_object(validate_api_key_func_res):
-                validate_api_key_func_res = await validate_api_key_func_res
-            api_auth_data.is_api_key_correct = validate_api_key_func_res
+            if is_async_callable(validate_api_key_func):
+                api_auth_data.is_api_key_correct = await validate_api_key_func(
+                    api_auth_data=api_auth_data,
+                    transmitted_api_data=transmitted_api_data,
+                    request=request
+                )
+            elif is_sync_function(validate_api_key_func):
+                api_auth_data.is_api_key_correct = validate_api_key_func()
+            else:
+                raise TypeError("unknown validate_api_key_func type")
 
         # validate_token_func
 
         if validate_token_func is not None:
-            validate_token_func_res = validate_token_func(
-                api_auth_data=api_auth_data,
-                transmitted_api_data=transmitted_api_data,
-                request=request,
-            )
-            if is_async_object(validate_token_func_res):
-                validate_token_func_res = await validate_token_func_res
-            api_auth_data.is_token_correct = validate_token_func_res
+            if is_async_callable(validate_token_func):
+                api_auth_data.is_token_correct = await validate_token_func(
+                    api_auth_data=api_auth_data,
+                    transmitted_api_data=transmitted_api_data,
+                    request=request
+                )
+            elif is_sync_function(validate_token_func):
+                api_auth_data.is_token_correct = validate_token_func()
+            else:
+                raise TypeError("unknown validate_token_func type")
 
         # require_correct_api_key
 
