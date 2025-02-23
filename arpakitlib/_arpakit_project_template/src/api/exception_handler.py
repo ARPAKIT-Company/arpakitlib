@@ -224,24 +224,6 @@ def get_exception_handler() -> Callable:
     funcs_before = []
     async_funcs_after = []
 
-    funcs_before.append(
-        logging__api_func_before_in_handle_exception(
-            ignore_api_error_codes=[
-                APIErrorCodes.cannot_authorize,
-                APIErrorCodes.error_in_request,
-                APIErrorCodes.not_found
-            ],
-            ignore_status_codes=[
-                starlette.status.HTTP_401_UNAUTHORIZED,
-                starlette.status.HTTP_422_UNPROCESSABLE_ENTITY,
-                starlette.status.HTTP_404_NOT_FOUND
-            ],
-            ignore_exception_types=[
-                fastapi.exceptions.RequestValidationError
-            ],
-        )
-    )
-
     if get_cached_settings().api_story_log__api_func_before_in_exception_handler:
         funcs_before.append(
             story_log__api_func_before_in_handle_exception(
@@ -260,6 +242,24 @@ def get_exception_handler() -> Callable:
                 ],
             )
         )
+
+    funcs_before.append(
+        logging__api_func_before_in_handle_exception(
+            ignore_api_error_codes=[
+                APIErrorCodes.cannot_authorize,
+                APIErrorCodes.error_in_request,
+                APIErrorCodes.not_found
+            ],
+            ignore_status_codes=[
+                starlette.status.HTTP_401_UNAUTHORIZED,
+                starlette.status.HTTP_422_UNPROCESSABLE_ENTITY,
+                starlette.status.HTTP_404_NOT_FOUND
+            ],
+            ignore_exception_types=[
+                fastapi.exceptions.RequestValidationError
+            ],
+        )
+    )
 
     return create_exception_handler(
         funcs_before=funcs_before,

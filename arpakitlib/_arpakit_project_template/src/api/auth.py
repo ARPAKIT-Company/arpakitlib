@@ -211,7 +211,7 @@ def correct_api_key_from_settings__validate_api_key_func() -> Callable:
             api_auth_data: APIAuthData,
             transmitted_api_data: TransmittedAPIData,
             request: starlette.requests.Request,
-            **kwargs_
+            **kwargs
     ):
         if transmitted_api_data.settings.api_correct_api_keys is None:
             return True
@@ -230,7 +230,7 @@ def correct_token_from_settings__validate_api_key_func() -> Callable:
             api_auth_data: APIAuthData,
             transmitted_api_data: TransmittedAPIData,
             request: starlette.requests.Request,
-            **kwargs_
+            **kwargs
     ):
         if transmitted_api_data.settings.api_correct_tokens is None:
             return True
