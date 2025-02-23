@@ -27,11 +27,11 @@ async def async_retry_func(
     while True:
         try:
             return await async_func(*async_func_args, **async_func_kwargs)
-        except Exception:
+        except Exception as exception:
             tries += 1
             if not endlessly and tries >= max_tries:
                 if raise_if_exception:
-                    raise
+                    raise exception
                 return None
             if timeout_after_exception:
                 await async_safe_sleep(timeout_after_exception.total_seconds())
@@ -54,11 +54,11 @@ def sync_retry_func(
     while True:
         try:
             return sync_func(*sync_func_args, **sync_func_kwargs)
-        except Exception:
+        except Exception as exception:
             tries += 1
             if not endlessly and tries >= max_tries:
                 if raise_if_exception:
-                    raise
+                    raise exception
                 return None
             if timeout_after_exception:
                 sync_safe_sleep(timeout_after_exception.total_seconds())

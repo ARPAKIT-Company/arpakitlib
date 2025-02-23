@@ -7,7 +7,7 @@ import threading
 from abc import ABC
 from datetime import timedelta
 from random import randint
-from typing import Callable
+from typing import Any
 from uuid import uuid4
 
 from arpakitlib.ar_enumeration_util import Enumeration
@@ -23,7 +23,7 @@ class BaseWorker(ABC):
             *,
             timeout_after_run: timedelta = timedelta(seconds=0.3),
             timeout_after_error_in_run: timedelta = timedelta(seconds=1),
-            startup_funcs: list[Callable] | None = None,
+            startup_funcs: list[Any] | None = None,
             worker_name: str | None = None,
             **kwargs
     ):
@@ -51,7 +51,10 @@ class BaseWorker(ABC):
             if is_async_callable(startup_func):
                 asyncio.run(startup_func())
             elif is_async_object(startup_func):
-                asyncio.run(startup_func)
+                async def __func():
+                    await startup_func
+
+                asyncio.run(__func())
             elif is_sync_function(startup_func):
                 startup_func()
             else:
@@ -165,6 +168,10 @@ def safe_run_workers_in_background(
     for worker in workers:
         res.append(safe_run_worker_in_background(worker=worker, mode=mode))
     return res
+
+
+async def a():
+    print("1")
 
 
 def __example():
