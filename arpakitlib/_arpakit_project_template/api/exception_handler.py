@@ -21,7 +21,7 @@ from api.schema.common.out import ErrorCommonSO
 from arpakitlib.ar_datetime_util import now_utc_dt
 from arpakitlib.ar_dict_util import combine_dicts
 from arpakitlib.ar_exception_util import exception_to_traceback_str
-from arpakitlib.ar_func_util import is_async_object, raise_if_not_async_callable
+from arpakitlib.ar_func_util import raise_if_not_async_callable, is_async_callable, is_sync_function
 from arpakitlib.ar_json_util import safely_transfer_obj_to_json_str
 from arpakitlib.ar_type_util import raise_for_type
 from core.settings import get_cached_settings
@@ -107,14 +107,20 @@ def create_exception_handler(
 
         _transmitted_kwargs = {}
         for func_before in funcs_before:
-            _func_data = func_before(
-                request=request, status_code=status_code, error_common_so=error_common_so, exception=exception,
-                transmitted_kwargs=_transmitted_kwargs
-            )
-            if is_async_object(_func_data):
-                _func_data = await _func_data
-            if _func_data is not None:
-                error_common_so, _transmitted_kwargs = _func_data[0], _func_data[1]
+            if is_async_callable(func_before):
+                _func_before_res = await func_before(
+                    request=request, status_code=status_code, error_common_so=error_common_so, exception=exception,
+                    transmitted_kwargs=_transmitted_kwargs
+                )
+            elif is_sync_function(func_before):
+                _func_before_res = func_before(
+                    request=request, status_code=status_code, error_common_so=error_common_so, exception=exception,
+                    transmitted_kwargs=_transmitted_kwargs
+                )
+            else:
+                raise TypeError("unknown func_before type")
+            if _func_before_res is not None:
+                error_common_so, _transmitted_kwargs = _func_before_res[0], _func_before_res[1]
                 raise_for_type(error_common_so, ErrorCommonSO)
                 raise_for_type(_transmitted_kwargs, dict)
 

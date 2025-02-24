@@ -13,7 +13,7 @@ class ScheduledOperation(BaseModel):
 
     type: str
     input_data: dict[str, Any] | None = None
-    is_time_func: Callable[[], bool]
+    is_time_func: Callable
     timeout_after_creation: timedelta | None = None
 
 
