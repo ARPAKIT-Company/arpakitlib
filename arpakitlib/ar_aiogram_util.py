@@ -140,7 +140,7 @@ class TgCommandKeyValueParam(BaseTgCommandParam):
 def as_tg_command(
         *params: TgCommandFlagParam | TgCommandKeyValueParam,
         desc: str | None = None,
-        check_passwd: Callable | str | None = None,
+        passwd_validator: Callable | str | None = None,
         passwd: str | None = None,
         remove_message_after_correct_passwd: bool = True
 ):
@@ -149,10 +149,10 @@ def as_tg_command(
 
     params = list(params)
 
-    if check_passwd is None and passwd is not None:
-        check_passwd = passwd
-    if check_passwd is not None:
-        raise_for_types(check_passwd, [Callable, str])
+    if passwd_validator is None and passwd is not None:
+        passwd_validator = passwd
+    if passwd_validator is not None:
+        raise_for_types(passwd_validator, [Callable, str])
         params.append(TgCommandKeyValueParam(key=_PASSWD_KEY, required=True, index=None, need_type=NeedTypes.str_))
 
     params.append(TgCommandFlagParam(key=_HELP_FLAG))
@@ -195,7 +195,7 @@ def as_tg_command(
                         text += "\n\n" + desc
                     text += "\n\n"
 
-                    if check_passwd is not None:
+                    if passwd_validator is not None:
                         text += "Passwd is required\n\n"
 
                     text += "<b>Keys:</b>\n"
@@ -235,16 +235,16 @@ def as_tg_command(
                     await message.answer(text=text.strip())
                     return
 
-                if check_passwd is not None:
+                if passwd_validator is not None:
                     passwd_ = parsed_command.get_value_by_key(_PASSWD_KEY)
                     if not passwd_:
                         is_passwd_correct = False
-                    elif isinstance(check_passwd, Callable):
-                        is_passwd_correct = check_passwd(
+                    elif isinstance(passwd_validator, Callable):
+                        is_passwd_correct = passwd_validator(
                             passwd=passwd_, message=message, parsed_command=parsed_command
                         )
-                    elif isinstance(check_passwd, str):
-                        is_passwd_correct = (check_passwd == passwd_)
+                    elif isinstance(passwd_validator, str):
+                        is_passwd_correct = (passwd_validator == passwd_)
                     else:
                         raise TypeError("check_passwd is not not Callable and not str")
                     if not is_passwd_correct:

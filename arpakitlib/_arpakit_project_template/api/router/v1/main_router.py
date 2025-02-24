@@ -8,11 +8,12 @@ main_v1_api_router = APIRouter()
 
 # arpakitlib_
 
-main_v1_api_router.include_router(
-    router=arpakitlib_.api_router,
-    prefix="/arpakitlib",
-    tags=["arpakitlib"]
-)
+if get_cached_settings().is_mode_type_not_prod:
+    main_v1_api_router.include_router(
+        router=arpakitlib_.api_router,
+        prefix="/arpakitlib",
+        tags=["arpakitlib"]
+    )
 
 # Healthcheck
 
@@ -32,12 +33,11 @@ main_v1_api_router.include_router(
 
 # Check auth
 
-if get_cached_settings().is_mode_type_not_prod:
-    main_v1_api_router.include_router(
-        router=check_auth.api_router,
-        prefix="/check_auth",
-        tags=["Check auth"]
-    )
+main_v1_api_router.include_router(
+    router=check_auth.api_router,
+    prefix="/check_auth",
+    tags=["Check auth"]
+)
 
 # Raise fake error
 
