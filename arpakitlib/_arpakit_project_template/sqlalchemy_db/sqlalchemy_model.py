@@ -41,6 +41,7 @@ class StoryLogDBM(SimpleDBM):
 
     class Types(Enumeration):
         error_in_execute_operation = "error_in_execute_operation"
+        error_in_api_route = "error_in_api_route"
 
     level: Mapped[str] = mapped_column(
         sqlalchemy.TEXT, insert_default=Levels.info, server_default=Levels.info, index=True, nullable=False

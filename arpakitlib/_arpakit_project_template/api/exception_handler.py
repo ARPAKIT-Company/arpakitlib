@@ -159,13 +159,13 @@ def logging__api_func_before_in_handle_exception(
     ) -> (ErrorCommonSO, dict[str, Any]):
         transmitted_kwargs[current_func_name] = now_utc_dt()
 
-        if ignore_api_error_codes and error_common_so.error_code in ignore_api_error_codes:
+        if ignore_api_error_codes is not None and error_common_so.error_code in ignore_api_error_codes:
             return error_common_so, transmitted_kwargs
 
-        if ignore_status_codes and status_code in ignore_status_codes:
+        if ignore_status_codes is not None and status_code in ignore_status_codes:
             return error_common_so, transmitted_kwargs
 
-        if ignore_exception_types and (
+        if ignore_exception_types is not None and (
                 exception in ignore_exception_types or type(exception) in ignore_exception_types
         ):
             return error_common_so, transmitted_kwargs
@@ -194,13 +194,13 @@ def story_log__api_func_before_in_handle_exception(
     ) -> (ErrorCommonSO, dict[str, Any]):
         transmitted_kwargs[current_func_name] = now_utc_dt()
 
-        if ignore_api_error_codes and error_common_so.error_code in ignore_api_error_codes:
+        if ignore_api_error_codes is not None and error_common_so.error_code in ignore_api_error_codes:
             return error_common_so, transmitted_kwargs
 
-        if ignore_status_codes and status_code in ignore_status_codes:
+        if ignore_status_codes is not None and status_code in ignore_status_codes:
             return error_common_so, transmitted_kwargs
 
-        if ignore_exception_types and (
+        if ignore_exception_types is not None and (
                 exception in ignore_exception_types or type(exception) in ignore_exception_types
         ):
             return error_common_so, transmitted_kwargs
@@ -208,6 +208,7 @@ def story_log__api_func_before_in_handle_exception(
         async with get_cached_sqlalchemy_db().new_async_session() as session:
             story_log_dbm = StoryLogDBM(
                 level=StoryLogDBM.Levels.error,
+                type=StoryLogDBM.Types.error_in_api_route,
                 title=f"{status_code}, {type(exception)}",
                 data={
                     "error_common_so": error_common_so.model_dump(),
