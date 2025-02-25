@@ -16,7 +16,7 @@ from core.util import setup_logging
 _logger = logging.getLogger(__name__)
 
 
-def create_api_app() -> FastAPI:
+def create_api_app(*, prefix: str = "/api") -> FastAPI:
     setup_logging()
 
     _logger.info("start")
@@ -40,15 +40,6 @@ def create_api_app() -> FastAPI:
 
     api_app.state.transmitted_api_data = transmitted_api_data
 
-    if transmitted_api_data.settings.media_dirpath is not None:
-        if not os.path.exists(transmitted_api_data.settings.media_dirpath):
-            os.makedirs(transmitted_api_data.settings.media_dirpath, exist_ok=True)
-        api_app.mount("/media", StaticFiles(directory=transmitted_api_data.settings.media_dirpath), name="media")
-
-    if not os.path.exists(ProjectPaths.static_dirpath):
-        os.makedirs(ProjectPaths.static_dirpath, exist_ok=True)
-    api_app.mount("/static", StaticFiles(directory=ProjectPaths.static_dirpath), name="static")
-
     api_app.add_middleware(
         CORSMiddleware,
         allow_origins=["*"],
@@ -61,7 +52,19 @@ def create_api_app() -> FastAPI:
 
     add_exception_handler_to_app(app=api_app)
 
-    api_app.include_router(router=main_api_router)
+    api_app.include_router(
+        prefix=prefix,
+        router=main_api_router
+    )
+
+    if transmitted_api_data.settings.media_dirpath is not None:
+        if not os.path.exists(transmitted_api_data.settings.media_dirpath):
+            os.makedirs(transmitted_api_data.settings.media_dirpath, exist_ok=True)
+        api_app.mount("/media", StaticFiles(directory=transmitted_api_data.settings.media_dirpath), name="media")
+
+    if not os.path.exists(ProjectPaths.static_dirpath):
+        os.makedirs(ProjectPaths.static_dirpath, exist_ok=True)
+    api_app.mount("/static", StaticFiles(directory=ProjectPaths.static_dirpath), name="static")
 
     if transmitted_api_data.settings.api_enable_admin1:
         from admin1.add_admin_in_app import add_admin1_in_app
