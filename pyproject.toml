@@ -65,6 +65,7 @@ homepage = "https://github.com/ARPAKIT-Company/arpakitlib"
 repository = "https://github.com/ARPAKIT-Company/arpakitlib"
 documentation = "https://github.com/ARPAKIT-Company/arpakitlib"
 telegram_channel = "https://t.me/arpakitlib"
+arpakit_company_site = "https://arpakit.com/"
 
 
 [tool.poetry]
