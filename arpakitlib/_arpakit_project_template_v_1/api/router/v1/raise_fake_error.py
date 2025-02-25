@@ -1,7 +1,9 @@
 import fastapi
 import starlette.exceptions
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
+from api.auth import APIAuthData, api_auth, correct_api_keys_from_settings__validate_api_key_func, \
+    correct_tokens_from_settings__validate_api_key_func
 from api.schema.common.out import ErrorCommonSO
 
 api_router = APIRouter()
@@ -17,7 +19,15 @@ async def _(
         *,
         request: fastapi.requests.Request,
         response: fastapi.responses.Response,
-        n: int | None = None
+        n: int | None = None,
+        api_auth_data: APIAuthData = Depends(api_auth(
+            require_api_key_string=True,
+            require_token_string=True,
+            validate_api_key_func=correct_api_keys_from_settings__validate_api_key_func(),
+            validate_token_func=correct_tokens_from_settings__validate_api_key_func(),
+            require_correct_api_key=True,
+            require_correct_token=True,
+        ))
 ):
     if n == 1:
         raise fastapi.HTTPException(

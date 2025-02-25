@@ -7,7 +7,7 @@ from sqladmin_.model_view import get_simple_mv
 from sqlalchemy_db.sqlalchemy_db import get_cached_sqlalchemy_db
 
 
-def add_sqladmin_in_app(*, app: FastAPI, base_url: str = "sqladmin") -> FastAPI:
+def add_sqladmin_in_app(*, app: FastAPI, base_url: str = "/sqladmin") -> FastAPI:
     authentication_backend = SQLAdminAuth()
 
     admin = Admin(

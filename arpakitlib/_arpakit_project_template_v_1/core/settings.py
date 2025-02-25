@@ -45,7 +45,7 @@ class Settings(SimpleSettings):
         if self.is_mode_type_prod:
             raise ValueError(f"mode type = {self.mode_type}")
 
-    project_name: str | None = "arpakitlib"
+    project_name: str | None = None
 
     sqlalchemy_db_user: str | None = project_name
 

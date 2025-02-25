@@ -9,7 +9,7 @@ api_router = APIRouter()
 
 @api_router.get(
     "",
-    name="Get arpakitlib info",
+    name="Get arpakitlib project template info",
     status_code=fastapi.status.HTTP_200_OK,
     response_model=RawDataCommonSO | ErrorCommonSO
 )
