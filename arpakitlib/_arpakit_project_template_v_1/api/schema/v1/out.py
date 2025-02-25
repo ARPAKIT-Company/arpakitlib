@@ -15,12 +15,6 @@ class HealthcheckV1SO(BaseV1SO):
     is_ok: bool = True
 
 
-class ARPAKITLIBInfoV1SO(BaseV1SO):
-    arpakitlib: bool = True
-    arpakitlib_project_template_version: str
-    data: dict[str, Any] = {}
-
-
 class _SimpleDBMV1SO(BaseV1SO):
     id: int
     long_id: str
