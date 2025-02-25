@@ -26,6 +26,7 @@ def execute_arpakitlib_cli(*, full_command: str | None = None):
         print("Commands:")
         print()
         print("-c init_arpakit_project_template")
+        print("-version (1,) ...")
         print("-project_dirpath ./")
         print("-overwrite_if_exists ...")
         print("-ignore_paths_startswith ...")
@@ -36,6 +37,11 @@ def execute_arpakitlib_cli(*, full_command: str | None = None):
         print("\n")
 
     elif command == "init_arpakit_project_template":
+        version: str = parse_need_type(
+            value=parsed_command.get_value_by_keys(keys=["version"]),
+            need_type=NeedTypes.str_,
+            allow_none=False
+        )
         project_dirpath: str = parse_need_type(
             value=parsed_command.get_value_by_keys(keys=["project_dirpath"]),
             need_type=NeedTypes.str_,
@@ -57,6 +63,7 @@ def execute_arpakitlib_cli(*, full_command: str | None = None):
             allow_none=True
         )
         init_arpakit_project_template(
+            version=version,
             project_dirpath=project_dirpath,
             overwrite_if_exists=overwrite_if_exists,
             ignore_paths_startswith=ignore_paths_startswith,

@@ -13,6 +13,7 @@ _logger = logging.getLogger(__name__)
 
 def init_arpakit_project_template(
         *,
+        version: str = "1",
         project_dirpath: str = "./",
         overwrite_if_exists: bool = False,
         ignore_paths_startswith: list[str] | str | None = None,
@@ -42,7 +43,7 @@ def init_arpakit_project_template(
 
     def _generate_filepath_to_content() -> dict[str, str]:
         arpakit_project_template_dirpath = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)), "_arpakit_project_template"
+            os.path.dirname(os.path.abspath(__file__)), f"_arpakit_project_template_v{version}"
         )
         res = {}
         for root, dirs, files in os.walk(arpakit_project_template_dirpath):
