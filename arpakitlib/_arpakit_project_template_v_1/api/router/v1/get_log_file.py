@@ -1,6 +1,6 @@
 import fastapi
 from fastapi import APIRouter
-from starlette.responses import FileResponse
+from fastapi.responses import FileResponse
 
 from arpakitlib.ar_logging_util import init_log_file
 from core.settings import get_cached_settings

@@ -4,10 +4,6 @@ import fastapi
 import fastapi.exceptions
 import fastapi.responses
 import fastapi.security
-import starlette.exceptions
-import starlette.requests
-import starlette.requests
-import starlette.status
 from fastapi import Security, Depends
 from fastapi.security import APIKeyHeader
 from pydantic import BaseModel, ConfigDict
@@ -77,7 +73,7 @@ def api_auth(
             api_key_string: str | None = Security(
                 APIKeyHeader(name="apikey", auto_error=False)
             ),
-            request: starlette.requests.Request,
+            request: fastapi.requests.Request,
             transmitted_api_data: TransmittedAPIData = Depends(get_transmitted_api_data)
     ) -> APIAuthData:
 
@@ -139,7 +135,7 @@ def api_auth(
 
         if require_api_key_string and not api_auth_data.api_key_string:
             raise APIException(
-                status_code=starlette.status.HTTP_401_UNAUTHORIZED,
+                status_code=fastapi.status.HTTP_401_UNAUTHORIZED,
                 error_code=APIErrorCodes.cannot_authorize,
                 error_data=safely_transfer_obj_to_json_str_to_json_obj(api_auth_data.model_dump())
             )
@@ -148,7 +144,7 @@ def api_auth(
 
         if require_token_string and not api_auth_data.token_string:
             raise APIException(
-                status_code=starlette.status.HTTP_401_UNAUTHORIZED,
+                status_code=fastapi.status.HTTP_401_UNAUTHORIZED,
                 error_code=APIErrorCodes.cannot_authorize,
                 error_data=safely_transfer_obj_to_json_str_to_json_obj(api_auth_data.model_dump())
             )
@@ -186,7 +182,7 @@ def api_auth(
         if require_correct_api_key:
             if not api_auth_data.is_api_key_correct:
                 raise APIException(
-                    status_code=starlette.status.HTTP_401_UNAUTHORIZED,
+                    status_code=fastapi.status.HTTP_401_UNAUTHORIZED,
                     error_code=APIErrorCodes.cannot_authorize,
                     error_description="not api_auth_data.is_api_key_correct",
                     error_data=safely_transfer_obj_to_json_str_to_json_obj(api_auth_data.model_dump()),
@@ -197,7 +193,7 @@ def api_auth(
         if require_correct_token:
             if not api_auth_data.is_token_correct:
                 raise APIException(
-                    status_code=starlette.status.HTTP_401_UNAUTHORIZED,
+                    status_code=fastapi.status.HTTP_401_UNAUTHORIZED,
                     error_code=APIErrorCodes.cannot_authorize,
                     error_description="not api_auth_data.is_token_correct",
                     error_data=safely_transfer_obj_to_json_str_to_json_obj(api_auth_data.model_dump())
@@ -213,7 +209,7 @@ def correct_api_key_from_settings__validate_api_key_func() -> Callable:
             *,
             api_auth_data: APIAuthData,
             transmitted_api_data: TransmittedAPIData,
-            request: starlette.requests.Request,
+            request: fastapi.requests.Request,
     ):
         if transmitted_api_data.settings.api_correct_api_keys is None:
             return True
@@ -231,7 +227,7 @@ def correct_token_from_settings__validate_api_key_func() -> Callable:
             *,
             api_auth_data: APIAuthData,
             transmitted_api_data: TransmittedAPIData,
-            request: starlette.requests.Request,
+            request: fastapi.requests.Request,
     ):
         if transmitted_api_data.settings.api_correct_tokens is None:
             return True

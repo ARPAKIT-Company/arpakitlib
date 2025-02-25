@@ -2,8 +2,8 @@ import logging
 import os
 
 from fastapi import FastAPI
-from starlette.middleware.cors import CORSMiddleware
-from starlette.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from api.event import get_api_startup_events, get_api_shutdown_events
 from api.exception_handler import add_exception_handler_to_app

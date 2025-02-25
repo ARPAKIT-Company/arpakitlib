@@ -4,15 +4,8 @@ import logging
 from contextlib import suppress
 from typing import Any, Callable
 
-import fastapi.exceptions
-import fastapi.exceptions
-import fastapi.responses
-import fastapi.security
+import fastapi
 import starlette.exceptions
-import starlette.exceptions
-import starlette.requests
-import starlette.status
-from fastapi import FastAPI
 
 from api.const import APIErrorCodes
 from api.exception import APIException
@@ -46,10 +39,10 @@ def create_exception_handler(
     async_funcs_after = [v for v in async_funcs_after if v is not None]
 
     async def func(
-            request: starlette.requests.Request,
+            request: fastapi.requests.Request,
             exception: Exception
     ) -> APIJSONResponse:
-        status_code = starlette.status.HTTP_500_INTERNAL_SERVER_ERROR
+        status_code = fastapi.status.HTTP_500_INTERNAL_SERVER_ERROR
 
         error_common_so = ErrorCommonSO(
             has_error=True,
@@ -67,25 +60,28 @@ def create_exception_handler(
             error_common_so = exception.error_common_so
             error_common_so.error_data = combine_dicts(old_error_data, error_common_so.error_data)
 
-        elif isinstance(exception, starlette.exceptions.HTTPException):
+        elif (
+                isinstance(exception, fastapi.exceptions.HTTPException)
+                or isinstance(exception, starlette.exceptions.HTTPException)
+        ):
             status_code = exception.status_code
-            if status_code in (starlette.status.HTTP_403_FORBIDDEN, starlette.status.HTTP_401_UNAUTHORIZED):
+            if status_code in (fastapi.status.HTTP_403_FORBIDDEN, fastapi.status.HTTP_401_UNAUTHORIZED):
                 error_common_so.error_code = APIErrorCodes.cannot_authorize
-            elif status_code == starlette.status.HTTP_404_NOT_FOUND:
+            elif status_code == fastapi.status.HTTP_404_NOT_FOUND:
                 error_common_so.error_code = APIErrorCodes.not_found
             else:
-                status_code = starlette.status.HTTP_500_INTERNAL_SERVER_ERROR
+                status_code = fastapi.status.HTTP_500_INTERNAL_SERVER_ERROR
             with suppress(Exception):
                 error_common_so.error_data["exception.detail"] = exception.detail
 
         elif isinstance(exception, fastapi.exceptions.RequestValidationError):
-            status_code = starlette.status.HTTP_422_UNPROCESSABLE_ENTITY
+            status_code = fastapi.status.HTTP_422_UNPROCESSABLE_ENTITY
             error_common_so.error_code = APIErrorCodes.error_in_request
             with suppress(Exception):
                 error_common_so.error_data["exception.errors"] = str(exception.errors()) if exception.errors() else {}
 
         else:
-            status_code = starlette.status.HTTP_500_INTERNAL_SERVER_ERROR
+            status_code = fastapi.status.HTTP_500_INTERNAL_SERVER_ERROR
             error_common_so.error_code = APIErrorCodes.unknown_error
 
         if error_common_so.error_code is not None:
@@ -97,10 +93,10 @@ def create_exception_handler(
             )
 
         if error_common_so.error_code == APIErrorCodes.not_found:
-            status_code = starlette.status.HTTP_404_NOT_FOUND
+            status_code = fastapi.status.HTTP_404_NOT_FOUND
 
         if error_common_so.error_code == APIErrorCodes.cannot_authorize:
-            status_code = starlette.status.HTTP_401_UNAUTHORIZED
+            status_code = fastapi.status.HTTP_401_UNAUTHORIZED
 
         error_common_so.error_data["status_code"] = status_code
 
@@ -159,7 +155,7 @@ def logging__api_func_before_in_handle_exception(
 
     def func(
             *,
-            request: starlette.requests.Request,
+            request: fastapi.requests.Request,
             status_code: int,
             error_common_so: ErrorCommonSO,
             exception: Exception,
@@ -194,7 +190,7 @@ def story_log__api_func_before_in_handle_exception(
 
     async def async_func(
             *,
-            request: starlette.requests.Request,
+            request: fastapi.requests.Request,
             status_code: int,
             error_common_so: ErrorCommonSO,
             exception: Exception,
@@ -252,9 +248,9 @@ def get_exception_handler() -> Callable:
                     APIErrorCodes.not_found
                 ],
                 ignore_status_codes=[
-                    starlette.status.HTTP_401_UNAUTHORIZED,
-                    starlette.status.HTTP_422_UNPROCESSABLE_ENTITY,
-                    starlette.status.HTTP_404_NOT_FOUND
+                    fastapi.status.HTTP_401_UNAUTHORIZED,
+                    fastapi.status.HTTP_422_UNPROCESSABLE_ENTITY,
+                    fastapi.status.HTTP_404_NOT_FOUND
                 ],
                 ignore_exception_types=[
                     fastapi.exceptions.RequestValidationError
@@ -270,9 +266,9 @@ def get_exception_handler() -> Callable:
                 APIErrorCodes.not_found
             ],
             ignore_status_codes=[
-                starlette.status.HTTP_401_UNAUTHORIZED,
-                starlette.status.HTTP_422_UNPROCESSABLE_ENTITY,
-                starlette.status.HTTP_404_NOT_FOUND
+                fastapi.status.HTTP_401_UNAUTHORIZED,
+                fastapi.status.HTTP_422_UNPROCESSABLE_ENTITY,
+                fastapi.status.HTTP_404_NOT_FOUND
             ],
             ignore_exception_types=[
                 fastapi.exceptions.RequestValidationError
@@ -286,7 +282,7 @@ def get_exception_handler() -> Callable:
     )
 
 
-def add_exception_handler_to_app(*, app: FastAPI) -> FastAPI:
+def add_exception_handler_to_app(*, app: fastapi.FastAPI) -> fastapi.FastAPI:
     exception_handler = get_exception_handler()
 
     app.add_exception_handler(
@@ -302,8 +298,15 @@ def add_exception_handler_to_app(*, app: FastAPI) -> FastAPI:
         handler=exception_handler
     )
     app.add_exception_handler(
+        exc_class_or_status_code=fastapi.exceptions.HTTPException,
+        handler=exception_handler
+    )
+    app.add_exception_handler(
         exc_class_or_status_code=starlette.exceptions.HTTPException,
         handler=exception_handler
     )
+
+    for a in app.exception_handlers:
+        print(a)
 
     return app

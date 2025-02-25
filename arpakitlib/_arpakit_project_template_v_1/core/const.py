@@ -18,6 +18,9 @@ class ProjectPaths(Enumeration):
     static_dirname: str = "static"
     static_dirpath: str = os.path.join(resource_dirpath, static_dirname)
 
+    templates_dirname: str = "templates"
+    templates_dirpath: str = os.path.join(resource_dirpath, templates_dirname)
+
     arpakit_lib_project_template_filepath: str = os.path.join(base_dirpath, "arpakitlib_project_template.json")
 
 

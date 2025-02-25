@@ -1,12 +1,16 @@
-import fastapi.security
-import starlette.status
+from typing import Any
+
+import fastapi
 
 from api.schema.v1.out import BaseSO
 from arpakitlib.ar_json_util import safely_transfer_obj_to_json_str_to_json_obj
 
 
 class APIJSONResponse(fastapi.responses.JSONResponse):
-    def __init__(self, *, content: dict | list | BaseSO | None, status_code: int = starlette.status.HTTP_200_OK):
+    def __init__(
+            self, *,
+            content: dict[str, Any] | list[Any] | BaseSO | None, status_code: int = fastapi.status.HTTP_200_OK
+    ):
         if isinstance(content, dict):
             content = safely_transfer_obj_to_json_str_to_json_obj(content)
         elif isinstance(content, list):

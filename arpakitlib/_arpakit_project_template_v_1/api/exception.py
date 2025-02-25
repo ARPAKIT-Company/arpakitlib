@@ -1,7 +1,6 @@
 from typing import Any
 
 import fastapi.security
-import starlette.status
 
 from api.const import APIErrorCodes
 from api.schema.common.out import ErrorCommonSO
@@ -11,7 +10,7 @@ class APIException(fastapi.exceptions.HTTPException):
     def __init__(
             self,
             *,
-            status_code: int = starlette.status.HTTP_400_BAD_REQUEST,
+            status_code: int = fastapi.status.HTTP_400_BAD_REQUEST,
             error_code: str | None = APIErrorCodes.unknown_error,
             error_specification_code: str | None = None,
             error_description: str | None = None,

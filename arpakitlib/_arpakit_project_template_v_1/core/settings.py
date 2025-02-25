@@ -139,9 +139,11 @@ class Settings(SimpleSettings):
 
     api_start_scheduled_operation_creator_worker: bool = False
 
-    api_story_log__api_func_before_in_exception_handler: bool = True
+    api_story_log__api_func_before_in_exception_handler: bool = False
 
     admin1_secret_key: str | None = "85a9583cb91c4de7a78d7eb1e5306a04418c9c43014c447ea8ec8dd5deb4cf71"
+
+    admin1_correct_passwords: list[str] | None = None
 
     tg_bot_token: str | None = None
 

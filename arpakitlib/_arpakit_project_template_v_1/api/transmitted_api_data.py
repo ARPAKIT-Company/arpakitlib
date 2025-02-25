@@ -1,6 +1,6 @@
 from functools import lru_cache
 
-import starlette.requests
+import fastapi
 from pydantic import BaseModel, ConfigDict
 
 from arpakitlib.ar_file_storage_in_dir_util import FileStorageInDir
@@ -26,7 +26,7 @@ class TransmittedAPIData(BaseModel):
     dump_file_storage_in_dir: FileStorageInDir | None = None
 
 
-def get_transmitted_api_data(request: starlette.requests.Request) -> TransmittedAPIData:
+def get_transmitted_api_data(request: fastapi.requests.Request) -> TransmittedAPIData:
     return request.app.state.transmitted_api_data
 
 
