@@ -30,7 +30,10 @@ async def async_api_startup_event():
     ):
         get_cached_transmitted_api_data().sqlalchemy_db.init()
 
-    if get_cached_transmitted_api_data().json_db is not None and get_cached_transmitted_api_data().settings.api_init_json_db:
+    if (
+            get_cached_transmitted_api_data().json_db is not None
+            and get_cached_transmitted_api_data().settings.api_init_json_db
+    ):
         get_cached_transmitted_api_data().json_db.init()
 
     if get_cached_transmitted_api_data().settings.api_start_operation_executor_worker:

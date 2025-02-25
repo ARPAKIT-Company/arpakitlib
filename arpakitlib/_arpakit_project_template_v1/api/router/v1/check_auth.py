@@ -4,15 +4,14 @@ from starlette import status
 
 from api.auth import APIAuthData, api_auth, correct_api_key_from_settings__validate_api_key_func, \
     correct_token_from_settings__validate_api_key_func
-from api.schema.common.out import ErrorCommonSO
-from api.schema.v1.out import RawDataV1SO
+from api.schema.common.out import ErrorCommonSO, RawDataCommonSO
 
 api_router = APIRouter()
 
 
 @api_router.get(
     "",
-    response_model=RawDataV1SO | ErrorCommonSO,
+    response_model=RawDataCommonSO | ErrorCommonSO,
     status_code=status.HTTP_200_OK
 )
 async def _(
@@ -28,4 +27,4 @@ async def _(
             require_correct_token=False,
         ))
 ):
-    return RawDataV1SO(data=api_auth_data.model_dump())
+    return RawDataCommonSO(data=api_auth_data.model_dump())
