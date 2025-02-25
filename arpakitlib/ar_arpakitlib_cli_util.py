@@ -31,9 +31,6 @@ def execute_arpakitlib_cli(*, full_command: str | None = None):
         print("-overwrite_if_exists ...")
         print("-ignore_paths_startswith ...")
         print("-only_paths_startswith ...")
-        print("-param1 ...")
-        print("-param2 ...")
-        print("-param3 ...")
         print("\n")
 
     elif command == "init_arpakit_project_template":

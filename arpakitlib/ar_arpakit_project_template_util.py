@@ -40,6 +40,8 @@ def init_arpakit_project_template(
         arpakit_project_template_dirpath = os.path.join(
             os.path.dirname(os.path.abspath(__file__)), f"_arpakit_project_template_v_{version}"
         )
+        if not os.path.exists(arpakit_project_template_dirpath):
+            raise Exception(f"not os.path.exists({arpakit_project_template_dirpath})")
         res = {}
         for root, dirs, files in os.walk(arpakit_project_template_dirpath):
             dirs[:] = [d for d in dirs if d != '__pycache__']
