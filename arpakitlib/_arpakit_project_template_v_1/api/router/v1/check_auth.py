@@ -1,8 +1,8 @@
 import fastapi.requests
 from fastapi import APIRouter, Depends
 
-from api.auth import APIAuthData, api_auth, correct_api_key_from_settings__validate_api_key_func, \
-    correct_token_from_settings__validate_api_key_func
+from api.auth import APIAuthData, api_auth, correct_api_keys_from_settings__validate_api_key_func, \
+    correct_tokens_from_settings__validate_api_key_func
 from api.schema.common.out import ErrorCommonSO, RawDataCommonSO
 
 api_router = APIRouter()
@@ -21,8 +21,8 @@ async def _(
         api_auth_data: APIAuthData = Depends(api_auth(
             require_api_key_string=False,
             require_token_string=False,
-            validate_api_key_func=correct_api_key_from_settings__validate_api_key_func(),
-            validate_token_func=correct_token_from_settings__validate_api_key_func(),
+            validate_api_key_func=correct_api_keys_from_settings__validate_api_key_func(),
+            validate_token_func=correct_tokens_from_settings__validate_api_key_func(),
             require_correct_api_key=False,
             require_correct_token=False,
         ))

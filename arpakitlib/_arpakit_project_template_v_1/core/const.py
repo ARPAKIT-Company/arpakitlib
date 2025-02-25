@@ -9,17 +9,13 @@ from arpakitlib.ar_json_util import safely_transfer_obj_to_json_str
 class ProjectPaths(Enumeration):
     base_dirpath: str = str(pathlib.Path(__file__).parent.parent)
 
-    env_filename: str = ".env"
-    env_filepath: str = os.path.join(base_dirpath, env_filename)
+    env_filepath: str = os.path.join(base_dirpath, ".env")
 
-    resource_dirname: str = "resource"
-    resource_dirpath: str = os.path.join(base_dirpath, resource_dirname)
+    resource_dirpath: str = os.path.join(base_dirpath, "resource")
 
-    static_dirname: str = "static"
-    static_dirpath: str = os.path.join(resource_dirpath, static_dirname)
+    static_dirpath: str = os.path.join(resource_dirpath, "static")
 
-    templates_dirname: str = "templates"
-    templates_dirpath: str = os.path.join(resource_dirpath, templates_dirname)
+    templates_dirpath: str = os.path.join(resource_dirpath, "templates")
 
     arpakit_lib_project_template_filepath: str = os.path.join(base_dirpath, "arpakitlib_project_template.json")
 

@@ -9,7 +9,7 @@ from core.cache_file_storage_in_dir import get_cached_cache_file_storage_in_dir
 from core.dump_file_storage_in_dir import get_cached_dump_file_storage_in_dir
 from core.media_file_storage_in_dir import get_cached_media_file_storage_in_dir
 from core.settings import Settings, get_cached_settings
-from json_db.util import get_json_db
+from json_db.json_db import get_cached_json_db
 from sqlalchemy_db.sqlalchemy_db import get_cached_sqlalchemy_db
 
 
@@ -27,7 +27,7 @@ def create_transmitted_tg_bot_data() -> TransmittedTgBotData:
 
     sqlalchemy_db = get_cached_sqlalchemy_db() if settings.sqlalchemy_sync_db_url is not None else None
 
-    json_db = get_json_db() if settings.json_db_dirpath is not None else None
+    json_db = get_cached_json_db() if settings.json_db_dirpath is not None else None
 
     media_file_storage_in_dir = (
         get_cached_media_file_storage_in_dir() if settings.media_dirpath is not None else None

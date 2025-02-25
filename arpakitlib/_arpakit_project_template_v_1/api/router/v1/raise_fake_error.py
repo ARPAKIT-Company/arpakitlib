@@ -21,15 +21,15 @@ async def _(
 ):
     if n == 1:
         raise fastapi.HTTPException(
-            detail={"fake_error": n},
+            detail={"n": n},
             status_code=fastapi.status.HTTP_500_INTERNAL_SERVER_ERROR
         )
     elif n == 2:
         raise starlette.exceptions.HTTPException(
-            detail=f"fake_error {n}",
+            detail=f"fake_error, n={n}",
             status_code=fastapi.status.HTTP_500_INTERNAL_SERVER_ERROR
         )
     elif n == 3:
-        raise ValueError(f"fake error {n}")
+        raise ValueError(f"fake error n={n}")
     else:
-        raise Exception(f"fake error {n}")
+        raise Exception(f"fake error, n={n}")

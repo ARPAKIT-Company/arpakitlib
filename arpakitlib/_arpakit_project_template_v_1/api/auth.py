@@ -4,16 +4,16 @@ import fastapi
 import fastapi.exceptions
 import fastapi.responses
 import fastapi.security
-from fastapi import Security, Depends
+from fastapi import Security
 from fastapi.security import APIKeyHeader
 from pydantic import BaseModel, ConfigDict
 
 from api.const import APIErrorCodes
 from api.exception import APIException
-from api.transmitted_api_data import TransmittedAPIData, get_transmitted_api_data
 from arpakitlib.ar_func_util import is_async_callable, is_sync_function
 from arpakitlib.ar_json_util import safely_transfer_obj_to_json_str_to_json_obj
 from arpakitlib.ar_type_util import raise_for_type
+from core.settings import get_cached_settings
 
 
 class APIAuthData(BaseModel):
@@ -73,8 +73,7 @@ def api_auth(
             api_key_string: str | None = Security(
                 APIKeyHeader(name="apikey", auto_error=False)
             ),
-            request: fastapi.requests.Request,
-            transmitted_api_data: TransmittedAPIData = Depends(get_transmitted_api_data)
+            request: fastapi.requests.Request
     ) -> APIAuthData:
 
         api_auth_data = APIAuthData(
@@ -155,7 +154,6 @@ def api_auth(
             if is_async_callable(validate_api_key_func):
                 api_auth_data.is_api_key_correct = await validate_api_key_func(
                     api_auth_data=api_auth_data,
-                    transmitted_api_data=transmitted_api_data,
                     request=request
                 )
             elif is_sync_function(validate_api_key_func):
@@ -169,7 +167,6 @@ def api_auth(
             if is_async_callable(validate_token_func):
                 api_auth_data.is_token_correct = await validate_token_func(
                     api_auth_data=api_auth_data,
-                    transmitted_api_data=transmitted_api_data,
                     request=request
                 )
             elif is_sync_function(validate_token_func):
@@ -204,36 +201,34 @@ def api_auth(
     return func
 
 
-def correct_api_key_from_settings__validate_api_key_func() -> Callable:
+def correct_api_keys_from_settings__validate_api_key_func() -> Callable:
     async def func(
             *,
             api_auth_data: APIAuthData,
-            transmitted_api_data: TransmittedAPIData,
             request: fastapi.requests.Request,
     ):
-        if transmitted_api_data.settings.api_correct_api_keys is None:
+        if get_cached_settings().api_correct_api_keys is None:
             return True
         if api_auth_data.api_key_string is None:
             return False
-        if api_auth_data.api_key_string.strip() not in transmitted_api_data.settings.api_correct_api_keys:
+        if api_auth_data.api_key_string.strip() not in get_cached_settings().api_correct_api_keys:
             return False
         return True
 
     return func
 
 
-def correct_token_from_settings__validate_api_key_func() -> Callable:
+def correct_tokens_from_settings__validate_api_key_func() -> Callable:
     async def func(
             *,
             api_auth_data: APIAuthData,
-            transmitted_api_data: TransmittedAPIData,
             request: fastapi.requests.Request,
     ):
-        if transmitted_api_data.settings.api_correct_tokens is None:
+        if get_cached_settings().api_correct_tokens is None:
             return True
         if api_auth_data.token_string is None:
             return False
-        if api_auth_data.token_string.strip() not in transmitted_api_data.settings.api_correct_tokens:
+        if api_auth_data.token_string.strip() not in get_cached_settings().api_correct_tokens:
             return False
         return True
 

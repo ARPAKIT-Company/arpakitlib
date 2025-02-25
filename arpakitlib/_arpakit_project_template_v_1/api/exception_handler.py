@@ -11,7 +11,6 @@ from api.const import APIErrorCodes
 from api.exception import APIException
 from api.response import APIJSONResponse
 from api.schema.common.out import ErrorCommonSO
-from api.transmitted_api_data import get_cached_transmitted_api_data
 from arpakitlib.ar_datetime_util import now_utc_dt
 from arpakitlib.ar_dict_util import combine_dicts
 from arpakitlib.ar_exception_util import exception_to_traceback_str
@@ -238,7 +237,7 @@ def get_exception_handler() -> Callable:
 
     if (
             get_cached_settings().api_story_log__api_func_before_in_exception_handler
-            and get_cached_transmitted_api_data().sqlalchemy_db is not None
+            and get_cached_sqlalchemy_db() is not None
     ):
         funcs_before.append(
             story_log__api_func_before_in_handle_exception(
@@ -305,8 +304,5 @@ def add_exception_handler_to_app(*, app: fastapi.FastAPI) -> fastapi.FastAPI:
         exc_class_or_status_code=starlette.exceptions.HTTPException,
         handler=exception_handler
     )
-
-    for a in app.exception_handlers:
-        print(a)
 
     return app
