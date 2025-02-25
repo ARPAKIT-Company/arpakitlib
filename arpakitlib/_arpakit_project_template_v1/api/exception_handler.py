@@ -18,6 +18,7 @@ from api.const import APIErrorCodes
 from api.exception import APIException
 from api.response import APIJSONResponse
 from api.schema.common.out import ErrorCommonSO
+from api.transmitted_api_data import get_transmitted_api_data, get_cached_transmitted_api_data
 from arpakitlib.ar_datetime_util import now_utc_dt
 from arpakitlib.ar_dict_util import combine_dicts
 from arpakitlib.ar_exception_util import exception_to_traceback_str
@@ -108,15 +109,23 @@ def create_exception_handler(
         _transmitted_kwargs = {}
         for func_before in funcs_before:
             if is_async_callable(func_before):
-                _func_before_res = await func_before(
-                    request=request, status_code=status_code, error_common_so=error_common_so, exception=exception,
-                    transmitted_kwargs=_transmitted_kwargs
-                )
+                try:
+                    _func_before_res = await func_before(
+                        request=request, status_code=status_code, error_common_so=error_common_so, exception=exception,
+                        transmitted_kwargs=_transmitted_kwargs
+                    )
+                except Exception as exception_:
+                    _logger.exception(exception_)
+                    raise exception_
             elif is_sync_function(func_before):
-                _func_before_res = func_before(
-                    request=request, status_code=status_code, error_common_so=error_common_so, exception=exception,
-                    transmitted_kwargs=_transmitted_kwargs
-                )
+                try:
+                    _func_before_res = func_before(
+                        request=request, status_code=status_code, error_common_so=error_common_so, exception=exception,
+                        transmitted_kwargs=_transmitted_kwargs
+                    )
+                except Exception as exception_:
+                    _logger.exception(exception_)
+                    raise exception_
             else:
                 raise TypeError("unknown func_before type")
             if _func_before_res is not None:
@@ -231,7 +240,10 @@ def get_exception_handler() -> Callable:
     funcs_before = []
     async_funcs_after = []
 
-    if get_cached_settings().api_story_log__api_func_before_in_exception_handler:
+    if (
+            get_cached_settings().api_story_log__api_func_before_in_exception_handler
+            and get_cached_transmitted_api_data().sqlalchemy_db is not None
+    ):
         funcs_before.append(
             story_log__api_func_before_in_handle_exception(
                 ignore_api_error_codes=[

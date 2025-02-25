@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from api.router.v1 import healthcheck, get_errors_info, now_utc_datetime
+from api.router.v1 import healthcheck, get_errors_info, now_utc_datetime, clear_log_file, get_log_file
 from api.router.v1 import raise_fake_error, check_auth, arpakitlib_
 
 main_v1_api_router = APIRouter()
@@ -45,10 +45,23 @@ main_v1_api_router.include_router(
     tags=["Fake error"]
 )
 
-# Healthcheck
+# Now UTC Datetime
 
 main_v1_api_router.include_router(
     router=now_utc_datetime.api_router,
     prefix="/now_utc_datetime",
     tags=["Now UTC datetime"]
+)
+
+# Log file
+
+main_v1_api_router.include_router(
+    router=clear_log_file.api_router,
+    prefix="/clear_log_file",
+    tags=["Log file"]
+)
+main_v1_api_router.include_router(
+    router=get_log_file.api_router,
+    prefix="/get_log_file",
+    tags=["Log file"]
 )

@@ -1,18 +1,18 @@
 import fastapi
 from fastapi import APIRouter, Depends
+from starlette.responses import FileResponse
 
-from api.schema.common.out import ErrorCommonSO
-from api.schema.v1.out import HealthcheckV1SO
 from api.transmitted_api_data import get_transmitted_api_data, TransmittedAPIData
+from arpakitlib.ar_logging_util import init_log_file
 
 api_router = APIRouter()
 
 
 @api_router.get(
-    "",
-    name="Healthcheck",
+    path="",
+    name="Get log file",
     status_code=fastapi.status.HTTP_200_OK,
-    response_model=HealthcheckV1SO | ErrorCommonSO,
+    response_class=FileResponse
 )
 async def _(
         *,
@@ -20,4 +20,5 @@ async def _(
         response: fastapi.responses.Response,
         transmitted_api_data: TransmittedAPIData = Depends(get_transmitted_api_data)
 ):
-    return HealthcheckV1SO(is_ok=True)
+    init_log_file(log_filepath=transmitted_api_data.settings.log_filepath)
+    return FileResponse(path=transmitted_api_data.settings.log_filepath)

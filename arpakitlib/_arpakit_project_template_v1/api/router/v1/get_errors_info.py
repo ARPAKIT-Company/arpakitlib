@@ -1,6 +1,5 @@
 import fastapi.requests
 from fastapi import APIRouter
-from starlette import status
 
 from api.const import APIErrorCodes, APIErrorSpecificationCodes
 from api.schema.common.out import ErrorCommonSO, ErrorsInfoCommonSO
@@ -10,8 +9,9 @@ api_router = APIRouter()
 
 @api_router.get(
     "",
+    name="Get errors info",
+    status_code=fastapi.status.HTTP_200_OK,
     response_model=ErrorsInfoCommonSO | ErrorCommonSO,
-    status_code=status.HTTP_200_OK
 )
 async def _(
         *,
