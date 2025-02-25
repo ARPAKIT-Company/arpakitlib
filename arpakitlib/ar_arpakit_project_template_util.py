@@ -18,16 +18,11 @@ def init_arpakit_project_template(
         overwrite_if_exists: bool = False,
         ignore_paths_startswith: list[str] | str | None = None,
         only_paths_startswith: list[str] | str | None = None,
-        params: dict[str, str] | None = None,
 ):
     raise_for_type(project_dirpath, str)
     raise_if_string_blank(project_dirpath)
 
     raise_for_type(overwrite_if_exists, bool)
-
-    if params is None:
-        params = {}
-    raise_for_type(params, dict)
 
     if isinstance(ignore_paths_startswith, str):
         ignore_paths_startswith = [ignore_paths_startswith]

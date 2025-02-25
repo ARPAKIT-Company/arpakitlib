@@ -47,15 +47,15 @@ class Settings(SimpleSettings):
 
     project_name: str | None = "arpakitlib"
 
-    sqlalchemy_db_user: str | None = "arpakitlib"
+    sqlalchemy_db_user: str | None = project_name
 
-    sqlalchemy_db_password: str | None = "arpakitlib"
+    sqlalchemy_db_password: str | None = project_name
 
     sqlalchemy_db_host: str | None = "127.0.0.1"
 
-    sqlalchemy_db_port: int | None = 50517
+    sqlalchemy_db_port: int | None = 5432
 
-    sqlalchemy_db_database: str | None = "arpakitlib"
+    sqlalchemy_db_database: str | None = project_name
 
     sqlalchemy_sync_db_url: str | None = None
 

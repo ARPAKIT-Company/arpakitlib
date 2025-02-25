@@ -67,8 +67,7 @@ def execute_arpakitlib_cli(*, full_command: str | None = None):
             project_dirpath=project_dirpath,
             overwrite_if_exists=overwrite_if_exists,
             ignore_paths_startswith=ignore_paths_startswith,
-            only_paths_startswith=only_paths_startswith,
-            params=parsed_command.key_to_value,
+            only_paths_startswith=only_paths_startswith
         )
 
     else:
