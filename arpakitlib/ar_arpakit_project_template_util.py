@@ -41,7 +41,7 @@ def init_arpakit_project_template(
         only_paths_startswith = []
     raise_for_type(only_paths_startswith, list)
 
-    def _generate_filepath_to_content() -> dict[str, str]:
+    def _generate_filepath_to_content() -> dict[str, bytes]:
         arpakit_project_template_dirpath = os.path.join(
             os.path.dirname(os.path.abspath(__file__)), f"_arpakit_project_template_v{version}"
         )
@@ -64,10 +64,8 @@ def init_arpakit_project_template(
                 ):
                     _logger.info(f"ignoring file: {rel_path}")
                     continue
-                with open(os.path.join(root, file), "r", encoding="utf-8") as _file:
+                with open(os.path.join(root, file), "rb") as _file:
                     _content = _file.read()
-                for key, value in params.items():
-                    _content = _content.replace("{{" + key.upper().strip() + "}}", value)
                 res[rel_path] = _content
         return res
 
@@ -85,6 +83,6 @@ def init_arpakit_project_template(
 
         _logger.info(f"creating file: {full_filepath}")
         os.makedirs(os.path.dirname(full_filepath), exist_ok=True)
-        with open(full_filepath, "w", encoding="utf-8") as file_:
+        with open(full_filepath, "wb") as file_:
             file_.write(content)
         _logger.info(f"file created: {full_filepath}")
