@@ -4,7 +4,6 @@ from fastapi import APIRouter, Depends
 from api.auth import APIAuthData, api_auth, correct_api_key_from_settings__validate_api_key_func, \
     correct_token_from_settings__validate_api_key_func
 from api.schema.common.out import ErrorCommonSO, RawDataCommonSO
-from api.transmitted_api_data import get_transmitted_api_data, TransmittedAPIData
 
 api_router = APIRouter()
 
@@ -19,7 +18,6 @@ async def _(
         *,
         request: fastapi.requests.Request,
         response: fastapi.responses.Response,
-        transmitted_api_data: TransmittedAPIData = Depends(get_transmitted_api_data),
         api_auth_data: APIAuthData = Depends(api_auth(
             require_api_key_string=False,
             require_token_string=False,

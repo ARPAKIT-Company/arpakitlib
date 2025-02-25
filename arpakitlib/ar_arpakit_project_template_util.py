@@ -38,7 +38,7 @@ def init_arpakit_project_template(
 
     def _generate_filepath_to_content() -> dict[str, bytes]:
         arpakit_project_template_dirpath = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)), f"_arpakit_project_template_v{version}"
+            os.path.dirname(os.path.abspath(__file__)), f"_arpakit_project_template_v_{version}"
         )
         res = {}
         for root, dirs, files in os.walk(arpakit_project_template_dirpath):

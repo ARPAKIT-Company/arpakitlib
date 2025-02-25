@@ -18,7 +18,7 @@ from api.const import APIErrorCodes
 from api.exception import APIException
 from api.response import APIJSONResponse
 from api.schema.common.out import ErrorCommonSO
-from api.transmitted_api_data import get_transmitted_api_data, get_cached_transmitted_api_data
+from api.transmitted_api_data import get_cached_transmitted_api_data
 from arpakitlib.ar_datetime_util import now_utc_dt
 from arpakitlib.ar_dict_util import combine_dicts
 from arpakitlib.ar_exception_util import exception_to_traceback_str
