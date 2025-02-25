@@ -62,9 +62,9 @@ def create_api_app(*, prefix: str = "/api") -> FastAPI:
         os.makedirs(ProjectPaths.static_dirpath, exist_ok=True)
     api_app.mount("/static", StaticFiles(directory=ProjectPaths.static_dirpath), name="static")
 
-    if get_cached_settings().api_enable_admin1:
-        from admin1.add_admin_in_app import add_admin1_in_app
-        add_admin1_in_app(app=api_app)
+    if get_cached_settings().api_enable_sqladmin:
+        from sqladmin_.add_admin_in_app import add_sqladmin_in_app
+        add_sqladmin_in_app(app=api_app)
 
     _logger.info("finish")
 

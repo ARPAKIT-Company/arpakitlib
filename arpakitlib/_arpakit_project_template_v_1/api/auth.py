@@ -208,7 +208,7 @@ def correct_api_keys_from_settings__validate_api_key_func() -> Callable:
             request: fastapi.requests.Request,
     ):
         if get_cached_settings().api_correct_api_keys is None:
-            return True
+            return False
         if api_auth_data.api_key_string is None:
             return False
         if api_auth_data.api_key_string.strip() not in get_cached_settings().api_correct_api_keys:
@@ -225,7 +225,7 @@ def correct_tokens_from_settings__validate_api_key_func() -> Callable:
             request: fastapi.requests.Request,
     ):
         if get_cached_settings().api_correct_tokens is None:
-            return True
+            return False
         if api_auth_data.token_string is None:
             return False
         if api_auth_data.token_string.strip() not in get_cached_settings().api_correct_tokens:
