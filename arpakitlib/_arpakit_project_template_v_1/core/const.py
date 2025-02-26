@@ -17,7 +17,9 @@ class ProjectPaths(Enumeration):
 
     templates_dirpath: str = os.path.join(resource_dirpath, "templates")
 
-    arpakit_lib_project_template_filepath: str = os.path.join(base_dirpath, "arpakitlib_project_template.json")
+    arpakit_lib_project_template_info_filepath: str = os.path.join(
+        base_dirpath, "arpakitlib_project_template_info.json"
+    )
 
 
 def __example():
