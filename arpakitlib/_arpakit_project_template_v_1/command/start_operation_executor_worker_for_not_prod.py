@@ -1,6 +1,6 @@
 from core.util import setup_logging
 from operation_execution.operation_executor_worker import OperationExecutorWorker
-from sqlalchemy_db.sqlalchemy_db import get_cached_sqlalchemy_db
+from sqlalchemy_db_.sqlalchemy_db import get_cached_sqlalchemy_db
 
 
 def __command():

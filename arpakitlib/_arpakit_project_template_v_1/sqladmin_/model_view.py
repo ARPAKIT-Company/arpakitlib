@@ -1,7 +1,7 @@
 from sqladmin import ModelView
 
 from arpakitlib.ar_sqladmin_util import get_string_info_from_model_view
-from sqlalchemy_db.sqlalchemy_model import StoryLogDBM, OperationDBM
+from sqlalchemy_db_.sqlalchemy_model import StoryLogDBM, OperationDBM
 
 
 class SimpleMV(ModelView):

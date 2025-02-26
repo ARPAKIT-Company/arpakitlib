@@ -18,8 +18,8 @@ from arpakitlib.ar_func_util import raise_if_not_async_callable, is_async_callab
 from arpakitlib.ar_json_util import safely_transfer_obj_to_json_str
 from arpakitlib.ar_type_util import raise_for_type
 from core.settings import get_cached_settings
-from sqlalchemy_db.sqlalchemy_db import get_cached_sqlalchemy_db
-from sqlalchemy_db.sqlalchemy_model import StoryLogDBM
+from sqlalchemy_db_.sqlalchemy_db import get_cached_sqlalchemy_db
+from sqlalchemy_db_.sqlalchemy_model import StoryLogDBM
 
 _logger = logging.getLogger(__name__)
 

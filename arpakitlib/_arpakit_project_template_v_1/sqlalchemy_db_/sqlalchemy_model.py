@@ -9,7 +9,7 @@ from sqlalchemy.orm import mapped_column, Mapped
 from arpakitlib.ar_datetime_util import now_utc_dt
 from arpakitlib.ar_enumeration_util import Enumeration
 from arpakitlib.ar_sqlalchemy_util import get_string_info_from_declarative_base, BaseDBM
-from sqlalchemy_db.util import generate_default_long_id
+from sqlalchemy_db_.util import generate_default_long_id
 
 
 class SimpleDBM(BaseDBM):

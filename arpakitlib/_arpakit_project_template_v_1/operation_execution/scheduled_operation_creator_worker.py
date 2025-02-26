@@ -6,8 +6,8 @@ from arpakitlib.ar_sleep_util import sync_safe_sleep, async_safe_sleep
 from arpakitlib.ar_sqlalchemy_util import SQLAlchemyDb
 from arpakitlib.ar_type_util import raise_for_type
 from operation_execution.scheduled_operations import ScheduledOperation, get_scheduled_operations
-from sqlalchemy_db.sqlalchemy_db import get_cached_sqlalchemy_db
-from sqlalchemy_db.sqlalchemy_model import OperationDBM
+from sqlalchemy_db_.sqlalchemy_db import get_cached_sqlalchemy_db
+from sqlalchemy_db_.sqlalchemy_model import OperationDBM
 
 
 class ScheduledOperationCreatorWorker(BaseWorker):

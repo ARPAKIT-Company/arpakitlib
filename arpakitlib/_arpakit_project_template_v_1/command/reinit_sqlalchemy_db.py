@@ -1,6 +1,6 @@
 from core.settings import get_cached_settings
 from core.util import setup_logging
-from sqlalchemy_db.sqlalchemy_db import get_cached_sqlalchemy_db
+from sqlalchemy_db_.sqlalchemy_db import get_cached_sqlalchemy_db
 
 
 def __command():

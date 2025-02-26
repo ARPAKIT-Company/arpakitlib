@@ -5,7 +5,7 @@ from pydantic import ConfigDict
 from pydantic.v1 import BaseModel
 
 from operation_execution.util import every_timedelta_is_time_func
-from sqlalchemy_db.sqlalchemy_model import OperationDBM
+from sqlalchemy_db_.sqlalchemy_model import OperationDBM
 
 
 class ScheduledOperation(BaseModel):

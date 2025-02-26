@@ -4,7 +4,7 @@ from sqladmin import Admin
 from core.settings import get_cached_settings
 from sqladmin_.admin_auth import SQLAdminAuth
 from sqladmin_.model_view import get_simple_mv
-from sqlalchemy_db.sqlalchemy_db import get_cached_sqlalchemy_db
+from sqlalchemy_db_.sqlalchemy_db import get_cached_sqlalchemy_db
 
 
 def add_sqladmin_in_app(*, app: FastAPI, base_url: str = "/sqladmin") -> FastAPI:

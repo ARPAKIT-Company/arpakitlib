@@ -22,11 +22,11 @@ async def _(
         n: int | None = None,
         api_auth_data: APIAuthData = Depends(api_auth(
             require_api_key_string=True,
-            require_token_string=True,
+            require_token_string=False,
             validate_api_key_func=correct_api_keys_from_settings__validate_api_key_func(),
-            validate_token_func=correct_tokens_from_settings__validate_api_key_func(),
+            validate_token_func=None,
             require_correct_api_key=True,
-            require_correct_token=True,
+            require_correct_token=False,
         ))
 ):
     if n == 1:

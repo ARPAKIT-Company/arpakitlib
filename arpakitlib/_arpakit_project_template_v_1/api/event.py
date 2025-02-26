@@ -9,7 +9,7 @@ from core.settings import get_cached_settings
 from json_db.json_db import get_cached_json_db
 from operation_execution.operation_executor_worker import create_operation_executor_worker
 from operation_execution.scheduled_operation_creator_worker import create_scheduled_operation_creator_worker
-from sqlalchemy_db.sqlalchemy_db import get_cached_sqlalchemy_db
+from sqlalchemy_db_.sqlalchemy_db import get_cached_sqlalchemy_db
 
 _logger = logging.getLogger(__name__)
 

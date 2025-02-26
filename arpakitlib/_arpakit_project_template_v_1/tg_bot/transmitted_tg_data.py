@@ -10,7 +10,7 @@ from core.dump_file_storage_in_dir import get_cached_dump_file_storage_in_dir
 from core.media_file_storage_in_dir import get_cached_media_file_storage_in_dir
 from core.settings import Settings, get_cached_settings
 from json_db.json_db import get_cached_json_db
-from sqlalchemy_db.sqlalchemy_db import get_cached_sqlalchemy_db
+from sqlalchemy_db_.sqlalchemy_db import get_cached_sqlalchemy_db
 
 
 class TransmittedTgBotData(BaseModel):

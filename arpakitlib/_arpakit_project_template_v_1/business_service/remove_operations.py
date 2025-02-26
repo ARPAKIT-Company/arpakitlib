@@ -1,8 +1,8 @@
 import asyncio
 
 from arpakitlib.ar_type_util import raise_for_type
-from sqlalchemy_db.sqlalchemy_db import get_cached_sqlalchemy_db
-from sqlalchemy_db.sqlalchemy_model import OperationDBM
+from sqlalchemy_db_.sqlalchemy_db import get_cached_sqlalchemy_db
+from sqlalchemy_db_.sqlalchemy_model import OperationDBM
 
 
 def remove_operations(
