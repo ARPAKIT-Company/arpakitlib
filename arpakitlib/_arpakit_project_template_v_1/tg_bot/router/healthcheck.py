@@ -1,5 +1,6 @@
 import aiogram.filters
 
+from tg_bot.blank.util import get_cached_tg_bot_blank
 from tg_bot.const import TgBotCommands
 
 tg_bot_router = aiogram.Router()
@@ -7,4 +8,4 @@ tg_bot_router = aiogram.Router()
 
 @tg_bot_router.message(aiogram.filters.Command(TgBotCommands.healthcheck))
 async def _(m: aiogram.types.Message, **kwargs):
-    await m.answer(text="healthcheck")
+    await m.answer(text=get_cached_tg_bot_blank().healthcheck())

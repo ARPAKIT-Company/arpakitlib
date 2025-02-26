@@ -4,7 +4,7 @@ from arpakitlib.ar_enumeration_util import Enumeration
 class TgBotCommands(Enumeration):
     # public
     healthcheck = "healthcheck"
-    arpakitlib = "arpakitlib"
+    arpakitlib_project_template_info = "arpakitlib_project_template_info"
     start = "start"
     about = "about"
 
