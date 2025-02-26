@@ -31,6 +31,10 @@ class APIAuthData(BaseModel):
     is_token_correct: bool | None = None
     is_api_key_correct: bool | None = None
 
+    require_mode_type: str | None = None
+    require_not_mode_type: str | None = None
+    current_mode_type: str | None = None
+
 
 def api_auth(
         *,
@@ -41,7 +45,9 @@ def api_auth(
         correct_api_keys: str | list[str] | None = None,
         correct_tokens: str | list[str] | None = None,
         require_correct_api_key: bool = False,
-        require_correct_token: bool = False
+        require_correct_token: bool = False,
+        require_mode_type: str | None = None,
+        require_not_mode_type: str | None = None
 ) -> Callable:
     if isinstance(correct_api_keys, str):
         correct_api_keys = [correct_api_keys]
@@ -80,7 +86,10 @@ def api_auth(
             require_api_key_string=require_api_key_string,
             require_token_string=require_token_string,
             require_correct_api_key=require_correct_api_key,
-            require_correct_token=require_correct_token
+            require_correct_token=require_correct_token,
+            require_mode_type=require_mode_type,
+            require_not_mode_type=require_not_mode_type,
+            current_mode_type=get_cached_settings().mode_type
         )
 
         # parse api_key
@@ -129,6 +138,26 @@ def api_auth(
             api_auth_data.token_string = api_auth_data.token_string.strip()
         if not api_auth_data.token_string:
             api_auth_data.token_string = None
+
+        # require_mode_type
+
+        if require_mode_type is not None:
+            if get_cached_settings().mode_type != require_mode_type:
+                raise APIException(
+                    status_code=fastapi.status.HTTP_401_UNAUTHORIZED,
+                    error_code=APIErrorCodes.cannot_authorize,
+                    error_data=safely_transfer_obj_to_json_str_to_json_obj(api_auth_data.model_dump())
+                )
+
+        # require_not_mode_type
+
+        if require_not_mode_type is not None:
+            if get_cached_settings().mode_type == require_not_mode_type:
+                raise APIException(
+                    status_code=fastapi.status.HTTP_401_UNAUTHORIZED,
+                    error_code=APIErrorCodes.cannot_authorize,
+                    error_data=safely_transfer_obj_to_json_str_to_json_obj(api_auth_data.model_dump())
+                )
 
         # require_api_key_string
 
