@@ -2,116 +2,20 @@
 
 import asyncio
 import logging
-from typing import Optional, Any, Union, Callable, Iterable
+from typing import Optional, Any, Callable
 
-import aiogram
-import aiohttp
-import aiohttp.web
 from aiogram import types
-from aiogram.enums import ChatType
 from aiogram.exceptions import AiogramError
-from aiogram.filters import CommandObject, Filter
-from aiogram.filters.callback_data import CallbackData
-from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_application
-from aiohttp import web
+from aiogram.filters import CommandObject
 from pydantic import BaseModel
 
 from arpakitlib.ar_need_type_util import parse_need_type, NeedTypes
 from arpakitlib.ar_parse_command import BadCommandFormat, parse_command
-from arpakitlib.ar_type_util import raise_for_types, raise_for_type
+from arpakitlib.ar_type_util import raise_for_types
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
 
 _logger = logging.getLogger(__name__)
-
-
-class TextFilter(Filter):
-
-    def __init__(
-            self,
-            *texts: Union[str, Iterable[str]],
-            ignore_case: bool = True
-    ) -> None:
-        self.ignore_case = ignore_case
-        self.texts = set()
-
-        for text in texts:
-
-            if isinstance(text, str):
-                if ignore_case is True:
-                    text = text.lower()
-                text = text.strip()
-                self.texts.add(text)
-
-            elif isinstance(text, Iterable):
-                for text_ in text:
-                    raise_for_type(text_, str)
-                    if ignore_case is True:
-                        text_ = text_.lower()
-                    text_ = text_.strip()
-                    self.texts.add(text_)
-
-            else:
-                raise TypeError(f"text has bad type = {type(text)}")
-
-    async def __call__(self, message: types.Message, *args, **kwargs) -> bool:
-        raise_for_type(message, types.Message)
-
-        if message.text is None:
-            return False
-
-        text = message.text.strip()
-        if self.ignore_case is True:
-            text = text.lower()
-
-        return text in self.texts
-
-
-class IsPrivateChat(Filter):
-    async def __call__(self, update: types.Message | types.CallbackQuery) -> bool:
-        if isinstance(update, types.Message):
-            return update.chat.type == ChatType.PRIVATE
-        elif isinstance(update, types.CallbackQuery):
-            return update.message.chat.type == ChatType.PRIVATE
-        else:
-            return False
-
-
-_used_cd_prefixes = set()
-
-
-def get_used_cd_prefixes() -> set[str]:
-    return _used_cd_prefixes
-
-
-def generate_cd_prefix(string: str) -> str:
-    res = 0
-    for s_ in string:
-        res += ord(s_)
-    res += len(string)
-    res = str(res)
-    return res
-
-
-class BaseCD(CallbackData, prefix="BaseCD"):
-
-    def __init_subclass__(cls, **kwargs):
-        if not cls.__name__.endswith("CD"):
-            raise ValueError("callback data class should ends with CD")
-
-        if "prefix" not in kwargs:
-            kwargs["prefix"] = str(generate_cd_prefix(cls.__name__.lower().removesuffix("cd")))
-        prefix = kwargs["prefix"]
-
-        if prefix in _used_cd_prefixes:
-            raise ValueError(f"prefix({prefix}) already in _used_cd_prefixes({_used_cd_prefixes})")
-        _used_cd_prefixes.add(prefix)
-
-        super().__init_subclass__(**kwargs)
-
-
-class WithFromCD(BaseCD, prefix="WithFromCD"):
-    from_: Optional[str] = None
 
 
 class BadTgCommandFormat(BadCommandFormat):
@@ -312,30 +216,6 @@ def as_tg_command(
         return new_handler
 
     return decorator
-
-
-def start_aiogram_tg_bot_with_webhook(
-        *,
-        dispatcher: aiogram.Dispatcher,
-        bot: aiogram.Bot,
-        webhook_secret: str = "123",
-        webhook_path: str = "/tg_bot_webhook",
-        webhook_server_hostname: str = "127.0.0.1",
-        webhook_server_port: int = 8080
-):
-    app = aiohttp.web.Application()
-    simple_requests_handler = SimpleRequestHandler(
-        dispatcher=dispatcher,
-        bot=bot,
-        secret_token=webhook_secret
-    )
-    simple_requests_handler.register(app, path=webhook_path)
-    setup_application(app, dispatcher, bot=bot)
-    web.run_app(
-        app=app,
-        host=webhook_server_hostname,
-        port=webhook_server_port
-    )
 
 
 def __example():
