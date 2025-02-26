@@ -2,8 +2,7 @@ import fastapi
 from fastapi import APIRouter, Depends
 from fastapi.responses import FileResponse
 
-from api.auth import APIAuthData, api_auth, correct_api_keys_from_settings__validate_api_key_func, \
-    correct_tokens_from_settings__validate_api_key_func
+from api.auth import APIAuthData, api_auth, correct_api_keys_from_settings__validate_api_key_func
 from arpakitlib.ar_logging_util import init_log_file
 from core.settings import get_cached_settings
 

@@ -1,6 +1,6 @@
 import aiogram.filters
-from tg_bot.blank.util import get_cached_tg_bot_blank
 
+from tg_bot.blank.blank import get_cached_tg_bot_blank
 from tg_bot.const import TgBotCommands
 
 tg_bot_router = aiogram.Router()

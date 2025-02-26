@@ -2,8 +2,7 @@ import fastapi
 import starlette.exceptions
 from fastapi import APIRouter, Depends
 
-from api.auth import APIAuthData, api_auth, correct_api_keys_from_settings__validate_api_key_func, \
-    correct_tokens_from_settings__validate_api_key_func
+from api.auth import APIAuthData, api_auth, correct_api_keys_from_settings__validate_api_key_func
 from api.schema.common.out import ErrorCommonSO
 
 api_router = APIRouter()
