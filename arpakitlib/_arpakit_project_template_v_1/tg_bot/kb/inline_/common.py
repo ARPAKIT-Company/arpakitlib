@@ -1,7 +1,7 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from tg_bot.blank.util import get_cached_tg_bot_blank
+from tg_bot.blank.blank import get_cached_tg_bot_blank
 
 
 def groups_inline_kb() -> InlineKeyboardMarkup:

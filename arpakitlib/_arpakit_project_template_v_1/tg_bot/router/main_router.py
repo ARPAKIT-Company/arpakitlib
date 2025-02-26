@@ -15,4 +15,4 @@ main_tg_bot_router.include_router(router=healthcheck.tg_bot_router)
 
 # arpakit project template
 
-main_tg_bot_router.include_router(router=arpakitlib_project_template.tg_bot_router)
+main_tg_bot_router.include_router(router=arpakitlib_project_template_info.tg_bot_router)

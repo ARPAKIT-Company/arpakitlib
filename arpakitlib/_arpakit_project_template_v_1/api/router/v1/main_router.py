@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
 from api.router.v1 import healthcheck, get_errors_info, now_utc_datetime, clear_log_file, get_log_file, \
-    arpakitlib_project_template
+    arpakitlib_project_template_info
 from api.router.v1 import raise_fake_error, check_auth
 
 main_v1_api_router = APIRouter()
@@ -14,11 +14,11 @@ main_v1_api_router.include_router(
     tags=["Healthcheck"]
 )
 
-# arpakitlib_
+# arpakitlib project template info
 
 main_v1_api_router.include_router(
-    router=arpakitlib_project_template.api_router,
-    prefix="/arpakitlib",
+    router=arpakitlib_project_template_info.api_router,
+    prefix="/arpakitlib_project_template_info",
     tags=["arpakitlib"]
 )
 

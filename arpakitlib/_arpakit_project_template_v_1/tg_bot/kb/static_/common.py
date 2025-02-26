@@ -1,7 +1,7 @@
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from aiogram.utils.keyboard import ReplyKeyboardBuilder
 
-from tg_bot.blank.util import get_cached_tg_bot_blank
+from tg_bot.blank.blank import get_cached_tg_bot_blank
 
 
 def hello_world_static_kb() -> ReplyKeyboardMarkup:
