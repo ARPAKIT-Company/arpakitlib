@@ -3,7 +3,7 @@ from uuid import uuid4
 from arpakitlib.ar_datetime_util import now_utc_dt
 
 
-def generate_api_key() -> str:
+def generate_default_api_key() -> str:
     return (
         f"apikey"
         f"{str(uuid4()).replace('-', '')}"
@@ -20,7 +20,7 @@ def generate_default_long_id():
 
 
 def __example():
-    print(generate_api_key())
+    print(generate_default_api_key())
     print(generate_default_long_id())
 
 

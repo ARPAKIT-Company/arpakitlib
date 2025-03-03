@@ -30,8 +30,10 @@ class SimpleDBM(BaseDBM):
         index=True, sort_order=-10, nullable=False
     )
 
-    def __repr__(self):
-        return f"{self.__class__.__name__.removesuffix('DBM')} (id={self.id})"
+    def __repr__(self) -> str:
+        if self.slug is None:
+            return f"{self.__class__.__name__.removesuffix('DBM')} (id={self.id})"
+        return f"{self.__class__.__name__.removesuffix('DBM')} (id={self.id}, slug={self.slug})"
 
 
 class StoryLogDBM(SimpleDBM):
