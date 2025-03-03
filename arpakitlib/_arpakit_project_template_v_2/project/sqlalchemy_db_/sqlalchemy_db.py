@@ -2,7 +2,7 @@ from functools import lru_cache
 
 from arpakitlib.ar_sqlalchemy_util import SQLAlchemyDb
 from project.core.settings import get_cached_settings
-from project.sqlalchemy_db_.sqlalchemy_model import get_simple_dbm
+from project.sqlalchemy_db_.sqlalchemy_model.common import get_simple_dbm
 
 
 def create_sqlalchemy_db() -> SQLAlchemyDb | None:

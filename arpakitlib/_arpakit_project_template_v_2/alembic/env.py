@@ -6,7 +6,7 @@ from sqlalchemy import pool
 
 from arpakitlib.ar_type_util import raise_for_type
 from project.core.settings import get_cached_settings
-from project.sqlalchemy_db_.sqlalchemy_model import get_simple_dbm
+from project.sqlalchemy_db_.sqlalchemy_model import SimpleDBM
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -24,7 +24,7 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-target_metadata = get_simple_dbm().metadata
+target_metadata = SimpleDBM.metadata
 
 
 # other values from the config, defined by the needs of env.py,

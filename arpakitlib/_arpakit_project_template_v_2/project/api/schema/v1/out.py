@@ -4,7 +4,7 @@ import datetime as dt
 from typing import Any
 
 from project.api.schema.base_schema import BaseSO
-from project.sqlalchemy_db_.sqlalchemy_model import StoryLogDBM, OperationDBM
+from project.sqlalchemy_db_.sqlalchemy_model import OperationDBM, StoryLogDBM
 
 
 class BaseV1SO(BaseSO):
