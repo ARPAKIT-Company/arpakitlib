@@ -16,15 +16,18 @@ class SimpleDBM(BaseDBM):
     __abstract__ = True
 
     id: Mapped[int] = mapped_column(
-        sqlalchemy.INTEGER, primary_key=True, autoincrement=True, sort_order=-3, nullable=False
+        sqlalchemy.INTEGER, primary_key=True, autoincrement=True, sort_order=-13, nullable=False
     )
     long_id: Mapped[str] = mapped_column(
         sqlalchemy.TEXT, insert_default=generate_default_long_id, server_default=func.gen_random_uuid(),
-        unique=True, sort_order=-2, nullable=False
+        unique=True, sort_order=-12, nullable=False
+    )
+    slug: Mapped[str | None] = mapped_column(
+        sqlalchemy.TEXT, unique=True, sort_order=-11, nullable=True
     )
     creation_dt: Mapped[datetime] = mapped_column(
         sqlalchemy.TIMESTAMP(timezone=True), insert_default=now_utc_dt, server_default=func.now(),
-        index=True, sort_order=-1, nullable=False
+        index=True, sort_order=-10, nullable=False
     )
 
     def __repr__(self):

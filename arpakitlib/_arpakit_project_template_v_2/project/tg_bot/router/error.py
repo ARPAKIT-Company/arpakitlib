@@ -1,5 +1,9 @@
+import logging
+
 import aiogram
 from aiogram import Router
+
+_logger = logging.getLogger(__name__)
 
 tg_bot_router = Router()
 
@@ -9,4 +13,4 @@ async def _(
         event: aiogram.types.ErrorEvent,
         **kwargs
 ):
-    pass
+    _logger.exception(event.exception)
