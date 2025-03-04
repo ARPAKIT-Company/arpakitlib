@@ -33,9 +33,10 @@ class SimpleDBM(BaseDBM):
         return f"{self.__class__.__name__.removesuffix('DBM')} (id={self.id}, slug={self.slug})"
 
 
-def get_simple_dbm() -> type[SimpleDBM]:
+def get_simple_dbm_class() -> type[SimpleDBM]:
+    from project.sqlalchemy_db_.sqlalchemy_model import SimpleDBM
     return SimpleDBM
 
 
 if __name__ == '__main__':
-    print(get_string_info_from_declarative_base(SimpleDBM))
+    print(get_string_info_from_declarative_base(get_simple_dbm_class()))

@@ -57,6 +57,8 @@ def generate_sqlalchemy_url(
 
 class BaseDBM(DeclarativeBase):
     __abstract__ = True
+    __table_args__ = {"extend_existing": True}
+
     _bus_data: dict[str, Any] | None = None
 
     @property
@@ -102,7 +104,7 @@ class BaseDBM(DeclarativeBase):
     def simple_dict_with_sd_properties(self) -> dict[str, Any]:
         return self.simple_dict(include_sd_properties=True)
 
-    def simple_json(self, *, include_sd_properties: bool = True) -> str:
+    def simple_dict_json(self, *, include_sd_properties: bool = True) -> str:
         return safely_transfer_obj_to_json_str(self.simple_dict(include_sd_properties=include_sd_properties))
 
 

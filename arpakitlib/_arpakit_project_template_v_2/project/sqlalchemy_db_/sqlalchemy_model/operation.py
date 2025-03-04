@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from datetime import datetime, timedelta
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
 import sqlalchemy
 from sqlalchemy.dialects import postgresql
@@ -7,6 +9,9 @@ from sqlalchemy.orm import mapped_column, Mapped
 
 from arpakitlib.ar_enumeration_util import Enumeration
 from project.sqlalchemy_db_.sqlalchemy_model.common import SimpleDBM
+
+if TYPE_CHECKING:
+    pass
 
 
 class OperationDBM(SimpleDBM):
@@ -20,7 +25,7 @@ class OperationDBM(SimpleDBM):
 
     class Types(Enumeration):
         healthcheck_ = "healthcheck"
-        raise_fake_error_ = "raise_fake_error_"
+        raise_fake_error_ = "raise_fake_error"
 
     status: Mapped[str] = mapped_column(
         sqlalchemy.TEXT, index=True, insert_default=Statuses.waiting_for_execution,
@@ -29,6 +34,7 @@ class OperationDBM(SimpleDBM):
     type: Mapped[str] = mapped_column(
         sqlalchemy.TEXT, index=True, insert_default=Types.healthcheck_, nullable=False
     )
+    title: Mapped[str | None] = mapped_column(sqlalchemy.TEXT, insert_default=None, nullable=True)
     execution_start_dt: Mapped[datetime | None] = mapped_column(sqlalchemy.TIMESTAMP(timezone=True), nullable=True)
     execution_finish_dt: Mapped[datetime | None] = mapped_column(sqlalchemy.TIMESTAMP(timezone=True), nullable=True)
     input_data: Mapped[dict[str, Any]] = mapped_column(
@@ -38,10 +44,16 @@ class OperationDBM(SimpleDBM):
         nullable=False
     )
     output_data: Mapped[dict[str, Any]] = mapped_column(
-        postgresql.JSON, insert_default={}, server_default="{}", nullable=False
+        postgresql.JSON,
+        insert_default={},
+        server_default="{}",
+        nullable=False
     )
     error_data: Mapped[dict[str, Any]] = mapped_column(
-        postgresql.JSON, insert_default={}, server_default="{}", nullable=False
+        postgresql.JSON,
+        insert_default={},
+        server_default="{}",
+        nullable=False
     )
 
     def raise_if_executed_with_error(self):
@@ -70,6 +82,10 @@ class OperationDBM(SimpleDBM):
 
     @property
     def sdp_duration_total_seconds(self) -> float | None:
+        """
+        При использовании у данной модели .simple_dict данное свойство будет представлено как поле.
+        То есть префикс sdp_ и даёт этот бонус.
+        """
         return self.duration_total_seconds
 
 
