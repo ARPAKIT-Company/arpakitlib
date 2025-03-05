@@ -3,7 +3,7 @@ from typing import Any
 import fastapi
 
 from arpakitlib.ar_json_util import safely_transfer_obj_to_json_str_to_json_obj
-from project.api.schema.v1.out import BaseSO
+from project.api.schema.base_schema import BaseSO
 
 
 class APIJSONResponse(fastapi.responses.JSONResponse):

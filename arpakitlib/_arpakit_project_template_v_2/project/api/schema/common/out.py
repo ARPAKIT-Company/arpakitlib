@@ -53,8 +53,3 @@ class DatetimeCommonSO(BaseCommonSO):
 
 class RawDataCommonSO(BaseCommonSO):
     data: dict[str, Any] = {}
-
-
-class ErrorsInfoCommonSO(BaseCommonSO):
-    api_error_codes: list[str] = []
-    api_error_specification_codes: list[str] = []
