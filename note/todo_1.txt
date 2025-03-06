@@ -1,4 +1,2 @@
-- improve api routers
 - make model views into many files
-- remove file response from schema
 - improve auth
