@@ -1,9 +1,9 @@
-from arpakitlib.ar_json_util import safely_transfer_str_to_json_obj_to_json_str
+from arpakitlib.ar_json_util import transfer_json_str_to_data_to_json_str
 
 
 def __command():
     s = input("JSON:\n")
-    print(safely_transfer_str_to_json_obj_to_json_str(s))
+    print(transfer_json_str_to_data_to_json_str(s))
 
 
 if __name__ == '__main__':

@@ -11,7 +11,7 @@ from arpakitlib.ar_datetime_util import now_utc_dt
 from arpakitlib.ar_dict_util import combine_dicts
 from arpakitlib.ar_exception_util import exception_to_traceback_str
 from arpakitlib.ar_func_util import raise_if_not_async_callable, is_async_callable, is_sync_function
-from arpakitlib.ar_json_util import safely_transfer_obj_to_json_str
+from arpakitlib.ar_json_util import transfer_data_to_json_str
 from arpakitlib.ar_type_util import raise_for_type
 from project.api.const import APIErrorCodes
 from project.api.exception import APIException
@@ -174,7 +174,7 @@ def logging__api_func_before_in_handle_exception(
         ):
             return error_common_so, transmitted_kwargs
 
-        _logger.error(safely_transfer_obj_to_json_str(error_common_so.model_dump()), exc_info=False)
+        _logger.error(transfer_data_to_json_str(error_common_so.model_dump()), exc_info=False)
 
     return func
 

@@ -12,7 +12,7 @@ from sqlalchemy.orm import sessionmaker, DeclarativeBase
 from sqlalchemy.orm.session import Session
 
 from arpakitlib.ar_datetime_util import now_utc_dt
-from arpakitlib.ar_json_util import safely_transfer_obj_to_json_str
+from arpakitlib.ar_json_util import transfer_data_to_json_str
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
 
@@ -105,7 +105,7 @@ class BaseDBM(DeclarativeBase):
         return self.simple_dict(include_sd_properties=True)
 
     def simple_dict_json(self, *, include_sd_properties: bool = True) -> str:
-        return safely_transfer_obj_to_json_str(self.simple_dict(include_sd_properties=include_sd_properties))
+        return transfer_data_to_json_str(self.simple_dict(include_sd_properties=include_sd_properties))
 
 
 class SQLAlchemyDb:

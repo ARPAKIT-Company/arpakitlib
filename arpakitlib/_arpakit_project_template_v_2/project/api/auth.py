@@ -9,7 +9,7 @@ from fastapi.security import APIKeyHeader
 from pydantic import BaseModel, ConfigDict
 
 from arpakitlib.ar_func_util import is_async_callable, is_sync_function
-from arpakitlib.ar_json_util import safely_transfer_obj_to_json_str_to_json_obj
+from arpakitlib.ar_json_util import transfer_data_to_json_str_to_data
 from arpakitlib.ar_type_util import raise_for_type
 from project.api.const import APIErrorCodes
 from project.api.exception import APIException
@@ -159,7 +159,7 @@ def api_auth(
                 raise APIException(
                     status_code=fastapi.status.HTTP_401_UNAUTHORIZED,
                     error_code=APIErrorCodes.cannot_authorize,
-                    error_data=safely_transfer_obj_to_json_str_to_json_obj(api_auth_data.model_dump())
+                    error_data=transfer_data_to_json_str_to_data(api_auth_data.model_dump())
                 )
 
         # require_not_mode_type
@@ -169,7 +169,7 @@ def api_auth(
                 raise APIException(
                     status_code=fastapi.status.HTTP_401_UNAUTHORIZED,
                     error_code=APIErrorCodes.cannot_authorize,
-                    error_data=safely_transfer_obj_to_json_str_to_json_obj(api_auth_data.model_dump())
+                    error_data=transfer_data_to_json_str_to_data(api_auth_data.model_dump())
                 )
 
         # require_api_key_string
@@ -178,7 +178,7 @@ def api_auth(
             raise APIException(
                 status_code=fastapi.status.HTTP_401_UNAUTHORIZED,
                 error_code=APIErrorCodes.cannot_authorize,
-                error_data=safely_transfer_obj_to_json_str_to_json_obj(api_auth_data.model_dump())
+                error_data=transfer_data_to_json_str_to_data(api_auth_data.model_dump())
             )
 
         # require_token_string
@@ -187,7 +187,7 @@ def api_auth(
             raise APIException(
                 status_code=fastapi.status.HTTP_401_UNAUTHORIZED,
                 error_code=APIErrorCodes.cannot_authorize,
-                error_data=safely_transfer_obj_to_json_str_to_json_obj(api_auth_data.model_dump())
+                error_data=transfer_data_to_json_str_to_data(api_auth_data.model_dump())
             )
 
         # validate_api_key_func
@@ -224,7 +224,7 @@ def api_auth(
                     status_code=fastapi.status.HTTP_401_UNAUTHORIZED,
                     error_code=APIErrorCodes.cannot_authorize,
                     error_description="not api_auth_data.is_api_key_correct",
-                    error_data=safely_transfer_obj_to_json_str_to_json_obj(api_auth_data.model_dump()),
+                    error_data=transfer_data_to_json_str_to_data(api_auth_data.model_dump()),
                 )
 
         # require_correct_token
@@ -235,7 +235,7 @@ def api_auth(
                     status_code=fastapi.status.HTTP_401_UNAUTHORIZED,
                     error_code=APIErrorCodes.cannot_authorize,
                     error_description="not api_auth_data.is_token_correct",
-                    error_data=safely_transfer_obj_to_json_str_to_json_obj(api_auth_data.model_dump())
+                    error_data=transfer_data_to_json_str_to_data(api_auth_data.model_dump())
                 )
 
         return api_auth_data

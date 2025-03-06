@@ -3,7 +3,7 @@ import os
 import pathlib
 
 from arpakitlib.ar_enumeration_util import Enumeration
-from arpakitlib.ar_json_util import safely_transfer_obj_to_json_str
+from arpakitlib.ar_json_util import transfer_data_to_json_str
 
 
 class ProjectPaths(Enumeration):
@@ -25,7 +25,7 @@ class ProjectPaths(Enumeration):
 
 
 def __example():
-    print(safely_transfer_obj_to_json_str(ProjectPaths.key_to_value()))
+    print(transfer_data_to_json_str(ProjectPaths.key_to_value()))
 
 
 async def __async_example():

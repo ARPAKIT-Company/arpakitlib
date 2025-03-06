@@ -7,7 +7,7 @@ from pydantic import field_validator
 from pydantic_core.core_schema import ValidationInfo
 
 from arpakitlib.ar_enumeration_util import Enumeration
-from arpakitlib.ar_json_util import safely_transfer_obj_to_json_str
+from arpakitlib.ar_json_util import transfer_data_to_json_str
 from arpakitlib.ar_settings_util import SimpleSettings
 from arpakitlib.ar_sqlalchemy_util import generate_sqlalchemy_url
 from project.core.const import ProjectPaths
@@ -192,4 +192,4 @@ def get_cached_settings() -> Settings:
 
 
 if __name__ == '__main__':
-    print(safely_transfer_obj_to_json_str(get_cached_settings().model_dump(mode="json")))
+    print(transfer_data_to_json_str(get_cached_settings().model_dump(mode="json")))

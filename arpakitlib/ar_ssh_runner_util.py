@@ -11,7 +11,7 @@ import asyncssh
 import paramiko
 from pydantic import BaseModel
 
-from arpakitlib.ar_json_util import safely_transfer_obj_to_json_str
+from arpakitlib.ar_json_util import transfer_data_to_json_str
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
 
@@ -61,7 +61,7 @@ class SSHRunRes(BaseModel):
         }
 
     def simple_json(self) -> str:
-        return safely_transfer_obj_to_json_str(self.simple_dict())
+        return transfer_data_to_json_str(self.simple_dict())
 
     def __repr__(self) -> str:
         return self.simple_json()
