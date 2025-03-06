@@ -33,7 +33,7 @@ class APIAuthData(BaseModel):
     user_token_string: str | None = None
     api_key_string: str | None = None
 
-    is_token_correct: bool | None = None
+    is_user_token_correct: bool | None = None
     is_api_key_correct: bool | None = None
 
 
@@ -207,12 +207,12 @@ def api_auth(
 
         if validate_user_token_func is not None:
             if is_async_callable(validate_user_token_func):
-                api_auth_data.is_token_correct = await validate_user_token_func(
+                api_auth_data.is_user_token_correct = await validate_user_token_func(
                     api_auth_data=api_auth_data,
                     request=request
                 )
             elif is_sync_function(validate_user_token_func):
-                api_auth_data.is_token_correct = validate_user_token_func()
+                api_auth_data.is_user_token_correct = validate_user_token_func()
             else:
                 raise TypeError("unknown validate_token_func type")
 
@@ -230,7 +230,7 @@ def api_auth(
         # require_correct_token
 
         if require_correct_user_token:
-            if not api_auth_data.is_token_correct:
+            if not api_auth_data.is_user_token_correct:
                 raise APIException(
                     status_code=fastapi.status.HTTP_401_UNAUTHORIZED,
                     error_code=APIErrorCodes.cannot_authorize,
