@@ -2,7 +2,7 @@ import fastapi.requests
 from fastapi import APIRouter
 
 from project.api.auth import APIAuthData, api_auth, \
-    correct_api_keys_from_settings__validate_api_key_func
+    correct_api_keys_from_settings__is_api_key_correct_func
 from project.api.const import APIErrorCodes, APIErrorSpecificationCodes
 from project.api.schema.common.out import ErrorCommonSO
 from project.api.schema.general.out import ErrorsInfoGeneralSO
@@ -21,7 +21,7 @@ async def _(
         request: fastapi.requests.Request,
         response: fastapi.responses.Response,
         api_auth_data: APIAuthData = fastapi.Depends(api_auth(
-            validate_api_key_func=correct_api_keys_from_settings__validate_api_key_func(),
+            validate_api_key_func=correct_api_keys_from_settings__is_api_key_correct_func(),
             require_correct_api_key=True,
         ))
 ):

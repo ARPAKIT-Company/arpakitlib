@@ -20,34 +20,38 @@ class APIAuthData(BaseModel):
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True, from_attributes=True)
 
     require_api_key_string: bool = False
-    require_token_string: bool = False
+    require_user_token_string: bool = False
 
     require_correct_api_key: bool = False
-    require_correct_token: bool = False
+    require_correct_user_token: bool = False
 
-    token_string: str | None = None
+    require_mode_type: str | None = None
+    require_not_mode_type: str | None = None
+
+    current_mode_type: str | None = None
+
+    user_token_string: str | None = None
     api_key_string: str | None = None
 
     is_token_correct: bool | None = None
     is_api_key_correct: bool | None = None
 
-    require_mode_type: str | None = None
-    require_not_mode_type: str | None = None
-    current_mode_type: str | None = None
-
 
 def api_auth(
         *,
         require_api_key_string: bool = False,
-        require_token_string: bool = False,
-        validate_api_key_func: Callable | None = None,
-        validate_token_func: Callable | None = None,
-        correct_api_keys: str | list[str] | None = None,
-        correct_tokens: str | list[str] | None = None,
+        require_user_token_string: bool = False,
+
         require_correct_api_key: bool = False,
-        require_correct_token: bool = False,
+        require_correct_user_token: bool = False,
+
         require_mode_type: str | None = None,
-        require_not_mode_type: str | None = None
+        require_not_mode_type: str | None = None,
+
+        validate_api_key_func: Callable | None = None,
+        validate_user_token_func: Callable | None = None,
+        correct_api_keys: str | list[str] | None = None,
+        correct_user_tokens: str | list[str] | None = None,
 ) -> Callable:
     if isinstance(correct_api_keys, str):
         correct_api_keys = [correct_api_keys]
@@ -55,21 +59,25 @@ def api_auth(
         raise_for_type(correct_api_keys, list)
 
     if validate_api_key_func is None and correct_api_keys is not None:
-        validate_api_key_func = lambda *args, **kwargs_: kwargs_["api_auth_data"].api_key_string in correct_api_keys
+        validate_api_key_func = (
+            lambda *args, **kwargs_: kwargs_["api_auth_data"].api_key_string in correct_api_keys
+        )
 
-    if isinstance(correct_tokens, str):
-        correct_tokens = [correct_tokens]
-    if correct_tokens is not None:
-        raise_for_type(correct_tokens, list)
+    if isinstance(correct_user_tokens, str):
+        correct_user_tokens = [correct_user_tokens]
+    if correct_user_tokens is not None:
+        raise_for_type(correct_user_tokens, list)
 
-    if validate_token_func is None and correct_tokens is not None:
-        validate_token_func = lambda *args, **kwargs_: kwargs_["api_auth_data"].token_string in correct_tokens
+    if validate_user_token_func is None and correct_user_tokens is not None:
+        validate_user_token_func = (
+            lambda *args, **kwargs_: kwargs_["api_auth_data"].user_token_string in correct_user_tokens
+        )
 
     if require_correct_api_key is True:
         require_api_key_string = True
 
-    if require_correct_token is True:
-        require_token_string = True
+    if require_correct_user_token is True:
+        require_user_token_string = True
 
     async def func(
             *,
@@ -84,9 +92,9 @@ def api_auth(
 
         api_auth_data = APIAuthData(
             require_api_key_string=require_api_key_string,
-            require_token_string=require_token_string,
+            require_user_token_string=require_user_token_string,
             require_correct_api_key=require_correct_api_key,
-            require_correct_token=require_correct_token,
+            require_correct_user_token=require_correct_user_token,
             require_mode_type=require_mode_type,
             require_not_mode_type=require_not_mode_type,
             current_mode_type=get_cached_settings().mode_type
@@ -110,34 +118,39 @@ def api_auth(
         if not api_auth_data.api_key_string and "apikey" in request.query_params.keys():
             api_auth_data.api_key_string = request.query_params["apikey"]
 
-        # parse token
+        if api_auth_data.api_key_string:
+            api_auth_data.api_key_string = api_auth_data.api_key_string.strip()
+        if not api_auth_data.api_key_string:
+            api_auth_data.api_key_string = None
 
-        api_auth_data.token_string = ac.credentials if ac and ac.credentials and ac.credentials.strip() else None
+        # parse user token
 
-        if not api_auth_data.token_string and "token" in request.headers.keys():
-            api_auth_data.token_string = request.headers["token"]
+        api_auth_data.user_token_string = ac.credentials if ac and ac.credentials and ac.credentials.strip() else None
 
-        if not api_auth_data.token_string and "user_token" in request.headers.keys():
-            api_auth_data.token_string = request.headers["user_token"]
-        if not api_auth_data.token_string and "user-token" in request.headers.keys():
-            api_auth_data.token_string = request.headers["user-token"]
-        if not api_auth_data.token_string and "usertoken" in request.headers.keys():
-            api_auth_data.token_string = request.headers["usertoken"]
+        if not api_auth_data.user_token_string and "token" in request.headers.keys():
+            api_auth_data.user_token_string = request.headers["token"]
 
-        if not api_auth_data.token_string and "token" in request.query_params.keys():
-            api_auth_data.token_string = request.query_params["token"]
+        if not api_auth_data.user_token_string and "user_token" in request.headers.keys():
+            api_auth_data.user_token_string = request.headers["user_token"]
+        if not api_auth_data.user_token_string and "user-token" in request.headers.keys():
+            api_auth_data.user_token_string = request.headers["user-token"]
+        if not api_auth_data.user_token_string and "usertoken" in request.headers.keys():
+            api_auth_data.user_token_string = request.headers["usertoken"]
 
-        if not api_auth_data.token_string and "user_token" in request.query_params.keys():
-            api_auth_data.token_string = request.query_params["user_token"]
-        if not api_auth_data.token_string and "user-token" in request.query_params.keys():
-            api_auth_data.token_string = request.query_params["user-token"]
-        if not api_auth_data.token_string and "usertoken" in request.query_params.keys():
-            api_auth_data.token_string = request.query_params["usertoken"]
+        if not api_auth_data.user_token_string and "token" in request.query_params.keys():
+            api_auth_data.user_token_string = request.query_params["token"]
 
-        if api_auth_data.token_string:
-            api_auth_data.token_string = api_auth_data.token_string.strip()
-        if not api_auth_data.token_string:
-            api_auth_data.token_string = None
+        if not api_auth_data.user_token_string and "user_token" in request.query_params.keys():
+            api_auth_data.user_token_string = request.query_params["user_token"]
+        if not api_auth_data.user_token_string and "user-token" in request.query_params.keys():
+            api_auth_data.user_token_string = request.query_params["user-token"]
+        if not api_auth_data.user_token_string and "usertoken" in request.query_params.keys():
+            api_auth_data.user_token_string = request.query_params["usertoken"]
+
+        if api_auth_data.user_token_string:
+            api_auth_data.user_token_string = api_auth_data.user_token_string.strip()
+        if not api_auth_data.user_token_string:
+            api_auth_data.user_token_string = None
 
         # require_mode_type
 
@@ -170,7 +183,7 @@ def api_auth(
 
         # require_token_string
 
-        if require_token_string and not api_auth_data.token_string:
+        if require_user_token_string and not api_auth_data.user_token_string:
             raise APIException(
                 status_code=fastapi.status.HTTP_401_UNAUTHORIZED,
                 error_code=APIErrorCodes.cannot_authorize,
@@ -192,14 +205,14 @@ def api_auth(
 
         # validate_token_func
 
-        if validate_token_func is not None:
-            if is_async_callable(validate_token_func):
-                api_auth_data.is_token_correct = await validate_token_func(
+        if validate_user_token_func is not None:
+            if is_async_callable(validate_user_token_func):
+                api_auth_data.is_token_correct = await validate_user_token_func(
                     api_auth_data=api_auth_data,
                     request=request
                 )
-            elif is_sync_function(validate_token_func):
-                api_auth_data.is_token_correct = validate_token_func()
+            elif is_sync_function(validate_user_token_func):
+                api_auth_data.is_token_correct = validate_user_token_func()
             else:
                 raise TypeError("unknown validate_token_func type")
 
@@ -216,7 +229,7 @@ def api_auth(
 
         # require_correct_token
 
-        if require_correct_token:
+        if require_correct_user_token:
             if not api_auth_data.is_token_correct:
                 raise APIException(
                     status_code=fastapi.status.HTTP_401_UNAUTHORIZED,
@@ -230,7 +243,7 @@ def api_auth(
     return func
 
 
-def correct_api_keys_from_settings__validate_api_key_func() -> Callable:
+def correct_api_keys_from_settings__is_api_key_correct_func() -> Callable:
     async def async_func(
             *,
             api_auth_data: APIAuthData,
@@ -247,7 +260,7 @@ def correct_api_keys_from_settings__validate_api_key_func() -> Callable:
     return async_func
 
 
-def correct_tokens_from_settings__validate_api_key_func() -> Callable:
+def correct_tokens_from_settings__is_user_token_correct_func() -> Callable:
     async def async_func(
             *,
             api_auth_data: APIAuthData,
@@ -255,9 +268,9 @@ def correct_tokens_from_settings__validate_api_key_func() -> Callable:
     ):
         if get_cached_settings().api_correct_tokens is None:
             return False
-        if api_auth_data.token_string is None:
+        if api_auth_data.user_token_string is None:
             return False
-        if api_auth_data.token_string.strip() not in get_cached_settings().api_correct_tokens:
+        if api_auth_data.user_token_string.strip() not in get_cached_settings().api_correct_tokens:
             return False
         return True
 
