@@ -3,7 +3,7 @@ from sqladmin import Admin
 
 from project.core.settings import get_cached_settings
 from project.sqladmin_.admin_auth import SQLAdminAuth
-from project.sqladmin_.model_view import get_simple_mv
+from project.sqladmin_.model_view import SimpleMV
 from project.sqlalchemy_db_.sqlalchemy_db import get_cached_sqlalchemy_db
 
 
@@ -18,7 +18,7 @@ def add_sqladmin_in_app(*, app: FastAPI, base_url: str = "/sqladmin") -> FastAPI
         title=get_cached_settings().project_name
     )
 
-    for model_view in get_simple_mv().__subclasses__():
+    for model_view in SimpleMV.__subclasses__():
         admin.add_model_view(model_view)
 
     return app
