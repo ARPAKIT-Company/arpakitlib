@@ -7,18 +7,18 @@ from project.api.schema.base_schema import BaseSO
 from project.sqlalchemy_db_.sqlalchemy_model import StoryLogDBM, OperationDBM
 
 
-class BaseExampleSO(BaseSO):
+class BaseAdminSO(BaseSO):
     pass
 
 
-class SimpleDBMExampleSO(BaseExampleSO):
+class SimpleDBMAdminSO(BaseAdminSO):
     id: int
     long_id: str
     slug: str | None
     creation_dt: dt.datetime
 
 
-class StoryLogExampleSO(SimpleDBMExampleSO):
+class StoryLogExampleSO(SimpleDBMAdminSO):
     level: str
     type: str | None
     title: str | None
@@ -29,7 +29,7 @@ class StoryLogExampleSO(SimpleDBMExampleSO):
         return cls.model_validate(story_log_dbm.simple_dict_with_sd_properties())
 
 
-class OperationExampleSO(SimpleDBMExampleSO):
+class OperationExampleSO(SimpleDBMAdminSO):
     execution_start_dt: dt.datetime | None
     execution_finish_dt: dt.datetime | None
     status: str

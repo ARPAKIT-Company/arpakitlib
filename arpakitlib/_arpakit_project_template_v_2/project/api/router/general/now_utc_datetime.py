@@ -3,7 +3,7 @@ from fastapi import APIRouter
 
 from arpakitlib.ar_datetime_util import now_utc_dt
 from project.api.auth import APIAuthData, api_auth, correct_api_keys_from_settings__is_api_key_correct_func
-from project.api.schema.common.out import ErrorCommonSO, DatetimeCommonSO
+from project.api.schema.common.out.schema import ErrorCommonSO, DatetimeCommonSO
 
 api_router = APIRouter()
 

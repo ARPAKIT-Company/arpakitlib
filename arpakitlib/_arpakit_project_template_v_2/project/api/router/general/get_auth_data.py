@@ -4,7 +4,7 @@ from fastapi import APIRouter
 from arpakitlib.ar_json_util import transfer_data_to_json_str_to_data
 from project.api.auth import APIAuthData, api_auth, correct_tokens_from_settings__is_user_token_correct_func, \
     correct_api_keys_from_settings__is_api_key_correct_func
-from project.api.schema.common.out import ErrorCommonSO, RawDataCommonSO
+from project.api.schema.common.out.schema import ErrorCommonSO, RawDataCommonSO
 from project.core.settings import ModeTypes
 
 api_router = APIRouter()

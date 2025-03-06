@@ -4,8 +4,8 @@ from fastapi import APIRouter
 from project.api.auth import APIAuthData, api_auth, \
     correct_api_keys_from_settings__is_api_key_correct_func
 from project.api.const import APIErrorCodes, APIErrorSpecificationCodes
-from project.api.schema.common.out import ErrorCommonSO
-from project.api.schema.general.out import ErrorsInfoGeneralSO
+from project.api.schema.common.out.schema import ErrorCommonSO
+from project.api.schema.general.out.schema import ErrorsInfoGeneralSO
 
 api_router = APIRouter()
 

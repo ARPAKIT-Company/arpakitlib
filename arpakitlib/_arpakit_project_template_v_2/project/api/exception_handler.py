@@ -16,7 +16,7 @@ from arpakitlib.ar_type_util import raise_for_type
 from project.api.const import APIErrorCodes
 from project.api.exception import APIException
 from project.api.response import APIJSONResponse
-from project.api.schema.common.out import ErrorCommonSO
+from project.api.schema.common.out.schema import ErrorCommonSO
 from project.core.settings import get_cached_settings
 from project.sqlalchemy_db_.sqlalchemy_db import get_cached_sqlalchemy_db
 from project.sqlalchemy_db_.sqlalchemy_model import StoryLogDBM
