@@ -12,6 +12,7 @@ from project.json_db.json_db import get_cached_json_db
 from project.operation_execution.operation_executor_worker import create_operation_executor_worker
 from project.operation_execution.scheduled_operation_creator_worker import create_scheduled_operation_creator_worker
 from project.sqlalchemy_db_.sqlalchemy_db import get_cached_sqlalchemy_db
+from project.tg_bot.tg_bot import get_cached_tg_bot
 
 _logger = logging.getLogger(__name__)
 
@@ -40,6 +41,22 @@ async def on_startup():
     ):
         get_cached_json_db().init()
 
+    if get_cached_settings().tg_bot_drop_pending_updates:
+        await get_cached_tg_bot().delete_webhook(drop_pending_updates=True)
+
+    if get_cached_settings().tg_bot_webhook_enabled:
+        await get_cached_tg_bot().delete_webhook(drop_pending_updates=True)
+        await get_cached_tg_bot().set_webhook(
+            (
+                f"{get_cached_settings().tg_bot_webhook_url.removesuffix('/')}"
+                f"/"
+                f"{get_cached_settings().tg_bot_webhook_path.removeprefix('/')}"
+            ),
+            secret_token=get_cached_settings().tg_bot_webhook_secret,
+            drop_pending_updates=True,
+            allowed_updates=[]
+        )
+
     if get_cached_settings().api_start_operation_executor_worker:
         _ = safe_run_worker_in_background(
             worker=create_operation_executor_worker(),
@@ -57,6 +74,10 @@ async def on_startup():
 
 async def on_shutdown(*args, **kwargs):
     _logger.info("start")
+
+    if get_cached_settings().tg_bot_webhook_enabled:
+        await get_cached_tg_bot().delete_webhook(drop_pending_updates=True)
+
     _logger.info("finish")
 
 

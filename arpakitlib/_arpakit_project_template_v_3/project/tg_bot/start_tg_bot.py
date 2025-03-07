@@ -6,14 +6,14 @@ from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_applicati
 
 from project.core.settings import get_cached_settings
 from project.core.util import setup_logging
-from project.tg_bot.tg_bot import create_tg_bot
+from project.tg_bot.tg_bot import get_cached_tg_bot
 from project.tg_bot.tg_bot_dispatcher import create_tg_bot_dispatcher
 
 
 def start_tg_bot():
     setup_logging()
 
-    tg_bot = create_tg_bot()
+    tg_bot = get_cached_tg_bot()
 
     tg_bot_dispatcher = create_tg_bot_dispatcher()
 

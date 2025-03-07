@@ -1,3 +1,5 @@
+from functools import lru_cache
+
 import aiogram
 from aiogram.client.default import DefaultBotProperties
 from aiogram.client.session.aiohttp import AiohttpSession
@@ -22,3 +24,8 @@ def create_tg_bot() -> aiogram.Bot:
     )
 
     return tg_bot
+
+
+@lru_cache()
+def get_cached_tg_bot() -> aiogram.Bot:
+    return create_tg_bot()

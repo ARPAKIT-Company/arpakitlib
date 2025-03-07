@@ -145,6 +145,8 @@ class Settings(SimpleSettings):
 
     sqladmin_correct_passwords: list[str] | None = ["1"]
 
+    sqladmin_port: int | None = 8081
+
     tg_bot_token: str | None = None
 
     tg_bot_proxy_url: str | None = None
@@ -164,6 +166,8 @@ class Settings(SimpleSettings):
     tg_bot_webhook_url: str | None = None
 
     tg_bot_webhook_enabled: bool = False
+
+    tg_bot_drop_pending_updates: bool = True
 
     var_dirpath: str | None = os.path.join(ProjectPaths.base_dirpath, "var")
 
