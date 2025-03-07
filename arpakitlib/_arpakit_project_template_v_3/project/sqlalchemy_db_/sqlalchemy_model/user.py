@@ -6,7 +6,7 @@ import sqlalchemy
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from arpakitlib.ar_enumeration_util import Enumeration
-from project.sqlalchemy_db_.sqlalchemy_model.common import SimpleDBM
+from project.sqlalchemy_db_.sqlalchemy_model import SimpleDBM
 
 if TYPE_CHECKING:
     from project.sqlalchemy_db_.sqlalchemy_model.user_token import UserTokenDBM

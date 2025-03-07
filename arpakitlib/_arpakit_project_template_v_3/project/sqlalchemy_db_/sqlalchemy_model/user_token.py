@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 import sqlalchemy
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from project.sqlalchemy_db_.sqlalchemy_model.common import SimpleDBM
+from project.sqlalchemy_db_.sqlalchemy_model import SimpleDBM
 
 if TYPE_CHECKING:
     from project.sqlalchemy_db_.sqlalchemy_model.user import UserDBM
