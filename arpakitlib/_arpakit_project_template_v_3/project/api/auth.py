@@ -4,6 +4,7 @@ import fastapi
 import fastapi.exceptions
 import fastapi.responses
 import fastapi.security
+import sqlalchemy
 from fastapi import Security
 from fastapi.security import APIKeyHeader
 from pydantic import BaseModel, ConfigDict
@@ -14,6 +15,8 @@ from arpakitlib.ar_type_util import raise_for_type
 from project.api.const import APIErrorCodes
 from project.api.exception import APIException
 from project.core.settings import get_cached_settings
+from project.sqlalchemy_db_.sqlalchemy_db import get_cached_sqlalchemy_db
+from project.sqlalchemy_db_.sqlalchemy_model import ApiKeyDBM, UserTokenDBM
 
 
 class APIAuthData(BaseModel):
@@ -30,11 +33,14 @@ class APIAuthData(BaseModel):
 
     current_mode_type: str | None = None
 
-    user_token_string: str | None = None
     api_key_string: str | None = None
+    user_token_string: str | None = None
 
-    is_user_token_correct: bool | None = None
     is_api_key_correct: bool | None = None
+    is_user_token_correct: bool | None = None
+
+    api_key_dbm: ApiKeyDBM | None = None
+    user_token_dbm: UserTokenDBM | None = None
 
 
 def api_auth(
@@ -48,8 +54,8 @@ def api_auth(
         require_mode_type: str | None = None,
         require_not_mode_type: str | None = None,
 
-        validate_api_key_func: Callable | None = None,
-        validate_user_token_func: Callable | None = None,
+        is_api_key_correct_func: Callable | None = None,
+        is_user_token_correct_func: Callable | None = None,
         correct_api_keys: str | list[str] | None = None,
         correct_user_tokens: str | list[str] | None = None,
 ) -> Callable:
@@ -58,8 +64,8 @@ def api_auth(
     if correct_api_keys is not None:
         raise_for_type(correct_api_keys, list)
 
-    if validate_api_key_func is None and correct_api_keys is not None:
-        validate_api_key_func = (
+    if is_api_key_correct_func is None and correct_api_keys is not None:
+        is_api_key_correct_func = (
             lambda *args, **kwargs_: kwargs_["api_auth_data"].api_key_string in correct_api_keys
         )
 
@@ -68,8 +74,8 @@ def api_auth(
     if correct_user_tokens is not None:
         raise_for_type(correct_user_tokens, list)
 
-    if validate_user_token_func is None and correct_user_tokens is not None:
-        validate_user_token_func = (
+    if is_user_token_correct_func is None and correct_user_tokens is not None:
+        is_user_token_correct_func = (
             lambda *args, **kwargs_: kwargs_["api_auth_data"].user_token_string in correct_user_tokens
         )
 
@@ -190,29 +196,35 @@ def api_auth(
                 error_data=transfer_data_to_json_str_to_data(api_auth_data.model_dump())
             )
 
-        # validate_api_key_func
+        # is_api_key_correct_func
 
-        if validate_api_key_func is not None:
-            if is_async_callable(validate_api_key_func):
-                api_auth_data.is_api_key_correct = await validate_api_key_func(
+        if is_api_key_correct_func is not None:
+            if is_async_callable(is_api_key_correct_func):
+                await is_api_key_correct_func(
                     api_auth_data=api_auth_data,
                     request=request
                 )
-            elif is_sync_function(validate_api_key_func):
-                api_auth_data.is_api_key_correct = validate_api_key_func()
+            elif is_sync_function(is_api_key_correct_func):
+                is_api_key_correct_func(
+                    api_auth_data=api_auth_data,
+                    request=request
+                )
             else:
                 raise TypeError("unknown validate_api_key_func type")
 
-        # validate_token_func
+        # is_user_token_correct_func
 
-        if validate_user_token_func is not None:
-            if is_async_callable(validate_user_token_func):
-                api_auth_data.is_user_token_correct = await validate_user_token_func(
+        if is_user_token_correct_func is not None:
+            if is_async_callable(is_user_token_correct_func):
+                await is_user_token_correct_func(
                     api_auth_data=api_auth_data,
                     request=request
                 )
-            elif is_sync_function(validate_user_token_func):
-                api_auth_data.is_user_token_correct = validate_user_token_func()
+            elif is_sync_function(is_user_token_correct_func):
+                is_user_token_correct_func(
+                    api_auth_data=api_auth_data,
+                    request=request
+                )
             else:
                 raise TypeError("unknown validate_token_func type")
 
@@ -234,7 +246,7 @@ def api_auth(
                 raise APIException(
                     status_code=fastapi.status.HTTP_401_UNAUTHORIZED,
                     error_code=APIErrorCodes.cannot_authorize,
-                    error_description="not api_auth_data.is_token_correct",
+                    error_description="not api_auth_data.is_user_token_correct",
                     error_data=transfer_data_to_json_str_to_data(api_auth_data.model_dump())
                 )
 
@@ -250,12 +262,16 @@ def correct_api_keys_from_settings__is_api_key_correct_func() -> Callable:
             request: fastapi.requests.Request,
     ):
         if get_cached_settings().api_correct_api_keys is None:
-            return False
+            api_auth_data.is_api_key_correct = False
+            return
         if api_auth_data.api_key_string is None:
-            return False
+            api_auth_data.is_api_key_correct = False
+            return
         if api_auth_data.api_key_string.strip() not in get_cached_settings().api_correct_api_keys:
-            return False
-        return True
+            api_auth_data.is_api_key_correct = False
+            return
+        api_auth_data.is_api_key_correct = True
+        return
 
     return async_func
 
@@ -267,11 +283,71 @@ def correct_tokens_from_settings__is_user_token_correct_func() -> Callable:
             request: fastapi.requests.Request,
     ):
         if get_cached_settings().api_correct_tokens is None:
-            return False
+            api_auth_data.is_api_key_correct = False
+            return
         if api_auth_data.user_token_string is None:
-            return False
+            api_auth_data.is_api_key_correct = False
+            return
         if api_auth_data.user_token_string.strip() not in get_cached_settings().api_correct_tokens:
-            return False
+            api_auth_data.is_api_key_correct = False
+            return
+        api_auth_data.is_api_key_correct = True
+        return
+
+    return async_func
+
+
+def correct_api_key_from_sqlalchemy_db__is_api_key_correct_func() -> Callable:
+    async def async_func(
+            *,
+            api_auth_data: APIAuthData,
+            request: fastapi.requests.Request,
+    ):
+        if api_auth_data.api_key_string is None:
+            api_auth_data.is_api_key_correct = False
+            return
+
+        async with get_cached_sqlalchemy_db().new_async_session() as session:
+            api_auth_data.api_key_dbm = await session.scalar(
+                sqlalchemy.select(ApiKeyDBM).where(ApiKeyDBM.value == api_auth_data.api_key_string)
+            )
+
+        if api_auth_data.api_key_dbm is None or not api_auth_data.api_key_dbm.is_enabled:
+            api_auth_data.is_api_key_correct = False
+            return
+
+        api_auth_data.is_api_key_correct = True
         return True
+
+    return async_func
+
+
+def correct_user_token_from_sqlalchemy_db__is_user_token_correct_func(
+        *, require_user_roles: list[str] | None = None
+) -> Callable:
+    async def async_func(
+            *,
+            api_auth_data: APIAuthData,
+            request: fastapi.requests.Request,
+    ):
+        if api_auth_data.user_token_string is None:
+            api_auth_data.is_user_token_correct = False
+            return
+
+        with get_cached_sqlalchemy_db().new_session() as session:
+            api_auth_data.user_token_dbm = session.query(
+                UserTokenDBM
+            ).filter(
+                UserTokenDBM.value == api_auth_data.user_token_string
+            ).one_or_none()
+
+        if api_auth_data.user_token_dbm is None:
+            api_auth_data.is_user_token_correct = False
+            return
+        if not api_auth_data.user_token_dbm.is_enabled:
+            pass
+
+        api_auth_data.is_user_token_correct = True
+        return
 
     return async_func

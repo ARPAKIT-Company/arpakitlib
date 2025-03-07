@@ -23,7 +23,7 @@ class UserTokenDBM(SimpleDBM):
         sqlalchemy.INTEGER,
         sqlalchemy.ForeignKey("user.id", ondelete="CASCADE"),
         index=True,
-        nullable=True
+        nullable=False
     )
     is_enabled: Mapped[bool] = mapped_column(
         sqlalchemy.Boolean,
