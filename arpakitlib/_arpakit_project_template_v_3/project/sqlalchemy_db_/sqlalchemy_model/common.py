@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Any
 
 import sqlalchemy
 from sqlalchemy import func
@@ -13,18 +14,40 @@ class SimpleDBM(BaseDBM):
     __abstract__ = True
 
     id: Mapped[int] = mapped_column(
-        sqlalchemy.INTEGER, primary_key=True, autoincrement=True, sort_order=-13, nullable=False
+        sqlalchemy.INTEGER,
+        primary_key=True,
+        autoincrement=True,
+        sort_order=-103,
+        nullable=False
     )
     long_id: Mapped[str] = mapped_column(
-        sqlalchemy.TEXT, insert_default=generate_default_long_id, server_default=func.gen_random_uuid(),
-        unique=True, sort_order=-12, nullable=False
+        sqlalchemy.TEXT,
+        insert_default=generate_default_long_id,
+        server_default=func.gen_random_uuid(),
+        unique=True,
+        sort_order=-102,
+        nullable=False
     )
     slug: Mapped[str | None] = mapped_column(
-        sqlalchemy.TEXT, unique=True, sort_order=-11, nullable=True
+        sqlalchemy.TEXT,
+        unique=True,
+        sort_order=-101,
+        nullable=True
     )
     creation_dt: Mapped[datetime] = mapped_column(
-        sqlalchemy.TIMESTAMP(timezone=True), insert_default=now_utc_dt, server_default=func.now(),
-        index=True, sort_order=-10, nullable=False
+        sqlalchemy.TIMESTAMP(timezone=True),
+        insert_default=now_utc_dt,
+        server_default=func.now(),
+        index=True,
+        sort_order=-100,
+        nullable=False
+    )
+    extra_data: Mapped[dict[str, Any] | None] = mapped_column(
+        sqlalchemy.JSON,
+        index=False,
+        nullable=True,
+        insert_default=None,
+        sort_order=1000,
     )
 
     def __repr__(self) -> str:
