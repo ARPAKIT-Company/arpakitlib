@@ -13,37 +13,16 @@ from arpakitlib.ar_sqlalchemy_util import generate_sqlalchemy_url
 from project.core.const import ProjectPaths
 
 
-class ModeTypes(Enumeration):
-    not_prod: str = "not_prod"
-    prod: str = "prod"
-
-
 class Settings(SimpleSettings):
-    mode_type: str = ModeTypes.not_prod
+    prod_mode: bool = False
 
-    @field_validator("mode_type")
-    @classmethod
-    def validate_mode_type(cls, v: Any, validation_info: ValidationInfo, **kwargs):
-        if v is None:
-            v = ModeTypes.not_prod
-        ModeTypes.parse_and_validate_values(v.lower().strip())
-        return v
+    def raise_if_prod_mode(self):
+        if self.prod_mode:
+            raise ValueError(f"self.prod_mode")
 
-    @property
-    def is_mode_type_not_prod(self) -> bool:
-        return self.mode_type == ModeTypes.not_prod
-
-    def raise_if_mode_type_not_prod(self):
-        if self.is_mode_type_not_prod:
-            raise ValueError(f"mode type = {self.mode_type}")
-
-    @property
-    def is_mode_type_prod(self) -> bool:
-        return self.mode_type == ModeTypes.prod
-
-    def raise_if_mode_type_prod(self):
-        if self.is_mode_type_prod:
-            raise ValueError(f"mode type = {self.mode_type}")
+    def raise_if_not_prod_mode(self):
+        if not self.prod_mode:
+            raise ValueError(f"not self.prod_mode")
 
     project_name: str | None = "project"
 
