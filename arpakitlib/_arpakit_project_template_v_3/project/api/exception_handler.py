@@ -12,7 +12,6 @@ from arpakitlib.ar_dict_util import combine_dicts
 from arpakitlib.ar_exception_util import exception_to_traceback_str
 from arpakitlib.ar_func_util import raise_if_not_async_callable, is_async_callable, is_sync_function
 from arpakitlib.ar_json_util import transfer_data_to_json_str
-from arpakitlib.ar_type_util import raise_for_type
 from project.api.const import APIErrorCodes
 from project.api.exception import APIException
 from project.api.response import APIJSONResponse
@@ -37,7 +36,7 @@ def create_exception_handler(
         async_funcs_after = []
     async_funcs_after = [v for v in async_funcs_after if v is not None]
 
-    async def func(
+    async def async_func(
             request: fastapi.requests.Request,
             exception: Exception
     ) -> APIJSONResponse:
@@ -105,8 +104,11 @@ def create_exception_handler(
         for func_before in funcs_before:
             if is_async_callable(func_before):
                 try:
-                    _func_before_res = await func_before(
-                        request=request, status_code=status_code, error_common_so=error_common_so, exception=exception,
+                    await func_before(
+                        request=request,
+                        status_code=status_code,
+                        error_common_so=error_common_so,
+                        exception=exception,
                         transmitted_kwargs=_transmitted_kwargs
                     )
                 except Exception as exception_:
@@ -114,8 +116,11 @@ def create_exception_handler(
                     raise exception_
             elif is_sync_function(func_before):
                 try:
-                    _func_before_res = func_before(
-                        request=request, status_code=status_code, error_common_so=error_common_so, exception=exception,
+                    func_before(
+                        request=request,
+                        status_code=status_code,
+                        error_common_so=error_common_so,
+                        exception=exception,
                         transmitted_kwargs=_transmitted_kwargs
                     )
                 except Exception as exception_:
@@ -123,10 +128,6 @@ def create_exception_handler(
                     raise exception_
             else:
                 raise TypeError("unknown func_before type")
-            if _func_before_res is not None:
-                error_common_so, _transmitted_kwargs = _func_before_res[0], _func_before_res[1]
-                raise_for_type(error_common_so, ErrorCommonSO)
-                raise_for_type(_transmitted_kwargs, dict)
 
         # async_funcs_after
 
@@ -141,7 +142,7 @@ def create_exception_handler(
             status_code=status_code
         )
 
-    return func
+    return async_func
 
 
 def logging__api_func_before_in_handle_exception(
@@ -160,19 +161,19 @@ def logging__api_func_before_in_handle_exception(
             exception: Exception,
             transmitted_kwargs: dict[str, Any],
             **kwargs
-    ) -> (ErrorCommonSO, dict[str, Any]):
+    ):
         transmitted_kwargs[current_func_name] = now_utc_dt()
 
         if ignore_api_error_codes is not None and error_common_so.error_code in ignore_api_error_codes:
-            return error_common_so, transmitted_kwargs
+            return
 
         if ignore_status_codes is not None and status_code in ignore_status_codes:
-            return error_common_so, transmitted_kwargs
+            return
 
         if ignore_exception_types is not None and (
                 exception in ignore_exception_types or type(exception) in ignore_exception_types
         ):
-            return error_common_so, transmitted_kwargs
+            return
 
         _logger.error(transfer_data_to_json_str(error_common_so.model_dump()), exc_info=False)
 
@@ -195,19 +196,19 @@ def create_story_log_in_sqlalchemy_db__api_func_before_in_handle_exception(
             exception: Exception,
             transmitted_kwargs: dict[str, Any],
             **kwargs
-    ) -> (ErrorCommonSO, dict[str, Any]):
+    ):
         transmitted_kwargs[current_func_name] = now_utc_dt()
 
         if ignore_api_error_codes is not None and error_common_so.error_code in ignore_api_error_codes:
-            return error_common_so, transmitted_kwargs
+            return
 
         if ignore_status_codes is not None and status_code in ignore_status_codes:
-            return error_common_so, transmitted_kwargs
+            return
 
         if ignore_exception_types is not None and (
                 exception in ignore_exception_types or type(exception) in ignore_exception_types
         ):
-            return error_common_so, transmitted_kwargs
+            return
 
         async with get_cached_sqlalchemy_db().new_async_session() as session:
             story_log_dbm = StoryLogDBM(
@@ -226,7 +227,7 @@ def create_story_log_in_sqlalchemy_db__api_func_before_in_handle_exception(
         error_common_so.error_data.update({"story_log_long_id": story_log_dbm.long_id})
         transmitted_kwargs["story_log_id"] = story_log_dbm.id
 
-        return error_common_so, transmitted_kwargs
+        return
 
     return async_func
 
