@@ -7,7 +7,7 @@ import sqlalchemy
 from sqlalchemy.orm import Mapped, mapped_column
 
 from arpakitlib.ar_datetime_util import now_utc_dt
-from project.sqlalchemy_db_.sqlalchemy_model import SimpleDBM
+from project.sqlalchemy_db_.sqlalchemy_model.common import SimpleDBM
 
 if TYPE_CHECKING:
     pass

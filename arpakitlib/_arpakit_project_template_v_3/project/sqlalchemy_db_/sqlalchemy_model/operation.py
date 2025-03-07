@@ -8,7 +8,7 @@ from sqlalchemy.dialects import postgresql
 from sqlalchemy.orm import mapped_column, Mapped
 
 from arpakitlib.ar_enumeration_util import Enumeration
-from project.sqlalchemy_db_.sqlalchemy_model import SimpleDBM
+from project.sqlalchemy_db_.sqlalchemy_model.common import SimpleDBM
 
 if TYPE_CHECKING:
     pass
