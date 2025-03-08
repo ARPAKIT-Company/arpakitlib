@@ -25,26 +25,26 @@ class SQLAdminAuth(AuthenticationBackend):
             password = password.strip()
         password = make_none_if_blank(password)
 
-        if get_cached_settings().sqladmin_correct_passwords is not None:
+        if get_cached_settings().sqladmin_auth_keys is not None:
             if (
                     (
                             is_username_correct := (
                                     username is not None
-                                    and username in get_cached_settings().sqladmin_correct_passwords
+                                    and username in get_cached_settings().sqladmin_auth_keys
                             )
                     )
                     or
                     (
                             is_password_correct := (
                                     password is not None
-                                    and password in get_cached_settings().sqladmin_correct_passwords
+                                    and password in get_cached_settings().sqladmin_auth_keys
                             )
                     )
             ):
                 if is_username_correct is True:
-                    request.session.update({"sqladmin_key": username})
+                    request.session.update({"sqladmin_auth_key": username})
                 elif is_password_correct is True:
-                    request.session.update({"sqladmin_key": password})
+                    request.session.update({"sqladmin_auth_key": password})
                 return True
 
         return False
@@ -54,13 +54,13 @@ class SQLAdminAuth(AuthenticationBackend):
         return True
 
     async def authenticate(self, request: fastapi.Request) -> bool:
-        sqladmin_key = request.session.get("sqladmin_key")
-        if sqladmin_key:
-            sqladmin_key = sqladmin_key.strip()
-        sqladmin_key = make_none_if_blank(sqladmin_key)
+        sqladmin_auth_key = request.session.get("sqladmin_auth_key")
+        if sqladmin_auth_key:
+            sqladmin_auth_key = sqladmin_auth_key.strip()
+        sqladmin_auth_key = make_none_if_blank(sqladmin_auth_key)
 
-        if get_cached_settings().sqladmin_correct_passwords is not None:
-            if sqladmin_key is not None and sqladmin_key in get_cached_settings().sqladmin_correct_passwords:
+        if get_cached_settings().sqladmin_auth_keys is not None:
+            if sqladmin_auth_key is not None and sqladmin_auth_key in get_cached_settings().sqladmin_auth_keys:
                 return True
 
         return False
