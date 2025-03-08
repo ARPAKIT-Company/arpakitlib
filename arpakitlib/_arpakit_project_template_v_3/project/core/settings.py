@@ -6,7 +6,6 @@ import pytz
 from pydantic import field_validator
 from pydantic_core.core_schema import ValidationInfo
 
-from arpakitlib.ar_enumeration_util import Enumeration
 from arpakitlib.ar_json_util import transfer_data_to_json_str
 from arpakitlib.ar_settings_util import SimpleSettings
 from arpakitlib.ar_sqlalchemy_util import generate_sqlalchemy_url
@@ -84,10 +83,10 @@ class Settings(SimpleSettings):
 
     api_init_json_db: bool = False
 
-    api_correct_api_keys: list[str] | None = ["1"]
+    api_api_keys: list[str] | None = ["1"]
 
-    @field_validator("api_correct_api_keys", mode="before")
-    def validate_api_correct_api_keys(cls, v: Any, validation_info: ValidationInfo, **kwargs) -> list[str] | None:
+    @field_validator("api_api_keys", mode="before")
+    def validate_api_api_keys(cls, v: Any, validation_info: ValidationInfo, **kwargs) -> list[str] | None:
         if isinstance(v, str):
             v = [v]
         if isinstance(v, int):
@@ -98,10 +97,10 @@ class Settings(SimpleSettings):
                     v[i] = str(v_)
         return v
 
-    api_correct_tokens: list[str] | None = ["1"]
+    api_user_tokens: list[str] | None = ["1"]
 
-    @field_validator("api_correct_tokens", mode="before")
-    def validate_api_correct_tokens(cls, v: Any, validation_info: ValidationInfo, **kwargs) -> list[str] | None:
+    @field_validator("api_user_tokens", mode="before")
+    def validate_api_tokens(cls, v: Any, validation_info: ValidationInfo, **kwargs) -> list[str] | None:
         if isinstance(v, str):
             v = [v]
         if isinstance(v, int):
@@ -118,7 +117,7 @@ class Settings(SimpleSettings):
 
     api_start_scheduled_operation_creator_worker: bool = False
 
-    create_story_log_in_sqlalchemy_db__api_func_before_in_handle_exception: bool = False
+    create_story_log__api_func_before_in_handle_exception: bool = False
 
     sqladmin_secret_key: str | None = "85a9583cb91c4de7a78d7eb1e5306a04418c9c43014c447ea8ec8dd5deb4cf71"
 

@@ -180,7 +180,7 @@ def logging__api_func_before_in_handle_exception(
     return func
 
 
-def create_story_log_in_sqlalchemy_db__api_func_before_in_handle_exception(
+def create_story_log__api_func_before_in_handle_exception(
         *,
         ignore_api_error_codes: list[str] | None = None,
         ignore_status_codes: list[int] | None = None,
@@ -237,11 +237,11 @@ def get_exception_handler() -> Callable:
     async_funcs_after = []
 
     if (
-            get_cached_settings().create_story_log_in_sqlalchemy_db__api_func_before_in_handle_exception
+            get_cached_settings().create_story_log__api_func_before_in_handle_exception
             and get_cached_sqlalchemy_db() is not None
     ):
         funcs_before.append(
-            create_story_log_in_sqlalchemy_db__api_func_before_in_handle_exception(
+            create_story_log__api_func_before_in_handle_exception(
                 ignore_api_error_codes=[
                     APIErrorCodes.cannot_authorize,
                     APIErrorCodes.error_in_request,

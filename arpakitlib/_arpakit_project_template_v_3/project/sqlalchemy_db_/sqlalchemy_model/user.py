@@ -1,11 +1,12 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import sqlalchemy
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from arpakitlib.ar_enumeration_util import Enumeration
+from arpakitlib.ar_type_util import raise_for_type
 from project.sqlalchemy_db_.sqlalchemy_model.common import SimpleDBM
 
 if TYPE_CHECKING:
@@ -38,6 +39,17 @@ class UserDBM(SimpleDBM):
         server_default="true",
         nullable=False
     )
+    tg_id: Mapped[int | None] = mapped_column(
+        sqlalchemy.BIGINT,
+        unique=True,
+        nullable=True
+    )
+    tg_data: Mapped[dict[str, Any] | None] = mapped_column(
+        sqlalchemy.JSON,
+        insert_default={},
+        server_default="{}",
+        nullable=True
+    )
 
     user_tokens: Mapped[list[UserTokenDBM]] = relationship(
         "UserTokenDBM",
@@ -61,3 +73,9 @@ class UserDBM(SimpleDBM):
     @property
     def sdp_roles_has_client(self) -> bool:
         return self.roles_has_client
+
+    def compare_roles(self, roles: list[str] | str) -> bool:
+        if isinstance(roles, str):
+            roles = [roles]
+        raise_for_type(roles, list)
+        return bool(set(roles) & set(self.roles))

@@ -22,7 +22,7 @@ main_general_api_router.include_router(
     router=now_utc_datetime.api_router,
     prefix="/now_utc_datetime"
 )
-if not get_cached_settings().is_mode_type_prod:
+if not get_cached_settings().prod_mode:
     main_general_api_router.include_router(
         router=get_auth_data.api_router,
         prefix="/get_auth_data"

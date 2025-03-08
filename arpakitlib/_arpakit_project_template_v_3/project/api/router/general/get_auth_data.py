@@ -2,10 +2,8 @@ import fastapi.requests
 from fastapi import APIRouter
 
 from arpakitlib.ar_json_util import transfer_data_to_json_str_to_data
-from project.api.auth import APIAuthData, api_auth, correct_api_key_from_sqlalchemy_db__is_api_key_correct_func, \
-    correct_user_token_from_sqlalchemy_db__is_user_token_correct_func
+from project.api.auth import APIAuthData, api_auth
 from project.api.schema.common.out.schema import ErrorCommonSO, RawDataCommonSO
-from project.core.settings import ModeTypes
 
 api_router = APIRouter()
 
@@ -21,11 +19,11 @@ async def _(
         request: fastapi.requests.Request,
         response: fastapi.responses.Response,
         api_auth_data: APIAuthData = fastapi.Depends(api_auth(
-            is_api_key_correct_func=correct_api_key_from_sqlalchemy_db__is_api_key_correct_func(),
-            is_user_token_correct_func=correct_user_token_from_sqlalchemy_db__is_user_token_correct_func(),
-            require_correct_api_key=False,
-            require_correct_user_token=False,
-            require_not_mode_type=ModeTypes.prod
+            require_not_prod_mode=True,
+            try_find_api_key_dbm_from_sqlalchemy_db=True,
+            try_find_user_token_dbm_from_sqlalchemy_db=True,
+            require_api_key_dbm_from_sqlalchemy_db=True,
+            require_user_token_dbm_from_sqlalchemy_db=True
         ))
 ):
     return RawDataCommonSO(data=transfer_data_to_json_str_to_data(api_auth_data.model_dump()))
