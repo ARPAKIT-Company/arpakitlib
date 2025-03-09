@@ -14,7 +14,7 @@ from project.sqlalchemy_db_.sqlalchemy_db import get_cached_sqlalchemy_db
 _logger = logging.getLogger(__name__)
 
 
-# STARTUP API EVENTS
+# API STARTUP EVENTS
 
 
 async def async_api_startup_event():
@@ -61,7 +61,7 @@ def get_api_startup_events() -> list[Callable]:
     return res
 
 
-# SHUTDOWN API EVENTS
+# API SHUTDOWN EVENTS
 
 
 async def async_api_shutdown_event():

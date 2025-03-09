@@ -1,4 +1,4 @@
-from project.api.schema.base_schema import BaseSO
+from project.api.schema.common import BaseSO
 
 
 class BaseClientSO(BaseSO):

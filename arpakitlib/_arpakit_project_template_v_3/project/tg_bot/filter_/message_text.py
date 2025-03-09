@@ -4,20 +4,9 @@ import aiogram.types
 from aiogram.filters import Filter
 
 from arpakitlib.ar_type_util import raise_for_type
-from project.core.settings import get_cached_settings
 
 
-class NotProdModeFilterTgBotFilter(Filter):
-    async def __call__(self, *args, **kwargs) -> bool:
-        return get_cached_settings().is_mode_type_not_prod
-
-
-class ProdModeFilterTgBotFilter(Filter):
-    async def __call__(self, *args, **kwargs) -> bool:
-        return get_cached_settings().is_mode_type_prod
-
-
-class TextFilterTgBotFilter(Filter):
+class MessageTextTgBotFilter(Filter):
 
     def __init__(
             self,
@@ -57,13 +46,3 @@ class TextFilterTgBotFilter(Filter):
             text = text.lower()
 
         return text in self.texts
-
-
-class IsPrivateChatTgBotFilter(Filter):
-    async def __call__(self, update: aiogram.types.Message | aiogram.types.CallbackQuery) -> bool:
-        if isinstance(update, aiogram.types.Message):
-            return update.chat.type == aiogram.enums.ChatType.PRIVATE
-        elif isinstance(update, aiogram.types.CallbackQuery):
-            return update.message.chat.type == aiogram.enums.ChatType.PRIVATE
-        else:
-            return False

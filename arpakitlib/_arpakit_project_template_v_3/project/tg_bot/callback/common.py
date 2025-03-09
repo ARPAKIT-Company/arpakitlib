@@ -1,13 +1,13 @@
 from aiogram.filters.callback_data import CallbackData
 
-_used_cd_prefixes = set()
+_USED_CD_PREFIXES = set()
 
 
 def get_used_cd_prefixes() -> set[str]:
-    return _used_cd_prefixes
+    return _USED_CD_PREFIXES
 
 
-def generate_callback_data_prefix(string: str) -> str:
+def generate_tg_bot_callback_data_prefix(string: str) -> str:
     res = 0
     for s_ in string:
         res += ord(s_)
@@ -23,12 +23,12 @@ class BaseCD(CallbackData, prefix="BaseCD"):
             raise ValueError("callback data class should ends with CD")
 
         if "prefix" not in kwargs:
-            kwargs["prefix"] = str(generate_callback_data_prefix(cls.__name__.lower().removesuffix("cd")))
+            kwargs["prefix"] = str(generate_tg_bot_callback_data_prefix(cls.__name__.lower().removesuffix("cd")))
         prefix = kwargs["prefix"]
 
-        if prefix in _used_cd_prefixes:
-            raise ValueError(f"prefix({prefix}) already in _used_cd_prefixes({_used_cd_prefixes})")
-        _used_cd_prefixes.add(prefix)
+        if prefix in _USED_CD_PREFIXES:
+            raise ValueError(f"prefix({prefix}) already in _used_cd_prefixes({_USED_CD_PREFIXES})")
+        _USED_CD_PREFIXES.add(prefix)
 
         super().__init_subclass__(**kwargs)
 

@@ -3,7 +3,7 @@ from __future__ import annotations
 import datetime as dt
 from typing import Any
 
-from project.api.schema.base_schema import BaseSO
+from project.api.schema.common import BaseSO
 from project.sqlalchemy_db_.sqlalchemy_model import StoryLogDBM, OperationDBM
 
 

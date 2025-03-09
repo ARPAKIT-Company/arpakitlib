@@ -1,4 +1,4 @@
-from project.api.schema.base_schema import BaseSI
+from project.api.schema.common import BaseSI
 
 
 class BaseCommonSI(BaseSI):

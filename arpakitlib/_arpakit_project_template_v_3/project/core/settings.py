@@ -9,6 +9,7 @@ from pydantic_core.core_schema import ValidationInfo
 from arpakitlib.ar_json_util import transfer_data_to_json_str
 from arpakitlib.ar_settings_util import SimpleSettings
 from arpakitlib.ar_sqlalchemy_util import generate_sqlalchemy_url
+from arpakitlib.ar_type_util import raise_for_type
 from project.core.const import ProjectPaths
 
 
@@ -117,7 +118,7 @@ class Settings(SimpleSettings):
 
     api_start_scheduled_operation_creator_worker: bool = False
 
-    create_story_log__api_func_before_in_handle_exception: bool = False
+    api_create_story_log_func_before_in_exception_handler: bool = False
 
     sqladmin_secret_key: str | None = "85a9583cb91c4de7a78d7eb1e5306a04418c9c43014c447ea8ec8dd5deb4cf71"
 
@@ -147,6 +148,10 @@ class Settings(SimpleSettings):
 
     tg_bot_drop_pending_updates: bool = True
 
+    tg_bot_start_operation_executor_worker: bool = False
+
+    tg_bot_start_scheduled_operation_creator_worker: bool = False
+
     var_dirpath: str | None = os.path.join(ProjectPaths.base_dirpath, "var")
 
     log_filepath: str | None = os.path.join(var_dirpath, "story.log")
@@ -163,6 +168,7 @@ class Settings(SimpleSettings):
 
     @property
     def local_timezone_as_pytz(self) -> Any:
+        raise_for_type(self.local_timezone, str)
         return pytz.timezone(self.local_timezone)
 
 

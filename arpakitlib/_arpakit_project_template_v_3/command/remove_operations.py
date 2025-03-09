@@ -5,7 +5,7 @@ from project.core.util import setup_logging
 
 def __command():
     setup_logging()
-    get_cached_settings().raise_if_mode_type_prod()
+    get_cached_settings().raise_if_mode_prod()
     remove_operations()
 
 

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import datetime as dt
 from typing import TYPE_CHECKING, Any
 
 import sqlalchemy
@@ -42,6 +43,11 @@ class UserDBM(SimpleDBM):
     tg_id: Mapped[int | None] = mapped_column(
         sqlalchemy.BIGINT,
         unique=True,
+        nullable=True
+    )
+    tg_bot_last_action_dt: Mapped[dt.datetime | None] = mapped_column(
+        sqlalchemy.TIMESTAMP(timezone=True),
+        insert_default=None,
         nullable=True
     )
     tg_data: Mapped[dict[str, Any] | None] = mapped_column(
