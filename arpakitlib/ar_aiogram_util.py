@@ -45,7 +45,6 @@ def as_tg_command(
         *params: TgCommandFlagParam | TgCommandKeyValueParam,
         desc: str | None = None,
         passwd_validator: Callable | str | None = None,
-        passwd: str | None = None,
         remove_message_after_correct_passwd: bool = True
 ):
     _PASSWD_KEY = "passwd"
@@ -53,8 +52,6 @@ def as_tg_command(
 
     params = list(params)
 
-    if passwd_validator is None and passwd is not None:
-        passwd_validator = passwd
     if passwd_validator is not None:
         raise_for_types(passwd_validator, [Callable, str])
         params.append(TgCommandKeyValueParam(key=_PASSWD_KEY, required=True, index=None, need_type=NeedTypes.str_))

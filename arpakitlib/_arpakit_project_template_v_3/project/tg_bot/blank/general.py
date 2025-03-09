@@ -6,6 +6,10 @@ from project.tg_bot.blank.common import SimpleBlankTgBot
 
 
 class GeneralBlankTgBot(SimpleBlankTgBot):
+    def but_hello_world(self) -> str:
+        res = "hello_world"
+        return emojize(res.strip())
+
     def hello_world(self) -> str:
         res = ":waving_hand: <b>Hello world</b> :waving_hand:"
         return emojize(res.strip())

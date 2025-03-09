@@ -164,6 +164,8 @@ class Settings(SimpleSettings):
 
     tg_bot_start_scheduled_operation_creator_worker: bool = False
 
+    tg_bot_command_passwd: str | None = "1"
+
     var_dirpath: str | None = os.path.join(ProjectPaths.base_dirpath, "var")
 
     log_filepath: str | None = os.path.join(var_dirpath, "story.log")
