@@ -1,17 +1,14 @@
 from arpakitlib.ar_enumeration_util import Enumeration
 
 
-class GeneralCommandsTgBot(Enumeration):
+class ClientTgBotCommands(Enumeration):
+    start = "start"
+    about = "about"
     healthcheck = "healthcheck"
     hello_world = "hello_world"
 
 
-class ClientCommandsTgBot(Enumeration):
-    start = "start"
-    about = "about"
-
-
-class AdminCommandsTgBot(Enumeration):
+class AdminTgBotCommands(Enumeration):
     arpakitlib_project_template_info = "arpakitlib_project_template_info"
     admin_healthcheck = "admin_healthcheck"
     init_db = "init_db"
@@ -28,16 +25,12 @@ class AdminCommandsTgBot(Enumeration):
 
 
 def __example():
-    print("GeneralCommandsTgBot:")
-    for v in GeneralCommandsTgBot.values_list():
-        print(f"- {v}")
-    print()
     print("ClientCommandsTgBot:")
-    for v in ClientCommandsTgBot.values_list():
+    for v in ClientTgBotCommands.values_list():
         print(f"- {v}")
     print()
     print("AdminCommandsTgBot:")
-    for v in AdminCommandsTgBot.values_list():
+    for v in AdminTgBotCommands.values_list():
         print(f"- {v}")
 
 

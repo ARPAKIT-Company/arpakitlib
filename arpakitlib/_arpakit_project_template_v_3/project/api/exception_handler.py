@@ -23,7 +23,7 @@ from project.sqlalchemy_db_.sqlalchemy_model import StoryLogDBM
 _logger = logging.getLogger(__name__)
 
 
-def create_exception_handler(
+def create_api_exception_handler(
         *,
         funcs_before: list[Callable | None] | None = None,
         async_funcs_after: list[Callable | None] | None = None
@@ -145,7 +145,7 @@ def create_exception_handler(
     return async_func
 
 
-def logging_func_before_in_exception_handler(
+def logging_func_before_in_api_exception_handler(
         *,
         ignore_api_error_codes: list[str] | None = None,
         ignore_status_codes: list[int] | None = None,
@@ -180,7 +180,7 @@ def logging_func_before_in_exception_handler(
     return func
 
 
-def create_story_log_func_before_in_exception_handler(
+def create_story_log_func_before_in_api_exception_handler(
         *,
         ignore_api_error_codes: list[str] | None = None,
         ignore_status_codes: list[int] | None = None,
@@ -237,11 +237,11 @@ def get_exception_handler() -> Callable:
     async_funcs_after = []
 
     if (
-            get_cached_settings().api_create_story_log_func_before_in_exception_handler
+            get_cached_settings().api_create_story_log_func_before_in_api_exception_handler
             and get_cached_sqlalchemy_db() is not None
     ):
         funcs_before.append(
-            create_story_log_func_before_in_exception_handler(
+            create_story_log_func_before_in_api_exception_handler(
                 ignore_api_error_codes=[
                     APIErrorCodes.cannot_authorize,
                     APIErrorCodes.error_in_request,
@@ -259,7 +259,7 @@ def get_exception_handler() -> Callable:
         )
 
     funcs_before.append(
-        logging_func_before_in_exception_handler(
+        logging_func_before_in_api_exception_handler(
             ignore_api_error_codes=[
                 APIErrorCodes.cannot_authorize,
                 APIErrorCodes.error_in_request,
@@ -276,13 +276,13 @@ def get_exception_handler() -> Callable:
         )
     )
 
-    return create_exception_handler(
+    return create_api_exception_handler(
         funcs_before=funcs_before,
         async_funcs_after=async_funcs_after
     )
 
 
-def add_exception_handler_to_app(*, app: fastapi.FastAPI) -> fastapi.FastAPI:
+def add_exception_handler_to_api_app(*, app: fastapi.FastAPI) -> fastapi.FastAPI:
     exception_handler = get_exception_handler()
 
     app.add_exception_handler(

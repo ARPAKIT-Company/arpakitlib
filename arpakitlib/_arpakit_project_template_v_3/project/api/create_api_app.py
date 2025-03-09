@@ -5,9 +5,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
-from project.api.event import get_api_startup_events, get_api_shutdown_events
-from project.api.exception_handler import add_exception_handler_to_app
-from project.api.openapi_ui import add_local_openapi_ui_to_app
+from project.api.event import get_startup_api_events, get_shutdown_api_events
+from project.api.exception_handler import add_exception_handler_to_api_app
+from project.api.openapi_ui import add_local_openapi_ui_to_api_app
 from project.api.router.main_router import main_api_router
 from project.core.const import ProjectPaths
 from project.core.settings import get_cached_settings
@@ -27,8 +27,8 @@ def create_api_app(*, prefix: str = "/api") -> FastAPI:
         docs_url=None,
         redoc_url=None,
         openapi_url="/openapi",
-        on_startup=get_api_startup_events(),
-        on_shutdown=get_api_shutdown_events(),
+        on_startup=get_startup_api_events(),
+        on_shutdown=get_shutdown_api_events(),
         contact={
             "name": "ARPAKIT Company",
             "url": "https://arpakit.com/",
@@ -44,9 +44,9 @@ def create_api_app(*, prefix: str = "/api") -> FastAPI:
         allow_headers=["*"],
     )
 
-    add_local_openapi_ui_to_app(app=api_app)
+    add_local_openapi_ui_to_api_app(app=api_app)
 
-    add_exception_handler_to_app(app=api_app)
+    add_exception_handler_to_api_app(app=api_app)
 
     api_app.include_router(
         prefix=prefix,

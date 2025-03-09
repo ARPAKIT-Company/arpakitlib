@@ -8,7 +8,7 @@ from project.tg_bot.blank.common import SimpleBlankTgBot
 from project.util.arpakitlib_project_template import get_arpakitlib_project_template_info
 
 
-class AdminBlankTgBot(SimpleBlankTgBot):
+class AdminTgBotBlank(SimpleBlankTgBot):
     def done(self) -> str:
         res = "Done"
         return emojize(res.strip())
@@ -18,18 +18,18 @@ class AdminBlankTgBot(SimpleBlankTgBot):
         return emojize(res.strip())
 
 
-def create_admin_blank_tg_bot() -> AdminBlankTgBot:
-    return AdminBlankTgBot()
+def create_admin_tg_bot_blank() -> AdminTgBotBlank:
+    return AdminTgBotBlank()
 
 
 @lru_cache()
-def get_cached_admin_blank_tg_bot() -> AdminBlankTgBot:
-    return AdminBlankTgBot()
+def get_cached_admin_tg_bot_blank() -> AdminTgBotBlank:
+    return AdminTgBotBlank()
 
 
 def __example():
     print(
-        get_cached_admin_blank_tg_bot().arpakit_project_template_info(
+        get_cached_admin_tg_bot_blank().arpakit_project_template_info(
             arpakitlib_project_template_info=get_arpakitlib_project_template_info()
         )
     )

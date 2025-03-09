@@ -20,7 +20,7 @@ _logger = logging.getLogger(__name__)
 # TG BOT STARTUP EVENTS
 
 
-async def tg_bot_startup_event():
+async def startup_tg_bot_event():
     _logger.info("start")
 
     if get_cached_media_file_storage_in_dir() is not None:
@@ -75,15 +75,15 @@ async def tg_bot_startup_event():
     _logger.info("finish")
 
 
-def get_tg_bot_startup_events() -> list[Callable]:
-    res = [tg_bot_startup_event]
+def get_startup_tg_bot_events() -> list[Callable]:
+    res = [startup_tg_bot_event]
     return res
 
 
 # TG BOT SHUTDOWN EVENTS
 
 
-async def tg_bot_shutdown_event(*args, **kwargs):
+async def shutdown_tg_bot_event(*args, **kwargs):
     _logger.info("start")
 
     if get_cached_settings().tg_bot_webhook_enabled:
@@ -92,13 +92,16 @@ async def tg_bot_shutdown_event(*args, **kwargs):
     _logger.info("finish")
 
 
-def get_tg_bot_shutdown_events() -> list[Callable]:
-    res = [tg_bot_shutdown_event]
+def get_shutdown_tg_bot_events() -> list[Callable]:
+    res = [shutdown_tg_bot_event]
     return res
 
 
+#
+
+
 def add_events_to_tg_bot_dispatcher(*, tg_bot_dispatcher: Dispatcher):
-    for tg_bot_event in get_tg_bot_startup_events():
+    for tg_bot_event in get_startup_tg_bot_events():
         tg_bot_dispatcher.startup.register(tg_bot_event)
-    for tg_bot_event in get_tg_bot_shutdown_events():
+    for tg_bot_event in get_shutdown_tg_bot_events():
         tg_bot_dispatcher.shutdown.register(tg_bot_event)

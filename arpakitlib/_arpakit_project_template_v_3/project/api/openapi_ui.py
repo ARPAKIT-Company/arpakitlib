@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.openapi.docs import get_swagger_ui_html, get_redoc_html
 
 
-def add_local_openapi_ui_to_app(
+def add_local_openapi_ui_to_api_app(
         *,
         app: FastAPI
 ):

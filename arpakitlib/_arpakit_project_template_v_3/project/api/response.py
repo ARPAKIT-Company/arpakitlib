@@ -3,7 +3,6 @@ from typing import Any
 import fastapi
 
 from arpakitlib.ar_json_util import transfer_data_to_json_str_to_data
-from project.api.schema.common import BaseSO
 
 
 class APIJSONResponse(fastapi.responses.JSONResponse):

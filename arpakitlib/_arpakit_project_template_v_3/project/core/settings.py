@@ -118,7 +118,7 @@ class Settings(SimpleSettings):
 
     api_start_scheduled_operation_creator_worker: bool = False
 
-    api_create_story_log_func_before_in_exception_handler: bool = False
+    api_create_story_log_func_before_in_api_exception_handler: bool = False
 
     sqladmin_secret_key: str | None = "85a9583cb91c4de7a78d7eb1e5306a04418c9c43014c447ea8ec8dd5deb4cf71"
 
@@ -165,6 +165,8 @@ class Settings(SimpleSettings):
     tg_bot_start_scheduled_operation_creator_worker: bool = False
 
     tg_bot_command_passwd: str | None = "1"
+
+    tg_bot_admin_tg_ids: list[int] = []
 
     var_dirpath: str | None = os.path.join(ProjectPaths.base_dirpath, "var")
 
