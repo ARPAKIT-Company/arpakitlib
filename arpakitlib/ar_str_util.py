@@ -2,6 +2,7 @@
 
 from typing import Optional
 
+import markdown
 from bs4 import BeautifulSoup
 
 from arpakitlib.ar_type_util import raise_for_type
@@ -69,6 +70,12 @@ def remove_html(string: str) -> str:
     return BeautifulSoup(string, "html.parser").text
 
 
+def remove_markdown(text: str) -> str:
+    html_text = markdown.markdown(text)
+    soup = BeautifulSoup(html_text, "html.parser")
+    return soup.get_text(separator=" ", strip=True)
+
+
 def remove_tags(string: str) -> str:
     raise_for_type(string, str)
     return string.replace("<", "").replace(">", "")
@@ -116,6 +123,8 @@ def __example():
 
     print("\nremove_tags_and_html:")
     print(remove_tags_and_html("<div>Hello <b>World</b></div>"))
+
+    print(remove_markdown("# Тут обычный текст с **жирным** и *курсивным* выделением."))
 
 
 if __name__ == '__main__':

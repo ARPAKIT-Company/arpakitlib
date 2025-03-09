@@ -1,6 +1,6 @@
 [project]
 name = "arpakitlib"
-version = "1.8.15"
+version = "1.8.16"
 description = "arpakitlib"
 authors = [
     { name = "arpakit_support", email = "support@arpakit.com" }
@@ -58,6 +58,7 @@ dependencies = [
     "scipy (>=1.15.1,<2.0.0)",
     "pulp (>=2.9.0,<3.0.0)",
     "orjson (>=3.10.15,<4.0.0)",
+    "markdown (>=3.7,<4.0)",
 ]
 
 
