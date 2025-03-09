@@ -1,5 +1,5 @@
 # arpakit
-
+import re
 from typing import Optional
 
 from bs4 import BeautifulSoup
@@ -79,6 +79,19 @@ def remove_tags_and_html(string: str) -> str:
     return remove_tags(remove_html(string))
 
 
+def remove_markdown(string: str) -> str:
+    string = re.sub(pattern=r"#+\s?", repl="", string=string)
+    string = re.sub(pattern=r"\*{1,2}(.+?)\*{1,2}", repl=r"\1", string=string)
+    string = re.sub(pattern=r"_{1,2}(.+?)_{1,2}", repl=r"\1", string=string)
+    string = re.sub(pattern=r"`{1,3}(.+?)`{1,3}", repl=r"\1", string=string, flags=re.DOTALL)
+    string = re.sub(pattern=r"\[([^\]]+)\]\([^)]+\)", repl=r"\1", string=string)
+    string = re.sub(pattern=r"!\[.*?\]\(.*?\)", repl="", string=string)
+    string = re.sub(pattern=r"\n[-*_]{3,}\n", repl="\n", string=string)
+    string = re.sub(pattern=r"\$\$(.+?)\$\$", repl="", string=string, flags=re.DOTALL)
+    string = re.sub(pattern=r"\$(.+?)\$", repl=r"\1", string=string)
+    return string.strip()
+
+
 def raise_if_string_blank(string: str) -> str:
     if not string:
         raise ValueError("not string")
@@ -116,6 +129,9 @@ def __example():
 
     print("\nremove_tags_and_html:")
     print(remove_tags_and_html("<div>Hello <b>World</b></div>"))
+
+    print("\nremove_markdown:")
+    print(remove_markdown("# Hello $WORLD$ ##*Arpakit* _text_"))
 
 
 if __name__ == '__main__':
