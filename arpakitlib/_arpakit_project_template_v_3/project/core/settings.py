@@ -124,6 +124,18 @@ class Settings(SimpleSettings):
 
     sqladmin_auth_keys: list[str] | None = ["1"]
 
+    @field_validator("sqladmin_auth_keys", mode="before")
+    def validate_sqladmin_auth_keys(cls, v: Any, validation_info: ValidationInfo, **kwargs) -> list[str] | None:
+        if isinstance(v, str):
+            v = [v]
+        if isinstance(v, int):
+            v = [str(v)]
+        if isinstance(v, list):
+            for i, v_ in enumerate(v):
+                if isinstance(v_, int):
+                    v[i] = str(v_)
+        return v
+
     sqladmin_port: int | None = 8081
 
     tg_bot_token: str | None = None
