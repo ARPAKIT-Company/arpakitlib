@@ -15,6 +15,7 @@ class AdminTgBotCommands(Enumeration):
     drop_db = "drop_db"
     set_tg_bot_commands = "set_tg_bot_commands"
     raise_fake_err = "raise_fake_err"
+    me = "me"
     log_file = "log_file"
     clear_log_file = "clear_log_file"
     kb_with_old_data = "kb_with_old_data"

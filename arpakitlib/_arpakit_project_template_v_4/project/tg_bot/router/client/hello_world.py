@@ -8,7 +8,7 @@ from project.tg_bot.const import ClientTgBotCommands
 from project.tg_bot.filter_.message_text import MessageTextTgBotFilter
 from project.tg_bot.kb.inline_.client.hello_world import hello_world_client_inline_kb_tg_bot
 from project.tg_bot.kb.static_.client.hello_world import hello_world_client_static_kb_tg_bot
-from project.tg_bot.middleware.common import TgBotMiddlewareData
+from project.tg_bot.middleware.common import MiddlewareDataTgBot
 
 tg_bot_router = aiogram.Router()
 
@@ -21,7 +21,7 @@ tg_bot_router = aiogram.Router()
 )
 async def _(
         m: aiogram.types.Message,
-        tg_bot_middleware_data: TgBotMiddlewareData,
+        middleware_data_tg_bot: MiddlewareDataTgBot,
         **kwargs
 ):
     await m.answer(
@@ -37,7 +37,7 @@ async def _(
 @tg_bot_router.callback_query(HelloWorldClientCD.filter())
 async def _(
         cq: aiogram.types.CallbackQuery,
-        tg_bot_middleware_data: TgBotMiddlewareData,
+        middleware_data_tg_bot: MiddlewareDataTgBot,
         **kwargs
 ):
     await cq.message.delete_reply_markup()

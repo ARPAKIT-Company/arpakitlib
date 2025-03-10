@@ -6,7 +6,7 @@ from aiogram import Router
 from arpakitlib.ar_exception_util import exception_to_traceback_str
 from project.sqlalchemy_db_.sqlalchemy_db import get_cached_sqlalchemy_db
 from project.sqlalchemy_db_.sqlalchemy_model import StoryLogDBM
-from project.tg_bot.middleware.common import TgBotMiddlewareData
+from project.tg_bot.middleware.common import MiddlewareDataTgBot
 
 _logger = logging.getLogger(__name__)
 
@@ -16,7 +16,7 @@ tg_bot_router = Router()
 @tg_bot_router.error()
 async def _(
         event: aiogram.types.ErrorEvent,
-        tg_bot_middleware_data: TgBotMiddlewareData,
+        middleware_data_tg_bot: MiddlewareDataTgBot,
         **kwargs
 ):
     _logger.exception(event.exception)

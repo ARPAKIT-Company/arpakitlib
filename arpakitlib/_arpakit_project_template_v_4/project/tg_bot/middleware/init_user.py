@@ -9,7 +9,7 @@ from project.core.settings import get_cached_settings
 from project.core.util import now_local_dt
 from project.sqlalchemy_db_.sqlalchemy_db import get_cached_sqlalchemy_db
 from project.sqlalchemy_db_.sqlalchemy_model import UserDBM
-from project.tg_bot.middleware.common import TgBotMiddlewareData
+from project.tg_bot.middleware.common import MiddlewareDataTgBot
 
 _logger = logging.getLogger(__name__)
 
@@ -24,11 +24,11 @@ class InitUserTgBotMiddleware(BaseMiddleware):
     ) -> Any:
         _logger.info("start")
 
-        if "tg_bot_middleware_data" in data:
-            tg_bot_middleware_data = data["tg_bot_middleware_data"]
+        if "middleware_data_tg_bot" in data:
+            middleware_data_tg_bot = data["middleware_data_tg_bot"]
         else:
-            tg_bot_middleware_data = TgBotMiddlewareData()
-            data["tg_bot_middleware_data"] = tg_bot_middleware_data
+            middleware_data_tg_bot = MiddlewareDataTgBot()
+            data["middleware_data_tg_bot"] = middleware_data_tg_bot
 
         tg_user: aiogram.types.User | None = None
         if event.event_type == "message":
@@ -39,45 +39,45 @@ class InitUserTgBotMiddleware(BaseMiddleware):
             tg_user = event.inline_query.from_user
 
         if tg_user is not None:
-            tg_bot_middleware_data.additional_data["tg_user_was_found"] = tg_user
-            tg_bot_middleware_data.additional_data["found_tg_user_id"] = tg_user.id
+            middleware_data_tg_bot.additional_data["tg_user_was_found"] = tg_user
+            middleware_data_tg_bot.additional_data["found_tg_user_id"] = tg_user.id
 
         now_local_dt_ = now_local_dt()
 
         if tg_user is not None and get_cached_sqlalchemy_db() is not None:
             with get_cached_sqlalchemy_db().new_session() as session:
-                tg_bot_middleware_data.user_dbm = (
+                middleware_data_tg_bot.user_dbm = (
                     session.query(UserDBM).filter(UserDBM.tg_id == tg_user.id).one_or_none()
                 )
-                if tg_bot_middleware_data.user_dbm is None:
+                if middleware_data_tg_bot.user_dbm is None:
                     roles = [UserDBM.Roles.client]
                     if tg_user.id in get_cached_settings().tg_bot_admin_tg_ids:
                         roles.append(UserDBM.Roles.admin)
-                    tg_bot_middleware_data.user_dbm = UserDBM(
+                    middleware_data_tg_bot.user_dbm = UserDBM(
                         creation_dt=now_local_dt_,
                         roles=roles,
                         tg_id=tg_user.id,
                         tg_data=tg_user.model_dump(mode="json"),
                         tg_bot_last_action_dt=now_local_dt_
                     )
-                    session.add(tg_bot_middleware_data.user_dbm)
+                    session.add(middleware_data_tg_bot.user_dbm)
                     session.commit()
-                    session.refresh(tg_bot_middleware_data.user_dbm)
-                    tg_bot_middleware_data.user_dbm_just_created = True
-                    _logger.info(f"user_dbm was added, {tg_bot_middleware_data.user_dbm}")
+                    session.refresh(middleware_data_tg_bot.user_dbm)
+                    middleware_data_tg_bot.user_dbm_just_created = True
+                    _logger.info(f"user_dbm was added, {middleware_data_tg_bot.user_dbm}")
                 else:
-                    tg_bot_middleware_data.user_dbm.tg_data = tg_user.model_dump(mode="json")
-                    tg_bot_middleware_data.user_dbm.tg_bot_last_action_dt = now_local_dt_
+                    middleware_data_tg_bot.user_dbm.tg_data = tg_user.model_dump(mode="json")
+                    middleware_data_tg_bot.user_dbm.tg_bot_last_action_dt = now_local_dt_
                     if (
                             tg_user.id in get_cached_settings().tg_bot_admin_tg_ids
-                            and UserDBM.Roles.admin not in tg_bot_middleware_data.user_dbm.roles
+                            and UserDBM.Roles.admin not in middleware_data_tg_bot.user_dbm.roles
                     ):
-                        tg_bot_middleware_data.user_dbm.roles = (
-                                tg_bot_middleware_data.user_dbm.roles + [UserDBM.Roles.admin]
+                        middleware_data_tg_bot.user_dbm.roles = (
+                                middleware_data_tg_bot.user_dbm.roles + [UserDBM.Roles.admin]
                         )
                     session.commit()
-                    session.refresh(tg_bot_middleware_data.user_dbm)
-                    tg_bot_middleware_data.user_dbm_just_created = False
+                    session.refresh(middleware_data_tg_bot.user_dbm)
+                    middleware_data_tg_bot.user_dbm_just_created = False
 
         _logger.info("finish")
 

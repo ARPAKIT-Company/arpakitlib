@@ -5,7 +5,7 @@ from pydantic import BaseModel, ConfigDict
 from project.sqlalchemy_db_.sqlalchemy_model import UserDBM
 
 
-class TgBotMiddlewareData(BaseModel):
+class MiddlewareDataTgBot(BaseModel):
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True, from_attributes=True)
 
     user_dbm: UserDBM | None = None
