@@ -1,7 +1,7 @@
 import fastapi
 from fastapi import APIRouter
-
 from project.api.schema.common.out.schema import RawDataCommonSO, ErrorCommonSO
+
 from project.util.arpakitlib_project_template import get_arpakitlib_project_template_info
 
 api_router = APIRouter()

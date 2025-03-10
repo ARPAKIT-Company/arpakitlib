@@ -2,8 +2,8 @@ import fastapi.requests
 from fastapi import APIRouter
 
 from project.api.const import APIErrorCodes, APIErrorSpecificationCodes
-from project.api.schema.common.out.schema import ErrorCommonSO
-from project.api.schema.general.out.schema import ErrorsInfoGeneralSO
+from project.api.schema.out.common.error import ErrorCommonSO
+from project.api.schema.out.general.errors_info_general import ErrorsInfoGeneralSO
 
 api_router = APIRouter()
 

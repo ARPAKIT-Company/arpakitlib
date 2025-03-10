@@ -15,7 +15,7 @@ from arpakitlib.ar_json_util import transfer_data_to_json_str
 from project.api.const import APIErrorCodes
 from project.api.exception import APIException
 from project.api.response import APIJSONResponse
-from project.api.schema.common.out.schema import ErrorCommonSO
+from project.api.schema.out.common.error import ErrorCommonSO
 from project.core.settings import get_cached_settings
 from project.sqlalchemy_db_.sqlalchemy_db import get_cached_sqlalchemy_db
 from project.sqlalchemy_db_.sqlalchemy_model import StoryLogDBM

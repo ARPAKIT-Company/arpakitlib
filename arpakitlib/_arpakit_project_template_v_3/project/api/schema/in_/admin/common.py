@@ -1,2 +1,0 @@
-class BaseAdminSI(BaseSO):
-    pass

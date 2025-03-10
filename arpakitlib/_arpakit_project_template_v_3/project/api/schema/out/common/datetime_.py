@@ -1,22 +1,9 @@
 import datetime as dt
-from typing import Any
 
 from project.api.schema.common import BaseSO
 
 
-class BaseCommonSO(BaseSO):
-    pass
-
-
-class ErrorCommonSO(BaseCommonSO):
-    has_error: bool = True
-    error_code: str | None = None
-    error_specification_code: str | None = None
-    error_description: str | None = None
-    error_data: dict[str, Any] = {}
-
-
-class DatetimeCommonSO(BaseCommonSO):
+class DatetimeCommonSO(BaseSO):
     date: dt.date
     datetime: dt.datetime | None = None
     year: int
@@ -49,7 +36,3 @@ class DatetimeCommonSO(BaseCommonSO):
             month=date_.month,
             day=date_.day
         )
-
-
-class RawDataCommonSO(BaseCommonSO):
-    data: dict[str, Any] = {}

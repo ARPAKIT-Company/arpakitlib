@@ -1,8 +1,8 @@
 import fastapi
 from fastapi import APIRouter
 
-from project.api.schema.common.out.schema import ErrorCommonSO
-from project.api.schema.general.out.schema import HealthcheckGeneralSO
+from project.api.schema.out.common.error import ErrorCommonSO
+from project.api.schema.out.general.healthcheck import HealthcheckGeneralSO
 
 api_router = APIRouter()
 

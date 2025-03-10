@@ -3,7 +3,8 @@ from fastapi import APIRouter
 
 from arpakitlib.ar_json_util import transfer_data_to_json_str_to_data
 from project.api.auth import APIAuthData, api_auth
-from project.api.schema.common.out.schema import ErrorCommonSO, RawDataCommonSO
+from project.api.schema.out.common.error import ErrorCommonSO
+from project.api.schema.out.common.raw_data import RawDataCommonSO
 
 api_router = APIRouter()
 

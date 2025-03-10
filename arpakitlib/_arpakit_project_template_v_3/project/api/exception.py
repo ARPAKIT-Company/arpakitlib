@@ -3,7 +3,7 @@ from typing import Any
 import fastapi.security
 
 from project.api.const import APIErrorCodes
-from project.api.schema.common.out.schema import ErrorCommonSO
+from project.api.schema.out.common.error import ErrorCommonSO
 
 
 class APIException(fastapi.exceptions.HTTPException):
