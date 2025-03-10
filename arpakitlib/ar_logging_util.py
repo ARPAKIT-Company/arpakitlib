@@ -33,8 +33,8 @@ def setup_normal_logging(log_filepath: Optional[str] = None):
     stream_handler = logging.StreamHandler()
     stream_handler.setLevel(logging.INFO)
     stream_formatter = logging.Formatter(
-        "%(asctime)s | %(levelname)s | %(filename)s | %(funcName)s:%(lineno)d - %(message)s",
-        datefmt="%d.%m.%Y %I:%M:%S%p"
+        "%(asctime)s %(msecs)03d | %(levelname)s | %(filename)s | %(funcName)s:%(lineno)d - %(message)s",
+        datefmt="%d.%m.%Y %I:%M:%S %p"
     )
     stream_handler.setFormatter(stream_formatter)
     logger.addHandler(stream_handler)
