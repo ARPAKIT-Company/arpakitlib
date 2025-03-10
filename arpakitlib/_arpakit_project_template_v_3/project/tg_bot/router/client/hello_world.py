@@ -8,6 +8,7 @@ from project.tg_bot.const import ClientTgBotCommands
 from project.tg_bot.filter_.message_text import MessageTextTgBotFilter
 from project.tg_bot.kb.inline_.client.hello_world import hello_world_client_inline_kb_tg_bot
 from project.tg_bot.kb.static_.client.hello_world import hello_world_client_static_kb_tg_bot
+from project.tg_bot.middleware.common import TgBotMiddlewareData
 
 tg_bot_router = aiogram.Router()
 
@@ -18,7 +19,11 @@ tg_bot_router = aiogram.Router()
         MessageTextTgBotFilter(get_cached_client_tg_bot_blank().but_hello_world())
     )
 )
-async def _(m: aiogram.types.Message, **kwargs):
+async def _(
+        m: aiogram.types.Message,
+        tg_bot_middleware_data: TgBotMiddlewareData,
+        **kwargs
+):
     await m.answer(
         text=get_cached_client_tg_bot_blank().hello_world(),
         reply_markup=hello_world_client_inline_kb_tg_bot()
@@ -30,6 +35,10 @@ async def _(m: aiogram.types.Message, **kwargs):
 
 
 @tg_bot_router.callback_query(HelloWorldClientCD.filter())
-async def _(cq: aiogram.types.CallbackQuery, **kwargs):
+async def _(
+        cq: aiogram.types.CallbackQuery,
+        tg_bot_middleware_data: TgBotMiddlewareData,
+        **kwargs
+):
     await cq.message.delete_reply_markup()
     await cq.message.answer(text=remove_html(get_cached_client_tg_bot_blank().hello_world()))

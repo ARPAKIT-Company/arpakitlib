@@ -1,4 +1,5 @@
-from aiogram import types, Router
+import aiogram
+from aiogram import Router
 from aiogram.filters import Command
 
 from arpakitlib.ar_aiogram_util import as_tg_command
@@ -17,6 +18,10 @@ tg_bot_router = Router()
     NotProdModeTgBotFilter()
 )
 @as_tg_command(passwd_validator=get_cached_settings().tg_bot_command_passwd)
-async def handler(m: types.Message, tg_bot_middleware_data: TgBotMiddlewareData, **kwargs):
+async def handler(
+        m: aiogram.types.Message,
+        tg_bot_middleware_data: TgBotMiddlewareData,
+        **kwargs
+):
     get_cached_sqlalchemy_db().reinit()
     await m.answer(text=get_cached_admin_tg_bot_blank().done())

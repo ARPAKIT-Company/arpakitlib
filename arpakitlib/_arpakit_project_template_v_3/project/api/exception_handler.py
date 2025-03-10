@@ -15,7 +15,7 @@ from arpakitlib.ar_json_util import transfer_data_to_json_str
 from project.api.const import APIErrorCodes
 from project.api.exception import APIException
 from project.api.response import APIJSONResponse
-from project.api.schema.out.common.error import ErrorCommonSO
+from project.api.schema.out.general.error import ErrorGeneralSO
 from project.core.settings import get_cached_settings
 from project.sqlalchemy_db_.sqlalchemy_db import get_cached_sqlalchemy_db
 from project.sqlalchemy_db_.sqlalchemy_model import StoryLogDBM
@@ -42,7 +42,7 @@ def create_api_exception_handler(
     ) -> APIJSONResponse:
         status_code = fastapi.status.HTTP_500_INTERNAL_SERVER_ERROR
 
-        error_common_so = ErrorCommonSO(
+        error_common_so = ErrorGeneralSO(
             has_error=True,
             error_code=APIErrorCodes.unknown_error,
             error_data={
@@ -157,7 +157,7 @@ def logging_func_before_in_api_exception_handler(
             *,
             request: fastapi.requests.Request,
             status_code: int,
-            error_common_so: ErrorCommonSO,
+            error_common_so: ErrorGeneralSO,
             exception: Exception,
             transmitted_kwargs: dict[str, Any],
             **kwargs
@@ -192,7 +192,7 @@ def create_story_log_func_before_in_api_exception_handler(
             *,
             request: fastapi.requests.Request,
             status_code: int,
-            error_common_so: ErrorCommonSO,
+            error_common_so: ErrorGeneralSO,
             exception: Exception,
             transmitted_kwargs: dict[str, Any],
             **kwargs
@@ -213,11 +213,12 @@ def create_story_log_func_before_in_api_exception_handler(
         async with get_cached_sqlalchemy_db().new_async_session() as session:
             story_log_dbm = StoryLogDBM(
                 level=StoryLogDBM.Levels.error,
-                type=StoryLogDBM.Types.error_in_api_route,
+                type=StoryLogDBM.Types.error_in_api,
                 title=f"{status_code}, {type(exception)}",
                 data={
+                    "exception_str": str(exception),
                     "error_common_so": error_common_so.model_dump(),
-                    "traceback_str": exception_to_traceback_str(exception=exception)
+                    "error_traceback_str": exception_to_traceback_str(exception=exception)
                 }
             )
             session.add(story_log_dbm)
