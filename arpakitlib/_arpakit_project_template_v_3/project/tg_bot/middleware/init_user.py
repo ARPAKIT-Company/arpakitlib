@@ -5,6 +5,7 @@ import aiogram
 from aiogram import BaseMiddleware
 from aiogram.types import TelegramObject
 
+from project.core.settings import get_cached_settings
 from project.core.util import now_local_dt
 from project.sqlalchemy_db_.sqlalchemy_db import get_cached_sqlalchemy_db
 from project.sqlalchemy_db_.sqlalchemy_model import UserDBM
@@ -49,8 +50,12 @@ class InitUserTgBotMiddleware(BaseMiddleware):
                     session.query(UserDBM).filter(UserDBM.tg_id == tg_user.id).one_or_none()
                 )
                 if tg_bot_middleware_data.user_dbm is None:
+                    roles = [UserDBM.Roles.client]
+                    if tg_user.id in get_cached_settings().tg_bot_admin_tg_ids:
+                        roles.append(UserDBM.Roles.admin)
                     tg_bot_middleware_data.user_dbm = UserDBM(
                         creation_dt=now_local_dt_,
+                        roles=roles,
                         tg_id=tg_user.id,
                         tg_data=tg_user.model_dump(mode="json"),
                         tg_bot_last_action_dt=now_local_dt_
@@ -63,6 +68,13 @@ class InitUserTgBotMiddleware(BaseMiddleware):
                 else:
                     tg_bot_middleware_data.user_dbm.tg_data = tg_user.model_dump(mode="json")
                     tg_bot_middleware_data.user_dbm.tg_bot_last_action_dt = now_local_dt_
+                    if (
+                            tg_user.id in get_cached_settings().tg_bot_admin_tg_ids
+                            and UserDBM.Roles.admin not in tg_bot_middleware_data.user_dbm.roles
+                    ):
+                        tg_bot_middleware_data.user_dbm.roles = (
+                                tg_bot_middleware_data.user_dbm.roles + [UserDBM.Roles.admin]
+                        )
                     session.commit()
                     session.refresh(tg_bot_middleware_data.user_dbm)
                     tg_bot_middleware_data.user_dbm_just_created = False

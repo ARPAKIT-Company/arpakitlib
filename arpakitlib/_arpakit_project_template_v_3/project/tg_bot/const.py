@@ -10,7 +10,6 @@ class ClientTgBotCommands(Enumeration):
 
 class AdminTgBotCommands(Enumeration):
     arpakitlib_project_template_info = "arpakitlib_project_template_info"
-    admin_healthcheck = "admin_healthcheck"
     init_db = "init_db"
     reinit_sqlalchemy_db = "reinit_sqlalchemy_db"
     drop_db = "drop_db"

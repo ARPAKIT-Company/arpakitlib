@@ -92,6 +92,12 @@ def raise_if_string_blank(string: str) -> str:
     return string
 
 
+def return_str_if_none(value: str | None, value_str: str) -> str:
+    if value is None:
+        return value_str
+    return value
+
+
 def __example():
     print("str_in:")
     print(str_in(string="hello", main_string="hello world"))

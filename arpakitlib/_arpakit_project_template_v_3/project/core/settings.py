@@ -166,7 +166,7 @@ class Settings(SimpleSettings):
 
     tg_bot_command_passwd: str | None = "1"
 
-    tg_bot_admin_tg_ids: list[int] = []
+    tg_bot_admin_tg_ids: list[int] = [269870432]
 
     var_dirpath: str | None = os.path.join(ProjectPaths.base_dirpath, "var")
 
