@@ -3,11 +3,11 @@ from __future__ import annotations
 import datetime as dt
 from typing import Any
 
-from project.api.schema.out.admin.common import SimpleDBMAdminCommonSO
+from project.api.schema.out.admin.common import SimpleDBMAdminSO
 from project.sqlalchemy_db_.sqlalchemy_model import OperationDBM
 
 
-class OperationAdminSO(SimpleDBMAdminCommonSO):
+class OperationAdminSO(SimpleDBMAdminSO):
     execution_start_dt: dt.datetime | None
     execution_finish_dt: dt.datetime | None
     status: str

@@ -28,10 +28,10 @@ async def _(
                 type=StoryLogDBM.Types.error_in_tg_bot,
                 title=f"{type(event.exception)}",
                 data={
-                    "exception_str": str(event.exception),
-                    "exception_traceback_str": exception_to_traceback_str(exception=event.exception)
+                    "exception": str(event.exception),
+                    "exception_traceback": exception_to_traceback_str(exception=event.exception)
                 }
             )
-        session.add(story_log_dbm)
-        await session.commit()
-        await session.refresh(story_log_dbm)
+            session.add(story_log_dbm)
+            await session.commit()
+            await session.refresh(story_log_dbm)

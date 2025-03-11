@@ -113,7 +113,7 @@ class OperationExecutorWorker(BaseWorker):
                     operation_dbm.error_data,
                     {
                         "exception_in_execute_operation": str(exception_in_execute_operation),
-                        "traceback_str_in_execute_operation": exception_to_traceback_str(
+                        "traceback_in_execute_operation": exception_to_traceback_str(
                             exception=exception_in_execute_operation
                         ),
                     }
@@ -208,7 +208,7 @@ class OperationExecutorWorker(BaseWorker):
                 operation_dbm.error_data = combine_dicts(
                     {
                         "exception_in_execute_operation": str(exception_in_execute_operation),
-                        "traceback_str_in_execute_operation": exception_to_traceback_str(
+                        "traceback_in_execute_operation": exception_to_traceback_str(
                             exception=exception_in_execute_operation
                         )
                     },

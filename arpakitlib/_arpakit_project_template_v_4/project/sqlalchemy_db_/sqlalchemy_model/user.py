@@ -21,7 +21,7 @@ class UserDBM(SimpleDBM):
         admin = "admin"
         client = "client"
 
-    mail: Mapped[str] = mapped_column(
+    mail: Mapped[str | None] = mapped_column(
         sqlalchemy.TEXT,
         index=True,
         insert_default=None,

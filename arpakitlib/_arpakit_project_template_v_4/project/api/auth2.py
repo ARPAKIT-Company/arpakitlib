@@ -4,6 +4,7 @@ import fastapi
 import fastapi.exceptions
 import fastapi.responses
 import fastapi.security
+import sqlalchemy
 from fastapi import Security
 from fastapi.security import APIKeyHeader
 from pydantic import BaseModel, ConfigDict
@@ -13,6 +14,8 @@ from arpakitlib.ar_json_util import transfer_data_to_json_str_to_data
 from project.api.const import APIErrorCodes
 from project.api.exception import APIException
 from project.core.settings import get_cached_settings
+from project.sqlalchemy_db_.sqlalchemy_db import get_cached_sqlalchemy_db
+from project.sqlalchemy_db_.sqlalchemy_model import ApiKeyDBM, UserTokenDBM
 
 
 class APIAuthData(BaseModel):
@@ -21,15 +24,18 @@ class APIAuthData(BaseModel):
     api_key_string: str | None = None
     user_token_string: str | None = None
 
+    api_key_dbm: ApiKeyDBM | None = None
+    user_token_dbm: UserTokenDBM | None = None
+
     prod_mode: bool = False
 
 
 def api_auth(
         *,
-        middleware_funcs: list[Callable] | None = None
+        middlewares: list[Callable] | None = None
 ) -> Callable:
-    if middleware_funcs is None:
-        middleware_funcs = []
+    if middlewares is None:
+        middlewares = []
 
     async def async_func(
             *,
@@ -46,7 +52,7 @@ def api_auth(
             prod_mode=get_cached_settings().prod_mode
         )
 
-        # parse api_key
+        # parse api_key_string
 
         api_auth_data.api_key_string = api_key_string
 
@@ -56,6 +62,8 @@ def api_auth(
             api_auth_data.api_key_string = request.headers["api-key"]
         if not api_auth_data.api_key_string and "apikey" in request.headers.keys():
             api_auth_data.api_key_string = request.headers["apikey"]
+        if not api_auth_data.api_key_string and "api_key_string" in request.headers.keys():
+            api_auth_data.api_key_string = request.headers["api_key_string"]
 
         if not api_auth_data.api_key_string and "api_key" in request.query_params.keys():
             api_auth_data.api_key_string = request.query_params["api_key"]
@@ -63,13 +71,15 @@ def api_auth(
             api_auth_data.api_key_string = request.query_params["api-key"]
         if not api_auth_data.api_key_string and "apikey" in request.query_params.keys():
             api_auth_data.api_key_string = request.query_params["apikey"]
+        if not api_auth_data.api_key_string and "api_key_string" in request.query_params.keys():
+            api_auth_data.api_key_string = request.query_params["api_key_string"]
 
         if api_auth_data.api_key_string:
             api_auth_data.api_key_string = api_auth_data.api_key_string.strip()
         if not api_auth_data.api_key_string:
             api_auth_data.api_key_string = None
 
-        # parse user_token
+        # parse user_token_string
 
         api_auth_data.user_token_string = ac.credentials if ac and ac.credentials and ac.credentials.strip() else None
 
@@ -98,54 +108,28 @@ def api_auth(
         if not api_auth_data.user_token_string:
             api_auth_data.user_token_string = None
 
-        # middleware_funcs
+        # middlewares
 
-        for middleware_func in middleware_funcs:
-            if is_async_callable(middleware_func):
-                await middleware_func(
+        for middleware in middlewares:
+            if is_async_callable(middleware):
+                await middleware(
                     api_auth_data=api_auth_data,
                     request=request
                 )
-            elif is_sync_function(middleware_func):
-                middleware_func(
+            elif is_sync_function(middleware):
+                middleware(
                     api_auth_data=api_auth_data,
                     request=request
                 )
             else:
-                raise TypeError("unknown middleware_func type")
+                raise TypeError(f"unknown middleware type, {middleware.__name__}")
 
         return api_auth_data
 
     return async_func
 
 
-def require_api_key_string_middleware_func():
-    def func(*, api_auth_data: APIAuthData, request: fastapi.requests.Request):
-        if api_auth_data.api_key_string is None:
-            raise APIException(
-                status_code=fastapi.status.HTTP_401_UNAUTHORIZED,
-                error_code=APIErrorCodes.cannot_authorize,
-                error_description="api_key string is required",
-                error_data=transfer_data_to_json_str_to_data(api_auth_data.model_dump())
-            )
-
-    return func
-
-
-def require_user_token_string_middleware_func():
-    def func(*, api_auth_data: APIAuthData, request: fastapi.requests.Request):
-        if api_auth_data.user_token_string is None:
-            raise APIException(
-                status_code=fastapi.status.HTTP_401_UNAUTHORIZED,
-                error_code=APIErrorCodes.cannot_authorize,
-                error_description="user_token string is required",
-                error_data=transfer_data_to_json_str_to_data(api_auth_data.model_dump())
-            )
-
-    return func
-
-
-def require_prod_mode_middleware_func():
+def require_prod_mode_api_middleware():
     def func(*, api_auth_data: APIAuthData, request: fastapi.requests.Request):
         if not get_cached_settings().prod_mode:
             raise APIException(
@@ -158,7 +142,7 @@ def require_prod_mode_middleware_func():
     return func
 
 
-def require_not_prod_mode_middleware_func():
+def require_not_prod_mode_api_middleware():
     def func(*, api_auth_data: APIAuthData, request: fastapi.requests.Request):
         if get_cached_settings().prod_mode:
             raise APIException(
@@ -169,3 +153,66 @@ def require_not_prod_mode_middleware_func():
             )
 
     return func
+
+
+def require_api_key_string_api_middleware():
+    def func(*, api_auth_data: APIAuthData, request: fastapi.requests.Request):
+        if api_auth_data.api_key_string is None:
+            raise APIException(
+                status_code=fastapi.status.HTTP_401_UNAUTHORIZED,
+                error_code=APIErrorCodes.cannot_authorize,
+                error_description="api_key_string is required",
+                error_data=transfer_data_to_json_str_to_data(api_auth_data.model_dump())
+            )
+
+    return func
+
+
+def require_user_token_string_api_middleware():
+    def func(*, api_auth_data: APIAuthData, request: fastapi.requests.Request):
+        if api_auth_data.user_token_string is None:
+            raise APIException(
+                status_code=fastapi.status.HTTP_401_UNAUTHORIZED,
+                error_code=APIErrorCodes.cannot_authorize,
+                error_description="user_token_string is required",
+                error_data=transfer_data_to_json_str_to_data(api_auth_data.model_dump())
+            )
+
+    return func
+
+
+def try_find_api_key_dbm_api_middleware():
+    async def async_func(*, api_auth_data: APIAuthData, request: fastapi.requests.Request):
+        if api_auth_data.api_key_dbm is None:
+            return
+        async with get_cached_sqlalchemy_db().new_async_session() as async_session:
+            api_auth_data.api_key_dbm = await async_session.scalar(
+                sqlalchemy.select(ApiKeyDBM).where(ApiKeyDBM.value == api_auth_data.api_key_string)
+            )
+
+    return async_func
+
+
+def try_find_user_token_dbm_api_middleware():
+    async def async_func(*, api_auth_data: APIAuthData, request: fastapi.requests.Request):
+        if api_auth_data.user_token_dbm is None:
+            return
+        async with get_cached_sqlalchemy_db().new_async_session() as async_session:
+            api_auth_data.user_token_dbm = await async_session.scalar(
+                sqlalchemy.select(UserTokenDBM).where(UserTokenDBM.value == api_auth_data.user_token_string)
+            )
+
+    return async_func
+
+
+def require_api_key_dbm_api_middleware():
+    async def async_func(*, api_auth_data: APIAuthData, request: fastapi.requests.Request):
+        if api_auth_data.api_key_dbm is None:
+            raise APIException(
+                status_code=fastapi.status.HTTP_401_UNAUTHORIZED,
+                error_code=APIErrorCodes.cannot_authorize,
+                error_description="api_key_dbm is required",
+                error_data=transfer_data_to_json_str_to_data(api_auth_data.model_dump())
+            )
+
+    return async_func

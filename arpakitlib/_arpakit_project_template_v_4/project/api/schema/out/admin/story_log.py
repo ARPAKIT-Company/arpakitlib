@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from typing import Any
 
-from project.api.schema.out.admin.common import SimpleDBMAdminCommonSO
+from project.api.schema.out.admin.common import SimpleDBMAdminSO
 from project.sqlalchemy_db_.sqlalchemy_model import StoryLogDBM
 
 
-class StoryLogAdminSO(SimpleDBMAdminCommonSO):
+class StoryLogAdminSO(SimpleDBMAdminSO):
     level: str
     type: str | None
     title: str | None

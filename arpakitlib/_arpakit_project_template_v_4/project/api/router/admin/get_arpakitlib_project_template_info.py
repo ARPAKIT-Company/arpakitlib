@@ -1,8 +1,8 @@
 import fastapi
 from fastapi import APIRouter
 
+from project.api.schema.out.common.error import ErrorCommonSO
 from project.api.schema.out.common.raw_data import RawDataCommonSO
-from project.api.schema.out.general.error import ErrorGeneralSO
 from project.util.arpakitlib_project_template import get_arpakitlib_project_template_info
 
 api_router = APIRouter()
@@ -12,7 +12,7 @@ api_router = APIRouter()
     "",
     name="Get arpakitlib project template info",
     status_code=fastapi.status.HTTP_200_OK,
-    response_model=RawDataCommonSO | ErrorGeneralSO
+    response_model=RawDataCommonSO | ErrorCommonSO
 )
 async def _(
         *,

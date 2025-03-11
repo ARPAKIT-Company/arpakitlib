@@ -3,7 +3,7 @@ import datetime as dt
 from project.api.schema.common import BaseSO
 
 
-class SimpleDBMAdminCommonSO(BaseSO):
+class SimpleDBMAdminSO(BaseSO):
     id: int
     long_id: str
     slug: str | None
