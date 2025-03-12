@@ -4,6 +4,7 @@ from arpakitlib.ar_enumeration_util import Enumeration
 class ClientTgBotCommands(Enumeration):
     start = "start"
     about = "about"
+    author = "author"
     support = "support"
     healthcheck = "healthcheck"
     hello_world = "hello_world"

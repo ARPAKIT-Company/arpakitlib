@@ -15,16 +15,16 @@ _logger = logging.getLogger(__name__)
 
 @tg_bot_router.message(
     or_f(
-        Command(ClientTgBotCommands.support),
+        Command(ClientTgBotCommands.about),
         MessageTextTgBotFilter([
-            ClientTgBotCommands.support,
-            "поддержка"
+            ClientTgBotCommands.about,
+            "о проекте"
         ], ignore_case=True)
-    )
+    ),
 )
 async def _(
         m: aiogram.types.Message,
         middleware_data_tg_bot: MiddlewareDataTgBot,
         **kwargs
 ):
-    await m.answer(text=get_cached_client_tg_bot_blank().support_info())
+    await m.answer(text=get_cached_client_tg_bot_blank().about())

@@ -37,7 +37,15 @@ def get_client_tg_bot_commands_to_set() -> list[BotCommand]:
                 get_cached_client_tg_bot_blank().command_to_desc().get(ClientTgBotCommands.support),
                 ClientTgBotCommands.support
             )
+        ),
+        BotCommand(
+            command=ClientTgBotCommands.author,
+            description=return_str_if_none(
+                get_cached_client_tg_bot_blank().command_to_desc().get(ClientTgBotCommands.author),
+                ClientTgBotCommands.author
+            )
         )
+
     ]
     return res
 
