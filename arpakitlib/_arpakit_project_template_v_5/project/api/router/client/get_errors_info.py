@@ -22,7 +22,9 @@ async def _(
         response: fastapi.responses.Response,
         api_auth_data: APIAuthData = fastapi.Depends(api_auth(middlewares=[
             require_correct_api_key_or_api_key_dbm_api_middleware(require_active_api_key_dbm=True),
-            require_user_token_dbm_api_middleware(require_active=True)
+            require_user_token_dbm_api_middleware(
+                require_active_user_token=True
+            )
         ]))
 ):
     return ErrorsInfoGeneralSO(

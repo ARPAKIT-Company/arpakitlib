@@ -5,6 +5,7 @@ from project.api.auth import require_user_token_dbm_api_middleware, require_api_
     api_auth
 from project.api.schema.out.common.error import ErrorCommonSO
 from project.api.schema.out.common.raw_data import RawDataCommonSO
+from project.sqlalchemy_db_.sqlalchemy_model import UserDBM
 from project.util.arpakitlib_project_template import get_arpakitlib_project_template_info
 
 api_router = APIRouter()
@@ -22,7 +23,10 @@ async def _(
         response: fastapi.responses.Response,
         api_auth_data: APIAuthData = fastapi.Depends(api_auth(middlewares=[
             require_api_key_dbm_api_middleware(require_active=True),
-            require_user_token_dbm_api_middleware(require_active=True)
+            require_user_token_dbm_api_middleware(
+                require_active_user_token=True,
+                require_user_roles=[UserDBM.Roles.admin]
+            )
         ]))
 ):
     arpakitlib_project_template_data = get_arpakitlib_project_template_info()
