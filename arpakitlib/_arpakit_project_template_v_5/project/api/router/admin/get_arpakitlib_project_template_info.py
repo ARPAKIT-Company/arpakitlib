@@ -1,8 +1,8 @@
 import fastapi
 from fastapi import APIRouter
 
-from project.api.auth import require_user_token_dbm_api_middleware, require_api_key_dbm_api_middleware, APIAuthData, \
-    api_auth
+from project.api.auth import require_user_token_dbm_api_middleware, APIAuthData, \
+    api_auth, require_correct_api_key_or_api_key_dbm_api_middleware
 from project.api.schema.out.common.error import ErrorCommonSO
 from project.api.schema.out.common.raw_data import RawDataCommonSO
 from project.sqlalchemy_db_.sqlalchemy_model import UserDBM
@@ -22,7 +22,7 @@ async def _(
         request: fastapi.requests.Request,
         response: fastapi.responses.Response,
         api_auth_data: APIAuthData = fastapi.Depends(api_auth(middlewares=[
-            require_api_key_dbm_api_middleware(require_active=True),
+            require_correct_api_key_or_api_key_dbm_api_middleware(require_active_api_key_dbm=True),
             require_user_token_dbm_api_middleware(
                 require_active_user_token=True,
                 require_user_roles=[UserDBM.Roles.admin]
