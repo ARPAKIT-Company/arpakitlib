@@ -1,16 +1,16 @@
 import aiogram.filters
 
 from arpakitlib.ar_aiogram_util import as_tg_command
-from arpakitlib.ar_json_util import transfer_data_to_json_str
+from project.sqlalchemy_db_.sqlalchemy_db import get_cached_sqlalchemy_db
+from project.tg_bot.blank.admin import get_cached_admin_tg_bot_blank
 from project.tg_bot.const import AdminTgBotCommands
 from project.tg_bot.middleware.common import MiddlewareDataTgBot
-from project.util.arpakitlib_project_template import get_arpakitlib_project_template_info
 
 tg_bot_router = aiogram.Router()
 
 
 @tg_bot_router.message(
-    aiogram.filters.Command(AdminTgBotCommands.arpakitlib_project_template_info)
+    aiogram.filters.Command(AdminTgBotCommands.init_sqlalchemy_db)
 )
 @as_tg_command()
 async def _(
@@ -18,6 +18,7 @@ async def _(
         middleware_data_tg_bot: MiddlewareDataTgBot,
         **kwargs
 ):
+    get_cached_sqlalchemy_db().init()
     await m.answer(
-        text=transfer_data_to_json_str(get_arpakitlib_project_template_info(), beautify=True)
+        text=get_cached_admin_tg_bot_blank().good()
     )

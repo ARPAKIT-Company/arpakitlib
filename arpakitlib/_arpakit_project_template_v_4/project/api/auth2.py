@@ -9,7 +9,7 @@ from fastapi import Security
 from fastapi.security import APIKeyHeader
 from pydantic import BaseModel, ConfigDict
 
-from arpakitlib.ar_func_util import is_async_callable, is_sync_function
+from arpakitlib.ar_func_util import is_async_func, is_sync_func
 from arpakitlib.ar_json_util import transfer_data_to_json_str_to_data
 from project.api.const import APIErrorCodes
 from project.api.exception import APIException
@@ -111,12 +111,12 @@ def api_auth(
         # middlewares
 
         for middleware in middlewares:
-            if is_async_callable(middleware):
+            if is_async_func(middleware):
                 await middleware(
                     api_auth_data=api_auth_data,
                     request=request
                 )
-            elif is_sync_function(middleware):
+            elif is_sync_func(middleware):
                 middleware(
                     api_auth_data=api_auth_data,
                     request=request

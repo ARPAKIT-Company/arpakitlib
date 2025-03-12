@@ -189,16 +189,16 @@ class SQLAlchemyDb:
 
     def init(self):
         self.base_dbm.metadata.create_all(bind=self.engine, checkfirst=True)
-        self._logger.info("db was inited")
+        self._logger.info("inited")
 
     def drop(self):
         self.base_dbm.metadata.drop_all(bind=self.engine, checkfirst=True)
-        self._logger.info("db was dropped")
+        self._logger.info("dropped")
 
     def reinit(self):
         self.base_dbm.metadata.drop_all(bind=self.engine, checkfirst=True)
         self.base_dbm.metadata.create_all(bind=self.engine, checkfirst=True)
-        self._logger.info("db was reinited")
+        self._logger.info("reinited")
 
     def check_conn(self):
         self.engine.connect()

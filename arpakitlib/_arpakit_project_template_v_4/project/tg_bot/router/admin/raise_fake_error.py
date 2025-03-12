@@ -9,7 +9,7 @@ tg_bot_router = aiogram.Router()
 
 
 @tg_bot_router.message(
-    aiogram.filters.Command(AdminTgBotCommands.raise_fake_err)
+    aiogram.filters.Command(AdminTgBotCommands.raise_fake_error)
 )
 @as_tg_command(passwd_validator=get_cached_settings().tg_bot_command_passwd)
 async def _(

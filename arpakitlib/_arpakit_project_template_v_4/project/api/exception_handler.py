@@ -10,7 +10,7 @@ import starlette.exceptions
 from arpakitlib.ar_datetime_util import now_utc_dt
 from arpakitlib.ar_dict_util import combine_dicts
 from arpakitlib.ar_exception_util import exception_to_traceback_str
-from arpakitlib.ar_func_util import raise_if_not_async_callable, is_async_callable, is_sync_function
+from arpakitlib.ar_func_util import raise_if_not_async_func, is_async_func, is_sync_func
 from arpakitlib.ar_json_util import transfer_data_to_json_str
 from project.api.const import APIErrorCodes
 from project.api.exception import APIException
@@ -102,7 +102,7 @@ def create_api_exception_handler(
 
         _transmitted_kwargs = {}
         for func_before in funcs_before:
-            if is_async_callable(func_before):
+            if is_async_func(func_before):
                 try:
                     await func_before(
                         request=request,
@@ -114,7 +114,7 @@ def create_api_exception_handler(
                 except Exception as exception_:
                     _logger.exception(exception_)
                     raise exception_
-            elif is_sync_function(func_before):
+            elif is_sync_func(func_before):
                 try:
                     func_before(
                         request=request,
@@ -132,7 +132,7 @@ def create_api_exception_handler(
         # async_funcs_after
 
         for async_func_after in async_funcs_after:
-            raise_if_not_async_callable(async_func_after)
+            raise_if_not_async_func(async_func_after)
             _ = asyncio.create_task(async_func_after(
                 request=request, status_code=status_code, error_common_so=error_common_so, exception=exception
             ))

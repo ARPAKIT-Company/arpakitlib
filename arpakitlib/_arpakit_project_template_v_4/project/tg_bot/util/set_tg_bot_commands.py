@@ -4,6 +4,7 @@ import logging
 from aiogram.types import BotCommand, BotCommandScopeChat
 
 from arpakitlib.ar_str_util import return_str_if_none
+from project.core.settings import get_cached_settings
 from project.core.util import setup_logging
 from project.sqlalchemy_db_.sqlalchemy_db import get_cached_sqlalchemy_db
 from project.sqlalchemy_db_.sqlalchemy_model import UserDBM
@@ -53,15 +54,29 @@ async def set_client_tg_bot_commands():
 async def set_admin_tg_bot_commands():
     _logger.info(f"start")
 
-    with get_cached_sqlalchemy_db().new_session() as session:
-        user_dbms: list[UserDBM] = session.query(UserDBM).filter(UserDBM.roles.any(UserDBM.Roles.admin)).all()
+    user_tg_ids = set()
+    for tg_bot_admin_tg_id in get_cached_settings().tg_bot_admin_tg_ids:
+        user_tg_ids.add(tg_bot_admin_tg_id)
 
-    for user_dbm in user_dbms:
+    if get_cached_sqlalchemy_db() is not None:
+        with get_cached_sqlalchemy_db().new_session() as session:
+            user_dbms: list[UserDBM] = session.query(UserDBM).filter(UserDBM.roles.any(UserDBM.Roles.admin)).all()
+            for user_dbm in user_dbms:
+                user_tg_ids.add(user_dbm.tg_id)
+
+    for user_tg_id in user_tg_ids:
         await get_cached_tg_bot().set_my_commands(
             commands=get_client_tg_bot_commands_to_set() + get_admin_tg_bot_commands_to_set(),
-            scope=BotCommandScopeChat(chat_id=user_dbm.tg_id)
+            scope=BotCommandScopeChat(chat_id=user_tg_id)
         )
 
+    _logger.info("finish")
+
+
+async def set_all_tg_bot_commands():
+    _logger.info(f"start")
+    await set_client_tg_bot_commands()
+    await set_admin_tg_bot_commands()
     _logger.info("finish")
 
 

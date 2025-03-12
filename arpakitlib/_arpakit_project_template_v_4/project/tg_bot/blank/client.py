@@ -3,12 +3,22 @@ from functools import lru_cache
 from emoji import emojize
 
 from project.tg_bot.blank.common import SimpleBlankTgBot
+from project.tg_bot.const import ClientTgBotCommands
 
 
 class ClientTgBotBlank(SimpleBlankTgBot):
 
     def command_to_desc(self) -> dict[str, str]:
-        return {}
+        return {
+            ClientTgBotCommands.start: emojize(":waving_hand: Начать"),
+            ClientTgBotCommands.about: emojize(":information: О проекте")
+        }
+
+    def error(self) -> str:
+        res = ":warning: <b>Произошла неполадка</b> :warning:"
+        res += "\n\n:wrench: Мы уже работаем над исправлением"
+        res += "\n\n:red_heart: Просим прощения :red_heart:"
+        return emojize(res.strip())
 
     def but_hello_world(self) -> str:
         res = "hello_world"
@@ -24,6 +34,14 @@ class ClientTgBotBlank(SimpleBlankTgBot):
 
     def welcome(self) -> str:
         res = ":waving_hand: <b>Welcome</b> :waving_hand:"
+        return emojize(res.strip())
+
+    def about_project(self) -> str:
+        res = ":information: <b>О проекте</b>"
+        return emojize(res.strip())
+
+    def keyboard_is_old(self) -> str:
+        res = ":information: Данная клавиатура устарела :information:"
         return emojize(res.strip())
 
 

@@ -2,7 +2,9 @@ import asyncio
 
 
 def __sandbox():
-    pass
+    a = {1, 2, 3}
+    a += [1, 2]
+    print(a)
 
 
 async def __async_sandbox():
