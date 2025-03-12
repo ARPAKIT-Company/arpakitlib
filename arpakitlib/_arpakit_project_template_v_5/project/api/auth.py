@@ -173,7 +173,7 @@ def require_prod_mode_api_middleware():
             raise APIException(
                 status_code=fastapi.status.HTTP_401_UNAUTHORIZED,
                 error_code=APIErrorCodes.cannot_authorize,
-                error_description=f"prod_mode is required {get_cached_settings().prod_mode=}",
+                error_description=f"prod_mode is required, {get_cached_settings().prod_mode=}",
                 error_data=transfer_data_to_json_str_to_data(api_auth_data.model_dump())
             )
 
