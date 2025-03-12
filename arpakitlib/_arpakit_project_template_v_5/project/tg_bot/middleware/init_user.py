@@ -2,6 +2,7 @@ import logging
 from typing import Any, Awaitable, Callable, Dict
 
 import aiogram
+import sqlalchemy
 from aiogram import BaseMiddleware
 from aiogram.types import TelegramObject
 
@@ -45,9 +46,9 @@ class InitUserTgBotMiddleware(BaseMiddleware):
         now_local_dt_ = now_local_dt()
 
         if tg_user is not None and get_cached_sqlalchemy_db() is not None:
-            with get_cached_sqlalchemy_db().new_session() as session:
-                middleware_data_tg_bot.user_dbm = (
-                    session.query(UserDBM).filter(UserDBM.tg_id == tg_user.id).one_or_none()
+            async with get_cached_sqlalchemy_db().new_async_session() as async_session:
+                middleware_data_tg_bot.user_dbm = await async_session.scalar(
+                    sqlalchemy.select(UserDBM).filter(UserDBM.tg_id == tg_user.id)
                 )
                 if middleware_data_tg_bot.user_dbm is None:
                     roles = [UserDBM.Roles.client]
@@ -60,9 +61,9 @@ class InitUserTgBotMiddleware(BaseMiddleware):
                         tg_data=tg_user.model_dump(mode="json"),
                         tg_bot_last_action_dt=now_local_dt_
                     )
-                    session.add(middleware_data_tg_bot.user_dbm)
-                    session.commit()
-                    session.refresh(middleware_data_tg_bot.user_dbm)
+                    async_session.add(middleware_data_tg_bot.user_dbm)
+                    await async_session.commit()
+                    await async_session.refresh(middleware_data_tg_bot.user_dbm)
                     middleware_data_tg_bot.user_dbm_just_created = True
                     _logger.info(f"user_dbm was added, {middleware_data_tg_bot.user_dbm}")
                 else:
@@ -75,8 +76,8 @@ class InitUserTgBotMiddleware(BaseMiddleware):
                         middleware_data_tg_bot.user_dbm.roles = (
                                 middleware_data_tg_bot.user_dbm.roles + [UserDBM.Roles.admin]
                         )
-                    session.commit()
-                    session.refresh(middleware_data_tg_bot.user_dbm)
+                    await async_session.commit()
+                    await async_session.refresh(middleware_data_tg_bot.user_dbm)
                     middleware_data_tg_bot.user_dbm_just_created = False
 
         _logger.info("finish")

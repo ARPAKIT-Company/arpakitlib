@@ -8,10 +8,6 @@ from project.tg_bot.router.client import remove_message, start, about, healthche
 
 main_tg_bot_router = Router()
 
-# client
-main_tg_bot_router.include_router(router=raw_inline_query.tg_bot_router)
-main_tg_bot_router.include_router(router=raw_callback_query.tg_bot_router)
-
 # admin
 main_tg_bot_router.include_router(router=reinit_sqlalchemy_db.tg_bot_router)
 main_tg_bot_router.include_router(router=arpakitlib_project_template_info.tg_bot_router)
@@ -36,3 +32,5 @@ main_tg_bot_router.include_router(router=healthcheck.tg_bot_router)
 main_tg_bot_router.include_router(router=hello_world.tg_bot_router)
 main_tg_bot_router.include_router(router=support.tg_bot_router)
 main_tg_bot_router.include_router(router=raw_message.tg_bot_router)
+main_tg_bot_router.include_router(router=raw_inline_query.tg_bot_router)
+main_tg_bot_router.include_router(router=raw_callback_query.tg_bot_router)

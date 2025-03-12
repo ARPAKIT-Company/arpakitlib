@@ -200,6 +200,12 @@ class SQLAlchemyDb:
         self.base_dbm.metadata.create_all(bind=self.engine, checkfirst=True)
         self._logger.info("reinited")
 
+    def reinit_all(self):
+        self.reinit()
+        self.remove_alembic_tables_data()
+        self.remove_celery_tables_data()
+        self._logger.info("all reinited")
+
     def check_conn(self):
         self.engine.connect()
         self._logger.info("db conn is good")
