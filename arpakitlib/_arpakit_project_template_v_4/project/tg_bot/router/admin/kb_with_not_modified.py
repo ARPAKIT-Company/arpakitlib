@@ -1,3 +1,4 @@
+import aiogram
 from aiogram import Router, types
 from aiogram.filters import Command
 from aiogram.filters.callback_data import CallbackData
@@ -7,6 +8,8 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 from arpakitlib.ar_aiogram_util import as_tg_command
 from project.tg_bot.blank.admin import get_cached_admin_tg_bot_blank
 from project.tg_bot.const import AdminTgBotCommands
+from project.tg_bot.filter_.is_private_chat import IsPrivateChatTgBotFilter
+from project.tg_bot.filter_.user_roles_has_admin import UserRolesHasAdminTgBotFilter
 
 tg_bot_router = Router()
 
@@ -16,7 +19,9 @@ class _CD(CallbackData, prefix=AdminTgBotCommands.kb_with_not_modified):
 
 
 @tg_bot_router.message(
-    Command(AdminTgBotCommands.kb_with_not_modified, ignore_case=True)
+    IsPrivateChatTgBotFilter(),
+    UserRolesHasAdminTgBotFilter(),
+    aiogram.filters.Command(AdminTgBotCommands.kb_with_not_modified, ignore_case=True)
 )
 @as_tg_command()
 async def _(
@@ -34,7 +39,11 @@ async def _(
     )
 
 
-@tg_bot_router.callback_query(_CD.filter())
+@tg_bot_router.callback_query(
+    IsPrivateChatTgBotFilter(),
+    UserRolesHasAdminTgBotFilter(),
+    _CD.filter()
+)
 async def _(
         cq: types.CallbackQuery,
         **kwargs

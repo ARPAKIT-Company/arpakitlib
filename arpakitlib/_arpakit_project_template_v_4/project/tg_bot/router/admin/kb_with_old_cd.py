@@ -5,6 +5,8 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 from arpakitlib.ar_aiogram_util import as_tg_command
 from project.tg_bot.callback.common import BaseCD
 from project.tg_bot.const import AdminTgBotCommands
+from project.tg_bot.filter_.is_private_chat import IsPrivateChatTgBotFilter
+from project.tg_bot.filter_.user_roles_has_admin import UserRolesHasAdminTgBotFilter
 from project.tg_bot.middleware.common import MiddlewareDataTgBot
 
 tg_bot_router = aiogram.Router()
@@ -15,6 +17,8 @@ class _CD(BaseCD, prefix=AdminTgBotCommands.kb_with_old_cd):
 
 
 @tg_bot_router.message(
+    IsPrivateChatTgBotFilter(),
+    UserRolesHasAdminTgBotFilter(),
     aiogram.filters.Command(AdminTgBotCommands.kb_with_old_cd, ignore_case=True)
 )
 @as_tg_command()

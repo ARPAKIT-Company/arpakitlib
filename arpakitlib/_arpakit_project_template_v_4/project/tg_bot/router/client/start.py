@@ -7,7 +7,6 @@ from aiogram.filters import Command, or_f
 from project.tg_bot.blank.client import get_cached_client_tg_bot_blank
 from project.tg_bot.const import ClientTgBotCommands
 from project.tg_bot.filter_.message_text import MessageTextTgBotFilter
-from project.tg_bot.filter_.user_roles_has_client import UserRolesHasClientTgBotFilter
 from project.tg_bot.middleware.common import MiddlewareDataTgBot
 
 tg_bot_router = Router()
@@ -25,7 +24,6 @@ _logger = logging.getLogger(__name__)
             "запуск",
         ], ignore_case=True)
     ),
-    UserRolesHasClientTgBotFilter()
 
 )
 async def _(

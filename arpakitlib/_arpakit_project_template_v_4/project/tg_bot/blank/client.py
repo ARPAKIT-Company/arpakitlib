@@ -7,21 +7,20 @@ from project.tg_bot.const import ClientTgBotCommands
 
 
 class ClientTgBotBlank(SimpleBlankTgBot):
-
     def command_to_desc(self) -> dict[str, str]:
         return {
             ClientTgBotCommands.start: emojize(":waving_hand: Начать"),
             ClientTgBotCommands.about: emojize(":information: О проекте")
         }
 
+    def but_hello_world(self) -> str:
+        res = "hello_world"
+        return emojize(res.strip())
+
     def error(self) -> str:
         res = ":warning: <b>Произошла неполадка</b> :warning:"
         res += "\n\n:wrench: Мы уже работаем над исправлением"
         res += "\n\n:red_heart: Просим прощения :red_heart:"
-        return emojize(res.strip())
-
-    def but_hello_world(self) -> str:
-        res = "hello_world"
         return emojize(res.strip())
 
     def hello_world(self) -> str:
@@ -36,8 +35,16 @@ class ClientTgBotBlank(SimpleBlankTgBot):
         res = ":waving_hand: <b>Welcome</b> :waving_hand:"
         return emojize(res.strip())
 
+    def raw_message(self) -> str:
+        res = ":warning: <b>Сообщние не обработано</b> :warning:"
+        return emojize(res.strip())
+
     def about_project(self) -> str:
         res = ":information: <b>О проекте</b>"
+        return emojize(res.strip())
+
+    def support_info(self) -> str:
+        res = ":red_heart: <b>Поддержка</b>"
         return emojize(res.strip())
 
     def keyboard_is_old(self) -> str:

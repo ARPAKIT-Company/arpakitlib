@@ -4,17 +4,13 @@ import aiogram.filters
 from aiogram.exceptions import AiogramError
 
 from project.tg_bot.blank.client import get_cached_client_tg_bot_blank
-from project.tg_bot.filter_.user_roles_has_client import UserRolesHasClientTgBotFilter
 from project.tg_bot.middleware.common import MiddlewareDataTgBot
 
 _logger = logging.getLogger(__name__)
 tg_bot_router = aiogram.Router()
 
 
-@tg_bot_router.callback_query(
-    UserRolesHasClientTgBotFilter()
-
-)
+@tg_bot_router.callback_query()
 async def _(
         cq: aiogram.types.CallbackQuery,
         middleware_data_tg_bot: MiddlewareDataTgBot,

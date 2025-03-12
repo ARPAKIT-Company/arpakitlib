@@ -6,6 +6,8 @@ from arpakitlib.ar_aiogram_util import as_tg_command
 from project.tg_bot.blank.admin import get_cached_admin_tg_bot_blank
 from project.tg_bot.callback.common import BaseCD
 from project.tg_bot.const import AdminTgBotCommands
+from project.tg_bot.filter_.is_private_chat import IsPrivateChatTgBotFilter
+from project.tg_bot.filter_.user_roles_has_admin import UserRolesHasAdminTgBotFilter
 from project.tg_bot.middleware.common import MiddlewareDataTgBot
 
 tg_bot_router = aiogram.Router()
@@ -16,6 +18,8 @@ class _CD(BaseCD, prefix=AdminTgBotCommands.kb_with_raise_error):
 
 
 @tg_bot_router.message(
+    IsPrivateChatTgBotFilter(),
+    UserRolesHasAdminTgBotFilter(),
     aiogram.filters.Command(AdminTgBotCommands.kb_with_raise_error)
 )
 @as_tg_command()
