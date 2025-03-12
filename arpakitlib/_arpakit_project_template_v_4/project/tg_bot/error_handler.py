@@ -22,6 +22,7 @@ async def _(
         **kwargs
 ):
     need_logging = True
+    need_create_story_log = True
 
     if (
             error_event.update.event_type == "message"
@@ -49,6 +50,7 @@ async def _(
 
         if error_linked_with_message_not_modified:
             need_logging = False
+            need_create_story_log = False
 
         try:
             await error_event.update.event.answer()
@@ -72,17 +74,18 @@ async def _(
     if need_logging:
         _logger.exception(error_event.exception)
 
-    if get_cached_sqlalchemy_db() is not None:
-        async with get_cached_sqlalchemy_db().new_async_session() as session:
-            story_log_dbm = StoryLogDBM(
-                level=StoryLogDBM.Levels.error,
-                type=StoryLogDBM.Types.error_in_tg_bot,
-                title=f"{type(error_event.exception)}",
-                data={
-                    "exception": str(error_event.exception),
-                    "exception_traceback": exception_to_traceback_str(exception=error_event.exception)
-                }
-            )
-            session.add(story_log_dbm)
-            await session.commit()
-            await session.refresh(story_log_dbm)
+    if need_create_story_log:
+        if get_cached_sqlalchemy_db() is not None:
+            async with get_cached_sqlalchemy_db().new_async_session() as session:
+                story_log_dbm = StoryLogDBM(
+                    level=StoryLogDBM.Levels.error,
+                    type=StoryLogDBM.Types.error_in_tg_bot,
+                    title=f"{type(error_event.exception)}",
+                    data={
+                        "exception": str(error_event.exception),
+                        "exception_traceback": exception_to_traceback_str(exception=error_event.exception)
+                    }
+                )
+                session.add(story_log_dbm)
+                await session.commit()
+                await session.refresh(story_log_dbm)

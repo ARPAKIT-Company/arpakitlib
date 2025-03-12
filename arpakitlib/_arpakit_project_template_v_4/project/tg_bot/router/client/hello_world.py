@@ -6,6 +6,7 @@ from project.tg_bot.blank.client import get_cached_client_tg_bot_blank
 from project.tg_bot.callback.client import HelloWorldClientCD
 from project.tg_bot.const import ClientTgBotCommands
 from project.tg_bot.filter_.message_text import MessageTextTgBotFilter
+from project.tg_bot.filter_.user_roles_has_client import UserRolesHasClientTgBotFilter
 from project.tg_bot.kb.inline_.client.hello_world import hello_world_client_inline_kb_tg_bot
 from project.tg_bot.kb.static_.client.hello_world import hello_world_client_static_kb_tg_bot
 from project.tg_bot.middleware.common import MiddlewareDataTgBot
@@ -17,7 +18,9 @@ tg_bot_router = aiogram.Router()
     or_f(
         aiogram.filters.Command(ClientTgBotCommands.hello_world),
         MessageTextTgBotFilter(get_cached_client_tg_bot_blank().but_hello_world())
-    )
+    ),
+    UserRolesHasClientTgBotFilter()
+
 )
 async def _(
         m: aiogram.types.Message,
