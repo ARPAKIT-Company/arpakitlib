@@ -35,7 +35,7 @@ class ApiKeyDBM(SimpleDBM):
         insert_default=generate_default_api_key_value,
         nullable=False
     )
-    is_enabled: Mapped[bool] = mapped_column(
+    is_active: Mapped[bool] = mapped_column(
         sqlalchemy.Boolean,
         index=True,
         insert_default=True,

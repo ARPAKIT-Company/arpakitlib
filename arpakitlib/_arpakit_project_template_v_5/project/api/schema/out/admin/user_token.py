@@ -7,7 +7,7 @@ from project.sqlalchemy_db_.sqlalchemy_model import UserTokenDBM
 class UserTokenDBMSAdminSO(SimpleDBMAdminSO):
     value: str
     user_id: int
-    is_enabled: bool
+    is_active: bool
 
     @classmethod
     def from_user_token_dbm(cls, *, user_dbm: UserTokenDBM) -> UserTokenDBMSAdminSO:

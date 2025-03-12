@@ -1,12 +1,14 @@
 import asyncio
 
+from project.core.settings import get_cached_settings
+
 
 def make_test_data_3():
-    pass
+    get_cached_settings().raise_if_prod_mode()
 
 
 async def async_make_test_data_3():
-    pass
+    get_cached_settings().raise_if_prod_mode()
 
 
 def __example():

@@ -84,24 +84,10 @@ class Settings(SimpleSettings):
 
     api_init_json_db: bool = False
 
-    api_api_keys: list[str] | None = ["1"]
+    api_correct_api_keys: list[str] | None = ["1"]
 
-    @field_validator("api_api_keys", mode="before")
-    def validate_api_api_keys(cls, v: Any, validation_info: ValidationInfo, **kwargs) -> list[str] | None:
-        if isinstance(v, str):
-            v = [v]
-        if isinstance(v, int):
-            v = [str(v)]
-        if isinstance(v, list):
-            for i, v_ in enumerate(v):
-                if isinstance(v_, int):
-                    v[i] = str(v_)
-        return v
-
-    api_user_tokens: list[str] | None = ["1"]
-
-    @field_validator("api_user_tokens", mode="before")
-    def validate_api_tokens(cls, v: Any, validation_info: ValidationInfo, **kwargs) -> list[str] | None:
+    @field_validator("api_correct_api_keys", mode="before")
+    def validate_api_correct_api_keys(cls, v: Any, validation_info: ValidationInfo, **kwargs) -> list[str] | None:
         if isinstance(v, str):
             v = [v]
         if isinstance(v, int):

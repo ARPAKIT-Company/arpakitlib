@@ -33,7 +33,7 @@ class UserDBM(SimpleDBM):
         index=True,
         nullable=False
     )
-    is_enabled: Mapped[bool] = mapped_column(
+    is_active: Mapped[bool] = mapped_column(
         sqlalchemy.Boolean,
         index=True,
         insert_default=True,

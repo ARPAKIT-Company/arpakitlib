@@ -10,7 +10,7 @@ from project.sqlalchemy_db_.sqlalchemy_model import UserDBM
 class UserDBMSAdminSO(SimpleDBMAdminSO):
     mail: str | None
     roles: list[str]
-    is_enabled: bool
+    is_active: bool
     tg_id: int | None
     tg_bot_last_action_dt: dt.datetime | None
     tg_data: dict[str, Any] | None

@@ -17,6 +17,6 @@ api_router = APIRouter()
 async def _(
         *,
         request: fastapi.requests.Request,
-        response: fastapi.responses.Response
+        response: fastapi.responses.Response,
 ):
     return DatetimeCommonSO.from_datetime(datetime_=now_utc_dt())
