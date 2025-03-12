@@ -120,7 +120,9 @@ def api_auth(
             if get_cached_settings().api_correct_api_keys is None:
                 api_auth_data.is_api_key_correct = None
             else:
-                api_auth_data.is_api_key_correct = api_auth_data.api_key_string in get_cached_settings().api_correct_api_keys
+                api_auth_data.is_api_key_correct = (
+                        api_auth_data.api_key_string in get_cached_settings().api_correct_api_keys
+                )
 
         # api_key_dbm
 
@@ -133,7 +135,7 @@ def api_auth(
 
         # user_token_dbm
 
-        if api_auth_data.api_key_string is not None:
+        if api_auth_data.user_token_string is not None:
             if get_cached_sqlalchemy_db() is not None:
                 async with get_cached_sqlalchemy_db().new_async_session() as async_session:
                     api_auth_data.user_token_dbm = await async_session.scalar(
@@ -167,7 +169,6 @@ def api_auth(
 
 
 def require_prod_mode_api_middleware():
-    @functools.wraps(require_prod_mode_api_middleware)
     def func(*, api_auth_data: APIAuthData, request: fastapi.requests.Request):
         if not get_cached_settings().prod_mode:
             raise APIException(
@@ -177,11 +178,12 @@ def require_prod_mode_api_middleware():
                 error_data=transfer_data_to_json_str_to_data(api_auth_data.model_dump())
             )
 
+    func.__name__ = require_prod_mode_api_middleware.__name__
+
     return func
 
 
 def require_not_prod_mode_api_middleware():
-    @functools.wraps(require_not_prod_mode_api_middleware)
     def func(*, api_auth_data: APIAuthData, request: fastapi.requests.Request):
         if get_cached_settings().prod_mode:
             raise APIException(
@@ -191,11 +193,12 @@ def require_not_prod_mode_api_middleware():
                 error_data=transfer_data_to_json_str_to_data(api_auth_data.model_dump())
             )
 
+    func.__name__ = require_not_prod_mode_api_middleware.__name__
+
     return func
 
 
 def require_api_key_string_api_middleware():
-    @functools.wraps(require_api_key_string_api_middleware)
     def func(*, api_auth_data: APIAuthData, request: fastapi.requests.Request):
         if api_auth_data.api_key_string is None:
             raise APIException(
@@ -205,11 +208,12 @@ def require_api_key_string_api_middleware():
                 error_data=transfer_data_to_json_str_to_data(api_auth_data.model_dump())
             )
 
+    func.__name__ = require_api_key_string_api_middleware.__name__
+
     return func
 
 
 def require_user_token_string_api_middleware():
-    @functools.wraps(require_user_token_string_api_middleware)
     def func(*, api_auth_data: APIAuthData, request: fastapi.requests.Request):
         if api_auth_data.user_token_string is None:
             raise APIException(
@@ -219,11 +223,12 @@ def require_user_token_string_api_middleware():
                 error_data=transfer_data_to_json_str_to_data(api_auth_data.model_dump())
             )
 
+    func.__name__ = require_user_token_string_api_middleware.__name__
+
     return func
 
 
-def require_correct_api_key_dbm_api_middleware():
-    @functools.wraps(require_correct_api_key_dbm_api_middleware)
+def require_correct_api_key_api_middleware():
     def func(*, api_auth_data: APIAuthData, request: fastapi.requests.Request):
         if not api_auth_data.is_api_key_correct:
             raise APIException(
@@ -232,6 +237,8 @@ def require_correct_api_key_dbm_api_middleware():
                 error_description="api_key_string is not correct",
                 error_data=transfer_data_to_json_str_to_data(api_auth_data.model_dump())
             )
+
+    func.__name__ = require_correct_api_key_api_middleware.__name__
 
     return func
 
@@ -243,16 +250,38 @@ def require_api_key_dbm_api_middleware(*, require_active: bool = True):
             raise APIException(
                 status_code=fastapi.status.HTTP_401_UNAUTHORIZED,
                 error_code=APIErrorCodes.cannot_authorize,
-                error_description="api_key_dbm is required",
+                error_description=f"api_key_dbm is not active, {require_active=}",
                 error_data=transfer_data_to_json_str_to_data(api_auth_data.model_dump())
             )
         if require_active and not api_auth_data.api_key_dbm.is_active:
             raise APIException(
                 status_code=fastapi.status.HTTP_401_UNAUTHORIZED,
                 error_code=APIErrorCodes.cannot_authorize,
-                error_description="api_key_dbm is not active",
+                error_description=f"api_key_dbm is not active, {require_active=}",
                 error_data=transfer_data_to_json_str_to_data(api_auth_data.model_dump())
             )
+
+    async_func.__name__ = require_api_key_dbm_api_middleware.__name__
+
+    return async_func
+
+
+def require_correct_api_key_or_api_key_dbm_api_middleware(*, require_active_api_key_dbm: bool = True):
+    async def async_func(*, api_auth_data: APIAuthData, request: fastapi.requests.Request):
+        if not api_auth_data.is_api_key_correct and (
+                api_auth_data.api_key_dbm is None
+                or (require_active_api_key_dbm and not api_auth_data.api_key_dbm.is_active)
+        ):
+            raise APIException(
+                status_code=fastapi.status.HTTP_401_UNAUTHORIZED,
+                error_code=APIErrorCodes.cannot_authorize,
+                error_description=(
+                    f"correct api_key is required or api_key_dbm is required, {require_active_api_key_dbm=}"
+                ),
+                error_data=transfer_data_to_json_str_to_data(api_auth_data.model_dump())
+            )
+
+    async_func.__name__ = require_correct_api_key_or_api_key_dbm_api_middleware.__name__
 
     return async_func
 
@@ -264,15 +293,17 @@ def require_user_token_dbm_api_middleware(*, require_active: bool = True):
             raise APIException(
                 status_code=fastapi.status.HTTP_401_UNAUTHORIZED,
                 error_code=APIErrorCodes.cannot_authorize,
-                error_description="user_key_dbm is required",
+                error_description=f"user_key_dbm is required, {require_active=}",
                 error_data=transfer_data_to_json_str_to_data(api_auth_data.model_dump())
             )
         if require_active and not api_auth_data.user_token_dbm.is_active:
             raise APIException(
                 status_code=fastapi.status.HTTP_401_UNAUTHORIZED,
                 error_code=APIErrorCodes.cannot_authorize,
-                error_description="user_key_dbm is not active",
+                error_description=f"user_key_dbm is required, {require_active=}",
                 error_data=transfer_data_to_json_str_to_data(api_auth_data.model_dump())
             )
+
+    async_func.__name__ = require_user_token_dbm_api_middleware.__name__
 
     return async_func

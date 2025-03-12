@@ -15,7 +15,6 @@ from project.api.const import APIErrorCodes
 from project.api.exception import APIException
 from project.api.response import APIJSONResponse
 from project.api.schema.out.common.error import ErrorCommonSO
-from project.core.settings import get_cached_settings
 from project.sqlalchemy_db_.sqlalchemy_db import get_cached_sqlalchemy_db
 from project.sqlalchemy_db_.sqlalchemy_model import StoryLogDBM
 
@@ -236,10 +235,7 @@ def get_exception_handler() -> Callable:
     funcs_before = []
     async_funcs_after = []
 
-    if (
-            get_cached_settings().api_create_story_log_func_before_in_api_exception_handler
-            and get_cached_sqlalchemy_db() is not None
-    ):
+    if get_cached_sqlalchemy_db() is not None:
         funcs_before.append(
             create_story_log_func_before_in_api_exception_handler(
                 ignore_api_error_codes=[

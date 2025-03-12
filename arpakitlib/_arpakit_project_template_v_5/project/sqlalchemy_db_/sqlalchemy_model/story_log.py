@@ -27,12 +27,27 @@ class StoryLogDBM(SimpleDBM):
         error_in_tg_bot = "error_in_tg_bot"
 
     level: Mapped[str] = mapped_column(
-        sqlalchemy.TEXT, insert_default=Levels.info, server_default=Levels.info, index=True, nullable=False
+        sqlalchemy.TEXT,
+        insert_default=Levels.info,
+        server_default=Levels.info,
+        index=True,
+        nullable=False
     )
-    type: Mapped[str | None] = mapped_column(sqlalchemy.TEXT, index=True, insert_default=None, nullable=True)
-    title: Mapped[str | None] = mapped_column(sqlalchemy.TEXT, insert_default=None, nullable=True)
+    type: Mapped[str | None] = mapped_column(
+        sqlalchemy.TEXT,
+        index=True,
+        insert_default=None,
+        nullable=True)
+    title: Mapped[str | None] = mapped_column(
+        sqlalchemy.TEXT,
+        insert_default=None,
+        nullable=True
+    )
     data: Mapped[dict[str, Any]] = mapped_column(
-        postgresql.JSON, insert_default={}, server_default="{}", nullable=False
+        postgresql.JSON,
+        insert_default={},
+        server_default="{}",
+        nullable=False
     )
 
 

@@ -34,9 +34,19 @@ class OperationDBM(SimpleDBM):
     type: Mapped[str] = mapped_column(
         sqlalchemy.TEXT, index=True, insert_default=Types.healthcheck_, nullable=False
     )
-    title: Mapped[str | None] = mapped_column(sqlalchemy.TEXT, insert_default=None, nullable=True)
-    execution_start_dt: Mapped[datetime | None] = mapped_column(sqlalchemy.TIMESTAMP(timezone=True), nullable=True)
-    execution_finish_dt: Mapped[datetime | None] = mapped_column(sqlalchemy.TIMESTAMP(timezone=True), nullable=True)
+    title: Mapped[str | None] = mapped_column(
+        sqlalchemy.TEXT,
+        insert_default=None,
+        nullable=True
+    )
+    execution_start_dt: Mapped[datetime | None] = mapped_column(
+        sqlalchemy.TIMESTAMP(timezone=True),
+        nullable=True
+    )
+    execution_finish_dt: Mapped[datetime | None] = mapped_column(
+        sqlalchemy.TIMESTAMP(timezone=True),
+        nullable=True
+    )
     input_data: Mapped[dict[str, Any]] = mapped_column(
         postgresql.JSON,
         insert_default={},

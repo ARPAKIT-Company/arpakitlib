@@ -8,7 +8,7 @@ from project.sqlalchemy_db_.sqlalchemy_model import UserDBM
 
 
 class UserDBMSAdminSO(SimpleDBMAdminSO):
-    mail: str | None
+    email: str | None
     roles: list[str]
     is_active: bool
     tg_id: int | None
