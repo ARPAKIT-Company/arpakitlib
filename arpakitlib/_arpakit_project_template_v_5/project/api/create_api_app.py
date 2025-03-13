@@ -64,7 +64,7 @@ def create_api_app(*, prefix: str = "/api") -> FastAPI:
 
     if get_cached_settings().api_enable_sqladmin:
         from project.sqladmin_.add_admin_in_app import add_sqladmin_in_app
-        add_sqladmin_in_app(app=api_app)
+        add_sqladmin_in_app(app=api_app, favicon_url="/static/openapi-favicon.png")
 
     _logger.info("finish")
 

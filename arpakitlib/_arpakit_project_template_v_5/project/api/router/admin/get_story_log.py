@@ -48,4 +48,6 @@ async def _(
 
     async with get_cached_sqlalchemy_db().new_async_session() as async_session:
         result = await async_session.scalar(query)
+        if result is None:
+            return None
         return StoryLogAdminSO.from_dbm(simple_dbm=result)
