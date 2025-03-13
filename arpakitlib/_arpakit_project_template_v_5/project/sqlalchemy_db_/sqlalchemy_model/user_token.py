@@ -1,14 +1,24 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
+from uuid import uuid4
 
 import sqlalchemy
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from arpakitlib.ar_datetime_util import now_utc_dt
 from project.sqlalchemy_db_.sqlalchemy_model.common import SimpleDBM
 
 if TYPE_CHECKING:
     from project.sqlalchemy_db_.sqlalchemy_model.user import UserDBM
+
+
+def generate_default_user_token_value() -> str:
+    return (
+        f"usertoken"
+        f"{str(uuid4()).replace('-', '')}"
+        f"{str(now_utc_dt().timestamp()).replace('.', '')}"
+    )
 
 
 class UserTokenDBM(SimpleDBM):
@@ -18,6 +28,8 @@ class UserTokenDBM(SimpleDBM):
         sqlalchemy.TEXT,
         unique=True,
         nullable=False,
+        insert_default=generate_default_user_token_value,
+        server_default=sqlalchemy.func.gen_random_uuid(),
     )
     user_id: Mapped[int] = mapped_column(
         sqlalchemy.INTEGER,

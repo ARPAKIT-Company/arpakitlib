@@ -33,6 +33,7 @@ class ApiKeyDBM(SimpleDBM):
         sqlalchemy.TEXT,
         unique=True,
         insert_default=generate_default_api_key_value,
+        server_default=sqlalchemy.func.gen_random_uuid(),
         nullable=False
     )
     is_active: Mapped[bool] = mapped_column(

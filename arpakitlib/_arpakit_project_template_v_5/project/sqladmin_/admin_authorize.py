@@ -6,7 +6,7 @@ from sqladmin.authentication import AuthenticationBackend
 from arpakitlib.ar_str_util import make_none_if_blank
 from project.core.settings import get_cached_settings
 from project.sqlalchemy_db_.sqlalchemy_db import get_cached_sqlalchemy_db
-from project.sqlalchemy_db_.sqlalchemy_model import UserTokenDBM
+from project.sqlalchemy_db_.sqlalchemy_model import UserTokenDBM, UserDBM
 
 SQLADMIN_AUTH_KEY = "sqladmin_auth_key"
 
@@ -56,9 +56,9 @@ class SQLAdminAuth(AuthenticationBackend):
                 elif password is not None:
                     query = query.filter(UserTokenDBM.value == password)
                 user_token = query.one_or_none()
-            if user_token is not None:
-                request.session.update({SQLADMIN_AUTH_KEY: user_token.value})
-                return True
+                if user_token is not None and user_token.user.compare_roles(UserDBM.Roles.admin):
+                    request.session.update({SQLADMIN_AUTH_KEY: user_token.value})
+                    return True
 
         return False
 
@@ -78,9 +78,13 @@ class SQLAdminAuth(AuthenticationBackend):
 
         if get_cached_sqlalchemy_db() is not None and sqladmin_auth_key is not None:
             with get_cached_sqlalchemy_db().new_session() as session:
-                query = session.query(UserTokenDBM).filter(UserTokenDBM.value == sqladmin_auth_key)
+                query = session.query(
+                    UserTokenDBM
+                ).filter(
+                    UserTokenDBM.value == sqladmin_auth_key
+                )
                 user_token = query.one_or_none()
-                if user_token is not None:
+                if user_token is not None and user_token.user.compare_roles(UserDBM.Roles.admin):
                     return True
 
         return False
