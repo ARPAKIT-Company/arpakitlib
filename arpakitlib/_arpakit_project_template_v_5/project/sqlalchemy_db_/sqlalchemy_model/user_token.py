@@ -16,8 +16,8 @@ class UserTokenDBM(SimpleDBM):
 
     value: Mapped[str] = mapped_column(
         sqlalchemy.TEXT,
-        index=True,
-        nullable=False
+        unique=True,
+        nullable=False,
     )
     user_id: Mapped[int] = mapped_column(
         sqlalchemy.INTEGER,

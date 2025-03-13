@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from sqladmin import Admin
 
 from project.core.settings import get_cached_settings
-from project.sqladmin_.admin_auth import SQLAdminAuth
+from project.sqladmin_.admin_authorize import SQLAdminAuth
 from project.sqladmin_.model_view import SimpleMV
 from project.sqlalchemy_db_.sqlalchemy_db import get_cached_sqlalchemy_db
 

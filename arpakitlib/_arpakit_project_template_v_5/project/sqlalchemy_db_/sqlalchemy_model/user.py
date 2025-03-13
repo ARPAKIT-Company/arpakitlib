@@ -23,7 +23,7 @@ class UserDBM(SimpleDBM):
 
     email: Mapped[str | None] = mapped_column(
         sqlalchemy.TEXT,
-        index=True,
+        unique=True,
         insert_default=None,
         nullable=True
     )
