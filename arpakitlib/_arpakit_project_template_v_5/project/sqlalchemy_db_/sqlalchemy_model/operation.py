@@ -97,7 +97,3 @@ class OperationDBM(SimpleDBM):
         То есть префикс sdp_ и даёт этот бонус.
         """
         return self.duration_total_seconds
-
-
-def get_operation_dbm_class() -> type[OperationDBM]:
-    return OperationDBM

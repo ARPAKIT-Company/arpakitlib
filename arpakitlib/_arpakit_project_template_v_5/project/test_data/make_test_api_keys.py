@@ -11,6 +11,8 @@ _logger = logging.getLogger(__name__)
 def make_test_data_1():
     get_cached_settings().raise_if_prod_mode()
     with get_cached_sqlalchemy_db().new_session() as session:
+        session.query(ApiKeyDBM).delete()
+        session.commit()
         for i in range(10):
             api_key = ApiKeyDBM(value=str(i))
             session.add(api_key)

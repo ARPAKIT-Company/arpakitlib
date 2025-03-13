@@ -49,7 +49,3 @@ class StoryLogDBM(SimpleDBM):
         server_default="{}",
         nullable=False
     )
-
-
-def get_story_log_dbm_class() -> type[StoryLogDBM]:
-    return StoryLogDBM

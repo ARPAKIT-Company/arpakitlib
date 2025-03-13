@@ -3,18 +3,18 @@ from fastapi import APIRouter
 
 from project.api.authorize import APIAuthorizeData, api_authorize, require_user_token_dbm_api_authorize_middleware, \
     require_api_key_dbm_api_authorize_middleware
-from project.api.const import APIErrorCodes, APIErrorSpecificationCodes
+from project.api.schema.out.client.api_key import ApiKeyClientSO
 from project.api.schema.out.common.error import ErrorCommonSO
-from project.api.schema.out.general.errors_info_general import ErrorsInfoGeneralSO
+from project.sqlalchemy_db_.sqlalchemy_model import UserDBM
 
 api_router = APIRouter()
 
 
 @api_router.get(
     "",
-    name="Get errors info",
+    name="Get current api key",
     status_code=fastapi.status.HTTP_200_OK,
-    response_model=ErrorsInfoGeneralSO | ErrorCommonSO,
+    response_model=ApiKeyClientSO | str | ErrorCommonSO,
 )
 async def _(
         *,
@@ -25,11 +25,11 @@ async def _(
                 require_active=True
             ),
             require_user_token_dbm_api_authorize_middleware(
-                require_active_user_token=True
+                require_active_user_token=True,
+                require_user_roles=[UserDBM.Roles.client]
             )
         ]))
 ):
-    return ErrorsInfoGeneralSO(
-        api_error_codes=APIErrorCodes.values_list(),
-        api_error_specification_codes=APIErrorSpecificationCodes.values_list()
+    return ApiKeyClientSO.from_dbm(
+        simple_dbm=api_auth_data.api_key_dbm
     )
