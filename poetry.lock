@@ -3476,14 +3476,14 @@ files = [
 
 [[package]]
 name = "openai"
-version = "1.66.2"
+version = "1.66.3"
 description = "The official Python library for the openai API"
 optional = false
 python-versions = ">=3.8"
 groups = ["main"]
 files = [
-    {file = "openai-1.66.2-py3-none-any.whl", hash = "sha256:75194057ee6bb8b732526387b6041327a05656d976fc21c064e21c8ac6b07999"},
-    {file = "openai-1.66.2.tar.gz", hash = "sha256:9b3a843c25f81ee09b6469d483d9fba779d5c6ea41861180772f043481b0598d"},
+    {file = "openai-1.66.3-py3-none-any.whl", hash = "sha256:a427c920f727711877ab17c11b95f1230b27767ba7a01e5b66102945141ceca9"},
+    {file = "openai-1.66.3.tar.gz", hash = "sha256:8dde3aebe2d081258d4159c4cb27bdc13b5bb3f7ea2201d9bd940b9a89faf0c9"},
 ]
 
 [package.dependencies]
@@ -3779,14 +3779,14 @@ testing = ["docopt", "pytest"]
 
 [[package]]
 name = "pbs-installer"
-version = "2025.2.12"
+version = "2025.3.11"
 description = "Installer for Python Build Standalone"
 optional = false
 python-versions = ">=3.8"
 groups = ["main"]
 files = [
-    {file = "pbs_installer-2025.2.12-py3-none-any.whl", hash = "sha256:3d9034047945b2d5f169cd9bb324f1f28c37d0ec120d6110ddb10aa07016fb79"},
-    {file = "pbs_installer-2025.2.12.tar.gz", hash = "sha256:c6815165babf312c90d27ccd16afe598de641d616860f88e1855f183b0253b39"},
+    {file = "pbs_installer-2025.3.11-py3-none-any.whl", hash = "sha256:c5d17afdb41abbec2afda815d41a93276887f19e6bdc16e98b2dfed11d845968"},
+    {file = "pbs_installer-2025.3.11.tar.gz", hash = "sha256:150986b56648e2d04e99fafe24c165fa94cfa8385b93d6bf9b82925c3d57d064"},
 ]
 
 [package.dependencies]
