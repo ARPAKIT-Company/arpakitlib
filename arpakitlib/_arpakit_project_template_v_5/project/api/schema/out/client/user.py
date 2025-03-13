@@ -3,11 +3,11 @@ from __future__ import annotations
 import datetime as dt
 from typing import Any
 
-from project.api.schema.out.admin.common import SimpleDBMAdminSO
+from project.api.schema.out.client.common import SimpleDBMClientSO
 from project.sqlalchemy_db_.sqlalchemy_model import UserDBM
 
 
-class UserDBMSAdminSO(SimpleDBMAdminSO):
+class UserClientSO(SimpleDBMClientSO):
     email: str | None
     roles: list[str]
     is_active: bool
@@ -18,5 +18,5 @@ class UserDBMSAdminSO(SimpleDBMAdminSO):
     roles_has_client: bool
 
     @classmethod
-    def from_user_dbm(cls, *, user_dbm: UserDBM) -> UserDBMSAdminSO:
-        return cls.model_validate(user_dbm.simple_dict_with_sd_properties())
+    def from_dbm(cls, *, simple_dbm: UserDBM) -> UserClientSO:
+        return cls.model_validate(simple_dbm.simple_dict_with_sd_properties())

@@ -13,5 +13,5 @@ class StoryLogAdminSO(SimpleDBMAdminSO):
     data: dict[str, Any]
 
     @classmethod
-    def from_story_log_dbm(cls, *, story_log_dbm: StoryLogDBM) -> StoryLogAdminSO:
-        return cls.model_validate(story_log_dbm.simple_dict_with_sd_properties())
+    def from_dbm(cls, *, simple_dbm: StoryLogDBM) -> StoryLogAdminSO:
+        return cls.model_validate(simple_dbm.simple_dict_with_sd_properties())

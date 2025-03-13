@@ -19,5 +19,5 @@ class OperationAdminSO(SimpleDBMAdminSO):
     duration_total_seconds: float | None
 
     @classmethod
-    def from_operation_dbm(cls, *, operation_dbm: OperationDBM) -> OperationAdminSO:
-        return cls.model_validate(operation_dbm.simple_dict_with_sd_properties())
+    def from_dbm(cls, *, simple_dbm: OperationDBM) -> OperationAdminSO:
+        return cls.model_validate(simple_dbm.simple_dict_with_sd_properties())
