@@ -1,4 +1,4 @@
-from project.sqladmin_.model_view import SimpleMV
+from project.sqladmin_.model_view.common import SimpleMV
 from project.sqlalchemy_db_.sqlalchemy_model import ApiKeyDBM
 
 
