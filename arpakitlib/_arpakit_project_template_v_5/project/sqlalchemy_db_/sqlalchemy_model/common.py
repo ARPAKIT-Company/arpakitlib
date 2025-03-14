@@ -47,6 +47,7 @@ class SimpleDBM(BaseDBM):
         index=False,
         nullable=True,
         insert_default=None,
+        server_default="{}",
         sort_order=1000,
     )
 
