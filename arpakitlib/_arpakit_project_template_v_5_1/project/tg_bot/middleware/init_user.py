@@ -6,8 +6,8 @@ import sqlalchemy
 from aiogram import BaseMiddleware
 from aiogram.types import TelegramObject
 
+from arpakitlib.ar_datetime_util import now_utc_dt
 from project.core.settings import get_cached_settings
-from project.core.util import now_local_dt
 from project.sqlalchemy_db_.sqlalchemy_db import get_cached_sqlalchemy_db
 from project.sqlalchemy_db_.sqlalchemy_model import UserDBM
 from project.tg_bot.middleware.common import MiddlewareDataTgBot
@@ -43,7 +43,7 @@ class InitUserTgBotMiddleware(BaseMiddleware):
             middleware_data_tg_bot.additional_data["tg_user_was_found"] = tg_user
             middleware_data_tg_bot.additional_data["found_tg_user_id"] = tg_user.id
 
-        now_local_dt_ = now_local_dt()
+        now_utc_dt_ = now_utc_dt()
 
         if tg_user is not None and get_cached_sqlalchemy_db() is not None:
             async with get_cached_sqlalchemy_db().new_async_session() as async_session:
@@ -55,11 +55,11 @@ class InitUserTgBotMiddleware(BaseMiddleware):
                     if tg_user.id in get_cached_settings().tg_bot_admin_tg_ids:
                         roles.append(UserDBM.Roles.admin)
                     middleware_data_tg_bot.user_dbm = UserDBM(
-                        creation_dt=now_local_dt_,
+                        creation_dt=now_utc_dt_,
                         roles=roles,
                         tg_id=tg_user.id,
                         tg_data=tg_user.model_dump(mode="json"),
-                        tg_bot_last_action_dt=now_local_dt_
+                        tg_bot_last_action_dt=now_utc_dt_
                     )
                     async_session.add(middleware_data_tg_bot.user_dbm)
                     await async_session.commit()
@@ -68,7 +68,7 @@ class InitUserTgBotMiddleware(BaseMiddleware):
                     _logger.info(f"user_dbm was added, {middleware_data_tg_bot.user_dbm}")
                 else:
                     middleware_data_tg_bot.user_dbm.tg_data = tg_user.model_dump(mode="json")
-                    middleware_data_tg_bot.user_dbm.tg_bot_last_action_dt = now_local_dt_
+                    middleware_data_tg_bot.user_dbm.tg_bot_last_action_dt = now_utc_dt_
                     if (
                             tg_user.id in get_cached_settings().tg_bot_admin_tg_ids
                             and UserDBM.Roles.admin not in middleware_data_tg_bot.user_dbm.roles
