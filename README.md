@@ -29,7 +29,7 @@ pip install arpakitlib
 
 ```
 poetry run arpakitlib -c help
-poetry run arpakitlib -c init_arpakit_project_template -version 2 -project_dirpath ./ -overwrite_if_exists True
+poetry run arpakitlib -c init_arpakit_project_template -version 5_1 -project_dirpath ./ -overwrite_if_exists True
 ```
 
 ---
