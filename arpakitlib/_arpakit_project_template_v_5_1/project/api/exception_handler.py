@@ -52,6 +52,7 @@ def create_api_exception_handler(
         )
 
         if isinstance(exception, APIException):
+            status_code = exception.status_code
             old_error_data = error_common_so.error_data
             error_common_so = exception.error_common_so
             error_common_so.error_data = combine_dicts(old_error_data, error_common_so.error_data)

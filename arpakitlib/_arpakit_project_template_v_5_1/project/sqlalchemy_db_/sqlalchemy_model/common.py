@@ -56,6 +56,14 @@ class SimpleDBM(BaseDBM):
             return f"{self.__class__.__name__.removesuffix('DBM')} (id={self.id})"
         return f"{self.__class__.__name__.removesuffix('DBM')} (id={self.id}, slug={self.slug})"
 
+    @property
+    def entity_name(self) -> str:
+        return self.__class__.__name__.removesuffix("DBM")
+
+    @property
+    def sdp_entity_name(self) -> str:
+        return self.entity_name
+
 
 def get_simple_dbm_class() -> type[SimpleDBM]:
     from project.sqlalchemy_db_.sqlalchemy_model import SimpleDBM
