@@ -42,11 +42,11 @@ class SimpleDBM(BaseDBM):
         sort_order=-100,
         nullable=False
     )
-    extra_data: Mapped[dict[str, Any] | None] = mapped_column(
+    extra_data: Mapped[dict[str, Any]] = mapped_column(
         sqlalchemy.JSON,
         index=False,
-        nullable=True,
-        insert_default=None,
+        nullable=False,
+        insert_default={},
         server_default="{}",
         sort_order=1000,
     )
