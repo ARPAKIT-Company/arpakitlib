@@ -97,3 +97,11 @@ class OperationDBM(SimpleDBM):
         То есть префикс sdp_ и даёт этот бонус.
         """
         return self.duration_total_seconds
+
+    @property
+    def sdp_allowed_statuses(self) -> list[str]:
+        return self.Statuses.values_list()
+
+    @property
+    def sdp_allowed_types(self) -> list[str]:
+        return self.Types.values_list()

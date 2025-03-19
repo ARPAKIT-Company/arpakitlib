@@ -17,6 +17,8 @@ class OperationAdminSO(SimpleDBMAdminSO):
     output_data: dict[str, Any]
     error_data: dict[str, Any]
     duration_total_seconds: float | None
+    allowed_statuses: list[str]
+    allowed_types: list[str]
 
     @classmethod
     def from_dbm(cls, *, simple_dbm: OperationDBM) -> OperationAdminSO:
