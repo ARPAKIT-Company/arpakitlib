@@ -223,6 +223,22 @@ files = [
 frozenlist = ">=1.1.0"
 
 [[package]]
+name = "aiosmtplib"
+version = "4.0.0"
+description = "asyncio SMTP client"
+optional = false
+python-versions = ">=3.9"
+groups = ["main"]
+files = [
+    {file = "aiosmtplib-4.0.0-py3-none-any.whl", hash = "sha256:33c72021cd9e9da495823952751e2dd927014a04a0eca711ee4af9812f2f04af"},
+    {file = "aiosmtplib-4.0.0.tar.gz", hash = "sha256:9629a0d8786ab1e5f790ebbbf5cbe7886fedf949a3f52fd7b27a0360f6233422"},
+]
+
+[package.extras]
+docs = ["furo (>=2023.9.10)", "sphinx (>=7.0.0)", "sphinx-autodoc-typehints (>=1.24.0)", "sphinx-copybutton (>=0.5.0)"]
+uvloop = ["uvloop (>=0.18)"]
+
+[[package]]
 name = "alembic"
 version = "1.15.1"
 description = "A database migration tool for SQLAlchemy."
@@ -6309,4 +6325,4 @@ cffi = ["cffi (>=1.11)"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12.4,<4.0"
-content-hash = "6c009218b53751953b54a382d24b546510f10fe158fbcb918647f681b1c7a935"
+content-hash = "ddde8cda0ab7932d8621a0a55ed15b4ec0c609fa86cec9af914ac775d03a67e2"
