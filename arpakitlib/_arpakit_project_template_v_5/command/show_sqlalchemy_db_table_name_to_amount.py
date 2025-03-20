@@ -12,6 +12,5 @@ def __command():
     _logger.info(transfer_data_to_json_str(get_cached_sqlalchemy_db().get_table_name_to_amount()))
 
 
-
 if __name__ == '__main__':
     __command()
