@@ -6,6 +6,7 @@ from typing import Any
 from urllib.parse import quote_plus
 from uuid import uuid4
 
+import sqlalchemy
 from sqlalchemy import create_engine, QueuePool, text, func, inspect, AsyncAdaptedQueuePool
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
@@ -242,6 +243,32 @@ class SQLAlchemyDb:
 
     def generate_creation_dt(self) -> datetime:
         return now_utc_dt()
+
+    async def async_get_table_name_to_amount(self) -> dict[str, int]:
+        res = {}
+
+        async with self.new_async_session() as session:
+            for table_name, table in BaseDBM.metadata.tables.items():
+                res[table_name] = await session.scalar(
+                    sqlalchemy.select(
+                        sqlalchemy.func.count(1)
+                    ).select_from(table)
+                )
+
+        return res
+
+    def sync_get_table_name_to_amount(self) -> dict[str, int]:
+        res = {}
+
+        async with self.new_async_session() as session:
+            for table_name, table in BaseDBM.metadata.tables.items():
+                res[table_name] = await session.scalar(
+                    sqlalchemy.select(
+                        sqlalchemy.func.count(1)
+                    ).select_from(table)
+                )
+
+        return res
 
 
 def get_string_info_from_declarative_base(class_: type[DeclarativeBase]):
