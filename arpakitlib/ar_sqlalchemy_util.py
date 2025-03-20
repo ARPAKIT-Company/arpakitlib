@@ -247,22 +247,9 @@ class SQLAlchemyDb:
     async def async_get_table_name_to_amount(self) -> dict[str, int]:
         res = {}
 
-        async with self.new_async_session() as session:
+        async with self.new_async_session() as async_session:
             for table_name, table in BaseDBM.metadata.tables.items():
-                res[table_name] = await session.scalar(
-                    sqlalchemy.select(
-                        sqlalchemy.func.count(1)
-                    ).select_from(table)
-                )
-
-        return res
-
-    def sync_get_table_name_to_amount(self) -> dict[str, int]:
-        res = {}
-
-        async with self.new_async_session() as session:
-            for table_name, table in BaseDBM.metadata.tables.items():
-                res[table_name] = await session.scalar(
+                res[table_name] = await async_session.scalar(
                     sqlalchemy.select(
                         sqlalchemy.func.count(1)
                     ).select_from(table)
