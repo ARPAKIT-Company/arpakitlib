@@ -257,6 +257,19 @@ class SQLAlchemyDb:
 
         return res
 
+    def get_table_name_to_amount(self) -> dict[str, int]:
+        res = {}
+
+        with self.new_session() as session:
+            for table_name, table in BaseDBM.metadata.tables.items():
+                res[table_name] = session.scalar(
+                    sqlalchemy.select(
+                        sqlalchemy.func.count(1)
+                    ).select_from(table)
+                )
+
+        return res
+
 
 def get_string_info_from_declarative_base(class_: type[DeclarativeBase]):
     res = f"Db Models: {len(class_.__subclasses__())}"
