@@ -68,32 +68,35 @@ class BaseDBM(DeclarativeBase):
             self._bus_data = {}
         return self._bus_data
 
-    def simple_dict(self, *, include_sd_properties: bool = True) -> dict[str, Any]:
+    def simple_dict(self, *, include_sd_properties: bool = True, exclude_columns: set[str] = None) -> dict[str, Any]:
+        if exclude_columns is None:
+            exclude_columns = set()
+
         res = {}
 
+        # Проходим по всем аттрибутам и фильтруем исключаемые колонки
         for c in inspect(self).mapper.column_attrs:
-            value = getattr(self, c.key)
-            if isinstance(value, BaseDBM):
-                res[c.key] = value.simple_dict(include_sd_properties=include_sd_properties)
-            elif isinstance(value, list):
-                res[c.key] = [
-                    item.simple_dict(include_sd_properties=include_sd_properties)
-                    if isinstance(item, BaseDBM) else item
-                    for item in value
-                ]
-            else:
-                res[c.key] = value
+            if c.key in exclude_columns:
+                continue  # Пропускаем колонку, если она в exclude_columns
 
+            value = getattr(self, c.key)
+            res[c.key] = value
+
+        # Обработка свойств с префиксом "sdp_"
         if include_sd_properties:
             for attr_name in dir(self):
                 if attr_name.startswith("sdp_") and isinstance(getattr(type(self), attr_name, None), property):
                     prop_name = attr_name.removeprefix("sdp_")
                     value = getattr(self, attr_name)
                     if isinstance(value, BaseDBM):
-                        res[prop_name] = value.simple_dict(include_sd_properties=include_sd_properties)
+                        res[prop_name] = value.simple_dict(
+                            include_sd_properties=include_sd_properties, exclude_columns=exclude_columns
+                        )
                     elif isinstance(value, list):
                         res[prop_name] = [
-                            item.simple_dict(include_sd_properties=include_sd_properties)
+                            item.simple_dict(
+                                include_sd_properties=include_sd_properties, exclude_columns=exclude_columns
+                            )
                             if isinstance(item, BaseDBM) else item
                             for item in value
                         ]
@@ -105,8 +108,8 @@ class BaseDBM(DeclarativeBase):
     def simple_dict_with_sd_properties(self) -> dict[str, Any]:
         return self.simple_dict(include_sd_properties=True)
 
-    def simple_dict_json(self, *, include_sd_properties: bool = True) -> str:
-        return transfer_data_to_json_str(self.simple_dict(include_sd_properties=include_sd_properties))
+    def simple_dict_json(self, *, include_sd_properties: bool = True, exclude_columns: set[str] = None) -> str:
+        return transfer_data_to_json_str(self.simple_dict(include_sd_properties=include_sd_properties, exclude_columns=exclude_columns))
 
 
 class SQLAlchemyDb:
