@@ -61,7 +61,11 @@ class SSHRunRes(BaseModel):
         }
 
     def simple_json(self) -> str:
-        return transfer_data_to_json_str(self.simple_dict())
+        return transfer_data_to_json_str(
+            self.simple_dict(),
+            beautify=True,
+            fast=False
+        )
 
     def __repr__(self) -> str:
         return self.simple_json()

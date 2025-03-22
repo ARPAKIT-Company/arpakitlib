@@ -68,48 +68,79 @@ class BaseDBM(DeclarativeBase):
             self._bus_data = {}
         return self._bus_data
 
-    def simple_dict(self, *, include_sd_properties: bool = True, exclude_columns: set[str] = None) -> dict[str, Any]:
+    def simple_dict(
+            self,
+            *,
+            include_sd_properties: bool = True,
+            exclude_columns: set[str] | None = None,
+            exclude_sd_properties: set[str] | None = None
+    ) -> dict[str, Any]:
         if exclude_columns is None:
             exclude_columns = set()
+        if exclude_sd_properties is None:
+            exclude_sd_properties = set()
 
         res = {}
 
-        # Проходим по всем аттрибутам и фильтруем исключаемые колонки
+        # Обрабатываем только колонки текущей модели
         for c in inspect(self).mapper.column_attrs:
             if c.key in exclude_columns:
                 continue  # Пропускаем колонку, если она в exclude_columns
 
             value = getattr(self, c.key)
-            res[c.key] = value
+            res[c.key] = value  # Просто сохраняем значение
 
         # Обработка свойств с префиксом "sdp_"
         if include_sd_properties:
             for attr_name in dir(self):
                 if attr_name.startswith("sdp_") and isinstance(getattr(type(self), attr_name, None), property):
-                    prop_name = attr_name.removeprefix("sdp_")
+
+                    sdp_property_name = attr_name.removeprefix("sdp_")
+                    if sdp_property_name in exclude_sd_properties:
+                        continue  # Пропускаем свойство, если оно в exclude_sdp_properties
+
                     value = getattr(self, attr_name)
                     if isinstance(value, BaseDBM):
-                        res[prop_name] = value.simple_dict(
-                            include_sd_properties=include_sd_properties, exclude_columns=exclude_columns
-                        )
+                        res[sdp_property_name] = value.simple_dict(include_sd_properties=include_sd_properties)
                     elif isinstance(value, list):
-                        res[prop_name] = [
-                            item.simple_dict(
-                                include_sd_properties=include_sd_properties, exclude_columns=exclude_columns
-                            )
+                        res[sdp_property_name] = [
+                            item.simple_dict(include_sd_properties=include_sd_properties)
                             if isinstance(item, BaseDBM) else item
                             for item in value
                         ]
                     else:
-                        res[prop_name] = value
+                        res[sdp_property_name] = value
 
         return res
 
-    def simple_dict_with_sd_properties(self) -> dict[str, Any]:
-        return self.simple_dict(include_sd_properties=True)
+    def simple_dict_with_sd_properties(
+            self,
+            *,
+            exclude_columns: set[str] | None = None,
+            exclude_sdp_properties: set[str] | None = None
+    ) -> dict[str, Any]:
+        return self.simple_dict(
+            include_sd_properties=True,
+            exclude_columns=exclude_columns,
+            exclude_sd_properties=exclude_sdp_properties
+        )
 
-    def simple_dict_json(self, *, include_sd_properties: bool = True, exclude_columns: set[str] = None) -> str:
-        return transfer_data_to_json_str(self.simple_dict(include_sd_properties=include_sd_properties, exclude_columns=exclude_columns))
+    def simple_dict_json(
+            self,
+            *,
+            include_sd_properties: bool = True,
+            exclude_columns: set[str] | None = None,
+            exclude_sdp_properties: set[str] | None = None
+    ) -> str:
+        return transfer_data_to_json_str(
+            data=self.simple_dict(
+                include_sd_properties=include_sd_properties,
+                exclude_columns=exclude_columns,
+                exclude_sd_properties=exclude_sdp_properties
+            ),
+            beautify=True,
+            fast=False
+        )
 
 
 class SQLAlchemyDb:
