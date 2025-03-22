@@ -49,3 +49,11 @@ class StoryLogDBM(SimpleDBM):
         server_default="{}",
         nullable=False
     )
+
+    @property
+    def sdp_allowed_levels(self) -> list[str]:
+        return self.Levels.values_list()
+
+    @property
+    def sdp_allowed_types(self) -> list[str]:
+        return self.Types.values_list()

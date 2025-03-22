@@ -73,6 +73,10 @@ class UserDBM(SimpleDBM):
         return res
 
     @property
+    def sdp_allowed_roles(self) -> list[str]:
+        return self.Roles.values_list()
+
+    @property
     def roles_has_admin(self) -> bool:
         return self.Roles.admin in self.roles
 
