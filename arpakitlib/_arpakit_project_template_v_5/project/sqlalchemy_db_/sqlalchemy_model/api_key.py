@@ -43,3 +43,10 @@ class ApiKeyDBM(SimpleDBM):
         server_default="true",
         nullable=False
     )
+
+    def __repr__(self) -> str:
+        res = f"{self.entity_name} (id={self.id}, is_active={self.is_active}"
+        if self.title:
+            res += f", title={self.title}"
+        res += ")"
+        return res

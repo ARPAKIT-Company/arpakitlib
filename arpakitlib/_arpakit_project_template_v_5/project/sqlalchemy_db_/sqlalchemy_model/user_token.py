@@ -45,9 +45,14 @@ class UserTokenDBM(SimpleDBM):
         nullable=False
     )
 
+    # one to many
     user: Mapped[UserDBM] = relationship(
         "UserDBM",
         uselist=False,
         back_populates="user_tokens",
         foreign_keys=[user_id]
     )
+
+    def __repr__(self) -> str:
+        res = f"{self.entity_name} (id={self.id}, user_id={self.user_id})"
+        return res

@@ -57,12 +57,20 @@ class UserDBM(SimpleDBM):
         nullable=True
     )
 
+    # many to one
     user_tokens: Mapped[list[UserTokenDBM]] = relationship(
         "UserTokenDBM",
         uselist=True,
         back_populates="user",
         foreign_keys="UserTokenDBM.user_id"
     )
+
+    def __repr__(self) -> str:
+        if self.email is not None:
+            res = f"{self.entity_name} (id={self.id}, email={self.email})"
+        else:
+            res = f"{self.entity_name} (id={self.id})"
+        return res
 
     @property
     def roles_has_admin(self) -> bool:
@@ -85,3 +93,78 @@ class UserDBM(SimpleDBM):
             roles = [roles]
         raise_for_type(roles, list)
         return bool(set(roles) & set(self.roles))
+
+    @property
+    def tg_first_name(self) -> str | None:
+        if self.tg_data and "first_name" in self.tg_data:
+            return self.tg_data["first_name"]
+        return None
+
+    @property
+    def sdp_tg_first_name(self) -> str | None:
+        return self.tg_first_name
+
+    @property
+    def tg_last_name(self) -> str | None:
+        if self.tg_data and "last_name" in self.tg_data:
+            return self.tg_data["last_name"]
+        return None
+
+    @property
+    def sdp_tg_last_name(self) -> str | None:
+        return self.tg_last_name
+
+    @property
+    def tg_language_code(self) -> str | None:
+        if self.tg_data and "language_code" in self.tg_data:
+            return self.tg_data["language_code"]
+        return None
+
+    @property
+    def sdp_tg_language_code(self) -> str | None:
+        return self.tg_language_code
+
+    @property
+    def tg_username(self) -> str | None:
+        if self.tg_data and "username" in self.tg_data:
+            return self.tg_data["username"]
+        return None
+
+    @property
+    def sdp_tg_username(self) -> str | None:
+        return self.tg_username
+
+    @property
+    def tg_at_username(self) -> str | None:
+        if self.tg_username:
+            return f"@{self.tg_username}"
+        return None
+
+    @property
+    def sdp_tg_at_username(self) -> str | None:
+        return self.tg_at_username
+
+    @property
+    def tg_fullname(self) -> str | None:
+        if not self.tg_first_name and not self.tg_last_name:
+            return None
+        res = ""
+        if self.tg_first_name:
+            res += self.tg_first_name
+        if self.tg_last_name:
+            res += " " + self.tg_last_name
+        return res
+
+    @property
+    def sdp_tg_fullname(self) -> str | None:
+        return self.tg_fullname
+
+    @property
+    def tg_link_by_username(self) -> str | None:
+        if not self.tg_username:
+            return None
+        return f"https://t.me/{self.tg_username}"
+
+    @property
+    def sdp_tg_link_by_username(self) -> str | None:
+        return self.tg_link_by_username
