@@ -2,9 +2,12 @@
 
 import asyncio
 import logging
-from typing import Optional
 
+import httpx
 from openai import OpenAI, AsyncOpenAI
+from openai.types.chat import ChatCompletion
+
+from arpakitlib.ar_logging_util import setup_normal_logging
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
 
@@ -17,8 +20,8 @@ class OpenAIAPIClient:
     def __init__(
             self,
             *,
-            open_ai: Optional[OpenAI] = None,
-            async_open_ai: Optional[AsyncOpenAI] = None
+            open_ai: OpenAI,
+            async_open_ai: AsyncOpenAI
     ):
         self._logger = logging.getLogger(self.__class__.__name__)
 
@@ -47,27 +50,80 @@ class OpenAIAPIClient:
             self._logger.error(e)
         return False
 
+    def simple_ask(self, *, prompt: str | None = None, string: str) -> ChatCompletion:
+        messages = []
+        if prompt is not None:
+            messages.append({
+                "role": "system",
+                "content": prompt
+            })
+        messages.append({
+            "role": "user",
+            "content": string
+        })
+        response: ChatCompletion = self.open_ai.chat.completions.create(
+            model="gpt-4o",
+            messages=messages,
+            n=1,
+            temperature=0.1,
+            top_p=0.9,
+            max_tokens=300
+        )
+        return response
+
+    async def async_simple_ask(self, *, prompt: str | None = None, string: str) -> ChatCompletion:
+        messages = []
+        if prompt is not None:
+            messages.append({
+                "role": "system",
+                "content": prompt
+            })
+        messages.append({
+            "role": "user",
+            "content": string
+        })
+        response: ChatCompletion = await self.async_open_ai.chat.completions.create(
+            model="gpt-4o",
+            messages=messages,
+            n=1,
+            temperature=0.1,
+            top_p=0.9,
+            max_tokens=300
+        )
+        return response
+
 
 def __example():
-    open_ai = OpenAI(api_key="your-api-key")
-    client = OpenAIAPIClient(open_ai=open_ai)
-
-    print("Checking OpenAI API connection...")
-    if client.is_conn_good():
-        print("Connection to OpenAI API is good")
-    else:
-        print("Failed to connect to OpenAI API")
+    pass
 
 
 async def __async_example():
-    async_open_ai = AsyncOpenAI(api_key="your-api-key")
-    client = OpenAIAPIClient(async_open_ai=async_open_ai)
+    setup_normal_logging()
+    api_key = ""
+    base_url = "https://api.proxyapi.ru/openai/v1"
+    client = OpenAIAPIClient(
+        open_ai=OpenAI(
+            api_key=api_key,
+            base_url=base_url,
+            timeout=httpx.Timeout(
+                timeout=60,
+            )
+        ),
+        async_open_ai=AsyncOpenAI(
+            api_key=api_key,
+            base_url=base_url,
+            timeout=httpx.Timeout(
+                timeout=60,
+            )
+        )
+    )
 
-    print("Checking OpenAI API async connection...")
-    if await client.async_is_conn_good():
-        print("Async connection to OpenAI API is good")
-    else:
-        print("Failed to async connect to OpenAI API")
+    print(await client.async_is_conn_good())
+
+    response = client.simple_ask(
+        string="Привет, проверяю тебя"
+    )
+    print(response.choices[0].message.content)
 
 
 if __name__ == '__main__':
