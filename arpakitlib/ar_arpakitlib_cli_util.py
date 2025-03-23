@@ -14,7 +14,6 @@ def execute_arpakitlib_cli(*, full_command: str | None = None):
         full_command = " ".join(sys.argv)
 
     parsed_command = parse_command(text=full_command)
-    parsed_command.raise_for_command(needed_command="arpakitlib", lower_=True)
 
     command = parsed_command.get_value_by_keys(keys=["command", "c"])
     if command:
