@@ -1,6 +1,6 @@
 # arpakit
 
-from typing import Optional
+from typing import Optional, Any
 
 import markdown
 from bs4 import BeautifulSoup
@@ -96,6 +96,12 @@ def return_str_if_none(value: str | None, value_str: str) -> str:
     if value is None:
         return value_str
     return value
+
+
+def strip_if_not_none(v: str | None) -> str | None:
+    if v is None:
+        return v
+    return v.strip()
 
 
 def __example():

@@ -2,17 +2,17 @@ import fastapi.requests
 import sqlalchemy
 from fastapi import APIRouter
 
-from arpakitlib.ar_str_util import make_none_if_blank, strip_if_not_none
+from arpakitlib.ar_str_util import strip_if_not_none, make_none_if_blank
 from project.api.authorize import APIAuthorizeData, api_authorize, require_user_token_dbm_api_authorize_middleware, \
     require_api_key_dbm_api_authorize_middleware
 from project.api.schema.common import BaseRouteSO
-from project.api.schema.out.admin.story_log import StoryLogAdmin1SO
+from project.api.schema.out.admin.operation import OperationAdmin1SO
 from project.api.schema.out.common.error import ErrorCommonSO
 from project.sqlalchemy_db_.sqlalchemy_db import get_cached_sqlalchemy_db
-from project.sqlalchemy_db_.sqlalchemy_model import UserDBM, StoryLogDBM
+from project.sqlalchemy_db_.sqlalchemy_model import UserDBM, OperationDBM
 
 
-class GetStoryLogRouteSO(BaseRouteSO, StoryLogAdmin1SO):
+class GetOperationRouteSO(BaseRouteSO, OperationAdmin1SO):
     pass
 
 
@@ -23,7 +23,7 @@ api_router = APIRouter()
     "",
     name="Get story log",
     status_code=fastapi.status.HTTP_200_OK,
-    response_model=GetStoryLogRouteSO | None | ErrorCommonSO,
+    response_model=GetOperationRouteSO | None | ErrorCommonSO,
 )
 async def _(
         *,
@@ -48,16 +48,16 @@ async def _(
     if filter_id is None and filter_long_id is None and filter_slug is None:
         return None
 
-    query = sqlalchemy.select(StoryLogDBM)
+    query = sqlalchemy.select(OperationDBM)
     if filter_id is not None:
-        query = query.filter(StoryLogDBM.id == filter_id)
+        query = query.filter(OperationDBM.id == filter_id)
     if filter_long_id is not None:
-        query = query.filter(StoryLogDBM.long_id == filter_long_id)
+        query = query.filter(OperationDBM.long_id == filter_long_id)
     if filter_slug is not None:
-        query = query.filter(StoryLogDBM.slug == filter_slug)
+        query = query.filter(OperationDBM.slug == filter_slug)
 
     async with get_cached_sqlalchemy_db().new_async_session() as async_session:
         result = await async_session.scalar(query)
         if result is None:
             return None
-        return GetStoryLogRouteSO.from_dbm(simple_dbm=result)
+        return GetOperationRouteSO.from_dbm(simple_dbm=result)

@@ -13,6 +13,7 @@ class SimpleDBMAdminSO(BaseSO):
     slug: str | None
     creation_dt: dt.datetime
     extra_data: dict[str, Any]
+
     entity_name: str
 
     @classmethod

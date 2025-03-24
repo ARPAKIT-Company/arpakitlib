@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import Any
-
 from project.api.schema.out.admin.common import SimpleDBMAdminSO
 from project.sqlalchemy_db_.sqlalchemy_model import StoryLogDBM
 
@@ -10,7 +8,6 @@ class StoryLogAdmin1SO(SimpleDBMAdminSO):
     level: str
     type: str | None
     title: str | None
-    data: dict[str, Any]
 
     allowed_levels: list[str]
     allowed_types: list[str]
