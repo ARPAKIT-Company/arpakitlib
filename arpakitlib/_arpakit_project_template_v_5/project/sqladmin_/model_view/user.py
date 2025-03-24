@@ -13,6 +13,7 @@ class UserMV(SimpleMV, model=UserDBM):
         UserDBM.email,
         UserDBM.roles,
         UserDBM.is_active,
+        UserDBM.password,
         UserDBM.tg_id,
         UserDBM.tg_bot_last_action_dt,
         UserDBM.tg_data,

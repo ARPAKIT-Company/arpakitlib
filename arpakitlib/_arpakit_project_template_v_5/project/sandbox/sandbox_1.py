@@ -1,13 +1,10 @@
 import asyncio
 
-import sqlalchemy
-
-from project.sqlalchemy_db_.sqlalchemy_model import SimpleDBM
+from project.sqlalchemy_db_.sqlalchemy_model import UserDBM
 
 
 def __sandbox():
-    a = sqlalchemy.inspect(SimpleDBM)
-    print(a)
+    print(UserDBM.Roles.admin)
 
 
 async def __async_sandbox():

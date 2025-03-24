@@ -40,6 +40,11 @@ class UserDBM(SimpleDBM):
         server_default="true",
         nullable=False
     )
+    password: Mapped[str | None] = mapped_column(
+        sqlalchemy.TEXT,
+        index=True,
+        nullable=True
+    )
     tg_id: Mapped[int | None] = mapped_column(
         sqlalchemy.BIGINT,
         unique=True,
