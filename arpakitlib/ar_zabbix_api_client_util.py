@@ -102,6 +102,11 @@ class ZabbixApiClient:
             hosts = self.get_hosts(host_ids=zabbix_api_host_ids)
             yield hosts
 
+    def iter_all_hosts_by_one(self) -> Iterator[dict[str, Any]]:
+        for hosts in self.iter_all_hosts():
+            for host in hosts:
+                yield host
+
     def get_all_hosts(self) -> list[dict[str, Any]]:
         res = []
         for hosts in self.iter_all_hosts():
