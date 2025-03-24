@@ -73,7 +73,9 @@ class BaseDBM(DeclarativeBase):
             *,
             include_sd_properties: bool = True,
             exclude_columns: set[str] | None = None,
-            exclude_sd_properties: set[str] | None = None
+            only_columns: list[str] | None = None,
+            exclude_sd_properties: set[str] | None = None,
+            only_sd_properties: list[str] | None = None
     ) -> dict[str, Any]:
         if exclude_columns is None:
             exclude_columns = set()
@@ -84,6 +86,8 @@ class BaseDBM(DeclarativeBase):
 
         # Обрабатываем только колонки текущей модели
         for c in inspect(self).mapper.column_attrs:
+            if only_columns is not None and c.key not in only_columns:
+                continue  # Пропускаем колонку, если она не в only_columns
             if c.key in exclude_columns:
                 continue  # Пропускаем колонку, если она в exclude_columns
 
@@ -93,23 +97,27 @@ class BaseDBM(DeclarativeBase):
         # Обработка свойств с префиксом "sdp_"
         if include_sd_properties:
             for attr_name in dir(self):
-                if attr_name.startswith("sdp_") and isinstance(getattr(type(self), attr_name, None), property):
+                if not attr_name.startswith("sdp_") or not isinstance(getattr(type(self), attr_name, None), property):
+                    continue
 
-                    sdp_property_name = attr_name.removeprefix("sdp_")
-                    if sdp_property_name in exclude_sd_properties:
-                        continue  # Пропускаем свойство, если оно в exclude_sdp_properties
+                sd_property_name = attr_name.removeprefix("sdp_")
 
-                    value = getattr(self, attr_name)
-                    if isinstance(value, BaseDBM):
-                        res[sdp_property_name] = value.simple_dict(include_sd_properties=include_sd_properties)
-                    elif isinstance(value, list):
-                        res[sdp_property_name] = [
-                            item.simple_dict(include_sd_properties=include_sd_properties)
-                            if isinstance(item, BaseDBM) else item
-                            for item in value
-                        ]
-                    else:
-                        res[sdp_property_name] = value
+                if only_sd_properties is not None and sd_property_name not in only_sd_properties:
+                    continue  # Пропускаем свойство, если оно не в only_sd_properties
+                if sd_property_name in exclude_sd_properties:
+                    continue  # Пропускаем свойство, если оно в exclude_sd_properties
+
+                value = getattr(self, attr_name)
+                if isinstance(value, BaseDBM):
+                    res[sd_property_name] = value.simple_dict(include_sd_properties=include_sd_properties)
+                elif isinstance(value, list):
+                    res[sd_property_name] = [
+                        item.simple_dict(include_sd_properties=include_sd_properties)
+                        if isinstance(item, BaseDBM) else item
+                        for item in value
+                    ]
+                else:
+                    res[sd_property_name] = value
 
         return res
 
@@ -117,12 +125,16 @@ class BaseDBM(DeclarativeBase):
             self,
             *,
             exclude_columns: set[str] | None = None,
-            exclude_sdp_properties: set[str] | None = None
+            only_columns: list[str] | None = None,
+            exclude_sdp_properties: set[str] | None = None,
+            only_sd_properties: list[str] | None = None
     ) -> dict[str, Any]:
         return self.simple_dict(
             include_sd_properties=True,
             exclude_columns=exclude_columns,
-            exclude_sd_properties=exclude_sdp_properties
+            only_columns=only_columns,
+            exclude_sd_properties=exclude_sdp_properties,
+            only_sd_properties=only_sd_properties
         )
 
     def simple_dict_json(
@@ -130,13 +142,17 @@ class BaseDBM(DeclarativeBase):
             *,
             include_sd_properties: bool = True,
             exclude_columns: set[str] | None = None,
-            exclude_sdp_properties: set[str] | None = None
+            only_columns: list[str] | None = None,
+            exclude_sd_properties: set[str] | None = None,
+            only_sd_properties: list[str] | None = None
     ) -> str:
         return transfer_data_to_json_str(
             data=self.simple_dict(
                 include_sd_properties=include_sd_properties,
                 exclude_columns=exclude_columns,
-                exclude_sd_properties=exclude_sdp_properties
+                only_columns=only_columns,
+                exclude_sd_properties=exclude_sd_properties,
+                only_sd_properties=only_sd_properties
             ),
             beautify=True,
             fast=False

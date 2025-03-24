@@ -12,6 +12,9 @@ class StoryLogAdminSO(SimpleDBMAdminSO):
     title: str | None
     data: dict[str, Any]
 
+    allowed_levels: list[str]
+    allowed_types: list[str]
+
     @classmethod
     def from_dbm(cls, *, simple_dbm: StoryLogDBM) -> StoryLogAdminSO:
         return cls.model_validate(simple_dbm.simple_dict_with_sd_properties())

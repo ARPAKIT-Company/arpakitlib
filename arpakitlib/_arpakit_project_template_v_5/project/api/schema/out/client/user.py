@@ -14,8 +14,10 @@ class UserClientSO(SimpleDBMClientSO):
     tg_id: int | None
     tg_bot_last_action_dt: dt.datetime | None
     tg_data: dict[str, Any] | None
+
     roles_has_admin: bool
     roles_has_client: bool
+    allowed_roles: list[str]
 
     @classmethod
     def from_dbm(cls, *, simple_dbm: UserDBM) -> UserClientSO:
