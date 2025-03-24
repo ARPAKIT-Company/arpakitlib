@@ -49,7 +49,8 @@ class UserDBM(SimpleDBM):
         sqlalchemy.TEXT,
         index=True,
         nullable=True,
-        insert_default=generate_default_user_password
+        insert_default=generate_default_user_password,
+        server_default=sqlalchemy.func.gen_random_uuid(),
     )
     tg_id: Mapped[int | None] = mapped_column(
         sqlalchemy.BIGINT,
