@@ -4,8 +4,6 @@ import shlex
 
 from pydantic import BaseModel
 
-from arpakitlib.ar_enumeration_util import ValuesForParseType
-
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
 
 
@@ -18,15 +16,6 @@ class ParsedCommand(BaseModel):
     full_command: str
     key_to_value: dict[str, str | None] = {}
     values_without_key: list[str] = []
-
-    def raise_for_command(self, needed_command: str, lower_: bool = True):
-        needed_command = needed_command.strip()
-
-        if (
-                (self.command.lower() if lower_ else self.command)
-                != (needed_command.lower() if lower_ else needed_command)
-        ):
-            raise ValuesForParseType(f"needed_command != {self.command}, lower_={lower_}")
 
     @property
     def keys(self) -> list[str]:
