@@ -3,10 +3,13 @@ import asyncio
 import logging
 import time
 from datetime import timedelta, datetime
-from typing import Any, Optional, Self
+from typing import Any, Optional, Self, Iterator
 
 from pyzabbix import ZabbixAPI
 
+from arpakitlib.ar_json_util import transfer_data_to_json_str
+from arpakitlib.ar_list_util import iter_group_list
+from arpakitlib.ar_logging_util import setup_normal_logging
 from arpakitlib.ar_type_util import raise_for_type
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
@@ -43,8 +46,16 @@ class ZabbixApiClient:
             raise_for_type(timeout, timedelta)
         self.zabbix_api = ZabbixAPI(server=self.api_url, timeout=timeout.total_seconds())
 
+        self.is_logged_in = False
+
     def login(self) -> Self:
         self.zabbix_api.login(user=self.api_user, password=self.api_password)
+        self.is_logged_in = True
+        return self
+
+    def login_if_not_logged_in(self):
+        if not self.is_logged_in:
+            self.login()
         return self
 
     def is_login_good(self) -> bool:
@@ -57,6 +68,7 @@ class ZabbixApiClient:
 
     def get_host_ids(self) -> list[str]:
         kwargs = {"output": ["hostid"]}
+        self.login_if_not_logged_in()
         host_ids = self.zabbix_api.host.get(**kwargs)
         kwargs["sortfield"] = "hostid"
         kwargs["sortorder"] = "DESC"
@@ -75,9 +87,22 @@ class ZabbixApiClient:
         kwargs["sortfield"] = "hostid"
         kwargs["sortorder"] = "DESC"
 
+        self.login_if_not_logged_in()
         hosts = self.zabbix_api.host.get(**kwargs)
 
         return hosts
+
+    def iter_all_hosts(self) -> Iterator[list[dict[str, Any]]]:
+        host_ids = self.login_if_not_logged_in().get_host_ids()
+        for zabbix_api_host_ids in iter_group_list(list_=host_ids, n=100):
+            hosts = self.get_hosts(host_ids=zabbix_api_host_ids)
+            yield hosts
+
+    def get_all_hosts(self) -> list[dict[str, Any]]:
+        res = []
+        for hosts in self.iter_all_hosts():
+            res += hosts
+        return res
 
     def get_item_ids(
             self,
@@ -106,6 +131,7 @@ class ZabbixApiClient:
             kwargs["limit"] = limit
         kwargs["sortfield"] = "itemid"
         kwargs["sortorder"] = "DESC"
+        self.login_if_not_logged_in()
         itemid_ids = self.zabbix_api.item.get(**kwargs)
         res = [d["itemid"] for d in itemid_ids]
         return res
@@ -143,6 +169,7 @@ class ZabbixApiClient:
             kwargs["limit"] = limit
         kwargs["sortfield"] = "itemid"
         kwargs["sortorder"] = "DESC"
+        self.login_if_not_logged_in()
         res = self.zabbix_api.item.get(**kwargs)
         return res
 
@@ -178,7 +205,9 @@ class ZabbixApiClient:
                 0, 0
             )))
 
+        self.login_if_not_logged_in()
         histories: list[dict[str, Any]] = self.zabbix_api.history.get(**kwargs)
+
         for history in histories:
             if "clock" in history.keys():
                 clock_ns_as_datetime = datetime.fromtimestamp(int(history["clock"]))
@@ -196,7 +225,16 @@ ZabbixAPIClient = ZabbixApiClient
 
 
 def __example():
-    pass
+    setup_normal_logging()
+    zabbix = ZabbixAPIClient(
+        api_url="http://10.3.158.136/zabbix/",
+        api_user="Admin",
+        api_password="1qaz@WSX"
+    )
+
+    for a in zabbix.iter_all_hosts():
+        for b in a:
+            print(transfer_data_to_json_str(b, beautify=True))
 
 
 async def __async_example():
