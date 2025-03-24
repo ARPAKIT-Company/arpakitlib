@@ -8,7 +8,7 @@ class SimpleMV(ModelView):
     can_view_details = True
     can_export = True
     page_size = 50
-    page_size_options = [50, 100, 200]
+    page_size_options = [50, 100, 200, 500, 750, 1000]
     save_as = True
     save_as_continue = True
     export_types = ["xlsx", "csv", "json"]

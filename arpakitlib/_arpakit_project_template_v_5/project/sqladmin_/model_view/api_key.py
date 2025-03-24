@@ -1,3 +1,5 @@
+import sqlalchemy
+
 from project.sqladmin_.model_view.common import SimpleMV
 from project.sqlalchemy_db_.sqlalchemy_model import ApiKeyDBM
 
@@ -5,15 +7,7 @@ from project.sqlalchemy_db_.sqlalchemy_model import ApiKeyDBM
 class ApiKeyMV(SimpleMV, model=ApiKeyDBM):
     name = "ApiKey"
     name_plural = "ApiKeys"
-    column_list = [
-        ApiKeyDBM.id,
-        ApiKeyDBM.long_id,
-        ApiKeyDBM.slug,
-        ApiKeyDBM.creation_dt,
-        ApiKeyDBM.title,
-        ApiKeyDBM.value,
-        ApiKeyDBM.is_active,
-    ]
+    column_list = [column.name for column in sqlalchemy.inspect(ApiKeyDBM).columns]
     form_columns = [
         ApiKeyDBM.slug,
         ApiKeyDBM.title,
@@ -29,5 +23,5 @@ class ApiKeyMV(SimpleMV, model=ApiKeyDBM):
         ApiKeyDBM.slug,
         ApiKeyDBM.title,
         ApiKeyDBM.value,
-        ApiKeyDBM.is_active,
     ]
+    column_sortable_list = [column.name for column in sqlalchemy.inspect(ApiKeyDBM).columns]

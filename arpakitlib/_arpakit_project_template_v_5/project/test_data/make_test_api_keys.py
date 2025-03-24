@@ -13,8 +13,8 @@ def make_test_data_1():
     with get_cached_sqlalchemy_db().new_session() as session:
         session.query(ApiKeyDBM).delete()
         session.commit()
-        for i in range(10):
-            api_key = ApiKeyDBM(value=str(i))
+        for i in range(1000):
+            api_key = ApiKeyDBM(value=str(i+1))
             session.add(api_key)
             _logger.info(api_key)
         session.commit()

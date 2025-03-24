@@ -1,3 +1,5 @@
+import sqlalchemy
+
 from project.sqladmin_.model_view.common import SimpleMV
 from project.sqlalchemy_db_.sqlalchemy_model import StoryLogDBM
 
@@ -5,16 +7,7 @@ from project.sqlalchemy_db_.sqlalchemy_model import StoryLogDBM
 class StoryLogMV(SimpleMV, model=StoryLogDBM):
     name = "StoryLog"
     name_plural = "StoryLogs"
-    column_list = [
-        StoryLogDBM.id,
-        StoryLogDBM.long_id,
-        StoryLogDBM.slug,
-        StoryLogDBM.creation_dt,
-        StoryLogDBM.level,
-        StoryLogDBM.type,
-        StoryLogDBM.title,
-        StoryLogDBM.extra_data
-    ]
+    column_list = sqlalchemy.inspect(StoryLogDBM).columns
     form_columns = [
         StoryLogDBM.slug,
         StoryLogDBM.level,
@@ -32,5 +25,5 @@ class StoryLogMV(SimpleMV, model=StoryLogDBM):
         StoryLogDBM.level,
         StoryLogDBM.type,
         StoryLogDBM.title,
-        StoryLogDBM.extra_data
     ]
+    column_sortable_list = sqlalchemy.inspect(StoryLogDBM).columns

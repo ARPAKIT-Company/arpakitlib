@@ -1,3 +1,5 @@
+import sqlalchemy
+
 from project.sqladmin_.model_view.common import SimpleMV
 from project.sqlalchemy_db_.sqlalchemy_model import UserDBM
 
@@ -5,18 +7,7 @@ from project.sqlalchemy_db_.sqlalchemy_model import UserDBM
 class UserMV(SimpleMV, model=UserDBM):
     name = "User"
     name_plural = "Users"
-    column_list = [
-        UserDBM.id,
-        UserDBM.long_id,
-        UserDBM.slug,
-        UserDBM.creation_dt,
-        UserDBM.email,
-        UserDBM.roles,
-        UserDBM.is_active,
-        UserDBM.tg_id,
-        UserDBM.tg_bot_last_action_dt,
-        UserDBM.tg_data,
-    ]
+    column_list = sqlalchemy.inspect(UserDBM).columns
     form_columns = [
         UserDBM.slug,
         UserDBM.email,
@@ -25,6 +16,7 @@ class UserMV(SimpleMV, model=UserDBM):
         UserDBM.tg_id,
         UserDBM.tg_bot_last_action_dt,
         UserDBM.tg_data,
+        UserDBM.extra_data
     ]
     column_default_sort = [
         (UserDBM.creation_dt, True)
@@ -34,7 +26,6 @@ class UserMV(SimpleMV, model=UserDBM):
         UserDBM.long_id,
         UserDBM.slug,
         UserDBM.email,
-        UserDBM.roles,
-        UserDBM.is_active,
         UserDBM.tg_id,
     ]
+    column_sortable_list = sqlalchemy.inspect(UserDBM).columns
