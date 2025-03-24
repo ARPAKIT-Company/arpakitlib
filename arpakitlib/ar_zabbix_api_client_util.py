@@ -7,7 +7,6 @@ from typing import Any, Optional, Self, Iterator
 
 from pyzabbix import ZabbixAPI
 
-from arpakitlib.ar_json_util import transfer_data_to_json_str
 from arpakitlib.ar_list_util import iter_group_list
 from arpakitlib.ar_logging_util import setup_normal_logging
 from arpakitlib.ar_type_util import raise_for_type
@@ -44,7 +43,12 @@ class ZabbixApiClient:
             pass
         else:
             raise_for_type(timeout, timedelta)
-        self.zabbix_api = ZabbixAPI(server=self.api_url, timeout=timeout.total_seconds())
+
+        self.zabbix_api = ZabbixAPI(
+            server=self.api_url,
+            timeout=timeout.total_seconds(),
+        )
+        self.zabbix_api.session.verify = False
 
         self.is_logged_in = False
 
@@ -227,14 +231,12 @@ ZabbixAPIClient = ZabbixApiClient
 def __example():
     setup_normal_logging()
     zabbix = ZabbixAPIClient(
-        api_url="http://10.3.158.136/zabbix/",
-        api_user="Admin",
-        api_password="1qaz@WSX"
+        api_url=...,
+        api_user=...,
+        api_password=...
     )
 
-    for a in zabbix.iter_all_hosts():
-        for b in a:
-            print(transfer_data_to_json_str(b, beautify=True))
+    print(zabbix.is_login_good())
 
 
 async def __async_example():
