@@ -45,7 +45,18 @@ class OperationExecutorWorker(BaseWorker):
         elif operation_dbm.type == OperationDBM.Types.raise_fake_error_:
             self._logger.error(f"{OperationDBM.Types.raise_fake_error_}")
             raise Exception(f"{OperationDBM.Types.raise_fake_error_}")
-        # ...
+        else:
+            with self.sqlalchemy_db.new_session() as session:
+                operation_dbm: OperationDBM = session.query(
+                    OperationDBM
+                ).filter(OperationDBM.id == operation_dbm.id).one()
+                operation_dbm.output_data = combine_dicts(
+                    operation_dbm.output_data,
+                    {"warning": f"unknown operation_type = {operation_dbm.type=}"}
+                )
+                session.commit()
+                session.refresh(operation_dbm)
+            self._logger.info(f"unknown operation_type, {operation_dbm.id=}, {operation_dbm.type=}")
 
     async def async_execute_operation(self, *, operation_dbm: OperationDBM):
         if operation_dbm.type == OperationDBM.Types.healthcheck_:
@@ -53,7 +64,19 @@ class OperationExecutorWorker(BaseWorker):
         elif operation_dbm.type == OperationDBM.Types.raise_fake_error_:
             self._logger.error(f"{OperationDBM.Types.raise_fake_error_}")
             raise Exception(f"{OperationDBM.Types.raise_fake_error_}")
-        # ...
+        else:
+            async with self.sqlalchemy_db.new_async_session() as session:
+                result = await session.execute(
+                    sqlalchemy.select(OperationDBM).filter(OperationDBM.id == operation_dbm.id)
+                )
+                operation_dbm: OperationDBM = result.scalar_one()
+                operation_dbm.output_data = combine_dicts(
+                    operation_dbm.output_data,
+                    {"warning": f"unknown operation_type = {operation_dbm.type}"}
+                )
+                await session.commit()
+                await session.refresh(operation_dbm)
+            self._logger.info(f"unknown operation_type, {operation_dbm.id=}, {operation_dbm.type=}")
 
     def sync_run(self):
         # 1
