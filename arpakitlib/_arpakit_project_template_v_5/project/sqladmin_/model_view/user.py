@@ -28,4 +28,5 @@ class UserMV(SimpleMV, model=UserDBM):
         UserDBM.long_id,
         UserDBM.slug,
         UserDBM.tg_id,
+        UserDBM.password
     ]
