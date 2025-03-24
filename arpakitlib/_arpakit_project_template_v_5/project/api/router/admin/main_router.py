@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
 from project.api.router.admin import get_auth_data, get_arpakitlib_project_template_info, raise_fake_error, \
-    reinit_sqlalchemy_db, get_story_log, init_sqlalchemy_db
+    reinit_sqlalchemy_db, get_story_log, init_sqlalchemy_db, get_sqlalchemy_db_table_name_to_amount
 
 main_admin_api_router = APIRouter()
 
@@ -33,4 +33,9 @@ main_admin_api_router.include_router(
 main_admin_api_router.include_router(
     router=init_sqlalchemy_db.api_router,
     prefix="/init_sqlalchemy_db"
+)
+
+main_admin_api_router.include_router(
+    router=get_sqlalchemy_db_table_name_to_amount.api_router,
+    prefix="/get_sqlalchemy_db_table_name_to_amount"
 )
