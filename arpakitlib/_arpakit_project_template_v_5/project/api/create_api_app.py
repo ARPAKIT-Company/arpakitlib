@@ -1,6 +1,7 @@
 import logging
 import os
 
+import starlette.types
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -53,14 +54,23 @@ def create_api_app(*, prefix: str = "/api") -> FastAPI:
         router=main_api_router
     )
 
+    class _CustomStaticFiles(StaticFiles):
+        async def get_response(self, path: str, scope: starlette.types.Scope):
+            if os.path.isfile(os.path.join(self.directory, path)):
+                headers = {"Content-Disposition": f"attachment; filename={os.path.basename(path)}"}
+                response = await super().get_response(path, scope)
+                response.headers.update(headers)
+                return response
+            return await super().get_response(path, scope)
+
     if get_cached_settings().media_dirpath is not None:
         if not os.path.exists(get_cached_settings().media_dirpath):
             os.makedirs(get_cached_settings().media_dirpath, exist_ok=True)
-        api_app.mount("/media", StaticFiles(directory=get_cached_settings().media_dirpath), name="media")
+        api_app.mount("/media", _CustomStaticFiles(directory=get_cached_settings().media_dirpath), name="media")
 
     if not os.path.exists(ProjectPaths.static_dirpath):
         os.makedirs(ProjectPaths.static_dirpath, exist_ok=True)
-    api_app.mount("/static", StaticFiles(directory=ProjectPaths.static_dirpath), name="static")
+    api_app.mount("/static", _CustomStaticFiles(directory=ProjectPaths.static_dirpath), name="static")
 
     if get_cached_settings().api_enable_sqladmin:
         from project.sqladmin_.add_admin_in_app import add_sqladmin_in_app
