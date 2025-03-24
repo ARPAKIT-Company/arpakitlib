@@ -48,14 +48,14 @@ class Enumeration:
 
             if isinstance(value, str) or isinstance(value, int):
                 if validate is True and value not in cls.values_set():
-                    raise ValueError(f"validate is True and {value} not in {cls.values_set()}")
+                    raise ValueError(f"{value} not in {cls.values_set()}")
                 res.append(value)
 
             elif isinstance(value, Iterable):
                 for value_ in value:
                     if isinstance(value_, str) or isinstance(value_, int):
                         if validate is True and value_ not in cls.values_set():
-                            raise ValueError(f"validate is True and {value_} not in {cls.values_set()}")
+                            raise ValueError(f"{value_} not in {cls.values_set()}")
                         res.append(value_)
                     else:
                         raise TypeError(f"bad type, value={value}, type={type(value)}")

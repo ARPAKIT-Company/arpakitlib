@@ -75,7 +75,8 @@ class BaseDBM(DeclarativeBase):
             exclude_columns: set[str] | None = None,
             only_columns: list[str] | None = None,
             exclude_sd_properties: set[str] | None = None,
-            only_sd_properties: list[str] | None = None
+            only_sd_properties: list[str] | None = None,
+            only_columns_and_sd_properties: list[str] | None = None
     ) -> dict[str, Any]:
         if exclude_columns is None:
             exclude_columns = set()
@@ -86,6 +87,8 @@ class BaseDBM(DeclarativeBase):
 
         # Обрабатываем только колонки текущей модели
         for c in inspect(self).mapper.column_attrs:
+            if only_columns_and_sd_properties is not None and c.key not in only_columns_and_sd_properties:
+                continue  # Пропускаем колонку, если она не в only_columns_and_sd_properties
             if only_columns is not None and c.key not in only_columns:
                 continue  # Пропускаем колонку, если она не в only_columns
             if c.key in exclude_columns:
@@ -102,6 +105,11 @@ class BaseDBM(DeclarativeBase):
 
                 sd_property_name = attr_name.removeprefix("sdp_")
 
+                if (
+                        only_columns_and_sd_properties is not None
+                        and sd_property_name not in only_columns_and_sd_properties
+                ):
+                    continue  # Пропускаем свойство, если оно не в only_columns_and_sd_properties
                 if only_sd_properties is not None and sd_property_name not in only_sd_properties:
                     continue  # Пропускаем свойство, если оно не в only_sd_properties
                 if sd_property_name in exclude_sd_properties:
@@ -127,14 +135,16 @@ class BaseDBM(DeclarativeBase):
             exclude_columns: set[str] | None = None,
             only_columns: list[str] | None = None,
             exclude_sdp_properties: set[str] | None = None,
-            only_sd_properties: list[str] | None = None
+            only_sd_properties: list[str] | None = None,
+            only_columns_and_sd_properties: list[str] | None = None  # Новый параметр
     ) -> dict[str, Any]:
         return self.simple_dict(
             include_sd_properties=True,
             exclude_columns=exclude_columns,
             only_columns=only_columns,
             exclude_sd_properties=exclude_sdp_properties,
-            only_sd_properties=only_sd_properties
+            only_sd_properties=only_sd_properties,
+            only_columns_and_sd_properties=only_columns_and_sd_properties  # Новый параметр
         )
 
     def simple_dict_json(
@@ -144,7 +154,9 @@ class BaseDBM(DeclarativeBase):
             exclude_columns: set[str] | None = None,
             only_columns: list[str] | None = None,
             exclude_sd_properties: set[str] | None = None,
-            only_sd_properties: list[str] | None = None
+            only_sd_properties: list[str] | None = None,
+            only_columns_and_sd_properties: list[str] | None = None,
+            **transfer_data_to_json_str_kwargs
     ) -> str:
         return transfer_data_to_json_str(
             data=self.simple_dict(
@@ -152,10 +164,10 @@ class BaseDBM(DeclarativeBase):
                 exclude_columns=exclude_columns,
                 only_columns=only_columns,
                 exclude_sd_properties=exclude_sd_properties,
-                only_sd_properties=only_sd_properties
+                only_sd_properties=only_sd_properties,
+                only_columns_and_sd_properties=only_columns_and_sd_properties
             ),
-            beautify=True,
-            fast=False
+            **transfer_data_to_json_str_kwargs
         )
 
 
