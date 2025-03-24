@@ -20,7 +20,7 @@ class ZabbixApiClient:
             api_url: str,
             api_user: str,
             api_password: str,
-            timeout: float = timedelta(seconds=15).total_seconds()
+            timeout: float | int | timedelta = timedelta(seconds=15).total_seconds()
     ):
         self._logger = logging.getLogger(self.__class__.__name__)
 
@@ -33,7 +33,15 @@ class ZabbixApiClient:
         raise_for_type(api_password, str)
         self.api_password = api_password
 
-        self.zabbix_api = ZabbixAPI(server=self.api_url, timeout=timeout)
+        if isinstance(timeout, float):
+            timeout = timedelta(timeout)
+        elif isinstance(timeout, int):
+            timeout = timedelta(timeout)
+        elif isinstance(timeout, timedelta):
+            pass
+        else:
+            raise_for_type(timeout, timedelta)
+        self.zabbix_api = ZabbixAPI(server=self.api_url, timeout=timeout.total_seconds())
 
     def login(self) -> Self:
         self.zabbix_api.login(user=self.api_user, password=self.api_password)
@@ -99,7 +107,7 @@ class ZabbixApiClient:
         kwargs["sortfield"] = "itemid"
         kwargs["sortorder"] = "DESC"
         itemid_ids = self.zabbix_api.item.get(**kwargs)
-        res = [host_id["itemid"] for host_id in itemid_ids]
+        res = [d["itemid"] for d in itemid_ids]
         return res
 
     def get_items(
@@ -182,6 +190,9 @@ class ZabbixApiClient:
                     )
 
         return histories
+
+
+ZabbixAPIClient = ZabbixApiClient
 
 
 def __example():
