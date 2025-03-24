@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import datetime as dt
 from typing import TYPE_CHECKING, Any
+from uuid import uuid4
 
 import sqlalchemy
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -12,6 +13,10 @@ from project.sqlalchemy_db_.sqlalchemy_model.common import SimpleDBM
 
 if TYPE_CHECKING:
     from project.sqlalchemy_db_.sqlalchemy_model.user_token import UserTokenDBM
+
+
+def generate_default_user_password() -> str:
+    return str(uuid4()).replace("-", "")
 
 
 class UserDBM(SimpleDBM):
@@ -43,7 +48,8 @@ class UserDBM(SimpleDBM):
     password: Mapped[str | None] = mapped_column(
         sqlalchemy.TEXT,
         index=True,
-        nullable=True
+        nullable=True,
+        insert_default=generate_default_user_password
     )
     tg_id: Mapped[int | None] = mapped_column(
         sqlalchemy.BIGINT,
