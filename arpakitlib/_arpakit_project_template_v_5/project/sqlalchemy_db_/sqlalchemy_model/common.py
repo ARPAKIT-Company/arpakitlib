@@ -14,7 +14,7 @@ class SimpleDBM(BaseDBM):
     __abstract__ = True
 
     id: Mapped[int] = mapped_column(
-        sqlalchemy.INTEGER,
+        sqlalchemy.BIGINT,
         primary_key=True,
         autoincrement=True,
         sort_order=-103,

@@ -32,7 +32,7 @@ class UserTokenDBM(SimpleDBM):
         server_default=sqlalchemy.func.gen_random_uuid(),
     )
     user_id: Mapped[int] = mapped_column(
-        sqlalchemy.INTEGER,
+        sqlalchemy.BIGINT,
         sqlalchemy.ForeignKey("user.id", ondelete="CASCADE"),
         index=True,
         nullable=False
