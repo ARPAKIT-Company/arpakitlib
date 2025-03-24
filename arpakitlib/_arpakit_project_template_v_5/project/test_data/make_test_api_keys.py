@@ -14,7 +14,7 @@ def make_test_data_1():
         session.query(ApiKeyDBM).delete()
         session.commit()
         for i in range(1000):
-            api_key = ApiKeyDBM(value=str(i+1))
+            api_key = ApiKeyDBM(value=str(i + 1))
             session.add(api_key)
             _logger.info(api_key)
         session.commit()

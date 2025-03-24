@@ -1,4 +1,4 @@
-from emoji import demojize, emojize
+from emoji import emojize
 
 
 def __command():

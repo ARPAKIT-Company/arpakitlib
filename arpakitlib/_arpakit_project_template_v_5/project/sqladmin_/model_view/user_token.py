@@ -16,6 +16,7 @@ class UserTokenMV(SimpleMV, model=UserTokenDBM):
         UserTokenDBM.is_active,
         UserTokenDBM.extra_data
     ]
+    column_sortable_list = sqlalchemy.inspect(UserTokenDBM).columns
     column_default_sort = [
         (UserTokenDBM.creation_dt, True)
     ]
@@ -24,6 +25,4 @@ class UserTokenMV(SimpleMV, model=UserTokenDBM):
         UserTokenDBM.long_id,
         UserTokenDBM.slug,
         UserTokenDBM.value,
-        UserTokenDBM.user_id,
     ]
-    column_sortable_list = sqlalchemy.inspect(UserTokenDBM).columns

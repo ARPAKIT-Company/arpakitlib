@@ -15,6 +15,7 @@ class StoryLogMV(SimpleMV, model=StoryLogDBM):
         StoryLogDBM.title,
         StoryLogDBM.extra_data
     ]
+    column_sortable_list = sqlalchemy.inspect(StoryLogDBM).columns
     column_default_sort = [
         (StoryLogDBM.creation_dt, True)
     ]
@@ -22,8 +23,4 @@ class StoryLogMV(SimpleMV, model=StoryLogDBM):
         StoryLogDBM.id,
         StoryLogDBM.long_id,
         StoryLogDBM.slug,
-        StoryLogDBM.level,
-        StoryLogDBM.type,
-        StoryLogDBM.title,
     ]
-    column_sortable_list = sqlalchemy.inspect(StoryLogDBM).columns

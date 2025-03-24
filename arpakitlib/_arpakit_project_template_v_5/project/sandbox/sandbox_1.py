@@ -1,8 +1,13 @@
 import asyncio
 
+import sqlalchemy
+
+from project.sqlalchemy_db_.sqlalchemy_model import SimpleDBM
+
 
 def __sandbox():
-    pass
+    a = sqlalchemy.inspect(SimpleDBM)
+    print(a)
 
 
 async def __async_sandbox():

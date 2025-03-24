@@ -20,6 +20,7 @@ class OperationMV(SimpleMV, model=OperationDBM):
         OperationDBM.error_data,
         OperationDBM.extra_data
     ]
+    column_sortable_list = sqlalchemy.inspect(OperationDBM).columns
     column_default_sort = [
         (OperationDBM.creation_dt, True)
     ]
@@ -27,8 +28,4 @@ class OperationMV(SimpleMV, model=OperationDBM):
         OperationDBM.id,
         OperationDBM.long_id,
         OperationDBM.slug,
-        OperationDBM.status,
-        OperationDBM.type,
-        OperationDBM.title
     ]
-    column_sortable_list = sqlalchemy.inspect(OperationDBM).columns

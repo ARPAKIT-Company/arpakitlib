@@ -18,6 +18,7 @@ class UserMV(SimpleMV, model=UserDBM):
         UserDBM.tg_data,
         UserDBM.extra_data
     ]
+    column_sortable_list = sqlalchemy.inspect(UserDBM).columns
     column_default_sort = [
         (UserDBM.creation_dt, True)
     ]
@@ -25,7 +26,5 @@ class UserMV(SimpleMV, model=UserDBM):
         UserDBM.id,
         UserDBM.long_id,
         UserDBM.slug,
-        UserDBM.email,
         UserDBM.tg_id,
     ]
-    column_sortable_list = sqlalchemy.inspect(UserDBM).columns

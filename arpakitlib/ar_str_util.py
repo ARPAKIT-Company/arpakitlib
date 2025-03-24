@@ -1,6 +1,6 @@
 # arpakit
 
-from typing import Optional, Any
+from typing import Optional
 
 import markdown
 from bs4 import BeautifulSoup
