@@ -1,7 +1,7 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from project.tg_bot.blank.client import get_cached_client_tg_bot_blank
+from project.tg_bot.blank.general import get_cached_client_tg_bot_blank
 from project.tg_bot.callback.client import HelloWorldClientCD
 
 

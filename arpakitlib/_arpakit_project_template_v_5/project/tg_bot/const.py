@@ -1,7 +1,7 @@
 from arpakitlib.ar_enumeration_util import Enumeration
 
 
-class ClientTgBotCommands(Enumeration):
+class GeneralTgBotCommands(Enumeration):
     start = "start"
     about = "about"
     author = "author"
@@ -28,7 +28,7 @@ class AdminTgBotCommands(Enumeration):
 
 def __example():
     print("ClientCommandsTgBot:")
-    for v in ClientTgBotCommands.values_list():
+    for v in GeneralTgBotCommands.values_list():
         print(f"- {v}")
     print()
     print("AdminCommandsTgBot:")

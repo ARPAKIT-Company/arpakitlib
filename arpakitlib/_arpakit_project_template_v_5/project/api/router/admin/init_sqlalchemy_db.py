@@ -3,10 +3,16 @@ from fastapi import APIRouter
 
 from project.api.authorize import APIAuthorizeData, api_authorize, require_user_token_dbm_api_authorize_middleware, \
     require_api_key_dbm_api_authorize_middleware, require_not_prod_mode_api_authorize_middleware
+from project.api.schema.common import BaseRouteSO
 from project.api.schema.out.common.error import ErrorCommonSO
 from project.api.schema.out.common.raw_data import RawDataCommonSO
 from project.sqlalchemy_db_.sqlalchemy_db import get_cached_sqlalchemy_db
 from project.sqlalchemy_db_.sqlalchemy_model import UserDBM
+
+
+class InitSqlalchemyDbRouteSO(BaseRouteSO, RawDataCommonSO):
+    pass
+
 
 api_router = APIRouter()
 
@@ -15,7 +21,7 @@ api_router = APIRouter()
     path="",
     name="Init sqlalchemy db",
     status_code=fastapi.status.HTTP_200_OK,
-    response_model=RawDataCommonSO | ErrorCommonSO,
+    response_model=InitSqlalchemyDbRouteSO | ErrorCommonSO,
 )
 async def _(
         *,
@@ -33,4 +39,4 @@ async def _(
         ]))
 ):
     get_cached_sqlalchemy_db().init()
-    return RawDataCommonSO()
+    return InitSqlalchemyDbRouteSO()

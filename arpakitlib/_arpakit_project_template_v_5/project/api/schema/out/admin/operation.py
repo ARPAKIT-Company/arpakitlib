@@ -7,7 +7,7 @@ from project.api.schema.out.admin.common import SimpleDBMAdminSO
 from project.sqlalchemy_db_.sqlalchemy_model import OperationDBM
 
 
-class OperationAdminSO(SimpleDBMAdminSO):
+class OperationAdmin1SO(SimpleDBMAdminSO):
     execution_start_dt: dt.datetime | None
     execution_finish_dt: dt.datetime | None
     status: str
@@ -22,5 +22,7 @@ class OperationAdminSO(SimpleDBMAdminSO):
     allowed_types: list[str]
 
     @classmethod
-    def from_dbm(cls, *, simple_dbm: OperationDBM) -> OperationAdminSO:
-        return cls.model_validate(simple_dbm.simple_dict_with_sd_properties())
+    def from_dbm(cls, *, simple_dbm: OperationDBM) -> OperationAdmin1SO:
+        return cls.model_validate(simple_dbm.simple_dict_with_sd_properties(
+            only_columns_and_sd_properties=cls.model_fields.keys()
+        ))

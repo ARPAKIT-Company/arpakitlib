@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 import sqlalchemy
-from sqlalchemy.dialects import postgresql
-from sqlalchemy.orm import mapped_column, Mapped
+from sqlalchemy.orm import mapped_column, Mapped, validates
 
 from arpakitlib.ar_enumeration_util import Enumeration
 from project.sqlalchemy_db_.sqlalchemy_model.common import SimpleDBM
@@ -43,12 +42,10 @@ class StoryLogDBM(SimpleDBM):
         insert_default=None,
         nullable=True
     )
-    data: Mapped[dict[str, Any]] = mapped_column(
-        postgresql.JSON,
-        insert_default={},
-        server_default="{}",
-        nullable=False
-    )
+
+    @validates("level")
+    def _validate_level(self, key, value, *args, **kwargs):
+        self.Levels.parse_and_validate_values(value)
 
     @property
     def sdp_allowed_levels(self) -> list[str]:

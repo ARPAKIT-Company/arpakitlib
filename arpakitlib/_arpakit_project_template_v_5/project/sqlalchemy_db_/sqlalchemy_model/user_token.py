@@ -56,3 +56,7 @@ class UserTokenDBM(SimpleDBM):
     def __repr__(self) -> str:
         res = f"{self.entity_name} (id={self.id}, user_id={self.user_id})"
         return res
+
+    @property
+    def sdp_user(self) -> UserDBM:
+        return self.user

@@ -99,76 +99,76 @@ class UserDBM(SimpleDBM):
         return bool(set(roles) & set(self.roles))
 
     @property
-    def tg_first_name(self) -> str | None:
+    def tg_data_first_name(self) -> str | None:
         if self.tg_data and "first_name" in self.tg_data:
             return self.tg_data["first_name"]
         return None
 
     @property
-    def sdp_tg_first_name(self) -> str | None:
-        return self.tg_first_name
+    def sdp_tg_data_first_name(self) -> str | None:
+        return self.tg_data_first_name
 
     @property
-    def tg_last_name(self) -> str | None:
+    def tg_data_last_name(self) -> str | None:
         if self.tg_data and "last_name" in self.tg_data:
             return self.tg_data["last_name"]
         return None
 
     @property
-    def sdp_tg_last_name(self) -> str | None:
-        return self.tg_last_name
+    def sdp_tg_data_last_name(self) -> str | None:
+        return self.tg_data_last_name
 
     @property
-    def tg_language_code(self) -> str | None:
+    def tg_data_language_code(self) -> str | None:
         if self.tg_data and "language_code" in self.tg_data:
             return self.tg_data["language_code"]
         return None
 
     @property
-    def sdp_tg_language_code(self) -> str | None:
-        return self.tg_language_code
+    def sdp_tg_data_language_code(self) -> str | None:
+        return self.tg_data_language_code
 
     @property
-    def tg_username(self) -> str | None:
+    def tg_data_username(self) -> str | None:
         if self.tg_data and "username" in self.tg_data:
             return self.tg_data["username"]
         return None
 
     @property
-    def sdp_tg_username(self) -> str | None:
-        return self.tg_username
+    def sdp_tg_data_username(self) -> str | None:
+        return self.tg_data_username
 
     @property
-    def tg_at_username(self) -> str | None:
-        if self.tg_username:
-            return f"@{self.tg_username}"
+    def tg_data_at_username(self) -> str | None:
+        if self.tg_data_username:
+            return f"@{self.tg_data_username}"
         return None
 
     @property
-    def sdp_tg_at_username(self) -> str | None:
-        return self.tg_at_username
+    def sdp_tg_data_at_username(self) -> str | None:
+        return self.tg_data_at_username
 
     @property
-    def tg_fullname(self) -> str | None:
-        if not self.tg_first_name and not self.tg_last_name:
+    def tg_data_fullname(self) -> str | None:
+        if not self.tg_data_first_name and not self.tg_data_last_name:
             return None
         res = ""
-        if self.tg_first_name:
-            res += self.tg_first_name
-        if self.tg_last_name:
-            res += " " + self.tg_last_name
+        if self.tg_data_first_name:
+            res += self.tg_data_first_name
+        if self.tg_data_last_name:
+            res += " " + self.tg_data_last_name
         return res
 
     @property
-    def sdp_tg_fullname(self) -> str | None:
-        return self.tg_fullname
+    def sdp_tg_data_fullname(self) -> str | None:
+        return self.tg_data_fullname
 
     @property
-    def tg_link_by_username(self) -> str | None:
-        if not self.tg_username:
+    def tg_data_link_by_username(self) -> str | None:
+        if not self.tg_data_username:
             return None
-        return f"https://t.me/{self.tg_username}"
+        return f"https://t.me/{self.tg_data_username}"
 
     @property
-    def sdp_tg_link_by_username(self) -> str | None:
-        return self.tg_link_by_username
+    def sdp_tg_data_link_by_username(self) -> str | None:
+        return self.tg_data_link_by_username

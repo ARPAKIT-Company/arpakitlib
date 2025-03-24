@@ -214,7 +214,7 @@ def create_story_log_func_before_in_api_exception_handler(
                 level=StoryLogDBM.Levels.error,
                 type=StoryLogDBM.Types.error_in_api,
                 title=f"{status_code}, {type(exception)}",
-                data={
+                extra_data={
                     "exception": str(exception),
                     "error_common_so": error_common_so.model_dump(),
                     "exception_traceback": exception_to_traceback_str(exception=exception)

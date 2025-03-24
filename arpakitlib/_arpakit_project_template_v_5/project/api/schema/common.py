@@ -24,3 +24,14 @@ class BaseSI(BaseSchema):
 
 class BaseSO(BaseSchema):
     pass
+
+
+class BaseRouteSO(BaseSchema):
+    @classmethod
+    def __pydantic_init_subclass__(cls, **kwargs: Any) -> None:
+        if not (
+                cls.__name__.endswith("RouteSO")
+                or cls.__name__.endswith("RouteSchemaOut")
+        ):
+            raise ValueError("Route APISchema class should ends with RouteSO | RouteSchemaOut")
+        super().__init_subclass__(**kwargs)

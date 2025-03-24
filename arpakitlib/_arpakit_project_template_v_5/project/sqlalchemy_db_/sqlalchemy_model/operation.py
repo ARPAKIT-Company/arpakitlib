@@ -5,7 +5,7 @@ from typing import Any, TYPE_CHECKING
 
 import sqlalchemy
 from sqlalchemy.dialects import postgresql
-from sqlalchemy.orm import mapped_column, Mapped
+from sqlalchemy.orm import mapped_column, Mapped, validates
 
 from arpakitlib.ar_enumeration_util import Enumeration
 from project.sqlalchemy_db_.sqlalchemy_model.common import SimpleDBM
@@ -65,6 +65,11 @@ class OperationDBM(SimpleDBM):
         server_default="{}",
         nullable=False
     )
+
+    @validates("status")
+    def _validate_status(self, key, value, *args, **kwargs):
+        self.Statuses.parse_and_validate_values(value)
+        return value
 
     def raise_if_executed_with_error(self):
         if self.status == self.Statuses.executed_with_error:

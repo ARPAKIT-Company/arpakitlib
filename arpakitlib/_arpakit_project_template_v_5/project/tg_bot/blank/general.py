@@ -3,15 +3,16 @@ from functools import lru_cache
 from emoji import emojize
 
 from project.tg_bot.blank.common import SimpleBlankTgBot
-from project.tg_bot.const import ClientTgBotCommands
+from project.tg_bot.const import GeneralTgBotCommands
 
 
 class ClientTgBotBlank(SimpleBlankTgBot):
     def command_to_desc(self) -> dict[str, str]:
         return {
-            ClientTgBotCommands.start: emojize(":waving_hand: Начать"),
-            ClientTgBotCommands.about: emojize(":information: О проекте"),
-            ClientTgBotCommands.author: emojize(":bust_in_silhouette: Авторы"),
+            GeneralTgBotCommands.start: emojize(":waving_hand: Начать"),
+            GeneralTgBotCommands.about: emojize(":information: О проекте"),
+            GeneralTgBotCommands.author: emojize(":bust_in_silhouette: Авторы"),
+            GeneralTgBotCommands.support: emojize(":red_heart: Поддержка"),
         }
 
     def but_hello_world(self) -> str:
@@ -34,7 +35,7 @@ class ClientTgBotBlank(SimpleBlankTgBot):
 
     def author(self) -> str:
         res = "<b>ARPAKIT Company</b>"
-        res += "\n\n<i>Мы создаём качественные IT продукты<i>"
+        res += "\n\n<i>Мы создаём качественные IT продукты</i>"
         res += "\n\n:link: https://arpakit.com/"
         res += "\n\n:e-mail: support@arpakit.com"
         return emojize(res.strip())
@@ -52,7 +53,7 @@ class ClientTgBotBlank(SimpleBlankTgBot):
         return emojize(res.strip())
 
     def support(self) -> str:
-        res = ":red_heart: <b>Поддержка</b>"
+        res = ":red_heart: <b>Поддержка</b> :red_heart:"
         return emojize(res.strip())
 
     def keyboard_is_old(self) -> str:

@@ -13,14 +13,14 @@ class StoryLogMV(SimpleMV, model=StoryLogDBM):
         StoryLogDBM.level,
         StoryLogDBM.type,
         StoryLogDBM.title,
-        StoryLogDBM.data
+        StoryLogDBM.extra_data
     ]
     form_columns = [
         StoryLogDBM.slug,
         StoryLogDBM.level,
         StoryLogDBM.type,
         StoryLogDBM.title,
-        StoryLogDBM.data
+        StoryLogDBM.extra_data
     ]
     column_default_sort = [
         (StoryLogDBM.creation_dt, True)
@@ -32,5 +32,5 @@ class StoryLogMV(SimpleMV, model=StoryLogDBM):
         StoryLogDBM.level,
         StoryLogDBM.type,
         StoryLogDBM.title,
-        StoryLogDBM.data
+        StoryLogDBM.extra_data
     ]

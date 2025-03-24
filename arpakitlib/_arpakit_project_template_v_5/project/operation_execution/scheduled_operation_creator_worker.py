@@ -45,7 +45,8 @@ class ScheduledOperationCreatorWorker(BaseWorker):
             with self.sqlalchemy_db.new_session() as session:
                 operation_dbm = OperationDBM(
                     type=scheduled_operation.type,
-                    input_data=scheduled_operation.input_data
+                    input_data=scheduled_operation.input_data,
+                    status=OperationDBM.Statuses.waiting_for_execution
                 )
                 session.add(operation_dbm)
                 session.commit()

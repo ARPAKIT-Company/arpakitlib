@@ -140,7 +140,7 @@ class OperationExecutorWorker(BaseWorker):
                         f", operation_id={operation_dbm.id}"
                         f", operation_type={operation_dbm.type}"
                     ),
-                    data={
+                    extra_data={
                         "operation_id": operation_dbm.id,
                         "operation_type": operation_dbm.type,
                     }
@@ -236,7 +236,7 @@ class OperationExecutorWorker(BaseWorker):
                         f", operation_id={operation_dbm.id}"
                         f", operation_type={operation_dbm.type}"
                     ),
-                    data={
+                    extra_data={
                         "operation_id": operation_dbm.id,
                         "operation_type": operation_dbm.type,
                     }
