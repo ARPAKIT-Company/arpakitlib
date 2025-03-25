@@ -93,6 +93,8 @@ class ZabbixApiClient:
 
         self.login_if_not_logged_in()
         hosts = self.zabbix_api.host.get(**kwargs)
+        for d in hosts:
+            d["hostid_int"] = int(d["hostid"])
 
         return hosts
 
@@ -180,6 +182,8 @@ class ZabbixApiClient:
         kwargs["sortorder"] = "DESC"
         self.login_if_not_logged_in()
         res = self.zabbix_api.item.get(**kwargs)
+        for d in res:
+            d["itemid_int"] = int(d["itemid"])
         return res
 
     def iter_all_items(
