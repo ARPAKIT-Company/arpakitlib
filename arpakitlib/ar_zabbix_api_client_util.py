@@ -182,6 +182,44 @@ class ZabbixApiClient:
         res = self.zabbix_api.item.get(**kwargs)
         return res
 
+    def iter_all_items(
+            self,
+            *,
+            host_ids: Optional[list[str]] = None,
+            keys: Optional[list[str]] = None,
+            names: Optional[list[str]] = None
+    ) -> Iterator[list[dict[str, Any]]]:
+        item_ids = self.get_item_ids(
+            host_ids=host_ids,
+            keys=keys,
+            names=names
+        )
+        for item_ids_ in iter_group_list(item_ids, n=100):
+            yield self.get_items(item_ids=item_ids_)
+
+    def iter_all_items_by_one(
+            self,
+            *,
+            host_ids: Optional[list[str]] = None,
+            keys: Optional[list[str]] = None,
+            names: Optional[list[str]] = None
+    ) -> Iterator[dict[str, Any]]:
+        for items in self.iter_all_items(host_ids=host_ids, keys=keys, names=names):
+            for item in items:
+                yield item
+
+    def get_all_items(
+            self,
+            *,
+            host_ids: list[str] | None = None,
+            keys: list[str] | None = None,
+            names: list[str] | None = None
+    ) -> list[dict[str, Any]]:
+        return [
+            item
+            for item in self.iter_all_items_by_one(host_ids=host_ids, keys=keys, names=names)
+        ]
+
     def get_histories(
             self,
             *,
@@ -235,13 +273,6 @@ ZabbixAPIClient = ZabbixApiClient
 
 def __example():
     setup_normal_logging()
-    zabbix = ZabbixAPIClient(
-        api_url=...,
-        api_user=...,
-        api_password=...
-    )
-
-    print(zabbix.is_login_good())
 
 
 async def __async_example():
