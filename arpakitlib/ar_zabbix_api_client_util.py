@@ -184,6 +184,7 @@ class ZabbixApiClient:
         res = self.zabbix_api.item.get(**kwargs)
         for d in res:
             d["itemid_int"] = int(d["itemid"])
+            d["hostid_int"] = int(d["hostid"])
         return res
 
     def iter_all_items(
