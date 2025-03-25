@@ -12,7 +12,7 @@ class ScheduledOperation(BaseModel):
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True, from_attributes=True)
 
     type: str
-    input_data: dict[str, Any] | None = None
+    input_data: dict[str, Any] = {}
     is_time_func: Callable
     timeout_after_creation: timedelta | None = None
 
