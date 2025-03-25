@@ -78,7 +78,7 @@ class ZabbixApiClient:
         kwargs["sortorder"] = "DESC"
         return [host_id["hostid"] for host_id in host_ids]
 
-    def get_hosts(self, *, host_ids: Optional[list[str]] = None) -> list[dict[str, Any]]:
+    def get_hosts(self, *, host_ids: Optional[list[str | int]] = None) -> list[dict[str, Any]]:
         kwargs = {
             "output": "extend",
             "selectInterfaces": "extend",
@@ -116,7 +116,7 @@ class ZabbixApiClient:
     def get_item_ids(
             self,
             *,
-            host_ids: Optional[list[str]] = None,
+            host_ids: Optional[list[str | int]] = None,
             keys: Optional[list[str]] = None,
             names: Optional[list[str]] = None,
             limit: Optional[int] = None
@@ -148,8 +148,8 @@ class ZabbixApiClient:
     def get_items(
             self,
             *,
-            host_ids: Optional[list[str]] = None,
-            item_ids: Optional[list[str]] = None,
+            host_ids: Optional[list[str | int]] = None,
+            item_ids: Optional[list[str | int]] = None,
             keys: Optional[list[str]] = None,
             names: Optional[list[str]] = None,
             limit: Optional[int] = None
@@ -185,7 +185,7 @@ class ZabbixApiClient:
     def iter_all_items(
             self,
             *,
-            host_ids: Optional[list[str]] = None,
+            host_ids: Optional[list[str | int]] = None,
             keys: Optional[list[str]] = None,
             names: Optional[list[str]] = None
     ) -> Iterator[list[dict[str, Any]]]:
@@ -200,7 +200,7 @@ class ZabbixApiClient:
     def iter_all_items_by_one(
             self,
             *,
-            host_ids: Optional[list[str]] = None,
+            host_ids: Optional[list[str | int]] = None,
             keys: Optional[list[str]] = None,
             names: Optional[list[str]] = None
     ) -> Iterator[dict[str, Any]]:
@@ -211,7 +211,7 @@ class ZabbixApiClient:
     def get_all_items(
             self,
             *,
-            host_ids: list[str] | None = None,
+            host_ids: list[str | int] | None = None,
             keys: list[str] | None = None,
             names: list[str] | None = None
     ) -> list[dict[str, Any]]:
@@ -223,8 +223,8 @@ class ZabbixApiClient:
     def get_histories(
             self,
             *,
-            host_ids: Optional[list[str]] = None,
-            item_ids: Optional[list[str]] = None,
+            host_ids: Optional[list[str | int]] = None,
+            item_ids: Optional[list[str | int]] = None,
             limit: Optional[int] = None,
             history: int = 0,
             time_from: Optional[datetime] = None,
