@@ -65,6 +65,16 @@ def make_none_if_blank(string: Optional[str] = None) -> str | None:
     return string
 
 
+def none_if_blank(string: Optional[str] = None) -> str | None:
+    return make_none_if_blank(string=string)
+
+
+def lower_and_strip_if_not_none(string: str | None) -> str | None:
+    if string is None:
+        return None
+    return string.lower().strip()
+
+
 def remove_html(string: str) -> str:
     raise_for_type(string, str)
     return BeautifulSoup(string, "html.parser").text
