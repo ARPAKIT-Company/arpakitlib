@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 from uuid import uuid4
 
 import sqlalchemy
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, validates
 
 from arpakitlib.ar_datetime_util import now_utc_dt
 from project.sqlalchemy_db_.sqlalchemy_model.common import SimpleDBM
@@ -50,3 +50,17 @@ class ApiKeyDBM(SimpleDBM):
             res += f", title={self.title}"
         res += ")"
         return res
+
+    @validates("title")
+    def _validate_title(self, key, value, *args, **kwargs):
+        if not isinstance(value, str):
+            raise ValueError(f"{value=} is not str")
+        value = value.strip()
+        return value
+
+    @validates("value")
+    def _validate_value(self, key, value, *args, **kwargs):
+        if not isinstance(value, str):
+            raise ValueError(f"{value=} is not str")
+        value = value.strip()
+        return value
