@@ -82,6 +82,8 @@ class OperationDBM(SimpleDBM):
 
     @validates("title")
     def _validate_title(self, key, value, *args, **kwargs):
+        if value is None:
+            return None
         if not isinstance(value, str):
             raise ValueError(f"{value=} is not str")
         value = value.strip()

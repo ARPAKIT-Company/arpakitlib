@@ -28,21 +28,21 @@ class UserDBM(SimpleDBM):
 
     email: Mapped[str | None] = mapped_column(
         sqlalchemy.TEXT,
-        unique=True,
-        nullable=True
+        nullable=True,
+        unique=True
     )
     roles: Mapped[list[str]] = mapped_column(
         sqlalchemy.ARRAY(sqlalchemy.TEXT),
+        nullable=False,
         insert_default=[Roles.client],
         index=True,
-        nullable=False
     )
     is_active: Mapped[bool] = mapped_column(
         sqlalchemy.Boolean,
+        nullable=False,
         index=True,
         insert_default=True,
         server_default="true",
-        nullable=False
     )
     password: Mapped[str | None] = mapped_column(
         sqlalchemy.TEXT,
@@ -53,8 +53,8 @@ class UserDBM(SimpleDBM):
     )
     tg_id: Mapped[int | None] = mapped_column(
         sqlalchemy.BIGINT,
-        unique=True,
-        nullable=True
+        nullable=True,
+        unique=True
     )
     tg_bot_last_action_dt: Mapped[dt.datetime | None] = mapped_column(
         sqlalchemy.TIMESTAMP(timezone=True),
@@ -62,9 +62,9 @@ class UserDBM(SimpleDBM):
     )
     tg_data: Mapped[dict[str, Any] | None] = mapped_column(
         sqlalchemy.JSON,
+        nullable=True,
         insert_default={},
         server_default="{}",
-        nullable=True
     )
 
     # many to one
