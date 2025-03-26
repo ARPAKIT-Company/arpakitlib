@@ -60,9 +60,10 @@ class UserDBM(SimpleDBM):
         sqlalchemy.TIMESTAMP(timezone=True),
         nullable=True
     )
-    tg_data: Mapped[dict[str, Any] | None] = mapped_column(
+    tg_data: Mapped[dict[str, Any]] = mapped_column(
         sqlalchemy.JSON,
-        nullable=True,
+        nullable=False,
+        index=False,
         insert_default={},
         server_default="{}",
     )
