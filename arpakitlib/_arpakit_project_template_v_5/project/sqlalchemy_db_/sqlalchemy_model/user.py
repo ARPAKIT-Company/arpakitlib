@@ -89,11 +89,10 @@ class UserDBM(SimpleDBM):
 
     def __repr__(self) -> str:
         parts = [f"id={self.id}"]
-        if self.email is None:
+        if self.email is not None:
             parts.append(f"email={self.email}")
-        if self.username is None:
+        if self.username is not None:
             parts.append(f"username={self.username}")
-        parts.append(f"is_active={self.is_active}")
         return f"{self.entity_name} ({', '.join(parts)})"
 
     @validates("email")

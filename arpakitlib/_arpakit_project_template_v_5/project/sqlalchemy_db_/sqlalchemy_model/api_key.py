@@ -46,9 +46,8 @@ class ApiKeyDBM(SimpleDBM):
 
     def __repr__(self) -> str:
         parts = [f"id={self.id}"]
-        if self.title is None:
+        if self.title is not None:
             parts.append(f"title={self.title}")
-        parts.append(f"is_active={self.is_active}")
         return f"{self.entity_name} ({', '.join(parts)})"
 
     @validates("title")

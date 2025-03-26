@@ -62,7 +62,7 @@ class SimpleDBM(BaseDBM):
 
     def __repr__(self) -> str:
         parts = [f"id={self.id}"]
-        if self.slug is None:
+        if self.slug is not None:
             parts.append(f"slug={self.slug}")
         return f"{self.entity_name} ({', '.join(parts)})"
 

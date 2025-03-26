@@ -77,6 +77,14 @@ class OperationDBM(SimpleDBM):
         server_default="{}",
     )
 
+    def __repr__(self) -> str:
+        parts = [f"id={self.id}"]
+        if self.status is not None:
+            parts.append(f"status={self.status}")
+        if self.type is not None:
+            parts.append(f"type={self.type}")
+        return f"{self.entity_name} ({', '.join(parts)})"
+
     @validates("status")
     def _validate_status(self, key, value, *args, **kwargs):
         if not isinstance(value, str):

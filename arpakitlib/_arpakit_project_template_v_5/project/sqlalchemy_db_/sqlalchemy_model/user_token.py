@@ -54,7 +54,10 @@ class UserTokenDBM(SimpleDBM):
     )
 
     def __repr__(self) -> str:
-        parts = [f"id={self.id}", f"user_id={self.user_id}", f"is_active={self.is_active}"]
+        parts = [
+            f"id={self.id}",
+            f"user_id={self.user_id}"
+        ]
         return f"{self.entity_name} ({', '.join(parts)})"
 
     @validates("value")
