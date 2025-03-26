@@ -45,7 +45,25 @@ class StoryLogDBM(SimpleDBM):
 
     @validates("level")
     def _validate_level(self, key, value, *args, **kwargs):
+        if not isinstance(value, str):
+            raise ValueError(f"{value=} is not str")
+        value = value.strip()
         self.Levels.parse_and_validate_values(value)
+        return value
+
+    @validates("type")
+    def _validate_type(self, key, value, *args, **kwargs):
+        if not isinstance(value, str):
+            raise ValueError(f"{value=} is not str")
+        value = value.strip()
+        return value
+
+    @validates("title")
+    def _validate_title(self, key, value, *args, **kwargs):
+        if not isinstance(value, str):
+            raise ValueError(f"{value=} is not str")
+        value = value.strip()
+        return value
 
     @property
     def sdp_allowed_levels(self) -> list[str]:

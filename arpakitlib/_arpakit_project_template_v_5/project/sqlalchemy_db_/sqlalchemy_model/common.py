@@ -3,7 +3,7 @@ from typing import Any
 
 import sqlalchemy
 from sqlalchemy import func
-from sqlalchemy.orm import mapped_column, Mapped
+from sqlalchemy.orm import mapped_column, Mapped, validates
 
 from arpakitlib.ar_datetime_util import now_utc_dt
 from arpakitlib.ar_sqlalchemy_util import get_string_info_from_declarative_base, BaseDBM
@@ -55,6 +55,14 @@ class SimpleDBM(BaseDBM):
         if self.slug is None:
             return f"{self.__class__.__name__.removesuffix('DBM')} (id={self.id})"
         return f"{self.__class__.__name__.removesuffix('DBM')} (id={self.id}, slug={self.slug})"
+
+    @validates("extra_data")
+    def _validate_extra_data(self, key, value, *args, **kwargs):
+        if value is None:
+            value = {}
+        if not isinstance(value, dict):
+            raise ValueError(f"{value=} is not str")
+        return value
 
     @property
     def entity_name(self) -> str:

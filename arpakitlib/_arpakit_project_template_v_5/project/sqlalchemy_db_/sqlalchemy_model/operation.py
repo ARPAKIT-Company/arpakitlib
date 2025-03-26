@@ -68,7 +68,48 @@ class OperationDBM(SimpleDBM):
 
     @validates("status")
     def _validate_status(self, key, value, *args, **kwargs):
+        if not isinstance(value, str):
+            raise ValueError(f"{value=} is not str")
+        value = value.strip()
         self.Statuses.parse_and_validate_values(value)
+        return value
+
+    @validates("type")
+    def _validate_type(self, key, value, *args, **kwargs):
+        if not isinstance(value, str):
+            raise ValueError(f"{value=} is not str")
+        value = value.strip()
+        return value
+
+    @validates("title")
+    def _validate_title(self, key, value, *args, **kwargs):
+        if not isinstance(value, str):
+            raise ValueError(f"{value=} is not str")
+        value = value.strip()
+        return value
+
+    @validates("input_data")
+    def _validate_input_data(self, key, value, *args, **kwargs):
+        if value is None:
+            value = {}
+        if not isinstance(value, dict):
+            raise ValueError(f"{value=} is not str")
+        return value
+
+    @validates("output_data")
+    def _validate_output_data(self, key, value, *args, **kwargs):
+        if value is None:
+            value = {}
+        if not isinstance(value, dict):
+            raise ValueError(f"{value=} is not str")
+        return value
+
+    @validates("error_data")
+    def _validate_error_data(self, key, value, *args, **kwargs):
+        if value is None:
+            value = {}
+        if not isinstance(value, dict):
+            raise ValueError(f"{value=} is not str")
         return value
 
     def raise_if_executed_with_error(self):
