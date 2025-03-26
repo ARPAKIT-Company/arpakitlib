@@ -28,42 +28,53 @@ class OperationDBM(SimpleDBM):
         raise_fake_error_ = "raise_fake_error"
 
     status: Mapped[str] = mapped_column(
-        sqlalchemy.TEXT, index=True, insert_default=Statuses.waiting_for_execution,
-        server_default=Statuses.waiting_for_execution, nullable=False
+        sqlalchemy.TEXT,
+        nullable=False,
+        index=True,
+        insert_default=Statuses.waiting_for_execution,
+        server_default=Statuses.waiting_for_execution
     )
     type: Mapped[str] = mapped_column(
-        sqlalchemy.TEXT, index=True, insert_default=Types.healthcheck_, nullable=False
+        sqlalchemy.TEXT,
+        nullable=False,
+        index=True,
+        insert_default=Types.healthcheck_
     )
     title: Mapped[str | None] = mapped_column(
         sqlalchemy.TEXT,
-        insert_default=None,
-        nullable=True
+        nullable=True,
+        index=False
     )
     execution_start_dt: Mapped[datetime | None] = mapped_column(
         sqlalchemy.TIMESTAMP(timezone=True),
-        nullable=True
+        nullable=True,
+        index=False
     )
     execution_finish_dt: Mapped[datetime | None] = mapped_column(
         sqlalchemy.TIMESTAMP(timezone=True),
-        nullable=True
+        nullable=True,
+        index=False
     )
     input_data: Mapped[dict[str, Any]] = mapped_column(
         postgresql.JSON,
+        nullable=False,
+        index=False,
         insert_default={},
         server_default="{}",
-        nullable=False
     )
     output_data: Mapped[dict[str, Any]] = mapped_column(
         postgresql.JSON,
+        nullable=False,
+        index=False,
         insert_default={},
         server_default="{}",
-        nullable=False
     )
     error_data: Mapped[dict[str, Any]] = mapped_column(
         postgresql.JSON,
+        nullable=False,
+        index=False,
         insert_default={},
         server_default="{}",
-        nullable=False
     )
 
     @validates("status")
@@ -83,6 +94,8 @@ class OperationDBM(SimpleDBM):
 
     @validates("title")
     def _validate_title(self, key, value, *args, **kwargs):
+        if value is None:
+            return None
         if not isinstance(value, str):
             raise ValueError(f"{value=} is not str")
         value = value.strip()

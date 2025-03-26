@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 from uuid import uuid4
 
 import sqlalchemy
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 
 from arpakitlib.ar_datetime_util import now_utc_dt
 from project.sqlalchemy_db_.sqlalchemy_model.common import SimpleDBM
@@ -26,23 +26,23 @@ class UserTokenDBM(SimpleDBM):
 
     value: Mapped[str] = mapped_column(
         sqlalchemy.TEXT,
-        unique=True,
         nullable=False,
+        unique=True,
         insert_default=generate_default_user_token_value,
         server_default=sqlalchemy.func.gen_random_uuid(),
     )
     user_id: Mapped[int] = mapped_column(
         sqlalchemy.BIGINT,
         sqlalchemy.ForeignKey("user.id", ondelete="CASCADE"),
+        nullable=False,
         index=True,
-        nullable=False
     )
     is_active: Mapped[bool] = mapped_column(
         sqlalchemy.Boolean,
+        nullable=False,
         index=True,
         insert_default=True,
         server_default="true",
-        nullable=False
     )
 
     # one to many
@@ -56,6 +56,13 @@ class UserTokenDBM(SimpleDBM):
     def __repr__(self) -> str:
         res = f"{self.entity_name} (id={self.id}, user_id={self.user_id})"
         return res
+
+    @validates("value")
+    def _validate_value(self, key, value, *args, **kwargs):
+        if not isinstance(value, str):
+            raise ValueError(f"{value=} is not str")
+        value = value.strip()
+        return value
 
     @property
     def sdp_user(self) -> UserDBM:

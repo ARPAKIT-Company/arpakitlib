@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 from uuid import uuid4
 
 import sqlalchemy
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, validates
 
 from arpakitlib.ar_datetime_util import now_utc_dt
 from project.sqlalchemy_db_.sqlalchemy_model.common import SimpleDBM
@@ -26,22 +26,21 @@ class ApiKeyDBM(SimpleDBM):
 
     title: Mapped[str | None] = mapped_column(
         sqlalchemy.TEXT,
-        insert_default=None,
         nullable=True
     )
     value: Mapped[str] = mapped_column(
         sqlalchemy.TEXT,
+        nullable=False,
         unique=True,
         insert_default=generate_default_api_key_value,
-        server_default=sqlalchemy.func.gen_random_uuid(),
-        nullable=False
+        server_default=sqlalchemy.func.gen_random_uuid()
     )
     is_active: Mapped[bool] = mapped_column(
         sqlalchemy.Boolean,
+        nullable=False,
         index=True,
         insert_default=True,
-        server_default="true",
-        nullable=False
+        server_default="true"
     )
 
     def __repr__(self) -> str:
@@ -50,3 +49,19 @@ class ApiKeyDBM(SimpleDBM):
             res += f", title={self.title}"
         res += ")"
         return res
+
+    @validates("title")
+    def _validate_title(self, key, value, *args, **kwargs):
+        if value is None:
+            return None
+        if not isinstance(value, str):
+            raise ValueError(f"{value=} is not str")
+        value = value.strip()
+        return value
+
+    @validates("value")
+    def _validate_value(self, key, value, *args, **kwargs):
+        if not isinstance(value, str):
+            raise ValueError(f"{value=} is not str")
+        value = value.strip()
+        return value
