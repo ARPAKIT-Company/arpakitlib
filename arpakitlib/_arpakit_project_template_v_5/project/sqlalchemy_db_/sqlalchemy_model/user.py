@@ -34,8 +34,8 @@ class UserDBM(SimpleDBM):
     roles: Mapped[list[str]] = mapped_column(
         sqlalchemy.ARRAY(sqlalchemy.TEXT),
         nullable=False,
-        insert_default=[Roles.client],
         index=True,
+        insert_default=[Roles.client],
     )
     is_active: Mapped[bool] = mapped_column(
         sqlalchemy.Boolean,
