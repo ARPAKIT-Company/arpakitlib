@@ -69,6 +69,10 @@ class StoryLogDBM(SimpleDBM):
         value = value.strip()
         return value
 
+    def __repr__(self) -> str:
+        res = f"{self.entity_name} ({self.id=}, {self.level=}, {self.type=})"
+        return res
+
     @property
     def sdp_allowed_levels(self) -> list[str]:
         return self.Levels.values_list()
