@@ -45,11 +45,11 @@ class ApiKeyDBM(SimpleDBM):
     )
 
     def __repr__(self) -> str:
-        res = f"{self.entity_name} ({self.id=}, {self.is_active=}"
-        if self.title:
-            res += f", title={self.title}"
-        res += ")"
-        return res
+        parts = [f"id={self.id}"]
+        if self.title is None:
+            parts.append(f"title={self.title}")
+        parts.append(f"is_active={self.is_active}")
+        return f"{self.entity_name} ({', '.join(parts)})"
 
     @validates("title")
     def _validate_title(self, key, value, *args, **kwargs):

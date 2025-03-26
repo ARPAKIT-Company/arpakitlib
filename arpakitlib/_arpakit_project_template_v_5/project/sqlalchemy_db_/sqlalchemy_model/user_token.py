@@ -53,6 +53,10 @@ class UserTokenDBM(SimpleDBM):
         foreign_keys=[user_id]
     )
 
+    def __repr__(self) -> str:
+        parts = [f"id={self.id}", f"user_id={self.user_id}", f"is_active={self.is_active}"]
+        return f"{self.entity_name} ({', '.join(parts)})"
+
     @validates("value")
     def _validate_value(self, key, value, *args, **kwargs):
         if not isinstance(value, str):
@@ -63,7 +67,3 @@ class UserTokenDBM(SimpleDBM):
     @property
     def sdp_user(self) -> UserDBM:
         return self.user
-
-    def __repr__(self) -> str:
-        res = f"{self.entity_name} ({self.id=}, {self.user_id=})"
-        return res

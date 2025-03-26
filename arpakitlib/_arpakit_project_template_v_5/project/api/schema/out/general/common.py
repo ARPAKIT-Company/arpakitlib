@@ -11,8 +11,11 @@ class SimpleDBMGeneralSO(BaseSO):
     long_id: str
     slug: str | None
     creation_dt: dt.datetime
+
     entity_name: str
 
     @classmethod
     def from_dbm(cls, *, simple_dbm: SimpleDBM) -> SimpleDBMGeneralSO:
-        return cls.model_validate(simple_dbm.simple_dict_with_sd_properties())
+        return cls.model_validate(simple_dbm.simple_dict_with_sd_properties(
+            only_columns_and_sd_properties=cls.model_fields.keys()
+        ))

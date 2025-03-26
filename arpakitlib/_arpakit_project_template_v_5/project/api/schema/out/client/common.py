@@ -11,6 +11,7 @@ class SimpleDBMClientSO(BaseSO):
     long_id: str
     slug: str | None
     creation_dt: dt.datetime
+
     entity_name: str
 
     @classmethod

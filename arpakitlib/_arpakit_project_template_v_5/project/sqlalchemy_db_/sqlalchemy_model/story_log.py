@@ -43,6 +43,10 @@ class StoryLogDBM(SimpleDBM):
         index=False
     )
 
+    def __repr__(self) -> str:
+        res = f"{self.entity_name} (id={self.id}, level={self.level}, type{self.type})"
+        return res
+
     @validates("level")
     def _validate_level(self, key, value, *args, **kwargs):
         if not isinstance(value, str):
@@ -68,10 +72,6 @@ class StoryLogDBM(SimpleDBM):
             raise ValueError(f"{value=} is not str")
         value = value.strip()
         return value
-
-    def __repr__(self) -> str:
-        res = f"{self.entity_name} ({self.id=}, {self.level=}, {self.type=})"
-        return res
 
     @property
     def sdp_allowed_levels(self) -> list[str]:

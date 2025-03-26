@@ -8,6 +8,7 @@ import sqlalchemy
 from email_validator import validate_email
 from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 
+from arpakitlib.ar_datetime_util import now_utc_dt
 from arpakitlib.ar_enumeration_util import Enumeration
 from arpakitlib.ar_type_util import raise_for_type
 from project.sqlalchemy_db_.sqlalchemy_model.common import SimpleDBM
@@ -17,7 +18,11 @@ if TYPE_CHECKING:
 
 
 def generate_default_user_password() -> str:
-    return str(uuid4()).replace("-", "")
+    return (
+        "userpassword"
+        f"{str(uuid4()).replace('-', '')}"
+        f"{str(now_utc_dt().timestamp()).replace('.', '')}"
+    )
 
 
 class UserDBM(SimpleDBM):
@@ -28,6 +33,11 @@ class UserDBM(SimpleDBM):
         client = "client"
 
     email: Mapped[str | None] = mapped_column(
+        sqlalchemy.TEXT,
+        nullable=True,
+        unique=True
+    )
+    username: Mapped[str | None] = mapped_column(
         sqlalchemy.TEXT,
         nullable=True,
         unique=True
@@ -47,8 +57,8 @@ class UserDBM(SimpleDBM):
     )
     password: Mapped[str | None] = mapped_column(
         sqlalchemy.TEXT,
-        index=True,
         nullable=True,
+        index=True,
         insert_default=generate_default_user_password,
         server_default=sqlalchemy.func.gen_random_uuid(),
     )
@@ -77,6 +87,15 @@ class UserDBM(SimpleDBM):
         foreign_keys="UserTokenDBM.user_id"
     )
 
+    def __repr__(self) -> str:
+        parts = [f"id={self.id}"]
+        if self.email is None:
+            parts.append(f"email={self.email}")
+        if self.username is None:
+            parts.append(f"username={self.username}")
+        parts.append(f"is_active={self.is_active}")
+        return f"{self.entity_name} ({', '.join(parts)})"
+
     @validates("email")
     def _validate_email(self, key, value, *args, **kwargs):
         if value is None:
@@ -94,13 +113,6 @@ class UserDBM(SimpleDBM):
         if not isinstance(value, dict):
             raise ValueError(f"{value=} is not str")
         return value
-
-    def __repr__(self) -> str:
-        if self.email is not None:
-            res = f"{self.entity_name} ({self.id=}, {self.email=})"
-        else:
-            res = f"{self.entity_name} ({self.id=})"
-        return res
 
     @property
     def sdp_allowed_roles(self) -> list[str]:

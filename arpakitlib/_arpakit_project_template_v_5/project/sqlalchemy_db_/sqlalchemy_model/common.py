@@ -61,9 +61,10 @@ class SimpleDBM(BaseDBM):
     )
 
     def __repr__(self) -> str:
+        parts = [f"id={self.id}"]
         if self.slug is None:
-            return f"{self.entity_name} (id={self.id})"
-        return f"{self.entity_name} (id={self.id}, slug={self.slug})"
+            parts.append(f"slug={self.slug}")
+        return f"{self.entity_name} ({', '.join(parts)})"
 
     @validates("slug")
     def _validate_slug(self, key, value, *args, **kwargs):
