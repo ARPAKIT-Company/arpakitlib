@@ -26,7 +26,6 @@ class ApiKeyDBM(SimpleDBM):
 
     title: Mapped[str | None] = mapped_column(
         sqlalchemy.TEXT,
-        insert_default=None,
         nullable=True
     )
     value: Mapped[str] = mapped_column(

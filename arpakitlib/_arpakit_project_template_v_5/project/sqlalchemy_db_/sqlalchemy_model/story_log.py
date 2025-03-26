@@ -35,11 +35,10 @@ class StoryLogDBM(SimpleDBM):
     type: Mapped[str | None] = mapped_column(
         sqlalchemy.TEXT,
         index=True,
-        insert_default=None,
-        nullable=True)
+        nullable=True
+    )
     title: Mapped[str | None] = mapped_column(
         sqlalchemy.TEXT,
-        insert_default=None,
         nullable=True
     )
 

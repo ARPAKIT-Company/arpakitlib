@@ -36,7 +36,6 @@ class OperationDBM(SimpleDBM):
     )
     title: Mapped[str | None] = mapped_column(
         sqlalchemy.TEXT,
-        insert_default=None,
         nullable=True
     )
     execution_start_dt: Mapped[datetime | None] = mapped_column(

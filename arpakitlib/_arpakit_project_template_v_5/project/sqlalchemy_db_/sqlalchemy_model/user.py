@@ -29,7 +29,6 @@ class UserDBM(SimpleDBM):
     email: Mapped[str | None] = mapped_column(
         sqlalchemy.TEXT,
         unique=True,
-        insert_default=None,
         nullable=True
     )
     roles: Mapped[list[str]] = mapped_column(
@@ -59,7 +58,6 @@ class UserDBM(SimpleDBM):
     )
     tg_bot_last_action_dt: Mapped[dt.datetime | None] = mapped_column(
         sqlalchemy.TIMESTAMP(timezone=True),
-        insert_default=None,
         nullable=True
     )
     tg_data: Mapped[dict[str, Any] | None] = mapped_column(
