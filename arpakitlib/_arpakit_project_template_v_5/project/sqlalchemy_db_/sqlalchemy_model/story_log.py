@@ -27,19 +27,20 @@ class StoryLogDBM(SimpleDBM):
 
     level: Mapped[str] = mapped_column(
         sqlalchemy.TEXT,
+        nullable=False,
+        index=True,
         insert_default=Levels.info,
         server_default=Levels.info,
-        index=True,
-        nullable=False
     )
     type: Mapped[str | None] = mapped_column(
         sqlalchemy.TEXT,
+        nullable=True,
         index=True,
-        nullable=True
     )
     title: Mapped[str | None] = mapped_column(
         sqlalchemy.TEXT,
-        nullable=True
+        nullable=True,
+        index=False
     )
 
     @validates("level")
@@ -52,6 +53,8 @@ class StoryLogDBM(SimpleDBM):
 
     @validates("type")
     def _validate_type(self, key, value, *args, **kwargs):
+        if value is None:
+            return None
         if not isinstance(value, str):
             raise ValueError(f"{value=} is not str")
         value = value.strip()

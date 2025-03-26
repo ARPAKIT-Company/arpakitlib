@@ -30,17 +30,17 @@ class ApiKeyDBM(SimpleDBM):
     )
     value: Mapped[str] = mapped_column(
         sqlalchemy.TEXT,
+        nullable=False,
         unique=True,
         insert_default=generate_default_api_key_value,
-        server_default=sqlalchemy.func.gen_random_uuid(),
-        nullable=False
+        server_default=sqlalchemy.func.gen_random_uuid()
     )
     is_active: Mapped[bool] = mapped_column(
         sqlalchemy.Boolean,
+        nullable=False,
         index=True,
         insert_default=True,
-        server_default="true",
-        nullable=False
+        server_default="true"
     )
 
     def __repr__(self) -> str:

@@ -26,7 +26,7 @@ class UserTokenDBM(SimpleDBM):
 
     value: Mapped[str] = mapped_column(
         sqlalchemy.TEXT,
-        nullable=True,
+        nullable=False,
         unique=True,
         insert_default=generate_default_user_token_value,
         server_default=sqlalchemy.func.gen_random_uuid(),
@@ -34,12 +34,12 @@ class UserTokenDBM(SimpleDBM):
     user_id: Mapped[int] = mapped_column(
         sqlalchemy.BIGINT,
         sqlalchemy.ForeignKey("user.id", ondelete="CASCADE"),
-        nullable=True,
+        nullable=False,
         index=True,
     )
     is_active: Mapped[bool] = mapped_column(
         sqlalchemy.Boolean,
-        nullable=True,
+        nullable=False,
         index=True,
         insert_default=True,
         server_default="true",
