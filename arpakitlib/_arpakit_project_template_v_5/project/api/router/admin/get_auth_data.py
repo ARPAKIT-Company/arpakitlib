@@ -10,7 +10,7 @@ from project.api.schema.out.common.raw_data import RawDataCommonSO
 from project.sqlalchemy_db_.sqlalchemy_model import UserDBM
 
 
-class GetAuthDataRouteSO(BaseRouteSO, RawDataCommonSO):
+class GetAuthDataAdminRouteSO(BaseRouteSO, RawDataCommonSO):
     pass
 
 
@@ -21,7 +21,7 @@ api_router = APIRouter()
     path="",
     name="Get auth data",
     status_code=fastapi.status.HTTP_200_OK,
-    response_model=GetAuthDataRouteSO | ErrorCommonSO,
+    response_model=GetAuthDataAdminRouteSO | ErrorCommonSO,
 )
 async def _(
         *,
@@ -37,4 +37,4 @@ async def _(
             )
         ]))
 ):
-    return GetAuthDataRouteSO(data=transfer_data_to_json_str_to_data(api_auth_data.model_dump()))
+    return GetAuthDataAdminRouteSO(data=transfer_data_to_json_str_to_data(api_auth_data.model_dump()))

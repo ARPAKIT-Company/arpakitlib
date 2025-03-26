@@ -11,7 +11,7 @@ from project.core.settings import get_cached_settings
 from project.sqlalchemy_db_.sqlalchemy_model import UserDBM
 
 
-class ClearLogFileRouteSO(BaseRouteSO, RawDataCommonSO):
+class ClearLogFileAdminRouteSO(BaseRouteSO, RawDataCommonSO):
     pass
 
 
@@ -22,7 +22,7 @@ api_router = APIRouter()
     path="",
     name="Clear log file",
     status_code=fastapi.status.HTTP_200_OK,
-    response_model=ClearLogFileRouteSO | ErrorCommonSO
+    response_model=ClearLogFileAdminRouteSO | ErrorCommonSO
 )
 def _(
         *,
@@ -41,4 +41,4 @@ def _(
     init_log_file(log_filepath=get_cached_settings().log_filepath)
     with open(file=get_cached_settings().log_filepath, mode="w") as f:
         f.write("")
-    return ClearLogFileRouteSO()
+    return ClearLogFileAdminRouteSO()

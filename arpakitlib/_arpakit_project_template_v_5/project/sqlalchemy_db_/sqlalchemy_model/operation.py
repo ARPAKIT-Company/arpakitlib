@@ -8,6 +8,7 @@ from sqlalchemy.dialects import postgresql
 from sqlalchemy.orm import mapped_column, Mapped, validates
 
 from arpakitlib.ar_enumeration_util import Enumeration
+from arpakitlib.ar_str_util import make_none_if_blank
 from project.sqlalchemy_db_.sqlalchemy_model.common import SimpleDBM
 
 if TYPE_CHECKING:
@@ -88,7 +89,7 @@ class OperationDBM(SimpleDBM):
     @validates("status")
     def _validate_status(self, key, value, *args, **kwargs):
         if not isinstance(value, str):
-            raise ValueError(f"{value=} is not str")
+            raise ValueError(f"{key=}, {value=}, not str")
         value = value.strip()
         self.Statuses.parse_and_validate_values(value)
         return value
@@ -96,7 +97,7 @@ class OperationDBM(SimpleDBM):
     @validates("type")
     def _validate_type(self, key, value, *args, **kwargs):
         if not isinstance(value, str):
-            raise ValueError(f"{value=} is not str")
+            raise ValueError(f"{key=}, {value=}, not str")
         value = value.strip()
         return value
 
@@ -105,8 +106,8 @@ class OperationDBM(SimpleDBM):
         if value is None:
             return None
         if not isinstance(value, str):
-            raise ValueError(f"{value=} is not str")
-        value = value.strip()
+            raise ValueError(f"{key=}, {value=}, not str")
+        value = make_none_if_blank(value.strip())
         return value
 
     @validates("input_data")
@@ -114,7 +115,7 @@ class OperationDBM(SimpleDBM):
         if value is None:
             value = {}
         if not isinstance(value, dict):
-            raise ValueError(f"{value=} is not str")
+            raise ValueError(f"{key=}, {value=}, not dict")
         return value
 
     @validates("output_data")
@@ -122,7 +123,7 @@ class OperationDBM(SimpleDBM):
         if value is None:
             value = {}
         if not isinstance(value, dict):
-            raise ValueError(f"{value=} is not str")
+            raise ValueError(f"{key=}, {value=}, not dict")
         return value
 
     @validates("error_data")
@@ -130,19 +131,19 @@ class OperationDBM(SimpleDBM):
         if value is None:
             value = {}
         if not isinstance(value, dict):
-            raise ValueError(f"{value=} is not str")
+            raise ValueError(f"{key=}, {value=}, not dict")
         return value
 
     def raise_if_executed_with_error(self):
         if self.status == self.Statuses.executed_with_error:
             raise Exception(
-                f"Operation (id={self.id}, type={self.type}) executed with error, error_data={self.error_data}"
+                f"Operation ({self.id=}, {self.type=}) executed with error, error_data={self.error_data}"
             )
 
     def raise_if_error_data(self):
         if self.error_data:
             raise Exception(
-                f"Operation (id={self.id}, type={self.type}) has error_data, error_data={self.error_data}"
+                f"Operation ({self.id=}, {self.type=}) has error_data, error_data={self.error_data}"
             )
 
     @property

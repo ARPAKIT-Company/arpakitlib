@@ -11,7 +11,7 @@ from project.sqlalchemy_db_.sqlalchemy_db import get_cached_sqlalchemy_db
 from project.sqlalchemy_db_.sqlalchemy_model import UserDBM
 
 
-class ReinitSqlalchemyDbRouteSO(BaseRouteSO, RawDataCommonSO):
+class ReinitSqlalchemyDbAdminRouteSO(BaseRouteSO, RawDataCommonSO):
     pass
 
 
@@ -22,7 +22,7 @@ api_router = APIRouter()
     path="",
     name="Reinit sqlalchemy db",
     status_code=fastapi.status.HTTP_200_OK,
-    response_model=ReinitSqlalchemyDbRouteSO | ErrorCommonSO,
+    response_model=ReinitSqlalchemyDbAdminRouteSO | ErrorCommonSO,
 )
 async def _(
         *,
@@ -40,4 +40,4 @@ async def _(
         ]))
 ):
     get_cached_sqlalchemy_db().reinit()
-    return ReinitSqlalchemyDbRouteSO()
+    return ReinitSqlalchemyDbAdminRouteSO()

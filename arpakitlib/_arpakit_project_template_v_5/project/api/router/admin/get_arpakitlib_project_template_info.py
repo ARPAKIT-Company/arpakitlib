@@ -10,7 +10,7 @@ from project.sqlalchemy_db_.sqlalchemy_model import UserDBM
 from project.util.arpakitlib_project_template import get_arpakitlib_project_template_info
 
 
-class GetArpakitlibProjectTemplateInfoRouteSO(BaseRouteSO, RawDataCommonSO):
+class GetArpakitlibProjectTemplateInfoAdminRouteSO(BaseRouteSO, RawDataCommonSO):
     pass
 
 
@@ -21,7 +21,7 @@ api_router = APIRouter()
     "",
     name="Get arpakitlib project template info",
     status_code=fastapi.status.HTTP_200_OK,
-    response_model=GetArpakitlibProjectTemplateInfoRouteSO | ErrorCommonSO
+    response_model=GetArpakitlibProjectTemplateInfoAdminRouteSO | ErrorCommonSO
 )
 async def _(
         *,
@@ -37,4 +37,4 @@ async def _(
         ]))
 ):
     arpakitlib_project_template_data = get_arpakitlib_project_template_info()
-    return GetArpakitlibProjectTemplateInfoRouteSO(data=arpakitlib_project_template_data)
+    return GetArpakitlibProjectTemplateInfoAdminRouteSO(data=arpakitlib_project_template_data)

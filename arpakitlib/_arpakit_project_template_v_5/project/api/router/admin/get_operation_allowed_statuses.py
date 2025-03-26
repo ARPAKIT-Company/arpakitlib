@@ -8,7 +8,7 @@ from project.api.schema.out.common.error import ErrorCommonSO
 from project.sqlalchemy_db_.sqlalchemy_model import OperationDBM, UserDBM
 
 
-class GetOperationAllowedStatusesRouteSO(BaseRouteSO):
+class GetOperationAllowedStatusesAdminRouteSO(BaseRouteSO):
     allowed_statuses: list[str]
 
 
@@ -19,7 +19,7 @@ api_router = APIRouter()
     "",
     name="Get operation allowed statuses",
     status_code=fastapi.status.HTTP_200_OK,
-    response_model=GetOperationAllowedStatusesRouteSO | ErrorCommonSO,
+    response_model=GetOperationAllowedStatusesAdminRouteSO | ErrorCommonSO,
 )
 async def _(
         *,
@@ -35,6 +35,6 @@ async def _(
             )
         ]))
 ):
-    return GetOperationAllowedStatusesRouteSO(
+    return GetOperationAllowedStatusesAdminRouteSO(
         allowed_statuses=OperationDBM.Statuses.values_list()
     )

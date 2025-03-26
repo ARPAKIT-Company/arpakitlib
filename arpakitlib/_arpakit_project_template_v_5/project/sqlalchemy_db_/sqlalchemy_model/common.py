@@ -71,10 +71,10 @@ class SimpleDBM(BaseDBM):
         if value is None:
             return None
         if not isinstance(value, str):
-            raise ValueError(f"{value=} is not str")
+            raise ValueError(f"{key=}, {value=}, not str")
         value = value.strip()
         if " " in value:
-            raise ValueError(f"slug should not contain spaces, {value=}")
+            raise ValueError(f"{key=}, {value=}, value slug should not contain spaces")
         return value
 
     @validates("extra_data")
@@ -82,7 +82,7 @@ class SimpleDBM(BaseDBM):
         if value is None:
             value = {}
         if not isinstance(value, dict):
-            raise ValueError(f"{value=} is not str")
+            raise ValueError(f"{key=}, {value=}, not str")
         return value
 
     @property

@@ -12,7 +12,7 @@ from project.sqlalchemy_db_.sqlalchemy_db import get_cached_sqlalchemy_db
 from project.sqlalchemy_db_.sqlalchemy_model import UserDBM, OperationDBM
 
 
-class GetOperationRouteSO(BaseRouteSO, OperationAdmin1SO):
+class GetOperationAdminRouteSO(BaseRouteSO, OperationAdmin1SO):
     pass
 
 
@@ -23,7 +23,7 @@ api_router = APIRouter()
     "",
     name="Get story log",
     status_code=fastapi.status.HTTP_200_OK,
-    response_model=GetOperationRouteSO | None | ErrorCommonSO,
+    response_model=GetOperationAdminRouteSO | None | ErrorCommonSO,
 )
 async def _(
         *,
@@ -60,4 +60,4 @@ async def _(
         result = await async_session.scalar(query)
         if result is None:
             return None
-        return GetOperationRouteSO.from_dbm(simple_dbm=result)
+        return GetOperationAdminRouteSO.from_dbm(simple_dbm=result)

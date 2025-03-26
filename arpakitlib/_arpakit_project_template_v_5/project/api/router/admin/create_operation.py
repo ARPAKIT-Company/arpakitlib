@@ -20,7 +20,7 @@ class CreateOperationAdminSI(BaseSI):
     input_data: dict[str, Any] = NotSet
 
 
-class CreateOperationRouteSO(BaseRouteSO, OperationAdmin1SO):
+class CreateOperationAdminRouteSO(BaseRouteSO, OperationAdmin1SO):
     pass
 
 
@@ -31,7 +31,7 @@ api_router = APIRouter()
     "",
     name="Create operation",
     status_code=fastapi.status.HTTP_200_OK,
-    response_model=CreateOperationRouteSO | None | ErrorCommonSO,
+    response_model=CreateOperationAdminRouteSO | None | ErrorCommonSO,
 )
 async def _(
         *,
@@ -75,4 +75,4 @@ async def _(
         await async_session.commit()
         await async_session.refresh(operation_dbm)
 
-    return CreateOperationRouteSO.from_dbm(simple_dbm=operation_dbm)
+    return CreateOperationAdminRouteSO.from_dbm(simple_dbm=operation_dbm)

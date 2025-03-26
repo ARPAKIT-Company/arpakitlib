@@ -10,7 +10,7 @@ from project.core.settings import get_cached_settings
 from project.sqlalchemy_db_.sqlalchemy_model import UserDBM
 
 
-class GetSettingsRouteSO(BaseRouteSO, RawDataCommonSO):
+class GetSettingsAdminRouteSO(BaseRouteSO, RawDataCommonSO):
     pass
 
 
@@ -21,7 +21,7 @@ api_router = APIRouter()
     "",
     name="Get settings",
     status_code=fastapi.status.HTTP_200_OK,
-    response_model=GetSettingsRouteSO | ErrorCommonSO,
+    response_model=GetSettingsAdminRouteSO | ErrorCommonSO,
 )
 async def _(
         *,
@@ -37,6 +37,6 @@ async def _(
             )
         ]))
 ):
-    return GetSettingsRouteSO(
+    return GetSettingsAdminRouteSO(
         data=get_cached_settings().model_dump(mode="json")
     )

@@ -1,7 +1,7 @@
 import asyncio
 
 from project.sqlalchemy_db_.sqlalchemy_db import get_cached_sqlalchemy_db
-from project.sqlalchemy_db_.sqlalchemy_model import OperationDBM, StoryLogDBM
+from project.sqlalchemy_db_.sqlalchemy_model import StoryLogDBM
 
 
 def __sandbox():

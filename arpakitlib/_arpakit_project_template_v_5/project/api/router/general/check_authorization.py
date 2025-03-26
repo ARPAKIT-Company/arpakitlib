@@ -35,12 +35,13 @@ async def _(
     return CheckAuthorizationGeneralRouteSO(
         is_current_api_key_ok=api_auth_data.api_key_dbm is not None,
         is_current_user_token_ok=api_auth_data.user_token_dbm is not None,
-        current_api_key=ApiKeyGeneral1SO.from_dbm(simple_dbm=api_auth_data.api_key_dbm),
+        current_api_key=ApiKeyGeneral1SO.from_dbm(
+            simple_dbm=api_auth_data.api_key_dbm
+        ) if api_auth_data.api_key_dbm is not None else None,
         current_user_token=UserTokenGeneral1SO.from_dbm(
             simple_dbm=api_auth_data.user_token_dbm
-        ) if api_auth_data.user_token_dbm is not None else None
-        ,
+        ) if api_auth_data.user_token_dbm is not None else None,
         current_user=UserGeneral1SO.from_dbm(
             simple_dbm=api_auth_data.user_token_dbm.user
-        ) if api_auth_data.user_token_dbm is not None else None
+        ) if (api_auth_data.user_token_dbm is not None and api_auth_data.user_token_dbm.user is not None) else None
     )

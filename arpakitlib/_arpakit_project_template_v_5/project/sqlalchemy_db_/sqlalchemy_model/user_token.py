@@ -63,7 +63,7 @@ class UserTokenDBM(SimpleDBM):
     @validates("value")
     def _validate_value(self, key, value, *args, **kwargs):
         if not isinstance(value, str):
-            raise ValueError(f"{value=} is not str")
+            raise ValueError(f"{key=}, {value=} is not str")
         value = value.strip()
         return value
 

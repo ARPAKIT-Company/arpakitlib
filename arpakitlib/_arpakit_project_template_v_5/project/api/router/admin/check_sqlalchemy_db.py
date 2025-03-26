@@ -10,7 +10,7 @@ from project.sqlalchemy_db_.sqlalchemy_db import get_cached_sqlalchemy_db
 from project.sqlalchemy_db_.sqlalchemy_model import UserDBM
 
 
-class CheckSQLAlchemyDbRouteSO(BaseRouteSO, RawDataCommonSO):
+class CheckSQLAlchemyDbAdminRouteSO(BaseRouteSO, RawDataCommonSO):
     pass
 
 
@@ -21,7 +21,7 @@ api_router = APIRouter()
     path="",
     name="Check sqlalchemy db",
     status_code=fastapi.status.HTTP_200_OK,
-    response_model=CheckSQLAlchemyDbRouteSO | ErrorCommonSO
+    response_model=CheckSQLAlchemyDbAdminRouteSO | ErrorCommonSO
 )
 async def _(
         *,
@@ -38,6 +38,6 @@ async def _(
         ]))
 ):
     get_cached_sqlalchemy_db().is_conn_good()
-    return CheckSQLAlchemyDbRouteSO(
+    return CheckSQLAlchemyDbAdminRouteSO(
         data={"is_conn_good": get_cached_sqlalchemy_db().is_conn_good()}
     )

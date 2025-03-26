@@ -10,7 +10,7 @@ from project.sqlalchemy_db_.sqlalchemy_db import get_cached_sqlalchemy_db
 from project.sqlalchemy_db_.sqlalchemy_model import UserDBM
 
 
-class GetAuthDataRouteSO(BaseRouteSO, RawDataCommonSO):
+class GetAuthDataAdminRouteSO(BaseRouteSO, RawDataCommonSO):
     pass
 
 
@@ -21,7 +21,7 @@ api_router = APIRouter()
     "",
     name="Get sqlalchemy db table name to amount",
     status_code=fastapi.status.HTTP_200_OK,
-    response_model=GetAuthDataRouteSO | ErrorCommonSO
+    response_model=GetAuthDataAdminRouteSO | ErrorCommonSO
 )
 async def _(
         *,
@@ -36,4 +36,4 @@ async def _(
             )
         ]))
 ):
-    return GetAuthDataRouteSO(data=await get_cached_sqlalchemy_db().async_get_table_name_to_amount())
+    return GetAuthDataAdminRouteSO(data=await get_cached_sqlalchemy_db().async_get_table_name_to_amount())

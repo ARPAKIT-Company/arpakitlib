@@ -8,7 +8,7 @@ from project.api.schema.out.common.error import ErrorCommonSO
 from project.sqlalchemy_db_.sqlalchemy_model import OperationDBM, UserDBM
 
 
-class GetOperationAllowedTypesRouteSO(BaseRouteSO):
+class GetOperationAllowedTypesAdminRouteSO(BaseRouteSO):
     allowed_types: list[str]
 
 
@@ -19,7 +19,7 @@ api_router = APIRouter()
     "",
     name="Get operation allowed types",
     status_code=fastapi.status.HTTP_200_OK,
-    response_model=GetOperationAllowedTypesRouteSO | ErrorCommonSO,
+    response_model=GetOperationAllowedTypesAdminRouteSO | ErrorCommonSO,
 )
 async def _(
         *,
@@ -35,6 +35,6 @@ async def _(
             )
         ]))
 ):
-    return GetOperationAllowedTypesRouteSO(
+    return GetOperationAllowedTypesAdminRouteSO(
         allowed_types=OperationDBM.Types.values_list()
     )

@@ -10,6 +10,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 
 from arpakitlib.ar_datetime_util import now_utc_dt
 from arpakitlib.ar_enumeration_util import Enumeration
+from arpakitlib.ar_str_util import make_none_if_blank
 from arpakitlib.ar_type_util import raise_for_type
 from project.sqlalchemy_db_.sqlalchemy_model.common import SimpleDBM
 
@@ -100,9 +101,20 @@ class UserDBM(SimpleDBM):
         if value is None:
             return None
         if not isinstance(value, str):
-            raise ValueError(f"{value=} is not str")
-        value = value.strip()
+            raise ValueError(f"{key=}, {value=} is not str")
+        value = make_none_if_blank(value.strip())
+        if value is None:
+            return None
         validate_email(value)
+        return value
+
+    @validates("username")
+    def _validate_username(self, key, value, *args, **kwargs):
+        if value is None:
+            return None
+        if not isinstance(value, str):
+            raise ValueError(f"{key=}, {value=} is not str")
+        value = make_none_if_blank(value.strip())
         return value
 
     @validates("tg_data")
@@ -110,7 +122,7 @@ class UserDBM(SimpleDBM):
         if value is None:
             value = {}
         if not isinstance(value, dict):
-            raise ValueError(f"{value=} is not str")
+            raise ValueError(f"{key=}, {value=} is not str")
         return value
 
     @property

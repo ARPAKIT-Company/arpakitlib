@@ -55,13 +55,13 @@ class ApiKeyDBM(SimpleDBM):
         if value is None:
             return None
         if not isinstance(value, str):
-            raise ValueError(f"{value=} is not str")
+            raise ValueError(f"{key=}, {value=}, not str")
         value = value.strip()
         return value
 
     @validates("value")
     def _validate_value(self, key, value, *args, **kwargs):
         if not isinstance(value, str):
-            raise ValueError(f"{value=} is not str")
+            raise ValueError(f"{key=}, {value=}, not str")
         value = value.strip()
         return value

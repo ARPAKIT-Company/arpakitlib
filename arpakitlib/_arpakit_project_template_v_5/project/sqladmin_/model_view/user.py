@@ -11,6 +11,7 @@ class UserMV(SimpleMV, model=UserDBM):
     form_columns = [
         UserDBM.slug,
         UserDBM.email,
+        UserDBM.username,
         UserDBM.roles,
         UserDBM.is_active,
         UserDBM.password,
