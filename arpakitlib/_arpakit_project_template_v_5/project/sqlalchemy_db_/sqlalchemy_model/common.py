@@ -53,8 +53,8 @@ class SimpleDBM(BaseDBM):
 
     def __repr__(self) -> str:
         if self.slug is None:
-            return f"{self.__class__.__name__.removesuffix('DBM')} (id={self.id})"
-        return f"{self.__class__.__name__.removesuffix('DBM')} (id={self.id}, slug={self.slug})"
+            return f"{self.entity_name} (id={self.id})"
+        return f"{self.entity_name} (id={self.id}, slug={self.slug})"
 
     @validates("slug")
     def _validate_slug(self, key, value, *args, **kwargs):

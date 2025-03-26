@@ -5,7 +5,8 @@ from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 
 import sqlalchemy
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from email_validator import validate_email
+from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 
 from arpakitlib.ar_enumeration_util import Enumeration
 from arpakitlib.ar_type_util import raise_for_type
@@ -76,11 +77,29 @@ class UserDBM(SimpleDBM):
         foreign_keys="UserTokenDBM.user_id"
     )
 
+    @validates("email")
+    def _validate_email(self, key, value, *args, **kwargs):
+        if value is None:
+            return None
+        if not isinstance(value, str):
+            raise ValueError(f"{value=} is not str")
+        value = value.strip()
+        validate_email(value)
+        return value
+
+    @validates("tg_data")
+    def _validate_tg_data(self, key, value, *args, **kwargs):
+        if value is None:
+            value = {}
+        if not isinstance(value, dict):
+            raise ValueError(f"{value=} is not str")
+        return value
+
     def __repr__(self) -> str:
         if self.email is not None:
-            res = f"{self.entity_name} (id={self.id}, email={self.email})"
+            res = f"{self.entity_name} ({self.id=}, {self.email=})"
         else:
-            res = f"{self.entity_name} (id={self.id})"
+            res = f"{self.entity_name} ({self.id=})"
         return res
 
     @property
