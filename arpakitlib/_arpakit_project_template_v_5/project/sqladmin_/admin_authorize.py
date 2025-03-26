@@ -63,6 +63,7 @@ class SQLAdminAuth(AuthenticationBackend):
                 UserDBM.long_id == username,
                 UserDBM.slug == username,
                 UserDBM.email == username,
+                UserDBM.username == username,
             ]
             if username.isdigit():
                 _or_conditions.append(UserDBM.id == int(username))
