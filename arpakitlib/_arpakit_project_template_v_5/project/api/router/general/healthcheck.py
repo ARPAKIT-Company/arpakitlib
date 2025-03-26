@@ -8,7 +8,7 @@ from project.api.schema.out.common.error import ErrorCommonSO
 from project.core.util import now_local_dt
 
 
-class HealthcheckRouteSO(BaseRouteSO):
+class HealthcheckGeneralRouteSO(BaseRouteSO):
     is_ok: bool = True
     datetime: dt.datetime
 
@@ -20,11 +20,11 @@ api_router = APIRouter()
     "",
     name="Healthcheck",
     status_code=fastapi.status.HTTP_200_OK,
-    response_model=HealthcheckRouteSO | ErrorCommonSO,
+    response_model=HealthcheckGeneralRouteSO | ErrorCommonSO,
 )
 async def _(
         *,
         request: fastapi.requests.Request,
         response: fastapi.responses.Response
 ):
-    return HealthcheckRouteSO(is_ok=True, datetime=now_local_dt())
+    return HealthcheckGeneralRouteSO(is_ok=True, datetime=now_local_dt())

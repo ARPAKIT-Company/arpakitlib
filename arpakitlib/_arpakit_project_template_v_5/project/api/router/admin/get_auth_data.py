@@ -37,4 +37,4 @@ async def _(
             )
         ]))
 ):
-    return GetAuthDataAdminRouteSO(data=transfer_data_to_json_str_to_data(api_auth_data.model_dump()))
+    return GetAuthDataAdminRouteSO(raw_data=transfer_data_to_json_str_to_data(api_auth_data.model_dump()))

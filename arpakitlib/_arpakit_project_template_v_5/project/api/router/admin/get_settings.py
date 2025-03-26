@@ -38,5 +38,5 @@ async def _(
         ]))
 ):
     return GetSettingsAdminRouteSO(
-        data=get_cached_settings().model_dump(mode="json")
+        raw_data=get_cached_settings().model_dump(mode="json")
     )

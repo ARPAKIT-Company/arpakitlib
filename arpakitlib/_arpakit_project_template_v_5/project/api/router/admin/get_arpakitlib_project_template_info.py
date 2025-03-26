@@ -37,4 +37,4 @@ async def _(
         ]))
 ):
     arpakitlib_project_template_data = get_arpakitlib_project_template_info()
-    return GetArpakitlibProjectTemplateInfoAdminRouteSO(data=arpakitlib_project_template_data)
+    return GetArpakitlibProjectTemplateInfoAdminRouteSO(raw_data=arpakitlib_project_template_data)

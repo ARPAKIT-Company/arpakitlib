@@ -11,7 +11,7 @@ from project.api.schema.out.common.error import ErrorCommonSO
 from project.sqlalchemy_db_.sqlalchemy_model import UserDBM
 
 
-class GetCurrentUserRouteSO(BaseRouteSO, UserClient1SO):
+class GetCurrentUserClientRouteSO(BaseRouteSO, UserClient1SO):
     pass
 
 
@@ -22,7 +22,7 @@ api_router = APIRouter()
     "",
     name="Get current user",
     status_code=fastapi.status.HTTP_200_OK,
-    response_model=GetCurrentUserRouteSO | ErrorCommonSO,
+    response_model=GetCurrentUserClientRouteSO | ErrorCommonSO,
 )
 async def _(
         *,
@@ -38,6 +38,6 @@ async def _(
             )
         ]))
 ):
-    return GetCurrentUserRouteSO.from_dbm(
+    return GetCurrentUserClientRouteSO.from_dbm(
         simple_dbm=api_auth_data.user_token_dbm.user
     )

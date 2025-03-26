@@ -39,5 +39,5 @@ async def _(
 ):
     get_cached_sqlalchemy_db().is_conn_good()
     return CheckSQLAlchemyDbAdminRouteSO(
-        data={"is_conn_good": get_cached_sqlalchemy_db().is_conn_good()}
+        raw_data={"is_conn_good": get_cached_sqlalchemy_db().is_conn_good()}
     )

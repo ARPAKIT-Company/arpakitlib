@@ -36,4 +36,4 @@ async def _(
             )
         ]))
 ):
-    return GetAuthDataAdminRouteSO(data=await get_cached_sqlalchemy_db().async_get_table_name_to_amount())
+    return GetAuthDataAdminRouteSO(raw_data=await get_cached_sqlalchemy_db().async_get_table_name_to_amount())

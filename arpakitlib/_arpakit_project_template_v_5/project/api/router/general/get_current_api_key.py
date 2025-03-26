@@ -9,7 +9,7 @@ from project.api.schema.out.general.api_key import ApiKeyGeneral1SO
 from project.sqlalchemy_db_.sqlalchemy_model import UserDBM
 
 
-class GetCurrentApiKeyRouteSO(BaseRouteSO, ApiKeyGeneral1SO):
+class GetCurrentApiKeyGeneralRouteSO(BaseRouteSO, ApiKeyGeneral1SO):
     pass
 
 
@@ -20,7 +20,7 @@ api_router = APIRouter()
     "",
     name="Get current api key",
     status_code=fastapi.status.HTTP_200_OK,
-    response_model=GetCurrentApiKeyRouteSO | str | ErrorCommonSO,
+    response_model=GetCurrentApiKeyGeneralRouteSO | str | ErrorCommonSO,
 )
 async def _(
         *,
@@ -36,6 +36,6 @@ async def _(
             )
         ]))
 ):
-    return GetCurrentApiKeyRouteSO.from_dbm(
+    return GetCurrentApiKeyGeneralRouteSO.from_dbm(
         simple_dbm=api_auth_data.api_key_dbm
     )

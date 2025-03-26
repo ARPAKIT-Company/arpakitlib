@@ -8,7 +8,7 @@ from project.api.schema.out.common.datetime_ import DatetimeCommonSO
 from project.api.schema.out.common.error import ErrorCommonSO
 
 
-class NowUTCDatetimeRouteSO(BaseRouteSO, DatetimeCommonSO):
+class NowUTCDatetimeGeneralRouteSO(BaseRouteSO, DatetimeCommonSO):
     pass
 
 
@@ -19,7 +19,7 @@ api_router = APIRouter()
     "",
     name="Now UTC datetime",
     status_code=fastapi.status.HTTP_200_OK,
-    response_model=NowUTCDatetimeRouteSO | ErrorCommonSO,
+    response_model=NowUTCDatetimeGeneralRouteSO | ErrorCommonSO,
 )
 async def _(
         *,
@@ -31,4 +31,4 @@ async def _(
             )
         ]))
 ):
-    return NowUTCDatetimeRouteSO.from_datetime(datetime_=now_utc_dt())
+    return NowUTCDatetimeGeneralRouteSO.from_datetime(datetime_=now_utc_dt())

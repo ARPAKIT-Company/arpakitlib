@@ -7,7 +7,7 @@ from project.api.schema.common import BaseRouteSO
 from project.api.schema.out.common.error import ErrorCommonSO
 
 
-class GetErrorsInfoRouteSO(BaseRouteSO):
+class GetErrorsInfoGeneralRouteSO(BaseRouteSO):
     api_error_codes: list[str] = []
     api_error_specification_codes: list[str] = []
 
@@ -19,7 +19,7 @@ api_router = APIRouter()
     "",
     name="Get errors info",
     status_code=fastapi.status.HTTP_200_OK,
-    response_model=GetErrorsInfoRouteSO | ErrorCommonSO,
+    response_model=GetErrorsInfoGeneralRouteSO | ErrorCommonSO,
 )
 async def _(
         *,
@@ -31,7 +31,7 @@ async def _(
             )
         ]))
 ):
-    return GetErrorsInfoRouteSO(
+    return GetErrorsInfoGeneralRouteSO(
         api_error_codes=APIErrorCodes.values_list(),
         api_error_specification_codes=APIErrorSpecificationCodes.values_list()
     )
