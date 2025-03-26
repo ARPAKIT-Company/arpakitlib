@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import Any
+from uuid import uuid4
 
 import sqlalchemy
 from sqlalchemy import func
@@ -7,7 +8,15 @@ from sqlalchemy.orm import mapped_column, Mapped, validates
 
 from arpakitlib.ar_datetime_util import now_utc_dt
 from arpakitlib.ar_sqlalchemy_util import get_string_info_from_declarative_base, BaseDBM
-from project.sqlalchemy_db_.util import generate_default_long_id
+
+
+def generate_default_long_id() -> str:
+    return (
+        f"longid"
+        f"{str(uuid4()).replace('-', '')}"
+        f"{str(uuid4()).replace('-', '')}"
+        f"{str(now_utc_dt().timestamp()).replace('.', '')}"
+    )
 
 
 class SimpleDBM(BaseDBM):
@@ -64,7 +73,7 @@ class SimpleDBM(BaseDBM):
             raise ValueError(f"{value=} is not str")
         value = value.strip()
         if " " in value:
-            raise ValueError(f"slug should not contain spaces, {self.slug=}")
+            raise ValueError(f"slug should not contain spaces, {value=}")
         return value
 
     @validates("extra_data")

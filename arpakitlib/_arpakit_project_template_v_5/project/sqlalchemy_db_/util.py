@@ -11,17 +11,8 @@ def generate_default_api_key() -> str:
     )
 
 
-def generate_default_long_id():
-    return (
-        f"longid"
-        f"{str(uuid4()).replace('-', '')}"
-        f"{str(now_utc_dt().timestamp()).replace('.', '')}"
-    )
-
-
 def __example():
     print(generate_default_api_key())
-    print(generate_default_long_id())
 
 
 if __name__ == '__main__':

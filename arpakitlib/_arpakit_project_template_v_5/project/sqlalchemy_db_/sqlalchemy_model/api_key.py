@@ -17,6 +17,7 @@ def generate_default_api_key_value() -> str:
     return (
         f"apikey"
         f"{str(uuid4()).replace('-', '')}"
+        f"{str(uuid4()).replace('-', '')}"
         f"{str(now_utc_dt().timestamp()).replace('.', '')}"
     )
 
