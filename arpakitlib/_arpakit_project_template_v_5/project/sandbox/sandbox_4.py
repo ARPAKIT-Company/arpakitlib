@@ -1,10 +1,8 @@
 import asyncio
 
-from project.sqlalchemy_db_.sqlalchemy_model import UserDBM
-
 
 def __sandbox():
-    user = UserDBM(email="arsen@gmail.com")
+    pass
 
 
 async def __async_sandbox():

@@ -8,7 +8,7 @@ from project.sqlalchemy_db_.sqlalchemy_model import ApiKeyDBM
 _logger = logging.getLogger(__name__)
 
 
-def make_test_data_1():
+def make_test_api_keys():
     get_cached_settings().raise_if_prod_mode()
     with get_cached_sqlalchemy_db().new_session() as session:
         session.query(ApiKeyDBM).delete()
@@ -25,7 +25,7 @@ async def async_make_test_data_1():
 
 
 def __example():
-    make_test_data_1()
+    make_test_api_keys()
 
 
 async def __async_example():

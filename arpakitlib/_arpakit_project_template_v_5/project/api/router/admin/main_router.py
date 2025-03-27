@@ -3,7 +3,7 @@ from fastapi import APIRouter
 from project.api.router.admin import get_auth_data, get_arpakitlib_project_template_info, raise_fake_error, \
     reinit_sqlalchemy_db, get_story_log, init_sqlalchemy_db, get_sqlalchemy_db_table_name_to_amount, \
     get_operation_allowed_statuses, get_operation, create_operation, get_operation_allowed_types, get_log_file, \
-    clear_log_file, check_sqlalchemy_db, get_settings, get_user
+    clear_log_file, check_sqlalchemy_db, get_settings, get_user, make_test_data_1
 
 main_admin_api_router = APIRouter()
 
@@ -85,4 +85,9 @@ main_admin_api_router.include_router(
 main_admin_api_router.include_router(
     router=get_user.api_router,
     prefix="/get_user"
+)
+
+main_admin_api_router.include_router(
+    router=make_test_data_1.api_router,
+    prefix="/make_test_data_1"
 )

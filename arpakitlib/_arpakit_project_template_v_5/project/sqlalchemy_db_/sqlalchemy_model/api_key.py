@@ -7,6 +7,7 @@ import sqlalchemy
 from sqlalchemy.orm import Mapped, mapped_column, validates
 
 from arpakitlib.ar_datetime_util import now_utc_dt
+from arpakitlib.ar_str_util import make_none_if_blank
 from project.sqlalchemy_db_.sqlalchemy_model.common import SimpleDBM
 
 if TYPE_CHECKING:
@@ -55,13 +56,15 @@ class ApiKeyDBM(SimpleDBM):
         if value is None:
             return None
         if not isinstance(value, str):
-            raise ValueError(f"{key=}, {value=}, not str")
-        value = value.strip()
+            raise ValueError(f"{key=}, {value=}, value is not str")
+        value = make_none_if_blank(value.strip())
         return value
 
     @validates("value")
     def _validate_value(self, key, value, *args, **kwargs):
         if not isinstance(value, str):
-            raise ValueError(f"{key=}, {value=}, not str")
+            raise ValueError(f"{key=}, {value=}, value is not str")
         value = value.strip()
+        if not value:
+            raise ValueError(f"{key=}, {value=}, value is empty")
         return value

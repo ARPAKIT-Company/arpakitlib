@@ -51,7 +51,7 @@ class StoryLogDBM(SimpleDBM):
     @validates("level")
     def _validate_level(self, key, value, *args, **kwargs):
         if not isinstance(value, str):
-            raise ValueError(f"{key=}, {value=} is not str")
+            raise ValueError(f"{key=}, {value=}, value is not str")
         value = value.strip()
         self.Levels.parse_and_validate_values(value)
         return value
@@ -61,7 +61,7 @@ class StoryLogDBM(SimpleDBM):
         if value is None:
             return None
         if not isinstance(value, str):
-            raise ValueError(f"{key=}, {value=} is not str")
+            raise ValueError(f"{key=}, {value=}, value is not str")
         value = make_none_if_blank(value.strip())
         return value
 
@@ -70,7 +70,7 @@ class StoryLogDBM(SimpleDBM):
         if value is None:
             return None
         if not isinstance(value, str):
-            raise ValueError(f"{key=}, {value=} is not str")
+            raise ValueError(f"{key=}, {value=}, value is not str")
         value = make_none_if_blank(value.strip())
         return value
 

@@ -89,16 +89,20 @@ class OperationDBM(SimpleDBM):
     @validates("status")
     def _validate_status(self, key, value, *args, **kwargs):
         if not isinstance(value, str):
-            raise ValueError(f"{key=}, {value=}, not str")
+            raise ValueError(f"{key=}, {value=}, value is not str")
         value = value.strip()
+        if not value:
+            raise ValueError(f"{key=}, {value=}, value is empty")
         self.Statuses.parse_and_validate_values(value)
         return value
 
     @validates("type")
     def _validate_type(self, key, value, *args, **kwargs):
         if not isinstance(value, str):
-            raise ValueError(f"{key=}, {value=}, not str")
+            raise ValueError(f"{key=}, {value=}, value is not str")
         value = value.strip()
+        if not value:
+            raise ValueError(f"{key=}, {value=}, value is empty")
         return value
 
     @validates("title")
@@ -106,7 +110,7 @@ class OperationDBM(SimpleDBM):
         if value is None:
             return None
         if not isinstance(value, str):
-            raise ValueError(f"{key=}, {value=}, not str")
+            raise ValueError(f"{key=}, {value=}, value is not str")
         value = make_none_if_blank(value.strip())
         return value
 
@@ -115,7 +119,7 @@ class OperationDBM(SimpleDBM):
         if value is None:
             value = {}
         if not isinstance(value, dict):
-            raise ValueError(f"{key=}, {value=}, not dict")
+            raise ValueError(f"{key=}, {value=}, value is not dict")
         return value
 
     @validates("output_data")
@@ -123,7 +127,7 @@ class OperationDBM(SimpleDBM):
         if value is None:
             value = {}
         if not isinstance(value, dict):
-            raise ValueError(f"{key=}, {value=}, not dict")
+            raise ValueError(f"{key=}, {value=}, value is not dict")
         return value
 
     @validates("error_data")
@@ -131,19 +135,21 @@ class OperationDBM(SimpleDBM):
         if value is None:
             value = {}
         if not isinstance(value, dict):
-            raise ValueError(f"{key=}, {value=}, not dict")
+            raise ValueError(f"{key=}, {value=}, value is not dict")
         return value
 
     def raise_if_executed_with_error(self):
         if self.status == self.Statuses.executed_with_error:
             raise Exception(
-                f"Operation ({self.id=}, {self.type=}) executed with error, error_data={self.error_data}"
+                f"Operation ({self.id=}, {self.type=}, {self.status=})"
+                f" executed with error, error_data={self.error_data}"
             )
 
     def raise_if_error_data(self):
         if self.error_data:
             raise Exception(
-                f"Operation ({self.id=}, {self.type=}) has error_data, error_data={self.error_data}"
+                f"Operation ({self.id=}, {self.type=}, {self.status=})"
+                f" has error_data, error_data={self.error_data}"
             )
 
     @property

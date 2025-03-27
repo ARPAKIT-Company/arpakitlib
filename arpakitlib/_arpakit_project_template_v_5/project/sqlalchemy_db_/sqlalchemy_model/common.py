@@ -19,6 +19,12 @@ def generate_default_long_id() -> str:
     )
 
 
+def make_slug_from_string(string: str) -> str:
+    string = string.strip()
+    string = string.replace(" ", "-")
+    return string
+
+
 class SimpleDBM(BaseDBM):
     __abstract__ = True
 
@@ -71,10 +77,10 @@ class SimpleDBM(BaseDBM):
         if value is None:
             return None
         if not isinstance(value, str):
-            raise ValueError(f"{key=}, {value=}, not str")
+            raise ValueError(f"{key=}, {value=}, value is empty")
         value = value.strip()
         if " " in value:
-            raise ValueError(f"{key=}, {value=}, value slug should not contain spaces")
+            raise ValueError(f"{key=}, {value=}, value contains spaces")
         return value
 
     @validates("extra_data")
@@ -82,7 +88,7 @@ class SimpleDBM(BaseDBM):
         if value is None:
             value = {}
         if not isinstance(value, dict):
-            raise ValueError(f"{key=}, {value=}, not str")
+            raise ValueError(f"{key=}, {value=}, value is not dict")
         return value
 
     @property

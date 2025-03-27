@@ -65,6 +65,15 @@ def make_none_if_blank(string: Optional[str] = None) -> str | None:
     return string
 
 
+def strip_or_make_none_if_blank(string: Optional[str] = None) -> str | None:
+    if string is None:
+        return None
+    string = string.strip()
+    if not string:
+        return None
+    return string
+
+
 def none_if_blank(string: Optional[str] = None) -> str | None:
     return make_none_if_blank(string=string)
 

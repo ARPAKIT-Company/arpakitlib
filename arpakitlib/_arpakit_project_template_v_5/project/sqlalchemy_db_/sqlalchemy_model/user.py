@@ -101,7 +101,7 @@ class UserDBM(SimpleDBM):
         if value is None:
             return None
         if not isinstance(value, str):
-            raise ValueError(f"{key=}, {value=} is not str")
+            raise ValueError(f"{key=}, {value=}, value is not str")
         value = make_none_if_blank(value.strip())
         if value is None:
             return None
@@ -113,7 +113,7 @@ class UserDBM(SimpleDBM):
         if value is None:
             return None
         if not isinstance(value, str):
-            raise ValueError(f"{key=}, {value=} is not str")
+            raise ValueError(f"{key=}, {value=}, value is not str")
         value = make_none_if_blank(value.strip())
         return value
 
@@ -122,7 +122,7 @@ class UserDBM(SimpleDBM):
         if value is None:
             value = {}
         if not isinstance(value, dict):
-            raise ValueError(f"{key=}, {value=} is not str")
+            raise ValueError(f"{key=}, {value=}, value is not str")
         return value
 
     @property
