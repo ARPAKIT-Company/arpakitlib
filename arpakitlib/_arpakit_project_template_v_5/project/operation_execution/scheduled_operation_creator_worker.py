@@ -2,6 +2,7 @@ from datetime import timedelta
 from typing import Any
 
 from arpakitlib.ar_base_worker_util import BaseWorker
+from arpakitlib.ar_json_util import transfer_data_to_json_str_to_data
 from arpakitlib.ar_sleep_util import sync_safe_sleep, async_safe_sleep
 from arpakitlib.ar_sqlalchemy_util import SQLAlchemyDb
 from arpakitlib.ar_type_util import raise_for_type
@@ -45,7 +46,10 @@ class ScheduledOperationCreatorWorker(BaseWorker):
             with self.sqlalchemy_db.new_session() as session:
                 operation_dbm = OperationDBM(
                     type=scheduled_operation.type,
-                    input_data=scheduled_operation.input_data,
+                    input_data=transfer_data_to_json_str_to_data(
+                        data=scheduled_operation.input_data,
+                        fast=True
+                    ),
                     status=OperationDBM.Statuses.waiting_for_execution
                 )
                 session.add(operation_dbm)
@@ -78,7 +82,10 @@ class ScheduledOperationCreatorWorker(BaseWorker):
             async with self.sqlalchemy_db.new_async_session() as async_session:
                 operation_dbm = OperationDBM(
                     type=scheduled_operation.type,
-                    input_data=scheduled_operation.input_data
+                    input_data=transfer_data_to_json_str_to_data(
+                        data=scheduled_operation.input_data,
+                        fast=True
+                    ),
                 )
                 async_session.add(operation_dbm)
                 await async_session.commit()
