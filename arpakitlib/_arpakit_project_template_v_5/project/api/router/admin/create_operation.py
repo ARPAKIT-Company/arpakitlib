@@ -31,7 +31,7 @@ api_router = APIRouter()
     "",
     name="Create operation",
     status_code=fastapi.status.HTTP_200_OK,
-    response_model=CreateOperationAdminRouteSO | None | ErrorCommonSO,
+    response_model=CreateOperationAdminRouteSO | ErrorCommonSO,
 )
 async def _(
         *,
