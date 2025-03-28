@@ -2,7 +2,7 @@
 import asyncio
 import logging
 from datetime import timedelta, datetime
-from typing import Any
+from typing import Any, Collection
 from urllib.parse import quote_plus
 from uuid import uuid4
 
@@ -13,7 +13,6 @@ from sqlalchemy.orm import sessionmaker, DeclarativeBase
 from sqlalchemy.orm.session import Session
 
 from arpakitlib.ar_datetime_util import now_utc_dt
-from arpakitlib.ar_json_util import transfer_data_to_json_str
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
 
@@ -71,12 +70,14 @@ class BaseDBM(DeclarativeBase):
     def simple_dict(
             self,
             *,
-            include_sd_properties: bool = True,
-            exclude_columns: set[str] | None = None,
-            only_columns: list[str] | None = None,
-            exclude_sd_properties: set[str] | None = None,
-            only_sd_properties: list[str] | None = None,
-            only_columns_and_sd_properties: list[str] | None = None
+            need_include_columns: bool = True,
+            need_include_sd_properties: bool = True,
+            include_columns: Collection[str] | None = None,
+            exclude_columns: Collection[str] | None = None,
+            include_sd_properties: Collection[str] | None = None,
+            exclude_sd_properties: Collection[str] | None = None,
+            include_columns_and_sd_properties: Collection[str] | None = None,
+            kwargs: dict[str, Any] | None = None
     ) -> dict[str, Any]:
         if exclude_columns is None:
             exclude_columns = set()
@@ -85,20 +86,18 @@ class BaseDBM(DeclarativeBase):
 
         res = {}
 
-        # Обрабатываем только колонки текущей модели
-        for c in inspect(self).mapper.column_attrs:
-            if only_columns_and_sd_properties is not None and c.key not in only_columns_and_sd_properties:
-                continue  # Пропускаем колонку, если она не в only_columns_and_sd_properties
-            if only_columns is not None and c.key not in only_columns:
-                continue  # Пропускаем колонку, если она не в only_columns
-            if c.key in exclude_columns:
-                continue  # Пропускаем колонку, если она в exclude_columns
+        if need_include_columns:
+            for c in inspect(self).mapper.column_attrs:
+                if include_columns_and_sd_properties is not None and c.key not in include_columns_and_sd_properties:
+                    continue
+                if include_columns is not None and c.key not in include_columns:
+                    continue
+                if c.key in exclude_columns:
+                    continue
+                value = getattr(self, c.key)
+                res[c.key] = value
 
-            value = getattr(self, c.key)
-            res[c.key] = value  # Просто сохраняем значение
-
-        # Обработка свойств с префиксом "sdp_"
-        if include_sd_properties:
+        if need_include_sd_properties:
             for attr_name in dir(self):
                 if not attr_name.startswith("sdp_") or not isinstance(getattr(type(self), attr_name, None), property):
                     continue
@@ -106,69 +105,21 @@ class BaseDBM(DeclarativeBase):
                 sd_property_name = attr_name.removeprefix("sdp_")
 
                 if (
-                        only_columns_and_sd_properties is not None
-                        and sd_property_name not in only_columns_and_sd_properties
+                        include_columns_and_sd_properties is not None
+                        and sd_property_name not in include_columns_and_sd_properties
                 ):
-                    continue  # Пропускаем свойство, если оно не в only_columns_and_sd_properties
-                if only_sd_properties is not None and sd_property_name not in only_sd_properties:
-                    continue  # Пропускаем свойство, если оно не в only_sd_properties
+                    continue
+                if include_sd_properties is not None and sd_property_name not in include_sd_properties:
+                    continue
                 if sd_property_name in exclude_sd_properties:
-                    continue  # Пропускаем свойство, если оно в exclude_sd_properties
+                    continue
 
-                value = getattr(self, attr_name)
-                if isinstance(value, BaseDBM):
-                    res[sd_property_name] = value.simple_dict(include_sd_properties=include_sd_properties)
-                elif isinstance(value, list):
-                    res[sd_property_name] = [
-                        item.simple_dict(include_sd_properties=include_sd_properties)
-                        if isinstance(item, BaseDBM) else item
-                        for item in value
-                    ]
-                else:
-                    res[sd_property_name] = value
+                res[sd_property_name] = getattr(self, attr_name)
+
+        if kwargs is not None:
+            res.update(kwargs)
 
         return res
-
-    def simple_dict_with_sd_properties(
-            self,
-            *,
-            exclude_columns: set[str] | None = None,
-            only_columns: list[str] | None = None,
-            exclude_sdp_properties: set[str] | None = None,
-            only_sd_properties: list[str] | None = None,
-            only_columns_and_sd_properties: list[str] | None = None  # Новый параметр
-    ) -> dict[str, Any]:
-        return self.simple_dict(
-            include_sd_properties=True,
-            exclude_columns=exclude_columns,
-            only_columns=only_columns,
-            exclude_sd_properties=exclude_sdp_properties,
-            only_sd_properties=only_sd_properties,
-            only_columns_and_sd_properties=only_columns_and_sd_properties  # Новый параметр
-        )
-
-    def simple_dict_json(
-            self,
-            *,
-            include_sd_properties: bool = True,
-            exclude_columns: set[str] | None = None,
-            only_columns: list[str] | None = None,
-            exclude_sd_properties: set[str] | None = None,
-            only_sd_properties: list[str] | None = None,
-            only_columns_and_sd_properties: list[str] | None = None,
-            **transfer_data_to_json_str_kwargs
-    ) -> str:
-        return transfer_data_to_json_str(
-            data=self.simple_dict(
-                include_sd_properties=include_sd_properties,
-                exclude_columns=exclude_columns,
-                only_columns=only_columns,
-                exclude_sd_properties=exclude_sd_properties,
-                only_sd_properties=only_sd_properties,
-                only_columns_and_sd_properties=only_columns_and_sd_properties
-            ),
-            **transfer_data_to_json_str_kwargs
-        )
 
 
 class SQLAlchemyDb:

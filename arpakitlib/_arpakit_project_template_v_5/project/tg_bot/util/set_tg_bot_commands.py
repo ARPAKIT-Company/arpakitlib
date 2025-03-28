@@ -8,7 +8,7 @@ from project.core.settings import get_cached_settings
 from project.core.util import setup_logging
 from project.sqlalchemy_db_.sqlalchemy_db import get_cached_sqlalchemy_db
 from project.sqlalchemy_db_.sqlalchemy_model import UserDBM
-from project.tg_bot.blank.general import get_cached_client_tg_bot_blank
+from project.tg_bot.blank.client import get_cached_client_tg_bot_blank
 from project.tg_bot.const import GeneralTgBotCommands, AdminTgBotCommands
 from project.tg_bot.tg_bot import get_cached_tg_bot
 

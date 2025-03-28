@@ -4,7 +4,7 @@ import aiogram
 from aiogram import Router
 from aiogram.filters import Command, or_f
 
-from project.tg_bot.blank.general import get_cached_client_tg_bot_blank
+from project.tg_bot.blank.client import get_cached_client_tg_bot_blank
 from project.tg_bot.const import GeneralTgBotCommands
 from project.tg_bot.filter_.message_text import MessageTextTgBotFilter
 from project.tg_bot.middleware.common import MiddlewareDataTgBot

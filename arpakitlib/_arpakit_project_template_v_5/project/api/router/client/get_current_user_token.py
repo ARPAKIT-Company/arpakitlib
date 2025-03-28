@@ -6,11 +6,23 @@ from project.api.authorize import APIAuthorizeData, api_authorize, require_user_
 from project.api.schema.out.client.user import User1ClientSO
 from project.api.schema.out.client.user_token import UserToken1ClientSO
 from project.api.schema.out.common.error import ErrorCommonSO
-from project.sqlalchemy_db_.sqlalchemy_model import UserDBM
+from project.sqlalchemy_db_.sqlalchemy_model import UserDBM, UserTokenDBM
 
 
 class _UserToken1ClientSO(UserToken1ClientSO):
     user: User1ClientSO
+
+    @classmethod
+    def from_dbm(cls, *, simple_dbm: UserTokenDBM) -> UserToken1ClientSO:
+        simple_dict = simple_dbm.simple_dict(
+            include_columns_and_sd_properties=cls.model_fields.keys(),
+            kwargs={
+                "user": simple_dbm.user.simple_dict(
+                    include_columns_and_sd_properties=User1ClientSO.model_fields.keys()
+                )
+            }
+        )
+        return cls.model_validate(simple_dict)
 
 
 api_router = APIRouter()

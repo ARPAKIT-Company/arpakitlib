@@ -11,6 +11,6 @@ class UserToken1ClientSO(SimpleDBMClientSO):
 
     @classmethod
     def from_dbm(cls, *, simple_dbm: UserTokenDBM) -> UserToken1ClientSO:
-        return cls.model_validate(simple_dbm.simple_dict_with_sd_properties(
-            only_columns_and_sd_properties=cls.model_fields.keys()
+        return cls.model_validate(simple_dbm.simple_dict(
+            include_columns_and_sd_properties=cls.model_fields.keys()
         ))

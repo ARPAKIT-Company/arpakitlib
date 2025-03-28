@@ -68,7 +68,3 @@ class UserTokenDBM(SimpleDBM):
         if not value:
             raise ValueError(f"{key=}, {value=}, value is empty")
         return value
-
-    @property
-    def sdp_user(self) -> UserDBM:
-        return self.user

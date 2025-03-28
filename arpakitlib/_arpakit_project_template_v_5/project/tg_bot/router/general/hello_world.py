@@ -2,7 +2,7 @@ import aiogram.filters
 from aiogram.filters import or_f
 
 from arpakitlib.ar_str_util import remove_html
-from project.tg_bot.blank.general import get_cached_client_tg_bot_blank
+from project.tg_bot.blank.client import get_cached_client_tg_bot_blank
 from project.tg_bot.callback.client import HelloWorldClientCD
 from project.tg_bot.const import GeneralTgBotCommands
 from project.tg_bot.filter_.message_text import MessageTextTgBotFilter
