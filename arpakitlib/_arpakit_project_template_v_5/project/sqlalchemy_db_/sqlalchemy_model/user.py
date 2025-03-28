@@ -85,7 +85,8 @@ class UserDBM(SimpleDBM):
         "UserTokenDBM",
         uselist=True,
         back_populates="user",
-        foreign_keys="UserTokenDBM.user_id"
+        foreign_keys="UserTokenDBM.user_id",
+        cascade="all, delete-orphan"
     )
 
     def __repr__(self) -> str:
