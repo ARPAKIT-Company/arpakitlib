@@ -5,16 +5,10 @@ from fastapi import APIRouter
 from arpakitlib.ar_str_util import make_none_if_blank, strip_if_not_none
 from project.api.authorize import APIAuthorizeData, api_authorize, require_user_token_dbm_api_authorize_middleware, \
     require_api_key_dbm_api_authorize_middleware
-from project.api.schema.common import BaseRouteSO
 from project.api.schema.out.admin.story_log import StoryLog1AdminSO
 from project.api.schema.out.common.error import ErrorCommonSO
 from project.sqlalchemy_db_.sqlalchemy_db import get_cached_sqlalchemy_db
 from project.sqlalchemy_db_.sqlalchemy_model import UserDBM, StoryLogDBM
-
-
-class GetStoryLogAdminRouteSO(BaseRouteSO, StoryLog1AdminSO):
-    pass
-
 
 api_router = APIRouter()
 
@@ -23,7 +17,7 @@ api_router = APIRouter()
     "",
     name="Get story log",
     status_code=fastapi.status.HTTP_200_OK,
-    response_model=GetStoryLogAdminRouteSO | None | ErrorCommonSO,
+    response_model=StoryLog1AdminSO | None | ErrorCommonSO,
 )
 async def _(
         *,
@@ -60,4 +54,4 @@ async def _(
         result = await async_session.scalar(query)
         if result is None:
             return None
-        return GetStoryLogAdminRouteSO.from_dbm(simple_dbm=result)
+        return StoryLog1AdminSO.from_dbm(simple_dbm=result)

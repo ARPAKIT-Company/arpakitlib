@@ -3,16 +3,10 @@ from fastapi import APIRouter
 
 from project.api.authorize import require_api_key_dbm_api_authorize_middleware, APIAuthorizeData, \
     require_user_token_dbm_api_authorize_middleware, api_authorize
-from project.api.schema.common import BaseRouteSO
 from project.api.schema.out.common.error import ErrorCommonSO
-from project.api.schema.out.common.raw_data import RawDataCommonSO
+from project.api.schema.out.common.ok import OkSO
 from project.sqlalchemy_db_.sqlalchemy_db import get_cached_sqlalchemy_db
 from project.sqlalchemy_db_.sqlalchemy_model import UserDBM
-
-
-class CheckSQLAlchemyDbAdminRouteSO(BaseRouteSO, RawDataCommonSO):
-    pass
-
 
 api_router = APIRouter()
 
@@ -21,7 +15,7 @@ api_router = APIRouter()
     path="",
     name="Check sqlalchemy db",
     status_code=fastapi.status.HTTP_200_OK,
-    response_model=CheckSQLAlchemyDbAdminRouteSO | ErrorCommonSO
+    response_model=OkSO | ErrorCommonSO
 )
 async def _(
         *,
@@ -37,7 +31,5 @@ async def _(
             )
         ]))
 ):
-    get_cached_sqlalchemy_db().is_conn_good()
-    return CheckSQLAlchemyDbAdminRouteSO(
-        raw_data={"is_conn_good": get_cached_sqlalchemy_db().is_conn_good()}
-    )
+    get_cached_sqlalchemy_db().check_conn()
+    return OkSO()

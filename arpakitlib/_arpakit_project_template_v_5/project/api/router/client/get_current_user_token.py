@@ -3,14 +3,13 @@ from fastapi import APIRouter
 
 from project.api.authorize import APIAuthorizeData, api_authorize, require_user_token_dbm_api_authorize_middleware, \
     require_api_key_dbm_api_authorize_middleware
-from project.api.schema.common import BaseRouteSO
 from project.api.schema.out.client.user import User1ClientSO
 from project.api.schema.out.client.user_token import UserToken1ClientSO
 from project.api.schema.out.common.error import ErrorCommonSO
 from project.sqlalchemy_db_.sqlalchemy_model import UserDBM
 
 
-class GetCurrentUserTokenClientRouteSO(BaseRouteSO, UserToken1ClientSO):
+class _UserToken1ClientSO(UserToken1ClientSO):
     user: User1ClientSO
 
 
@@ -21,7 +20,7 @@ api_router = APIRouter()
     "",
     name="Get current user token",
     status_code=fastapi.status.HTTP_200_OK,
-    response_model=GetCurrentUserTokenClientRouteSO | ErrorCommonSO,
+    response_model=_UserToken1ClientSO | ErrorCommonSO,
 )
 async def _(
         *,
@@ -37,6 +36,6 @@ async def _(
             )
         ]))
 ):
-    return GetCurrentUserTokenClientRouteSO.from_dbm(
+    return _UserToken1ClientSO.from_dbm(
         simple_dbm=api_auth_data.user_token_dbm
     )

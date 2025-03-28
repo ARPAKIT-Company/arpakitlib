@@ -1,18 +1,13 @@
+from typing import Any
+
 import fastapi.requests
 from fastapi import APIRouter
 
 from arpakitlib.ar_json_util import transfer_data_to_json_str_to_data
 from project.api.authorize import APIAuthorizeData, api_authorize, require_user_token_dbm_api_authorize_middleware, \
     require_api_key_dbm_api_authorize_middleware
-from project.api.schema.common import BaseRouteSO
 from project.api.schema.out.common.error import ErrorCommonSO
-from project.api.schema.out.common.raw_data import RawDataCommonSO
 from project.sqlalchemy_db_.sqlalchemy_model import UserDBM
-
-
-class GetAuthDataAdminRouteSO(BaseRouteSO, RawDataCommonSO):
-    pass
-
 
 api_router = APIRouter()
 
@@ -21,7 +16,7 @@ api_router = APIRouter()
     path="",
     name="Get auth data",
     status_code=fastapi.status.HTTP_200_OK,
-    response_model=GetAuthDataAdminRouteSO | ErrorCommonSO,
+    response_model=dict[str, Any] | ErrorCommonSO,
 )
 async def _(
         *,
@@ -37,4 +32,4 @@ async def _(
             )
         ]))
 ):
-    return GetAuthDataAdminRouteSO(raw_data=transfer_data_to_json_str_to_data(api_auth_data.model_dump()))
+    return transfer_data_to_json_str_to_data(api_auth_data.model_dump())

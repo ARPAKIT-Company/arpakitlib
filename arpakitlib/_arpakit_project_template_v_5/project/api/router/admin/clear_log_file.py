@@ -4,16 +4,10 @@ from fastapi import APIRouter
 from arpakitlib.ar_logging_util import init_log_file
 from project.api.authorize import require_api_key_dbm_api_authorize_middleware, APIAuthorizeData, \
     require_user_token_dbm_api_authorize_middleware, api_authorize
-from project.api.schema.common import BaseRouteSO
 from project.api.schema.out.common.error import ErrorCommonSO
-from project.api.schema.out.common.raw_data import RawDataCommonSO
+from project.api.schema.out.common.ok import OkSO
 from project.core.settings import get_cached_settings
 from project.sqlalchemy_db_.sqlalchemy_model import UserDBM
-
-
-class ClearLogFileAdminRouteSO(BaseRouteSO, RawDataCommonSO):
-    pass
-
 
 api_router = APIRouter()
 
@@ -22,7 +16,7 @@ api_router = APIRouter()
     path="",
     name="Clear log file",
     status_code=fastapi.status.HTTP_200_OK,
-    response_model=ClearLogFileAdminRouteSO | ErrorCommonSO
+    response_model=OkSO | ErrorCommonSO
 )
 def _(
         *,
@@ -41,4 +35,4 @@ def _(
     init_log_file(log_filepath=get_cached_settings().log_filepath)
     with open(file=get_cached_settings().log_filepath, mode="w") as f:
         f.write("")
-    return ClearLogFileAdminRouteSO()
+    return OkSO()

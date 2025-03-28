@@ -2,14 +2,14 @@ import fastapi.requests
 from fastapi import APIRouter
 
 from project.api.authorize import APIAuthorizeData, api_authorize
-from project.api.schema.common import BaseRouteSO
+from project.api.schema.common import BaseSO
 from project.api.schema.out.common.error import ErrorCommonSO
 from project.api.schema.out.general.api_key import ApiKey1GeneralSO
 from project.api.schema.out.general.user import User1GeneralSO
 from project.api.schema.out.general.user_token import UserToken1GeneralSO
 
 
-class CheckAuthorizationGeneralRouteSO(BaseRouteSO):
+class _CheckAuthorizationGeneralSO(BaseSO):
     is_current_api_key_ok: bool = False
     is_current_user_token_ok: bool = False
     current_api_key: ApiKey1GeneralSO | None = None
@@ -24,7 +24,7 @@ api_router = APIRouter()
     "",
     name="Check authorization",
     status_code=fastapi.status.HTTP_200_OK,
-    response_model=CheckAuthorizationGeneralRouteSO | ErrorCommonSO,
+    response_model=_CheckAuthorizationGeneralSO | ErrorCommonSO,
 )
 async def _(
         *,
@@ -32,7 +32,7 @@ async def _(
         response: fastapi.responses.Response,
         api_auth_data: APIAuthorizeData = fastapi.Depends(api_authorize())
 ):
-    return CheckAuthorizationGeneralRouteSO(
+    return _CheckAuthorizationGeneralSO(
         is_current_api_key_ok=api_auth_data.api_key_dbm is not None,
         is_current_user_token_ok=api_auth_data.user_token_dbm is not None,
         current_api_key=ApiKey1GeneralSO.from_dbm(

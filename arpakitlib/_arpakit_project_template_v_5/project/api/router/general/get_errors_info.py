@@ -3,11 +3,11 @@ from fastapi import APIRouter
 
 from project.api.authorize import APIAuthorizeData, api_authorize, require_api_key_dbm_api_authorize_middleware
 from project.api.const import APIErrorCodes, APIErrorSpecificationCodes
-from project.api.schema.common import BaseRouteSO
+from project.api.schema.common import BaseSO
 from project.api.schema.out.common.error import ErrorCommonSO
 
 
-class GetErrorsInfoGeneralRouteSO(BaseRouteSO):
+class _GetErrorsInfoGeneralSO(BaseSO):
     api_error_codes: list[str] = []
     api_error_specification_codes: list[str] = []
 
@@ -19,7 +19,7 @@ api_router = APIRouter()
     "",
     name="Get errors info",
     status_code=fastapi.status.HTTP_200_OK,
-    response_model=GetErrorsInfoGeneralRouteSO | ErrorCommonSO,
+    response_model=_GetErrorsInfoGeneralSO | ErrorCommonSO,
 )
 async def _(
         *,
@@ -31,7 +31,7 @@ async def _(
             )
         ]))
 ):
-    return GetErrorsInfoGeneralRouteSO(
+    return _GetErrorsInfoGeneralSO(
         api_error_codes=APIErrorCodes.values_list(),
         api_error_specification_codes=APIErrorSpecificationCodes.values_list()
     )
