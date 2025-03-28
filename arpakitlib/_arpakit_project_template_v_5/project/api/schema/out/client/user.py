@@ -28,7 +28,7 @@ class User1ClientSO(SimpleDBMClientSO):
     tg_data_link_by_username: str | None
 
     @classmethod
-    def from_dbm(cls, *, simple_dbm: UserDBM) -> User1ClientSO:
+    def from_dbm(cls, *, simple_dbm: UserDBM, **kwargs) -> User1ClientSO:
         return cls.model_validate(simple_dbm.simple_dict(
             include_columns_and_sd_properties=cls.model_fields.keys()
         ))

@@ -10,7 +10,7 @@ class ApiKey1GeneralSO(SimpleDBMGeneralSO):
     is_active: bool
 
     @classmethod
-    def from_dbm(cls, *, simple_dbm: ApiKeyDBM) -> ApiKey1GeneralSO:
+    def from_dbm(cls, *, simple_dbm: ApiKeyDBM, **kwargs) -> ApiKey1GeneralSO:
         return cls.model_validate(simple_dbm.simple_dict(
             include_columns_and_sd_properties=cls.model_fields.keys()
         ))

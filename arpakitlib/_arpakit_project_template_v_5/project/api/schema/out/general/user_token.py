@@ -10,7 +10,7 @@ class UserToken1GeneralSO(SimpleDBMGeneralSO):
     is_active: bool
 
     @classmethod
-    def from_dbm(cls, *, simple_dbm: UserTokenDBM) -> UserToken1GeneralSO:
+    def from_dbm(cls, *, simple_dbm: UserTokenDBM, **kwargs) -> UserToken1GeneralSO:
         return cls.model_validate(simple_dbm.simple_dict(
             include_columns_and_sd_properties=cls.model_fields.keys()
         ))

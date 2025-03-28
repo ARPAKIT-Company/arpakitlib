@@ -17,7 +17,7 @@ class SimpleDBMAdminSO(BaseSO):
     entity_name: str
 
     @classmethod
-    def from_dbm(cls, *, simple_dbm: SimpleDBM) -> SimpleDBMAdminSO:
+    def from_dbm(cls, *, simple_dbm: SimpleDBM, **kwargs) -> SimpleDBMAdminSO:
         return cls.model_validate(simple_dbm.simple_dict(
             include_columns_and_sd_properties=cls.model_fields.keys()
         ))

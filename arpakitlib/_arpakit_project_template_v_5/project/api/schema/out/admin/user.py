@@ -29,7 +29,7 @@ class User1AdminSO(SimpleDBMAdminSO):
     tg_data_link_by_username: str | None
 
     @classmethod
-    def from_dbm(cls, *, simple_dbm: UserDBM) -> User1AdminSO:
+    def from_dbm(cls, *, simple_dbm: UserDBM, **kwargs) -> User1AdminSO:
         return cls.model_validate(simple_dbm.simple_dict(
             include_columns_and_sd_properties=cls.model_fields.keys()
         ))
