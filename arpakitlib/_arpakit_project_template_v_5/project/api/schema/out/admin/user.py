@@ -7,7 +7,7 @@ from project.api.schema.out.admin.common import SimpleDBMAdminSO
 from project.sqlalchemy_db_.sqlalchemy_model import UserDBM
 
 
-class UserAdmin1SO(SimpleDBMAdminSO):
+class User1AdminSO(SimpleDBMAdminSO):
     email: str | None
     username: str | None
     roles: list[str]
@@ -29,7 +29,7 @@ class UserAdmin1SO(SimpleDBMAdminSO):
     tg_data_link_by_username: str | None
 
     @classmethod
-    def from_dbm(cls, *, simple_dbm: UserDBM) -> UserAdmin1SO:
+    def from_dbm(cls, *, simple_dbm: UserDBM) -> User1AdminSO:
         return cls.model_validate(simple_dbm.simple_dict_with_sd_properties(
             only_columns_and_sd_properties=cls.model_fields.keys()
         ))

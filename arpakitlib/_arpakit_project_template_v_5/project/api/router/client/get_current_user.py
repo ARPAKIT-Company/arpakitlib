@@ -6,12 +6,12 @@ from fastapi import APIRouter
 from project.api.authorize import APIAuthorizeData, api_authorize, require_user_token_dbm_api_authorize_middleware, \
     require_api_key_dbm_api_authorize_middleware
 from project.api.schema.common import BaseRouteSO
-from project.api.schema.out.client.user import UserClient1SO
+from project.api.schema.out.client.user import User1ClientSO
 from project.api.schema.out.common.error import ErrorCommonSO
 from project.sqlalchemy_db_.sqlalchemy_model import UserDBM
 
 
-class GetCurrentUserClientRouteSO(BaseRouteSO, UserClient1SO):
+class GetCurrentUserClientRouteSO(BaseRouteSO, User1ClientSO):
     pass
 
 

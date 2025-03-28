@@ -7,7 +7,7 @@ from arpakitlib.ar_type_util import NotSet, is_set
 from project.api.authorize import require_api_key_dbm_api_authorize_middleware, \
     require_user_token_dbm_api_authorize_middleware, APIAuthorizeData, api_authorize
 from project.api.schema.common import BaseRouteSO, BaseSI
-from project.api.schema.out.admin.operation import OperationAdmin1SO
+from project.api.schema.out.admin.operation import Operation1AdminSO
 from project.api.schema.out.common.error import ErrorCommonSO
 from project.sqlalchemy_db_.sqlalchemy_db import get_cached_sqlalchemy_db
 from project.sqlalchemy_db_.sqlalchemy_model import UserDBM, OperationDBM
@@ -20,7 +20,7 @@ class CreateOperationAdminSI(BaseSI):
     input_data: dict[str, Any] = NotSet
 
 
-class CreateOperationAdminRouteSO(BaseRouteSO, OperationAdmin1SO):
+class CreateOperationAdminRouteSO(BaseRouteSO, Operation1AdminSO):
     pass
 
 

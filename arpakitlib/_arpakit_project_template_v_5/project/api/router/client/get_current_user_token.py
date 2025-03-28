@@ -4,14 +4,14 @@ from fastapi import APIRouter
 from project.api.authorize import APIAuthorizeData, api_authorize, require_user_token_dbm_api_authorize_middleware, \
     require_api_key_dbm_api_authorize_middleware
 from project.api.schema.common import BaseRouteSO
-from project.api.schema.out.client.user import UserClient1SO
-from project.api.schema.out.client.user_token import UserTokenClient1SO
+from project.api.schema.out.client.user import User1ClientSO
+from project.api.schema.out.client.user_token import UserToken1ClientSO
 from project.api.schema.out.common.error import ErrorCommonSO
 from project.sqlalchemy_db_.sqlalchemy_model import UserDBM
 
 
-class GetCurrentUserTokenClientRouteSO(BaseRouteSO, UserTokenClient1SO):
-    user: UserClient1SO
+class GetCurrentUserTokenClientRouteSO(BaseRouteSO, UserToken1ClientSO):
+    user: User1ClientSO
 
 
 api_router = APIRouter()

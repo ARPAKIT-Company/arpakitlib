@@ -5,11 +5,11 @@ from project.api.authorize import APIAuthorizeData, api_authorize, require_user_
     require_api_key_dbm_api_authorize_middleware
 from project.api.schema.common import BaseRouteSO
 from project.api.schema.out.common.error import ErrorCommonSO
-from project.api.schema.out.general.api_key import ApiKeyGeneral1SO
+from project.api.schema.out.general.api_key import ApiKey1GeneralSO
 from project.sqlalchemy_db_.sqlalchemy_model import UserDBM
 
 
-class GetCurrentApiKeyGeneralRouteSO(BaseRouteSO, ApiKeyGeneral1SO):
+class GetCurrentApiKeyGeneralRouteSO(BaseRouteSO, ApiKey1GeneralSO):
     pass
 
 

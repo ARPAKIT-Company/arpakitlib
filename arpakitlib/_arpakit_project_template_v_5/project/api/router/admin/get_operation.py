@@ -6,13 +6,13 @@ from arpakitlib.ar_str_util import strip_if_not_none, make_none_if_blank
 from project.api.authorize import APIAuthorizeData, api_authorize, require_user_token_dbm_api_authorize_middleware, \
     require_api_key_dbm_api_authorize_middleware
 from project.api.schema.common import BaseRouteSO
-from project.api.schema.out.admin.operation import OperationAdmin1SO
+from project.api.schema.out.admin.operation import Operation1AdminSO
 from project.api.schema.out.common.error import ErrorCommonSO
 from project.sqlalchemy_db_.sqlalchemy_db import get_cached_sqlalchemy_db
 from project.sqlalchemy_db_.sqlalchemy_model import UserDBM, OperationDBM
 
 
-class GetOperationAdminRouteSO(BaseRouteSO, OperationAdmin1SO):
+class GetOperationAdminRouteSO(BaseRouteSO, Operation1AdminSO):
     pass
 
 
