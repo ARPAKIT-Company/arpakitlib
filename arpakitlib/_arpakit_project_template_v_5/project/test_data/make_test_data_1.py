@@ -37,7 +37,7 @@ def make_test_data_1():
         _logger.info(arpakit_user)
 
         for i in range(1000):
-            user_token_dbm = UserTokenDBM(user_id=arpakit_user.id)
+            user_token_dbm = UserTokenDBM(user_id=arpakit_user.id, value=str(i))
             session.add(user_token_dbm)
             _logger.info(user_token_dbm)
         session.commit()

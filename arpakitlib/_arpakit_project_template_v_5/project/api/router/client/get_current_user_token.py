@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import fastapi.requests
 from fastapi import APIRouter
 
@@ -13,13 +15,11 @@ class _UserToken1ClientSO(UserToken1ClientSO):
     user: User1ClientSO
 
     @classmethod
-    def from_dbm(cls, *, simple_dbm: UserTokenDBM) -> UserToken1ClientSO:
+    def from_dbm(cls, *, simple_dbm: UserTokenDBM, **kwargs) -> _UserToken1ClientSO:
         simple_dict = simple_dbm.simple_dict(
             include_columns_and_sd_properties=cls.model_fields.keys(),
             kwargs={
-                "user": simple_dbm.user.simple_dict(
-                    include_columns_and_sd_properties=User1ClientSO.model_fields.keys()
-                )
+                "user": User1ClientSO.from_dbm(simple_dbm=simple_dbm.user)
             }
         )
         return cls.model_validate(simple_dict)
