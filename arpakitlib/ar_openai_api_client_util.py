@@ -50,7 +50,14 @@ class OpenAIAPIClient:
             self._logger.error(e)
         return False
 
-    def simple_ask(self, *, prompt: str | None = None, string: str) -> ChatCompletion:
+    def simple_ask(
+            self,
+            *,
+            prompt: str | None = None,
+            content: str,
+            model: str = "gpt-4o",
+            max_tokens: int = 300
+    ) -> ChatCompletion:
         messages = []
         if prompt is not None:
             messages.append({
@@ -59,15 +66,15 @@ class OpenAIAPIClient:
             })
         messages.append({
             "role": "user",
-            "content": string
+            "content": content
         })
         response: ChatCompletion = self.open_ai.chat.completions.create(
-            model="gpt-4o",
+            model=model,
             messages=messages,
             n=1,
             temperature=0.1,
             top_p=0.9,
-            max_tokens=300
+            max_tokens=max_tokens
         )
         return response
 
@@ -121,7 +128,7 @@ async def __async_example():
     print(await client.async_is_conn_good())
 
     response = client.simple_ask(
-        string="Привет, проверяю тебя"
+        content="Привет, проверяю тебя"
     )
     print(response.choices[0].message.content)
 

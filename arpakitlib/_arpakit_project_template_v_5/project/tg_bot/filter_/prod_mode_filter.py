@@ -5,4 +5,4 @@ from project.core.settings import get_cached_settings
 
 class ProdModeTgBotFilter(Filter):
     async def __call__(self, *args, **kwargs) -> bool:
-        return get_cached_settings().is_mode_type_prod
+        return get_cached_settings().prod_mode

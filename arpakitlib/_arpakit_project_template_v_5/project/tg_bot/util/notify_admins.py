@@ -16,7 +16,11 @@ _logger = logging.getLogger(__name__)
 
 
 async def notify_admins(text: str):
-    text = emojize(text.strip())
+    text = emojize(
+        f"<b>Уведомление для администраторов</b>"
+        f"\n\n"
+        f"{text.strip()}"
+    )
 
     admin_tg_ids = set()
 
