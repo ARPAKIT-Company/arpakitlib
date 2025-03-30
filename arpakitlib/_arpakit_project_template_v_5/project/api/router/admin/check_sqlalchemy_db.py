@@ -4,7 +4,7 @@ from fastapi import APIRouter
 from project.api.authorize import require_api_key_dbm_api_authorize_middleware, APIAuthorizeData, \
     require_user_token_dbm_api_authorize_middleware, api_authorize
 from project.api.schema.out.common.error import ErrorCommonSO
-from project.api.schema.out.common.ok import OkSO
+from project.api.schema.out.common.ok import OkCommonSO
 from project.sqlalchemy_db_.sqlalchemy_db import get_cached_sqlalchemy_db
 from project.sqlalchemy_db_.sqlalchemy_model import UserDBM
 
@@ -15,7 +15,7 @@ api_router = APIRouter()
     path="",
     name="Check sqlalchemy db",
     status_code=fastapi.status.HTTP_200_OK,
-    response_model=OkSO | ErrorCommonSO
+    response_model=OkCommonSO | ErrorCommonSO
 )
 async def _(
         *,
@@ -32,4 +32,4 @@ async def _(
         ]))
 ):
     get_cached_sqlalchemy_db().check_conn()
-    return OkSO()
+    return OkCommonSO()

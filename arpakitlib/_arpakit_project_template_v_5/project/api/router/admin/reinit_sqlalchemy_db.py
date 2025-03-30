@@ -5,7 +5,7 @@ from project.api.authorize import APIAuthorizeData, api_authorize, require_user_
     require_not_prod_mode_api_authorize_middleware, \
     require_api_key_dbm_api_authorize_middleware
 from project.api.schema.out.common.error import ErrorCommonSO
-from project.api.schema.out.common.ok import OkSO
+from project.api.schema.out.common.ok import OkCommonSO
 from project.sqlalchemy_db_.sqlalchemy_db import get_cached_sqlalchemy_db
 from project.sqlalchemy_db_.sqlalchemy_model import UserDBM
 
@@ -16,7 +16,7 @@ api_router = APIRouter()
     path="",
     name="Reinit sqlalchemy db",
     status_code=fastapi.status.HTTP_200_OK,
-    response_model=OkSO | ErrorCommonSO,
+    response_model=OkCommonSO | ErrorCommonSO,
 )
 async def _(
         *,
@@ -34,4 +34,4 @@ async def _(
         ]))
 ):
     get_cached_sqlalchemy_db().reinit()
-    return OkSO()
+    return OkCommonSO()

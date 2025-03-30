@@ -4,7 +4,7 @@ from fastapi import APIRouter
 from project.api.authorize import require_api_key_dbm_api_authorize_middleware, APIAuthorizeData, \
     require_user_token_dbm_api_authorize_middleware, api_authorize
 from project.api.schema.out.common.error import ErrorCommonSO
-from project.api.schema.out.common.ok import OkSO
+from project.api.schema.out.common.ok import OkCommonSO
 from project.sqlalchemy_db_.sqlalchemy_model import UserDBM
 from project.test_data.make_test_data_1 import make_test_data_1
 
@@ -15,7 +15,7 @@ api_router = APIRouter()
     path="",
     name="Make test data 1",
     status_code=fastapi.status.HTTP_200_OK,
-    response_model=OkSO | ErrorCommonSO
+    response_model=OkCommonSO | ErrorCommonSO
 )
 def _(
         *,
@@ -32,4 +32,4 @@ def _(
         ]))
 ):
     make_test_data_1()
-    return OkSO()
+    return OkCommonSO()

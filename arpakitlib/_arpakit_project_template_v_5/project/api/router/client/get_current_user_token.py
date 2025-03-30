@@ -5,25 +5,9 @@ from fastapi import APIRouter
 
 from project.api.authorize import APIAuthorizeData, api_authorize, require_user_token_dbm_api_authorize_middleware, \
     require_api_key_dbm_api_authorize_middleware
-from project.api.schema.out.client.user import User1ClientSO
-from project.api.schema.out.client.user_token import UserToken1ClientSO
+from project.api.schema.out.client.complicated_user_token_1 import ComplicatedUserToken1ClientSO
 from project.api.schema.out.common.error import ErrorCommonSO
-from project.sqlalchemy_db_.sqlalchemy_model import UserDBM, UserTokenDBM
-
-
-class _UserToken1ClientSO(UserToken1ClientSO):
-    user: User1ClientSO
-
-    @classmethod
-    def from_dbm(cls, *, simple_dbm: UserTokenDBM, **kwargs) -> _UserToken1ClientSO:
-        simple_dict = simple_dbm.simple_dict(
-            include_columns_and_sd_properties=cls.model_fields.keys(),
-            kwargs={
-                "user": User1ClientSO.from_dbm(simple_dbm=simple_dbm.user)
-            }
-        )
-        return cls.model_validate(simple_dict)
-
+from project.sqlalchemy_db_.sqlalchemy_model import UserDBM
 
 api_router = APIRouter()
 
@@ -32,7 +16,7 @@ api_router = APIRouter()
     "",
     name="Get current user token",
     status_code=fastapi.status.HTTP_200_OK,
-    response_model=_UserToken1ClientSO | ErrorCommonSO,
+    response_model=ComplicatedUserToken1ClientSO | ErrorCommonSO,
 )
 async def _(
         *,
@@ -48,6 +32,6 @@ async def _(
             )
         ]))
 ):
-    return _UserToken1ClientSO.from_dbm(
+    return ComplicatedUserToken1ClientSO.from_dbm(
         simple_dbm=api_auth_data.user_token_dbm
     )
