@@ -3,7 +3,6 @@ from typing import Any
 import fastapi
 from fastapi import APIRouter
 
-from arpakitlib.ar_type_util import NotSet, is_set
 from project.api.authorize import require_api_key_dbm_api_authorize_middleware, \
     require_user_token_dbm_api_authorize_middleware, APIAuthorizeData, api_authorize
 from project.api.schema.common import BaseSI
@@ -14,10 +13,10 @@ from project.sqlalchemy_db_.sqlalchemy_model import UserDBM, OperationDBM
 
 
 class _CreateOperationAdminSI(BaseSI):
-    slug: str | None = NotSet
+    slug: str | None = None
     type: str
-    title: str | None = NotSet
-    input_data: dict[str, Any] = NotSet
+    title: str | None = None
+    input_data: dict[str, Any] = None
 
 
 api_router = APIRouter()
@@ -48,23 +47,17 @@ async def _(
         status=OperationDBM.Statuses.waiting_for_execution
     )
 
-    if is_set(create_operation_admin_si.slug):
+    if "slug" in create_operation_admin_si.model_fields_set:
         operation_dbm.slug = create_operation_admin_si.slug
-    else:
-        operation_dbm.slug = None
 
-    if is_set(create_operation_admin_si.type):
+    if "type" in create_operation_admin_si.model_fields_set:
         operation_dbm.type = create_operation_admin_si.type
 
-    if is_set(create_operation_admin_si.title):
+    if "title" in create_operation_admin_si.model_fields_set:
         operation_dbm.title = create_operation_admin_si.title
-    else:
-        operation_dbm.title = None
 
-    if is_set(create_operation_admin_si.input_data):
+    if "input_data" in create_operation_admin_si.model_fields_set:
         operation_dbm.input_data = create_operation_admin_si.input_data
-    else:
-        operation_dbm.input_data = {}
 
     async with get_cached_sqlalchemy_db().new_async_session() as async_session:
         async_session.add(operation_dbm)

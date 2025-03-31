@@ -1,12 +1,13 @@
 import asyncio
 
+from pydantic import BaseModel
+
 from project.sqlalchemy_db_.sqlalchemy_db import get_cached_sqlalchemy_db
 from project.sqlalchemy_db_.sqlalchemy_model import ApiKeyDBM
 
 
 def __sandbox():
-    with get_cached_sqlalchemy_db().new_session() as session:
-        ApiKeyDBM()
+    pass
 
 
 async def __async_sandbox():
