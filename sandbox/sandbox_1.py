@@ -2,7 +2,8 @@ import asyncio
 
 
 def __sandbox():
-    pass
+    a = ["asfaf"]
+    print(" and ".join(a))
 
 
 async def __async_sandbox():
