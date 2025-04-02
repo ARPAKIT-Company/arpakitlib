@@ -231,7 +231,7 @@ class ZabbixApiClient:
             host_ids: Optional[list[str | int]] = None,
             item_ids: Optional[list[str | int]] = None,
             limit: Optional[int] = None,
-            history: int = 0,
+            history: int | None = None,
             time_from: Optional[datetime] = None,
             time_till: Optional[datetime] = None
     ) -> list[dict[str, Any]]:
