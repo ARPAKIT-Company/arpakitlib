@@ -265,7 +265,7 @@ class ZabbixApiClient:
                 clock_ns_as_datetime = datetime.fromtimestamp(int(history["clock"]))
                 if "ns" in history.keys():
                     clock_ns_as_datetime += timedelta(microseconds=int(history["ns"]) / 1000)
-                    history["dt"] = clock_ns_as_datetime
+                    history["dt"] = clock_ns_as_datetime.isoformat()
                     history["assembled_key"] = (
                         f"{history["clock"]}_{history["ns"]}_{history["value"]}_{history["itemid"]}"
                     )
