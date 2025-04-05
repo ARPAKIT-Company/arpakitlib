@@ -1,6 +1,6 @@
 # arpakit
 
-from typing import Optional
+from typing import Optional, Any
 
 import markdown
 from bs4 import BeautifulSoup
@@ -121,6 +121,36 @@ def strip_if_not_none(v: str | None) -> str | None:
     if v is None:
         return v
     return v.strip()
+
+
+def strip_or_none(value: Any):
+    if isinstance(value, str):
+        value = value.strip()
+        if not value:
+            return None
+        return value
+    return None
+
+
+def lower_and_strip_or_none(value: Any) -> str | None:
+    value = strip_or_none(value)
+    if isinstance(value, str):
+        return value.lower().strip()
+    return None
+
+
+def float_or_none(value: Any) -> float | int | None:
+    value = strip_or_none(value)
+    if value is not None and (value.isdigit() or value.isdecimal()):
+        return float(value)
+    return None
+
+
+def int_or_none(value: Any) -> int | None:
+    value = strip_or_none(value)
+    if value is not None and value.isdigit():
+        return int(value)
+    return None
 
 
 def __example():
