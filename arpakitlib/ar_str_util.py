@@ -139,21 +139,38 @@ def lower_and_strip_or_none(value: Any) -> str | None:
     return None
 
 
-def float_or_none(value: Any) -> float | int | None:
+def int_or_float_or_none(value: Any) -> float | int | None:
+    if isinstance(value, float) or isinstance(value, int):
+        return value
     value = strip_or_none(value)
-    if value is not None and (value.isdigit() or value.isdecimal()):
+    if value is not None and value.isdigit():
+        return int(value)
+    if value is not None and value.isdecimal():
         return float(value)
     return None
 
 
 def int_or_none(value: Any) -> int | None:
+    if isinstance(value, int):
+        return value
     value = strip_or_none(value)
     if value is not None and value.isdigit():
         return int(value)
     return None
 
 
+def float_or_none(value: Any) -> float | None:
+    if isinstance(value, float):
+        return value
+    value = strip_or_none(value)
+    if value is not None and value.isdecimal():
+        return float(value)
+    return None
+
+
 def __example():
+    print(int_or_none("124.124"))
+
     print("str_in:")
     print(str_in(string="hello", main_string="hello world"))
     print(str_in(string="bye", main_string="hello world"))
