@@ -7,6 +7,7 @@ import uuid
 from typing import Optional, Union, Iterator
 
 from arpakitlib.ar_datetime_util import now_utc_dt
+from arpakitlib.ar_str_util import none_if_blank
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
 
@@ -57,11 +58,17 @@ class FileStorageInDir:
     ) -> str:
         self.init()
 
+        filename = none_if_blank(filename)
+
         if filename is not None:
+            if add_datetime_in_filename:
+                filename = f"{filename}--{now_utc_dt().isoformat()}"
             if file_extension is not None:
                 filename += f".{file_extension}"
         else:
             filename = str(uuid.uuid4())
+            if add_datetime_in_filename:
+                filename = f"{filename}--{now_utc_dt().isoformat()}"
             if file_extension is not None:
                 filename += f".{file_extension}"
             while filename in os.listdir(self.dirpath):
@@ -71,9 +78,6 @@ class FileStorageInDir:
 
         if raise_if_exists and filename in os.listdir(self.dirpath):
             raise ValueError(f"file ({filename}) already exists")
-
-        if add_datetime_in_filename:
-            filename = f"{filename}--{now_utc_dt().isoformat()}"
 
         filepath = os.path.join(self.dirpath, filename)
 
