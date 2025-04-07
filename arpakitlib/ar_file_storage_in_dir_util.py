@@ -62,13 +62,13 @@ class FileStorageInDir:
 
         if filename is not None:
             if add_datetime_in_filename:
-                filename = f"{filename}--{now_utc_dt().isoformat()}"
+                filename = f"{now_utc_dt().isoformat()}--{filename}"
             if file_extension is not None:
                 filename += f".{file_extension}"
         else:
             filename = str(uuid.uuid4())
             if add_datetime_in_filename:
-                filename = f"{filename}--{now_utc_dt().isoformat()}"
+                filename = f"{now_utc_dt().isoformat()}--{filename}"
             if file_extension is not None:
                 filename += f".{file_extension}"
             while filename in os.listdir(self.dirpath):
