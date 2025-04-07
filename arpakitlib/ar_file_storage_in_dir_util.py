@@ -6,6 +6,8 @@ import shutil
 import uuid
 from typing import Optional, Union, Iterator
 
+from arpakitlib.ar_datetime_util import now_utc_dt
+
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
 
 
@@ -50,7 +52,8 @@ class FileStorageInDir:
             file_extension: Optional[str] = None,
             content_to_write: Optional[Union[str, bytes]] = None,
             create: bool = False,
-            raise_if_exists: bool = True
+            raise_if_exists: bool = True,
+            add_datetime_in_filename: bool = False
     ) -> str:
         self.init()
 
@@ -68,6 +71,9 @@ class FileStorageInDir:
 
         if raise_if_exists and filename in os.listdir(self.dirpath):
             raise ValueError(f"file ({filename}) already exists")
+
+        if add_datetime_in_filename:
+            filename = f"{filename}--{now_utc_dt().isoformat()}"
 
         filepath = os.path.join(self.dirpath, filename)
 
