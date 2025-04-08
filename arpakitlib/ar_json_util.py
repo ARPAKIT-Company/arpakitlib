@@ -1,11 +1,9 @@
 # arpakit
 
 import json
-from typing import Any
+from typing import Any, Iterable
 
 import orjson
-
-from arpakitlib.ar_datetime_util import now_utc_dt
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
 
@@ -49,18 +47,41 @@ def transfer_json_str_to_data_to_json_str(
     )
 
 
+def iter_write_json(
+        *,
+        filepath: str,
+        dict_iterable: Iterable[dict],
+        beautify: bool = False
+):
+    with open(filepath, "w", encoding="utf-8") as f:
+        if beautify:
+            f.write("[\n")
+        else:
+            f.write("[")
+        first_item = True
+
+        for dict_ in dict_iterable:
+            if not first_item:
+                if beautify:
+                    f.write(",\n")
+                else:
+                    f.write(",")
+            if beautify:
+                json.dump(dict_, f, ensure_ascii=False, indent=2)
+            else:
+                json.dump(dict_, f, ensure_ascii=False)
+            first_item = False
+
+        if beautify:
+            f.write("\n]")
+        else:
+            f.write("]")
+
+    return filepath
+
+
 def __example():
-    res = {str(k): v * "123" for k, v in enumerate(list(range(90000)))}
-
-    print("---")
-
-    now = now_utc_dt()
-    transfer_data_to_json_str(data=res, beautify=True, fast=False)
-    print(now_utc_dt() - now)
-
-    now = now_utc_dt()
-    transfer_data_to_json_str(data=res, fast=True)
-    print(now_utc_dt() - now)
+    pass
 
 
 if __name__ == '__main__':
