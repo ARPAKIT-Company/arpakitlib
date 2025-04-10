@@ -45,7 +45,6 @@ def get_client_tg_bot_commands_to_set() -> list[BotCommand]:
                 ClientTgBotCommands.author
             )
         )
-
     ]
     return res
 

@@ -13,6 +13,7 @@ class ClientTgBotBlank(SimpleBlankTgBot):
             ClientTgBotCommands.about: emojize(":information: О проекте"),
             ClientTgBotCommands.author: emojize(":bust_in_silhouette: Авторы"),
             ClientTgBotCommands.support: emojize(":red_heart: Поддержка"),
+            ClientTgBotCommands.cancel: emojize(":right_arrow_curving_left: Отмена"),
         }
 
     def but_hello_world(self) -> str:
@@ -54,6 +55,10 @@ class ClientTgBotBlank(SimpleBlankTgBot):
 
     def keyboard_is_old(self) -> str:
         res = ":information: Эта клавиатура устарела :information:"
+        return emojize(res.strip())
+
+    def cancel(self) -> str:
+        res = ":right_arrow_curving_left: <b>Отмена</b>"
         return emojize(res.strip())
 
 

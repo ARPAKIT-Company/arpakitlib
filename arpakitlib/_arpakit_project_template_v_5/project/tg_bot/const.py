@@ -8,6 +8,7 @@ class ClientTgBotCommands(Enumeration):
     support = "support"
     healthcheck = "healthcheck"
     hello_world = "hello_world"
+    cancel = "cancel"
 
 
 class AdminTgBotCommands(Enumeration):

@@ -4,7 +4,7 @@ from project.tg_bot.router.admin import reinit_sqlalchemy_db, arpakitlib_project
     log_file, clear_log_file, set_tg_bot_commands, init_sqlalchemy_db, drop_sqlalchemy_db, kb_with_remove_message, \
     kb_with_old_cd, kb_with_raise_error, kb_with_not_modified
 from project.tg_bot.router.client import remove_message, start, about, healthcheck, hello_world, \
-    support, error_handler, raw_callback_query, raw_message, raw_inline_query, author
+    support, error_handler, raw_callback_query, raw_message, raw_inline_query, author, cancel
 
 main_tg_bot_router = Router()
 
@@ -32,6 +32,7 @@ main_tg_bot_router.include_router(router=healthcheck.tg_bot_router)
 main_tg_bot_router.include_router(router=hello_world.tg_bot_router)
 main_tg_bot_router.include_router(router=support.tg_bot_router)
 main_tg_bot_router.include_router(router=author.tg_bot_router)
+main_tg_bot_router.include_router(router=cancel.tg_bot_router)
 main_tg_bot_router.include_router(router=raw_message.tg_bot_router)
 main_tg_bot_router.include_router(router=raw_inline_query.tg_bot_router)
 main_tg_bot_router.include_router(router=raw_callback_query.tg_bot_router)
