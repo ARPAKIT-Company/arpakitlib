@@ -16,10 +16,6 @@ class ClientTgBotBlank(SimpleBlankTgBot):
             ClientTgBotCommands.cancel: emojize(":right_arrow_curving_left: Отмена"),
         }
 
-    def but_hello_world(self) -> str:
-        res = "hello_world"
-        return emojize(res.strip())
-
     def but_support(self) -> str:
         res = ":red_heart: Поддержка"
         return emojize(res.strip())

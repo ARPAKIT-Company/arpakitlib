@@ -8,6 +8,10 @@ from project.tg_bot.blank.common import SimpleBlankTgBot
 
 
 class AdminTgBotBlank(SimpleBlankTgBot):
+    def but_hello_world(self) -> str:
+        res = "hello_world"
+        return emojize(res.strip())
+
     def good(self) -> str:
         res = "Good"
         return emojize(res.strip())

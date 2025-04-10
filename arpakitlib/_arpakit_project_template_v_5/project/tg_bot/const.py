@@ -7,7 +7,6 @@ class ClientTgBotCommands(Enumeration):
     author = "author"
     support = "support"
     healthcheck = "healthcheck"
-    hello_world = "hello_world"
     cancel = "cancel"
 
 
@@ -26,6 +25,7 @@ class AdminTgBotCommands(Enumeration):
     kb_with_raise_error = "kb_with_raise_error"
     kb_with_remove_message = "kb_with_remove_message"
     current_state = "current_state"
+    hello_world = "hello_world"
 
 
 def __example():
