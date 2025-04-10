@@ -3,6 +3,7 @@ import logging
 import aiogram
 from aiogram import Router
 from aiogram.exceptions import TelegramBadRequest
+from aiogram.fsm.context import FSMContext
 
 from arpakitlib.ar_exception_util import exception_to_traceback_str
 from project.sqlalchemy_db_.sqlalchemy_db import get_cached_sqlalchemy_db
@@ -18,9 +19,12 @@ tg_bot_router = Router()
 @tg_bot_router.error()
 async def _(
         error_event: aiogram.types.ErrorEvent,
+        state: FSMContext,
         middleware_data_tg_bot: MiddlewareDataTgBot,
         **kwargs
 ):
+    await state.clear()
+
     need_logging = True
     need_create_story_log = True
 
