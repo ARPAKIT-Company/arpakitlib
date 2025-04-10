@@ -2,7 +2,7 @@ import aiogram
 from aiogram.fsm.storage.memory import MemoryStorage
 
 from project.tg_bot.event import add_events_to_tg_bot_dispatcher
-from project.tg_bot.middleware.middleware import register_middlewares_to_tg_bot
+from project.tg_bot.middleware.uil import register_middlewares_to_tg_bot
 from project.tg_bot.router.main_router import main_tg_bot_router
 
 

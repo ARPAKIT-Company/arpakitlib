@@ -3,16 +3,16 @@ from functools import lru_cache
 from emoji import emojize
 
 from project.tg_bot.blank.common import SimpleBlankTgBot
-from project.tg_bot.const import GeneralTgBotCommands
+from project.tg_bot.const import ClientTgBotCommands
 
 
 class ClientTgBotBlank(SimpleBlankTgBot):
     def command_to_desc(self) -> dict[str, str]:
         return {
-            GeneralTgBotCommands.start: emojize(":waving_hand: Начать"),
-            GeneralTgBotCommands.about: emojize(":information: О проекте"),
-            GeneralTgBotCommands.author: emojize(":bust_in_silhouette: Авторы"),
-            GeneralTgBotCommands.support: emojize(":red_heart: Поддержка"),
+            ClientTgBotCommands.start: emojize(":waving_hand: Начать"),
+            ClientTgBotCommands.about: emojize(":information: О проекте"),
+            ClientTgBotCommands.author: emojize(":bust_in_silhouette: Авторы"),
+            ClientTgBotCommands.support: emojize(":red_heart: Поддержка"),
         }
 
     def but_hello_world(self) -> str:
@@ -20,13 +20,9 @@ class ClientTgBotBlank(SimpleBlankTgBot):
         return emojize(res.strip())
 
     def error(self) -> str:
-        res = ":warning: <b>Произошла неполадка</b> :warning:"
-        res += "\n\n:wrench: Мы уже работаем над исправлением"
-        res += "\n\n:red_heart: Просим прощения :red_heart:"
-        return emojize(res.strip())
-
-    def hello_world(self) -> str:
-        res = ":waving_hand: <b>Hello world</b> :waving_hand:"
+        res = ":warning: <b>Упс! Что-то пошло не так...</b> :warning:"
+        res += "\n\n:wrench:  Мы уже работаем над решением проблемы"
+        res += "\n\n:red_heart: Приносим извинения за неудобства :red_heart:"
         return emojize(res.strip())
 
     def healthcheck(self) -> str:

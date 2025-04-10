@@ -12,7 +12,7 @@ class UserRolesHasClientTgBotFilter(Filter):
             middleware_data_tg_bot: MiddlewareDataTgBot,
             **kwargs
     ) -> bool:
-        if middleware_data_tg_bot.user_dbm is not None:
-            if middleware_data_tg_bot.user_dbm.roles_has_client:
+        if middleware_data_tg_bot.current_user_dbm is not None:
+            if middleware_data_tg_bot.current_user_dbm.roles_has_client:
                 return True
         return False

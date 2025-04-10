@@ -4,7 +4,7 @@ from aiogram.filters import or_f
 from arpakitlib.ar_str_util import remove_html
 from project.tg_bot.blank.client import get_cached_client_tg_bot_blank
 from project.tg_bot.callback.client import HelloWorldClientCD
-from project.tg_bot.const import GeneralTgBotCommands
+from project.tg_bot.const import ClientTgBotCommands
 from project.tg_bot.filter_.message_text import MessageTextTgBotFilter
 from project.tg_bot.kb.inline_.client.hello_world import hello_world_client_inline_kb_tg_bot
 from project.tg_bot.kb.static_.client.hello_world import hello_world_client_static_kb_tg_bot
@@ -15,7 +15,7 @@ tg_bot_router = aiogram.Router()
 
 @tg_bot_router.message(
     or_f(
-        aiogram.filters.Command(GeneralTgBotCommands.hello_world),
+        aiogram.filters.Command(ClientTgBotCommands.hello_world),
         MessageTextTgBotFilter(get_cached_client_tg_bot_blank().but_hello_world())
     ),
 

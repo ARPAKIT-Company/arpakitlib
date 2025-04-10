@@ -9,7 +9,7 @@ from project.core.util import setup_logging
 from project.sqlalchemy_db_.sqlalchemy_db import get_cached_sqlalchemy_db
 from project.sqlalchemy_db_.sqlalchemy_model import UserDBM
 from project.tg_bot.blank.client import get_cached_client_tg_bot_blank
-from project.tg_bot.const import GeneralTgBotCommands, AdminTgBotCommands
+from project.tg_bot.const import ClientTgBotCommands, AdminTgBotCommands
 from project.tg_bot.tg_bot import get_cached_tg_bot
 
 _logger = logging.getLogger(__name__)
@@ -18,31 +18,31 @@ _logger = logging.getLogger(__name__)
 def get_client_tg_bot_commands_to_set() -> list[BotCommand]:
     res = [
         BotCommand(
-            command=GeneralTgBotCommands.start,
+            command=ClientTgBotCommands.start,
             description=return_str_if_none(
-                get_cached_client_tg_bot_blank().command_to_desc().get(GeneralTgBotCommands.start),
-                GeneralTgBotCommands.start
+                get_cached_client_tg_bot_blank().command_to_desc().get(ClientTgBotCommands.start),
+                ClientTgBotCommands.start
             )
         ),
         BotCommand(
-            command=GeneralTgBotCommands.about,
+            command=ClientTgBotCommands.about,
             description=return_str_if_none(
-                get_cached_client_tg_bot_blank().command_to_desc().get(GeneralTgBotCommands.about),
-                GeneralTgBotCommands.about
+                get_cached_client_tg_bot_blank().command_to_desc().get(ClientTgBotCommands.about),
+                ClientTgBotCommands.about
             )
         ),
         BotCommand(
-            command=GeneralTgBotCommands.support,
+            command=ClientTgBotCommands.support,
             description=return_str_if_none(
-                get_cached_client_tg_bot_blank().command_to_desc().get(GeneralTgBotCommands.support),
-                GeneralTgBotCommands.support
+                get_cached_client_tg_bot_blank().command_to_desc().get(ClientTgBotCommands.support),
+                ClientTgBotCommands.support
             )
         ),
         BotCommand(
-            command=GeneralTgBotCommands.author,
+            command=ClientTgBotCommands.author,
             description=return_str_if_none(
-                get_cached_client_tg_bot_blank().command_to_desc().get(GeneralTgBotCommands.author),
-                GeneralTgBotCommands.author
+                get_cached_client_tg_bot_blank().command_to_desc().get(ClientTgBotCommands.author),
+                ClientTgBotCommands.author
             )
         )
 

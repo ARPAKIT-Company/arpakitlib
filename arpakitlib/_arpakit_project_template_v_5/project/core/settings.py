@@ -152,6 +152,8 @@ class Settings(SimpleSettings):
 
     tg_bot_admin_tg_ids: list[int] = [269870432]
 
+    tg_bot_set_commands: bool = True
+
     var_dirpath: str | None = os.path.join(ProjectPaths.base_dirpath, "var")
 
     log_filepath: str | None = os.path.join(var_dirpath, "story.log")

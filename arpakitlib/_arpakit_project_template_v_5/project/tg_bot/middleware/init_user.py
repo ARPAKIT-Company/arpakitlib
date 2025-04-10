@@ -47,38 +47,38 @@ class InitUserTgBotMiddleware(BaseMiddleware):
 
         if tg_user is not None and get_cached_sqlalchemy_db() is not None:
             async with get_cached_sqlalchemy_db().new_async_session() as async_session:
-                middleware_data_tg_bot.user_dbm = await async_session.scalar(
+                middleware_data_tg_bot.current_user_dbm = await async_session.scalar(
                     sqlalchemy.select(UserDBM).filter(UserDBM.tg_id == tg_user.id)
                 )
-                if middleware_data_tg_bot.user_dbm is None:
+                if middleware_data_tg_bot.current_user_dbm is None:
                     roles = [UserDBM.Roles.client]
                     if tg_user.id in get_cached_settings().tg_bot_admin_tg_ids:
                         roles.append(UserDBM.Roles.admin)
-                    middleware_data_tg_bot.user_dbm = UserDBM(
+                    middleware_data_tg_bot.current_user_dbm = UserDBM(
                         creation_dt=now_utc_dt_,
                         roles=roles,
                         tg_id=tg_user.id,
                         tg_data=tg_user.model_dump(mode="json"),
                         tg_bot_last_action_dt=now_utc_dt_
                     )
-                    async_session.add(middleware_data_tg_bot.user_dbm)
+                    async_session.add(middleware_data_tg_bot.current_user_dbm)
                     await async_session.commit()
-                    await async_session.refresh(middleware_data_tg_bot.user_dbm)
-                    middleware_data_tg_bot.user_dbm_just_created = True
-                    _logger.info(f"user_dbm was added, {middleware_data_tg_bot.user_dbm}")
+                    await async_session.refresh(middleware_data_tg_bot.current_user_dbm)
+                    middleware_data_tg_bot.current_user_dbm_just_created = True
+                    _logger.info(f"user_dbm was added, {middleware_data_tg_bot.current_user_dbm}")
                 else:
-                    middleware_data_tg_bot.user_dbm.tg_data = tg_user.model_dump(mode="json")
-                    middleware_data_tg_bot.user_dbm.tg_bot_last_action_dt = now_utc_dt_
+                    middleware_data_tg_bot.current_user_dbm.tg_data = tg_user.model_dump(mode="json")
+                    middleware_data_tg_bot.current_user_dbm.tg_bot_last_action_dt = now_utc_dt_
                     if (
                             tg_user.id in get_cached_settings().tg_bot_admin_tg_ids
-                            and UserDBM.Roles.admin not in middleware_data_tg_bot.user_dbm.roles
+                            and UserDBM.Roles.admin not in middleware_data_tg_bot.current_user_dbm.roles
                     ):
-                        middleware_data_tg_bot.user_dbm.roles = (
-                                middleware_data_tg_bot.user_dbm.roles + [UserDBM.Roles.admin]
+                        middleware_data_tg_bot.current_user_dbm.roles = (
+                                middleware_data_tg_bot.current_user_dbm.roles + [UserDBM.Roles.admin]
                         )
                     await async_session.commit()
-                    await async_session.refresh(middleware_data_tg_bot.user_dbm)
-                    middleware_data_tg_bot.user_dbm_just_created = False
+                    await async_session.refresh(middleware_data_tg_bot.current_user_dbm)
+                    middleware_data_tg_bot.current_user_dbm_just_created = False
 
         _logger.info("finish")
 

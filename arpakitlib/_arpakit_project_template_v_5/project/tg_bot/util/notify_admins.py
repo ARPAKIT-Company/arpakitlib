@@ -1,5 +1,6 @@
 import asyncio
 import logging
+from datetime import timedelta
 
 import sqlalchemy
 from aiogram.exceptions import AiogramError
@@ -17,7 +18,7 @@ _logger = logging.getLogger(__name__)
 
 async def notify_admins(text: str):
     text = emojize(
-        f"<b>Уведомление для администраторов</b>"
+        f"<b>Notification for admin</b>"
         f"\n\n"
         f"{text.strip()}"
     )
@@ -39,14 +40,16 @@ async def notify_admins(text: str):
         try:
             await get_cached_tg_bot().send_message(
                 chat_id=admin_tg_id,
-                text=text
+                text=text,
+                request_timeout=int(timedelta(seconds=3).total_seconds())
             )
         except AiogramError as exception:
             _logger.error(exception)
             try:
                 await get_cached_tg_bot().send_message(
                     chat_id=admin_tg_id,
-                    text=remove_tags_and_html(text)
+                    text=remove_tags_and_html(text),
+                    request_timeout=int(timedelta(seconds=3).total_seconds())
                 )
             except AiogramError as exception:
                 _logger.error(exception)

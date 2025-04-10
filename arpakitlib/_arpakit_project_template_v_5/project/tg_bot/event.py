@@ -1,9 +1,11 @@
+import asyncio
 import logging
 from typing import Callable
 
 from aiogram import Dispatcher
 
 from arpakitlib.ar_base_worker_util import safe_run_worker_in_background, SafeRunInBackgroundModes
+from arpakitlib.ar_datetime_util import now_utc_dt
 from project.core.cache_file_storage_in_dir import get_cached_cache_file_storage_in_dir
 from project.core.dump_file_storage_in_dir import get_cached_dump_file_storage_in_dir
 from project.core.media_file_storage_in_dir import get_cached_media_file_storage_in_dir
@@ -13,6 +15,8 @@ from project.operation_execution.operation_executor_worker import create_operati
 from project.operation_execution.scheduled_operation_creator_worker import create_scheduled_operation_creator_worker
 from project.sqlalchemy_db_.sqlalchemy_db import get_cached_sqlalchemy_db
 from project.tg_bot.tg_bot import get_cached_tg_bot
+from project.tg_bot.util.notify_admins import notify_admins
+from project.tg_bot.util.set_tg_bot_commands import set_all_tg_bot_commands
 
 _logger = logging.getLogger(__name__)
 
@@ -22,6 +26,8 @@ _logger = logging.getLogger(__name__)
 
 async def startup_tg_bot_event():
     _logger.info("start")
+
+    _ = asyncio.create_task(notify_admins(text=f"Start\n{now_utc_dt().isoformat()}"))
 
     if get_cached_media_file_storage_in_dir() is not None:
         get_cached_media_file_storage_in_dir().init()
@@ -43,6 +49,9 @@ async def startup_tg_bot_event():
             and get_cached_settings().tg_bot_init_json_db
     ):
         get_cached_json_db().init()
+
+    if get_cached_settings().tg_bot_set_commands:
+        await set_all_tg_bot_commands()
 
     if get_cached_settings().tg_bot_drop_pending_updates:
         await get_cached_tg_bot().delete_webhook(drop_pending_updates=True)
@@ -89,6 +98,8 @@ async def shutdown_tg_bot_event(*args, **kwargs):
     if get_cached_settings().tg_bot_webhook_enabled:
         await get_cached_tg_bot().delete_webhook(drop_pending_updates=True)
 
+    await notify_admins(text=f"Finish\n{now_utc_dt().isoformat()}")
+
     _logger.info("finish")
 
 
@@ -97,7 +108,7 @@ def get_shutdown_tg_bot_events() -> list[Callable]:
     return res
 
 
-#
+# MAIN
 
 
 def add_events_to_tg_bot_dispatcher(*, tg_bot_dispatcher: Dispatcher):

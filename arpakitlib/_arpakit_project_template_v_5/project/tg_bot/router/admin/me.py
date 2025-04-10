@@ -21,4 +21,4 @@ async def _(
         middleware_data_tg_bot: MiddlewareDataTgBot,
         **kwargs
 ):
-    await m.answer(text=get_cached_admin_tg_bot_blank().user_dbm(user_dbm=middleware_data_tg_bot.user_dbm))
+    await m.answer(text=get_cached_admin_tg_bot_blank().user_dbm(user_dbm=middleware_data_tg_bot.current_user_dbm))

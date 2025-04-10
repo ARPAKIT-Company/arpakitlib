@@ -5,7 +5,7 @@ from aiogram import Router
 from aiogram.filters import Command, or_f
 
 from project.tg_bot.blank.client import get_cached_client_tg_bot_blank
-from project.tg_bot.const import GeneralTgBotCommands
+from project.tg_bot.const import ClientTgBotCommands
 from project.tg_bot.filter_.message_text import MessageTextTgBotFilter
 from project.tg_bot.middleware.common import MiddlewareDataTgBot
 
@@ -15,16 +15,20 @@ _logger = logging.getLogger(__name__)
 
 @tg_bot_router.message(
     or_f(
-        Command(GeneralTgBotCommands.about),
+        Command(ClientTgBotCommands.start),
         MessageTextTgBotFilter([
-            GeneralTgBotCommands.about,
-            "о проекте"
+            ClientTgBotCommands.start,
+            "начать",
+            "старт",
+            "привет",
+            "запуск",
         ], ignore_case=True)
     ),
+
 )
 async def _(
         m: aiogram.types.Message,
         middleware_data_tg_bot: MiddlewareDataTgBot,
         **kwargs
 ):
-    await m.answer(text=get_cached_client_tg_bot_blank().about())
+    await m.answer(text=get_cached_client_tg_bot_blank().welcome())
