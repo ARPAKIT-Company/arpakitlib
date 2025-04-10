@@ -5,5 +5,5 @@ class HelloWorldClientCD(BaseCD):
     hello_world: bool = True
 
 
-class RemoveMessageCD(BaseCD):
+class RemoveMessageClientCD(BaseCD):
     pass

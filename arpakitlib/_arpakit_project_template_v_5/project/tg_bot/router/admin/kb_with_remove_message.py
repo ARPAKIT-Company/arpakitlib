@@ -4,7 +4,7 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from arpakitlib.ar_aiogram_util import as_tg_command
 from project.tg_bot.blank.admin import get_cached_eng_admin_tg_bot_blank
-from project.tg_bot.callback.client import RemoveMessageCD
+from project.tg_bot.callback.client import RemoveMessageClientCD
 from project.tg_bot.const import AdminTgBotCommands
 from project.tg_bot.filter_.is_private_chat import IsPrivateChatTgBotFilter
 from project.tg_bot.filter_.user_roles_has_admin import UserRolesHasAdminTgBotFilter
@@ -27,7 +27,7 @@ async def _(
     kb_builder = InlineKeyboardBuilder()
     kb_builder.row(InlineKeyboardButton(
         text="Remove",
-        callback_data=RemoveMessageCD().pack()
+        callback_data=RemoveMessageClientCD().pack()
     ))
     await m.answer(
         text=get_cached_eng_admin_tg_bot_blank().good(),
