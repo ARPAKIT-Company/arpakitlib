@@ -20,6 +20,8 @@ lerna-debug.log*
 *.sln
 *.sw?
 *_ardb
+*.pem
+*.tsbuildinfo
 
 # dirs
 media
@@ -49,6 +51,18 @@ bar
 cache_dir
 cachedir
 config
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+/coverage
+/.next/
+/out/
+/build
+/.vercel
 
 # files
 .env
@@ -63,3 +77,5 @@ test.py
 test.sh
 playground.py
 story.log
+.env.local
+next-env.d.ts
