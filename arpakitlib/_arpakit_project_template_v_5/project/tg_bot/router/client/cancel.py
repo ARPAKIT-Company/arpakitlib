@@ -5,7 +5,7 @@ from aiogram import Router
 from aiogram.filters import Command, or_f
 from aiogram.fsm.context import FSMContext
 
-from project.tg_bot.blank.client import get_cached_client_tg_bot_blank
+from project.tg_bot.blank.client import get_cached_rus_client_tg_bot_blank
 from project.tg_bot.const import ClientTgBotCommands
 from project.tg_bot.filter_.message_text import MessageTextTgBotFilter
 from project.tg_bot.middleware.common import MiddlewareDataTgBot
@@ -30,4 +30,4 @@ async def _(
         **kwargs
 ):
     await state.clear()
-    await m.answer(text=get_cached_client_tg_bot_blank().cancel())
+    await m.answer(text=get_cached_rus_client_tg_bot_blank().cancel())

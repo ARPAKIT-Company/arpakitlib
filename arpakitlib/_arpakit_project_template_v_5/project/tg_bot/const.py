@@ -25,6 +25,7 @@ class AdminTgBotCommands(Enumeration):
     kb_with_not_modified = "kb_with_not_modified"
     kb_with_raise_error = "kb_with_raise_error"
     kb_with_remove_message = "kb_with_remove_message"
+    current_state = "current_state"
 
 
 def __example():

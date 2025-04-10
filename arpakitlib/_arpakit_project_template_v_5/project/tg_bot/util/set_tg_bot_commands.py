@@ -8,7 +8,7 @@ from project.core.settings import get_cached_settings
 from project.core.util import setup_logging
 from project.sqlalchemy_db_.sqlalchemy_db import get_cached_sqlalchemy_db
 from project.sqlalchemy_db_.sqlalchemy_model import UserDBM
-from project.tg_bot.blank.client import get_cached_client_tg_bot_blank
+from project.tg_bot.blank.client import get_cached_rus_client_tg_bot_blank
 from project.tg_bot.const import ClientTgBotCommands, AdminTgBotCommands
 from project.tg_bot.tg_bot import get_cached_tg_bot
 
@@ -20,28 +20,28 @@ def get_client_tg_bot_commands_to_set() -> list[BotCommand]:
         BotCommand(
             command=ClientTgBotCommands.start,
             description=return_str_if_none(
-                get_cached_client_tg_bot_blank().command_to_desc().get(ClientTgBotCommands.start),
+                get_cached_rus_client_tg_bot_blank().command_to_desc().get(ClientTgBotCommands.start),
                 ClientTgBotCommands.start
             )
         ),
         BotCommand(
             command=ClientTgBotCommands.about,
             description=return_str_if_none(
-                get_cached_client_tg_bot_blank().command_to_desc().get(ClientTgBotCommands.about),
+                get_cached_rus_client_tg_bot_blank().command_to_desc().get(ClientTgBotCommands.about),
                 ClientTgBotCommands.about
             )
         ),
         BotCommand(
             command=ClientTgBotCommands.support,
             description=return_str_if_none(
-                get_cached_client_tg_bot_blank().command_to_desc().get(ClientTgBotCommands.support),
+                get_cached_rus_client_tg_bot_blank().command_to_desc().get(ClientTgBotCommands.support),
                 ClientTgBotCommands.support
             )
         ),
         BotCommand(
             command=ClientTgBotCommands.author,
             description=return_str_if_none(
-                get_cached_client_tg_bot_blank().command_to_desc().get(ClientTgBotCommands.author),
+                get_cached_rus_client_tg_bot_blank().command_to_desc().get(ClientTgBotCommands.author),
                 ClientTgBotCommands.author
             )
         )

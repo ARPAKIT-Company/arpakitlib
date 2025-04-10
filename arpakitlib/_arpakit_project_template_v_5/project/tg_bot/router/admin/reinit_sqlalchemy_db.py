@@ -5,7 +5,7 @@ from aiogram.filters import Command
 from arpakitlib.ar_aiogram_util import as_tg_command
 from project.core.settings import get_cached_settings
 from project.sqlalchemy_db_.sqlalchemy_db import get_cached_sqlalchemy_db
-from project.tg_bot.blank.admin import get_cached_admin_tg_bot_blank
+from project.tg_bot.blank.admin import get_cached_eng_admin_tg_bot_blank
 from project.tg_bot.const import AdminTgBotCommands
 from project.tg_bot.filter_.is_private_chat import IsPrivateChatTgBotFilter
 from project.tg_bot.filter_.not_prod_mode_filter import NotProdModeTgBotFilter
@@ -28,4 +28,4 @@ async def _(
         **kwargs
 ):
     get_cached_sqlalchemy_db().reinit()
-    await m.answer(text=get_cached_admin_tg_bot_blank().good())
+    await m.answer(text=get_cached_eng_admin_tg_bot_blank().good())

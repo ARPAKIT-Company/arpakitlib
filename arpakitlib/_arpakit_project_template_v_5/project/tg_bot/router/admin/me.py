@@ -1,7 +1,7 @@
 import aiogram.filters
 
 from arpakitlib.ar_aiogram_util import as_tg_command
-from project.tg_bot.blank.admin import get_cached_admin_tg_bot_blank
+from project.tg_bot.blank.admin import get_cached_eng_admin_tg_bot_blank
 from project.tg_bot.const import AdminTgBotCommands
 from project.tg_bot.filter_.is_private_chat import IsPrivateChatTgBotFilter
 from project.tg_bot.filter_.user_roles_has_admin import UserRolesHasAdminTgBotFilter
@@ -21,4 +21,4 @@ async def _(
         middleware_data_tg_bot: MiddlewareDataTgBot,
         **kwargs
 ):
-    await m.answer(text=get_cached_admin_tg_bot_blank().user_dbm(user_dbm=middleware_data_tg_bot.current_user_dbm))
+    await m.answer(text=get_cached_eng_admin_tg_bot_blank().user_dbm(user_dbm=middleware_data_tg_bot.current_user_dbm))

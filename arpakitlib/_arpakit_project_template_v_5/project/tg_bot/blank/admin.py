@@ -9,7 +9,7 @@ from project.tg_bot.blank.common import SimpleBlankTgBot
 
 class AdminTgBotBlank(SimpleBlankTgBot):
     def good(self) -> str:
-        res = "good"
+        res = "Good"
         return emojize(res.strip())
 
     def user_dbm(self, *, user_dbm: UserDBM | None) -> str:
@@ -18,13 +18,9 @@ class AdminTgBotBlank(SimpleBlankTgBot):
         return transfer_data_to_json_str(user_dbm.simple_dict(), beautify=True)
 
 
-def create_admin_tg_bot_blank() -> AdminTgBotBlank:
-    return AdminTgBotBlank()
-
-
 @lru_cache()
-def get_cached_admin_tg_bot_blank() -> AdminTgBotBlank:
-    return AdminTgBotBlank()
+def get_cached_eng_admin_tg_bot_blank() -> AdminTgBotBlank:
+    return AdminTgBotBlank(lang=AdminTgBotBlank.Languages.rus)
 
 
 def __example():

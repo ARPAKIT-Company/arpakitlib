@@ -2,7 +2,7 @@ import aiogram.filters
 
 from arpakitlib.ar_aiogram_util import as_tg_command
 from project.sqlalchemy_db_.sqlalchemy_db import get_cached_sqlalchemy_db
-from project.tg_bot.blank.admin import get_cached_admin_tg_bot_blank
+from project.tg_bot.blank.admin import get_cached_eng_admin_tg_bot_blank
 from project.tg_bot.const import AdminTgBotCommands
 from project.tg_bot.filter_.is_private_chat import IsPrivateChatTgBotFilter
 from project.tg_bot.filter_.user_roles_has_admin import UserRolesHasAdminTgBotFilter
@@ -24,5 +24,5 @@ async def _(
 ):
     get_cached_sqlalchemy_db().init()
     await m.answer(
-        text=get_cached_admin_tg_bot_blank().good()
+        text=get_cached_eng_admin_tg_bot_blank().good()
     )

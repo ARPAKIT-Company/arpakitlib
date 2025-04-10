@@ -2,6 +2,7 @@ import logging
 
 from aiogram import Router, types
 from aiogram.exceptions import AiogramError
+from aiogram.fsm.context import FSMContext
 
 from project.tg_bot.callback.client import RemoveMessageCD
 from project.tg_bot.middleware.common import MiddlewareDataTgBot
@@ -15,6 +16,7 @@ tg_bot_router = Router()
 )
 async def _(
         cq: types.CallbackQuery,
+        state: FSMContext,
         middleware_data_tg_bot: MiddlewareDataTgBot,
         **kwargs
 ):

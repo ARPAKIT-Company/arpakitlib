@@ -3,7 +3,7 @@ from aiogram.types import InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from arpakitlib.ar_aiogram_util import as_tg_command
-from project.tg_bot.blank.admin import get_cached_admin_tg_bot_blank
+from project.tg_bot.blank.admin import get_cached_eng_admin_tg_bot_blank
 from project.tg_bot.callback.client import RemoveMessageCD
 from project.tg_bot.const import AdminTgBotCommands
 from project.tg_bot.filter_.is_private_chat import IsPrivateChatTgBotFilter
@@ -30,6 +30,6 @@ async def _(
         callback_data=RemoveMessageCD().pack()
     ))
     await m.answer(
-        text=get_cached_admin_tg_bot_blank().good(),
+        text=get_cached_eng_admin_tg_bot_blank().good(),
         reply_markup=kb_builder.as_markup()
     )

@@ -3,7 +3,7 @@ from aiogram import Router
 from aiogram.filters import Command
 
 from arpakitlib.ar_aiogram_util import as_tg_command
-from project.tg_bot.blank.admin import get_cached_admin_tg_bot_blank
+from project.tg_bot.blank.admin import get_cached_eng_admin_tg_bot_blank
 from project.tg_bot.const import AdminTgBotCommands
 from project.tg_bot.filter_.is_private_chat import IsPrivateChatTgBotFilter
 from project.tg_bot.filter_.user_roles_has_admin import UserRolesHasAdminTgBotFilter
@@ -25,4 +25,4 @@ async def _(
         **kwargs
 ):
     await set_all_tg_bot_commands()
-    await m.answer(get_cached_admin_tg_bot_blank().good())
+    await m.answer(get_cached_eng_admin_tg_bot_blank().good())

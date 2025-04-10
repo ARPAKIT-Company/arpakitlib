@@ -20,6 +20,10 @@ class ClientTgBotBlank(SimpleBlankTgBot):
         res = "hello_world"
         return emojize(res.strip())
 
+    def but_support(self) -> str:
+        res = ":red_heart: Поддержка"
+        return emojize(res.strip())
+
     def error(self) -> str:
         res = ":warning: <b>Упс! Что-то пошло не так...</b> :warning:"
         res += "\n\n:wrench:  Мы уже работаем над решением проблемы"
@@ -51,6 +55,7 @@ class ClientTgBotBlank(SimpleBlankTgBot):
 
     def support(self) -> str:
         res = ":red_heart: <b>Поддержка</b> :red_heart:"
+        res += f"\n\n:link: https://t.me/arpakit"
         return emojize(res.strip())
 
     def keyboard_is_old(self) -> str:
@@ -62,17 +67,13 @@ class ClientTgBotBlank(SimpleBlankTgBot):
         return emojize(res.strip())
 
 
-def create_client_tg_bot_blank() -> ClientTgBotBlank:
-    return ClientTgBotBlank()
-
-
 @lru_cache()
-def get_cached_client_tg_bot_blank() -> ClientTgBotBlank:
-    return ClientTgBotBlank()
+def get_cached_rus_client_tg_bot_blank() -> ClientTgBotBlank:
+    return ClientTgBotBlank(lang=ClientTgBotBlank.Languages.rus)
 
 
 def __example():
-    print(get_cached_client_tg_bot_blank().author())
+    print(get_cached_rus_client_tg_bot_blank().author())
 
 
 if __name__ == '__main__':

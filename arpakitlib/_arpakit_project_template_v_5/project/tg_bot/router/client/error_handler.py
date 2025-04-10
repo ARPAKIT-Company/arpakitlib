@@ -7,7 +7,7 @@ from aiogram.exceptions import TelegramBadRequest
 from arpakitlib.ar_exception_util import exception_to_traceback_str
 from project.sqlalchemy_db_.sqlalchemy_db import get_cached_sqlalchemy_db
 from project.sqlalchemy_db_.sqlalchemy_model import StoryLogDBM
-from project.tg_bot.blank.client import get_cached_client_tg_bot_blank
+from project.tg_bot.blank.client import get_cached_rus_client_tg_bot_blank
 from project.tg_bot.middleware.common import MiddlewareDataTgBot
 
 _logger = logging.getLogger(__name__)
@@ -30,7 +30,7 @@ async def _(
     ):
         try:
             await error_event.update.event.answer(
-                text=get_cached_client_tg_bot_blank().error()
+                text=get_cached_rus_client_tg_bot_blank().error()
             )
         except Exception as exception:
             _logger.error(exception)
@@ -66,7 +66,7 @@ async def _(
 
             try:
                 await error_event.update.event.message.answer(
-                    text=get_cached_client_tg_bot_blank().error()
+                    text=get_cached_rus_client_tg_bot_blank().error()
                 )
             except Exception as exception:
                 _logger.error(exception)

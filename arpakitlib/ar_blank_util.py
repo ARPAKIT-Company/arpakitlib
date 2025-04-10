@@ -18,7 +18,7 @@ class BaseBlank:
         zho = "zh"        # Китайский
         ara = "ar"        # Арабский
 
-    def __init__(self, lang: str = "ru", **kwargs):
+    def __init__(self, *, lang: str = "ru", **kwargs):
         self.lang = lang.strip()
 
     def compare_lang(self, v: str) -> bool:
