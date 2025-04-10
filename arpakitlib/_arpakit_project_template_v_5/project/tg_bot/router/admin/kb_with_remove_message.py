@@ -1,4 +1,5 @@
 import aiogram.filters
+from aiogram.fsm.context import FSMContext
 from aiogram.types import InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
@@ -21,6 +22,7 @@ tg_bot_router = aiogram.Router()
 @as_tg_command()
 async def _(
         m: aiogram.types.Message,
+        state: FSMContext,
         middleware_data_tg_bot: MiddlewareDataTgBot,
         **kwargs
 ):

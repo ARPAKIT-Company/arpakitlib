@@ -1,4 +1,5 @@
 import aiogram.filters
+from aiogram.fsm.context import FSMContext
 from aiogram.types import InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
@@ -24,6 +25,7 @@ class _CD(BaseCD, prefix=AdminTgBotCommands.kb_with_old_cd):
 @as_tg_command()
 async def _(
         m: aiogram.types.Message,
+        state: FSMContext,
         middleware_data_tg_bot: MiddlewareDataTgBot,
         **kwargs
 ):

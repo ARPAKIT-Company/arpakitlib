@@ -1,6 +1,7 @@
 import aiogram
 from aiogram import Router, types
 from aiogram.filters import Command
+from aiogram.fsm.context import FSMContext
 
 from arpakitlib.ar_aiogram_util import as_tg_command
 from project.core.settings import get_cached_settings
@@ -21,6 +22,7 @@ tg_bot_router = Router()
 @as_tg_command(passwd_validator=get_cached_settings().tg_bot_command_passwd)
 async def _(
         m: types.Message,
+        state: FSMContext,
         middleware_data_tg_bot: MiddlewareDataTgBot,
         **kwargs
 ):

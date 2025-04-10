@@ -1,4 +1,5 @@
 import aiogram.filters
+from aiogram.fsm.context import FSMContext
 
 from arpakitlib.ar_aiogram_util import as_tg_command
 from project.tg_bot.blank.admin import get_cached_eng_admin_tg_bot_blank
@@ -18,6 +19,7 @@ tg_bot_router = aiogram.Router()
 @as_tg_command()
 async def _(
         m: aiogram.types.Message,
+        state: FSMContext,
         middleware_data_tg_bot: MiddlewareDataTgBot,
         **kwargs
 ):
