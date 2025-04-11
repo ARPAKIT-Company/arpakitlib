@@ -24,6 +24,7 @@ async def _(
         middleware_data_tg_bot: MiddlewareDataTgBot,
         **kwargs
 ):
+    await state.clear()
     await m.answer(
         text=transfer_data_to_json_str(get_arpakitlib_project_template_info(), beautify=True)
     )

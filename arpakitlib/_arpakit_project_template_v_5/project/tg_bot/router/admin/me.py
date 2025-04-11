@@ -23,4 +23,7 @@ async def _(
         middleware_data_tg_bot: MiddlewareDataTgBot,
         **kwargs
 ):
-    await m.answer(text=get_cached_eng_admin_tg_bot_blank().user_dbm(user_dbm=middleware_data_tg_bot.current_user_dbm))
+    await state.clear()
+    await m.answer(
+        text=get_cached_eng_admin_tg_bot_blank().user_dbm(user_dbm=middleware_data_tg_bot.current_user_dbm)
+    )

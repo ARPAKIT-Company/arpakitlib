@@ -30,6 +30,7 @@ async def _(
         middleware_data_tg_bot: MiddlewareDataTgBot,
         **kwargs
 ):
+    await state.clear()
     await m.answer(
         text=get_cached_rus_client_tg_bot_blank().support(),
         reply_markup=support_client_inline_kb_tg_bot()

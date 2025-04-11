@@ -29,5 +29,6 @@ async def _(
         middleware_data_tg_bot: MiddlewareDataTgBot,
         **kwargs
 ):
+    await state.clear()
     get_cached_sqlalchemy_db().reinit()
     await m.answer(text=get_cached_eng_admin_tg_bot_blank().good())

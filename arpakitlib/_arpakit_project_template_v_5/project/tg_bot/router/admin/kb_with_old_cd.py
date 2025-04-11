@@ -29,13 +29,12 @@ async def _(
         middleware_data_tg_bot: MiddlewareDataTgBot,
         **kwargs
 ):
+    await state.clear()
     kb_builder = InlineKeyboardBuilder()
-
     kb_builder.row(InlineKeyboardButton(
         text="Button with old data",
         callback_data=_CD().pack()
     ))
-
     await m.answer(
         text="Old data",
         reply_markup=kb_builder.as_markup()

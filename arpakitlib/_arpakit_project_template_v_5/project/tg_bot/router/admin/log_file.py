@@ -28,6 +28,7 @@ async def _(
         middleware_data_tg_bot: MiddlewareDataTgBot,
         **kwargs
 ):
+    await state.clear()
     with open(get_cached_settings().log_filepath, mode="r") as f:
         if not f.read():
             await m.answer("Log file is empty")

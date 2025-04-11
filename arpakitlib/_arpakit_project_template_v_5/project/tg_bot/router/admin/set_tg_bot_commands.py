@@ -26,5 +26,6 @@ async def _(
         middleware_data_tg_bot: MiddlewareDataTgBot,
         **kwargs
 ):
+    await state.clear()
     await set_all_tg_bot_commands()
     await m.answer(get_cached_eng_admin_tg_bot_blank().good())
