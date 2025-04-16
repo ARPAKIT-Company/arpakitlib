@@ -47,7 +47,7 @@ def transfer_json_str_to_data_to_json_str(
     )
 
 
-def iter_write_json(
+def iter_write_dicts_json(
         *,
         filepath: str,
         dict_iterable: Iterable[dict],
