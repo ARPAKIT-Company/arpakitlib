@@ -3,9 +3,9 @@ import datetime as dt
 import fastapi
 from fastapi import APIRouter
 
+from arpakitlib.ar_datetime_util import now_utc_dt
 from project.api.schema.common import BaseSO
 from project.api.schema.out.common.error import ErrorCommonSO
-from project.core.util import now_local_dt
 
 
 class _HealthcheckGeneralRouteSO(BaseSO):
@@ -27,4 +27,4 @@ async def _(
         request: fastapi.requests.Request,
         response: fastapi.responses.Response
 ):
-    return _HealthcheckGeneralRouteSO(is_ok=True, datetime=now_local_dt())
+    return _HealthcheckGeneralRouteSO(is_ok=True, datetime=now_utc_dt())
