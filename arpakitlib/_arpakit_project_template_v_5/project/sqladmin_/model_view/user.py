@@ -17,6 +17,9 @@ class UserMV(SimpleMV, model=UserDBM):
         UserDBM.roles,
         UserDBM.is_active,
         UserDBM.password,
+        UserDBM.tg_id,
+        UserDBM.tg_data,
+        UserDBM.tg_bot_last_action_dt,
         UserDBM.extra_data
     ]
     form_columns = [
@@ -26,6 +29,9 @@ class UserMV(SimpleMV, model=UserDBM):
         UserDBM.roles,
         UserDBM.is_active,
         UserDBM.password,
+        UserDBM.tg_id,
+        UserDBM.tg_data,
+        UserDBM.tg_bot_last_action_dt,
         UserDBM.extra_data
     ]
     column_sortable_list = sqlalchemy.inspect(UserDBM).columns
@@ -38,5 +44,6 @@ class UserMV(SimpleMV, model=UserDBM):
         UserDBM.slug,
         UserDBM.email,
         UserDBM.username,
-        UserDBM.password
+        UserDBM.password,
+        UserDBM.tg_id
     ]
