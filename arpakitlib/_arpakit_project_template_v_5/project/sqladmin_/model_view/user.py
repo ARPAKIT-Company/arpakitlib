@@ -7,7 +7,18 @@ from project.sqlalchemy_db_.sqlalchemy_model import UserDBM
 class UserMV(SimpleMV, model=UserDBM):
     name = "User"
     name_plural = "Users"
-    column_list = sqlalchemy.inspect(UserDBM).columns
+    column_list = [
+        UserDBM.id,
+        UserDBM.long_id,
+        UserDBM.slug,
+        UserDBM.creation_dt,
+        UserDBM.email,
+        UserDBM.username,
+        UserDBM.roles,
+        UserDBM.is_active,
+        UserDBM.password,
+        UserDBM.extra_data
+    ]
     form_columns = [
         UserDBM.slug,
         UserDBM.email,
@@ -15,9 +26,6 @@ class UserMV(SimpleMV, model=UserDBM):
         UserDBM.roles,
         UserDBM.is_active,
         UserDBM.password,
-        UserDBM.tg_id,
-        UserDBM.tg_bot_last_action_dt,
-        UserDBM.tg_data,
         UserDBM.extra_data
     ]
     column_sortable_list = sqlalchemy.inspect(UserDBM).columns
@@ -28,6 +36,7 @@ class UserMV(SimpleMV, model=UserDBM):
         UserDBM.id,
         UserDBM.long_id,
         UserDBM.slug,
-        UserDBM.tg_id,
+        UserDBM.email,
+        UserDBM.username,
         UserDBM.password
     ]

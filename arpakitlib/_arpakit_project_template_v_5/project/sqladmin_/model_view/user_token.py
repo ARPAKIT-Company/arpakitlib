@@ -7,7 +7,14 @@ from project.sqlalchemy_db_.sqlalchemy_model import UserTokenDBM
 class UserTokenMV(SimpleMV, model=UserTokenDBM):
     name = "UserToken"
     name_plural = "UserTokens"
-    column_list = sqlalchemy.inspect(UserTokenDBM).columns
+    column_list = [
+        UserTokenDBM.id,
+        UserTokenDBM.long_id,
+        UserTokenDBM.slug,
+        UserTokenDBM.creation_dt,
+        UserTokenDBM.user,
+        UserTokenDBM.extra_data,
+    ]
     form_columns = [
         UserTokenDBM.slug,
         UserTokenDBM.creation_dt,
