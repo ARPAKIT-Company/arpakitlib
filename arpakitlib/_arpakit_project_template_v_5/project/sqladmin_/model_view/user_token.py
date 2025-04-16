@@ -12,7 +12,9 @@ class UserTokenMV(SimpleMV, model=UserTokenDBM):
         UserTokenDBM.long_id,
         UserTokenDBM.slug,
         UserTokenDBM.creation_dt,
+        UserTokenDBM.value,
         UserTokenDBM.user,
+        UserTokenDBM.is_active,
         UserTokenDBM.extra_data,
     ]
     form_columns = [
