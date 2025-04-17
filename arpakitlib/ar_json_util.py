@@ -80,6 +80,22 @@ def write_dicts_iterly_in_json(
     return filepath
 
 
+def json_stream_iterator(
+        dict_iterable: Iterable[dict],
+):
+    yield "["
+
+    first = True
+    for dict_ in dict_iterable:
+        if not first:
+            yield ","
+        else:
+            first = False
+        yield transfer_data_to_json_str(dict_, fast=True, beautify=False)
+
+    yield "]"
+
+
 def __example():
     pass
 
