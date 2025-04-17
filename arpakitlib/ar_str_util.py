@@ -139,13 +139,21 @@ def lower_and_strip_or_none(value: Any) -> str | None:
     return None
 
 
+def is_float(value: str) -> bool:
+    try:
+        float(value)
+    except Exception:
+        return False
+    return True
+
+
 def int_or_float_or_none(value: Any) -> float | int | None:
     if isinstance(value, float) or isinstance(value, int):
         return value
     value = strip_or_none(value)
     if value is not None and value.isdigit():
         return int(value)
-    if value is not None and value.isdecimal():
+    if value is not None and is_float(value):
         return float(value)
     return None
 
@@ -163,46 +171,13 @@ def float_or_none(value: Any) -> float | None:
     if isinstance(value, float):
         return value
     value = strip_or_none(value)
-    if value is not None and value.isdecimal():
+    if value is not None and is_float(value):
         return float(value)
     return None
 
 
 def __example():
-    print(int_or_none("124.124"))
-
-    print("str_in:")
-    print(str_in(string="hello", main_string="hello world"))
-    print(str_in(string="bye", main_string="hello world"))
-    print(str_in(string="hello", main_string="hello world", max_diff=6))
-    print(str_in(string="hello", main_string="hello world", max_diff=1))
-
-    print("\nbidirectional_str_in:")
-    print(bidirectional_str_in(string1="hello", string2="hello world"))
-    print(bidirectional_str_in(string1="world", string2="hello world"))
-
-    print("\nstr_startswith:")
-    print(str_startswith(string="hello", main_string="hello world"))
-    print(str_startswith(string="world", main_string="hello world"))
-
-    print("\nbidirectional_str_startswith:")
-    print(bidirectional_str_startswith(string1="hello", string2="hello world"))
-    print(bidirectional_str_startswith(string1="world", string2="hello world"))
-
-    print("\nmake blank_if_none:")
-    print(make_blank_if_none())
-    print(make_blank_if_none(string="test"))
-
-    print("\nremove_html:")
-    print(remove_html(string="<div>Hello <b>World</b></div>"))
-
-    print("\nremove_tags:")
-    print(remove_tags(string="<div>Hello <b>World</b></div>"))
-
-    print("\nremove_tags_and_html:")
-    print(remove_tags_and_html("<div>Hello <b>World</b></div>"))
-
-    print(remove_markdown("# Тут обычный текст с **жирным** и *курсивным* выделением."))
+    pass
 
 
 if __name__ == '__main__':
