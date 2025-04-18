@@ -45,8 +45,11 @@ def parse_need_type(value: Any, need_type: str, allow_none: bool = False) -> Any
         res = value.removeprefix("[").removesuffix("]")
         res = [int(num.strip()) for num in res.split(",")]
     elif need_type == NeedTypes.list_of_str:
-        res = value.removeprefix("[").removesuffix("]")
-        res = [num.strip() for num in res.split(",")]
+        res = value.removeprefix("[").removesuffix("]").strip()
+        if not res:
+            res = []
+        else:
+            res = [num.strip() for num in res.split(",")]
     elif need_type == NeedTypes.list_of_float:
         res = value.removeprefix("[").removesuffix("]")
         res = [float(num.strip()) for num in res.split(",")]
@@ -67,6 +70,9 @@ def __example():
     print(parse_need_type(value='[1.1, 2.2, 3.3]', need_type="list_of_float"))
     print(parse_need_type(value='{"key": "value"}', need_type="json"))
     print(parse_need_type(value="hello world", need_type="str"))
+    print(parse_need_type(value="[]", need_type=NeedTypes.list_of_str))
+    print(parse_need_type(value="", need_type=NeedTypes.list_of_str))
+    print(parse_need_type(value="none,asfasfas", need_type=NeedTypes.list_of_str))
 
 
 if __name__ == '__main__':
