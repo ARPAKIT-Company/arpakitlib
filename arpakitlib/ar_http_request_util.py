@@ -9,6 +9,7 @@ import aiohttp
 import requests
 from aiohttp_socks import ProxyConnector
 
+from arpakitlib.ar_json_util import transfer_data_to_json_str
 from arpakitlib.ar_sleep_util import sync_safe_sleep, async_safe_sleep
 from arpakitlib.ar_type_util import raise_for_type
 
@@ -66,7 +67,26 @@ def sync_make_http_request(
                     if enable_logging_:
                         _logger.info(f"ignored status {response.status_code} {method} {url} {params}")
                 else:
-                    response.raise_for_status()
+                    try:
+                        response.raise_for_status()
+                    except requests.HTTPError as raise_for_status_exception:
+                        if enable_logging_:
+                            try:
+                                json_data = response.json()
+                                _logger.error(
+                                    f"bad status {method} {url} {params}"
+                                    f"{transfer_data_to_json_str(data=json_data, beautify=True)}"
+                                )
+                            except Exception:
+                                try:
+                                    text = response.text
+                                    _logger.error(
+                                        f"bad status {method} {url} {params}"
+                                        f"{text}"
+                                    )
+                                except Exception:
+                                    pass
+                        raise raise_for_status_exception
             if enable_logging_:
                 _logger.info(f"good try http {method} {url} {params}")
             return response
@@ -131,7 +151,26 @@ async def async_make_http_request(
                                     f"ignored status {response.status} {method} {url} {params}"
                                 )
                         else:
-                            response.raise_for_status()
+                            try:
+                                response.raise_for_status()
+                            except aiohttp.ClientResponseError as raise_for_status_exception:
+                                if enable_logging_:
+                                    try:
+                                        json_data = await response.json()
+                                        _logger.error(
+                                            f"bad status {method} {url} {params}"
+                                            f"{transfer_data_to_json_str(data=json_data, beautify=True)}"
+                                        )
+                                    except Exception:
+                                        try:
+                                            text = await response.text()
+                                            _logger.error(
+                                                f"bad status {method} {url} {params}"
+                                                f"{text}"
+                                            )
+                                        except Exception:
+                                            pass
+                                raise raise_for_status_exception
                     await response.read()
                     if enable_logging_:
                         _logger.info(f"good try {method} {url} {params}")
