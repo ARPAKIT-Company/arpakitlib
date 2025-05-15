@@ -1,8 +1,7 @@
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict
-
 from project.sqlalchemy_db_.sqlalchemy_model import UserDBM
+from pydantic import BaseModel, ConfigDict
 
 
 class MiddlewareDataTgBot(BaseModel):

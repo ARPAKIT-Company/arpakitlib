@@ -1,8 +1,7 @@
 from functools import lru_cache
 
-from emoji import emojize
-
 from arpakitlib.ar_json_util import transfer_data_to_json_str
+from emoji import emojize
 from project.sqlalchemy_db_.sqlalchemy_model import UserDBM
 from project.tg_bot.blank.common import SimpleBlankTgBot
 

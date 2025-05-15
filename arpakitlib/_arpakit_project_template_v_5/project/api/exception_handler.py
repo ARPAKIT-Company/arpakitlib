@@ -6,7 +6,6 @@ from typing import Any, Callable
 
 import fastapi
 import starlette.exceptions
-
 from arpakitlib.ar_datetime_util import now_utc_dt
 from arpakitlib.ar_dict_util import combine_dicts
 from arpakitlib.ar_exception_util import exception_to_traceback_str

@@ -2,7 +2,6 @@ from typing import Iterable
 
 import aiogram.types
 from aiogram.filters import Filter
-
 from arpakitlib.ar_type_util import raise_for_type
 
 

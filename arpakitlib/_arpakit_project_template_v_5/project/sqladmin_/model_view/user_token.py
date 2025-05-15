@@ -7,6 +7,7 @@ from project.sqlalchemy_db_.sqlalchemy_model import UserTokenDBM
 class UserTokenMV(SimpleMV, model=UserTokenDBM):
     name = "UserToken"
     name_plural = "UserTokens"
+    icon = "fa-solid fa-fingerprint"
     column_list = [
         UserTokenDBM.id,
         UserTokenDBM.long_id,

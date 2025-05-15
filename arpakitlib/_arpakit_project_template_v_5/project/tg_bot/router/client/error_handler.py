@@ -4,7 +4,6 @@ import aiogram
 from aiogram import Router
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.fsm.context import FSMContext
-
 from arpakitlib.ar_exception_util import exception_to_traceback_str
 from project.sqlalchemy_db_.sqlalchemy_db import get_cached_sqlalchemy_db
 from project.sqlalchemy_db_.sqlalchemy_model import StoryLogDBM

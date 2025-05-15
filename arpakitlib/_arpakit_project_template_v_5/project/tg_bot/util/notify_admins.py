@@ -4,9 +4,8 @@ from datetime import timedelta
 
 import sqlalchemy
 from aiogram.exceptions import AiogramError
-from emoji import emojize
-
 from arpakitlib.ar_str_util import remove_tags_and_html
+from emoji import emojize
 from project.core.settings import get_cached_settings
 from project.core.util import setup_logging
 from project.sqlalchemy_db_.sqlalchemy_db import get_cached_sqlalchemy_db

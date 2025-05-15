@@ -26,6 +26,7 @@ class User1ClientSO(SimpleDBMClientSO):
     tg_data_at_username: str | None
     tg_data_fullname: str | None
     tg_data_link_by_username: str | None
+    email_prefix: str | None
 
     @classmethod
     def from_dbm(cls, *, simple_dbm: UserDBM, **kwargs) -> User1ClientSO:

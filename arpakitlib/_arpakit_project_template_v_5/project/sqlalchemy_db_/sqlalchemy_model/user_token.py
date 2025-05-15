@@ -4,10 +4,9 @@ from typing import TYPE_CHECKING
 from uuid import uuid4
 
 import sqlalchemy
-from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
-
 from arpakitlib.ar_datetime_util import now_utc_dt
 from project.sqlalchemy_db_.sqlalchemy_model.common import SimpleDBM
+from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 
 if TYPE_CHECKING:
     from project.sqlalchemy_db_.sqlalchemy_model.user import UserDBM

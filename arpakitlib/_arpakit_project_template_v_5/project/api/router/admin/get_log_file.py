@@ -1,7 +1,6 @@
 import fastapi
-from fastapi import APIRouter
-
 from arpakitlib.ar_logging_util import init_log_file
+from fastapi import APIRouter
 from project.api.authorize import require_api_key_dbm_api_authorize_middleware, APIAuthorizeData, \
     require_user_token_dbm_api_authorize_middleware, api_authorize
 from project.core.settings import get_cached_settings

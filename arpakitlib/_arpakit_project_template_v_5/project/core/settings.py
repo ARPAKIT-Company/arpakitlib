@@ -3,14 +3,13 @@ from functools import lru_cache
 from typing import Any
 
 import pytz
-from pydantic import field_validator
-from pydantic_core.core_schema import ValidationInfo
-
 from arpakitlib.ar_json_util import transfer_data_to_json_str
 from arpakitlib.ar_settings_util import SimpleSettings
 from arpakitlib.ar_sqlalchemy_util import generate_sqlalchemy_url
 from arpakitlib.ar_type_util import raise_for_type
 from project.core.const import ProjectPaths
+from pydantic import field_validator
+from pydantic_core.core_schema import ValidationInfo
 
 
 class Settings(SimpleSettings):

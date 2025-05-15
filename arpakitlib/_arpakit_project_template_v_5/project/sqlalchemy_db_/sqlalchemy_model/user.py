@@ -5,14 +5,13 @@ from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 
 import sqlalchemy
-from email_validator import validate_email
-from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
-
 from arpakitlib.ar_datetime_util import now_utc_dt
 from arpakitlib.ar_enumeration_util import Enumeration
 from arpakitlib.ar_str_util import make_none_if_blank
 from arpakitlib.ar_type_util import raise_for_type
+from email_validator import validate_email
 from project.sqlalchemy_db_.sqlalchemy_model.common import SimpleDBM
+from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 
 if TYPE_CHECKING:
     from project.sqlalchemy_db_.sqlalchemy_model.user_token import UserTokenDBM
@@ -226,3 +225,15 @@ class UserDBM(SimpleDBM):
     @property
     def sdp_tg_data_link_by_username(self) -> str | None:
         return self.tg_data_link_by_username
+
+    @property
+    def email_prefix(self) -> str | None:
+        if self.email is None:
+            return None
+        if self.email.count("@") != 1:
+            return None
+        return self.email.split("@")[0]
+
+    @property
+    def sdp_email_prefix(self) -> str | None:
+        return self.email_prefix

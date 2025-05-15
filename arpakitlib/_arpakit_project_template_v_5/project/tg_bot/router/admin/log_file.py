@@ -5,7 +5,6 @@ from aiogram import Router, types
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import FSInputFile
-
 from arpakitlib.ar_aiogram_util import as_tg_command
 from project.core.settings import get_cached_settings
 from project.tg_bot.const import AdminTgBotCommands

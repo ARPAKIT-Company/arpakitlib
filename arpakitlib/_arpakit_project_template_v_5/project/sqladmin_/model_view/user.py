@@ -7,6 +7,7 @@ from project.sqlalchemy_db_.sqlalchemy_model import UserDBM
 class UserMV(SimpleMV, model=UserDBM):
     name = "User"
     name_plural = "Users"
+    icon = "fa-solid fa-user"
     column_list = [
         UserDBM.id,
         UserDBM.long_id,
@@ -41,7 +42,6 @@ class UserMV(SimpleMV, model=UserDBM):
     column_searchable_list = [
         UserDBM.id,
         UserDBM.long_id,
-        UserDBM.slug,
         UserDBM.email,
         UserDBM.username,
         UserDBM.password,

@@ -5,7 +5,6 @@ import aiogram
 import sqlalchemy
 from aiogram import BaseMiddleware
 from aiogram.types import TelegramObject
-
 from arpakitlib.ar_datetime_util import now_utc_dt
 from project.core.settings import get_cached_settings
 from project.sqlalchemy_db_.sqlalchemy_db import get_cached_sqlalchemy_db

@@ -2,7 +2,6 @@ from typing import Any
 
 import fastapi
 from fastapi import APIRouter
-
 from project.api.authorize import require_api_key_dbm_api_authorize_middleware, \
     require_user_token_dbm_api_authorize_middleware, APIAuthorizeData, api_authorize
 from project.api.schema.common import BaseSI

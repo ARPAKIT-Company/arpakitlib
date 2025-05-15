@@ -1,11 +1,10 @@
 from datetime import timedelta
 from typing import Any, Callable
 
-from pydantic import ConfigDict
-from pydantic.v1 import BaseModel
-
 from project.operation_execution.util import every_timedelta_is_time_func
 from project.sqlalchemy_db_.sqlalchemy_model import OperationDBM
+from pydantic import ConfigDict
+from pydantic.v1 import BaseModel
 
 
 class ScheduledOperation(BaseModel):

@@ -5,8 +5,6 @@ from datetime import timedelta
 from typing import Any
 
 import sqlalchemy
-from sqlalchemy import asc
-
 from arpakitlib.ar_base_worker_util import BaseWorker
 from arpakitlib.ar_datetime_util import now_utc_dt
 from arpakitlib.ar_dict_util import combine_dicts
@@ -15,6 +13,7 @@ from arpakitlib.ar_sqlalchemy_util import SQLAlchemyDb
 from arpakitlib.ar_type_util import raise_for_type
 from project.sqlalchemy_db_.sqlalchemy_db import get_cached_sqlalchemy_db
 from project.sqlalchemy_db_.sqlalchemy_model import OperationDBM, StoryLogDBM
+from sqlalchemy import asc
 
 
 class OperationExecutorWorker(BaseWorker):
@@ -27,7 +26,7 @@ class OperationExecutorWorker(BaseWorker):
             startup_funcs: list[Any] | None = None
     ):
         super().__init__(
-            timeout_after_run=timedelta(seconds=0.1),
+            timeout_after_run=timedelta(seconds=0.01),
             timeout_after_error_in_run=timedelta(seconds=0.1),
             startup_funcs=startup_funcs,
         )

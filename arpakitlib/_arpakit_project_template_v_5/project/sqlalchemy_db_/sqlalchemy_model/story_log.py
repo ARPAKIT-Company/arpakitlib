@@ -3,11 +3,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import sqlalchemy
-from sqlalchemy.orm import mapped_column, Mapped, validates
-
 from arpakitlib.ar_enumeration_util import Enumeration
 from arpakitlib.ar_str_util import make_none_if_blank
 from project.sqlalchemy_db_.sqlalchemy_model.common import SimpleDBM
+from sqlalchemy.orm import mapped_column, Mapped, validates
 
 if TYPE_CHECKING:
     pass

@@ -1,7 +1,6 @@
 from functools import lru_cache
 
 from fastapi.templating import Jinja2Templates
-
 from project.core.const import ProjectPaths
 
 

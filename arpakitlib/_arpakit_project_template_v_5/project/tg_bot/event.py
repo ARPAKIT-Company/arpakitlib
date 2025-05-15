@@ -3,7 +3,6 @@ import logging
 from typing import Callable
 
 from aiogram import Dispatcher
-
 from arpakitlib.ar_base_worker_util import safe_run_worker_in_background, SafeRunInBackgroundModes
 from arpakitlib.ar_datetime_util import now_utc_dt
 from project.core.cache_file_storage_in_dir import get_cached_cache_file_storage_in_dir
