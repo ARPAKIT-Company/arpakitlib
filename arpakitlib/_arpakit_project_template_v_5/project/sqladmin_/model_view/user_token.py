@@ -1,7 +1,7 @@
 import sqlalchemy
 
 from project.sqladmin_.model_view.common import SimpleMV
-from project.sqladmin_.util.etc import format_datetime_
+from project.sqladmin_.util.etc import format_datetime_, format_json_for_preview_, format_json_
 from project.sqlalchemy_db_.sqlalchemy_model import UserTokenDBM
 
 
@@ -38,8 +38,10 @@ class UserTokenMV(SimpleMV, model=UserTokenDBM):
         UserTokenDBM.value,
     ]
     column_formatters = {
-        UserTokenDBM.creation_dt: lambda m, _: format_datetime_(m.creation_dt)
+        UserTokenDBM.creation_dt: lambda m, _: format_datetime_(m.creation_dt),
+        UserTokenDBM.extra_data: lambda m, a: format_json_for_preview_(m.extra_data),
     }
     column_formatters_detail = {
-        UserTokenDBM.creation_dt: lambda m, _: format_datetime_(m.creation_dt)
+        UserTokenDBM.creation_dt: lambda m, _: format_datetime_(m.creation_dt),
+        UserTokenDBM.extra_data: lambda m, a: format_json_(m.extra_data),
     }

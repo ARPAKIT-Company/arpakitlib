@@ -1,7 +1,7 @@
 import sqlalchemy
 
 from project.sqladmin_.model_view.common import SimpleMV
-from project.sqladmin_.util.etc import format_datetime_
+from project.sqladmin_.util.etc import format_datetime_, format_json_, format_json_for_preview_
 from project.sqlalchemy_db_.sqlalchemy_model import ApiKeyDBM
 
 
@@ -27,8 +27,10 @@ class ApiKeyMV(SimpleMV, model=ApiKeyDBM):
         ApiKeyDBM.value,
     ]
     column_formatters = {
-        ApiKeyDBM.creation_dt: lambda m, _: format_datetime_(m.creation_dt)
+        ApiKeyDBM.creation_dt: lambda m, _: format_datetime_(m.creation_dt),
+        ApiKeyDBM.extra_data: lambda m, a: format_json_for_preview_(m.extra_data),
     }
     column_formatters_detail = {
-        ApiKeyDBM.creation_dt: lambda m, _: format_datetime_(m.creation_dt)
+        ApiKeyDBM.creation_dt: lambda m, _: format_datetime_(m.creation_dt),
+        ApiKeyDBM.extra_data: lambda m, a: format_json_(m.extra_data),
     }

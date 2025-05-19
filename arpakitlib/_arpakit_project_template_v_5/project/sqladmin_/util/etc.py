@@ -18,7 +18,7 @@ def format_datetime_(datetime_: dt.datetime | None) -> str:
 def format_json_for_preview_(data: dict[str, Any] | list[Any] | None) -> str:
     if data is None:
         return ""
-    return f"JSON {type(data)} ({len(data)} элементов)"
+    return f"JSON {type(data)} {len(data)} элемент(ов)"
 
 
 def format_json_(data: dict[str, Any] | list[Any] | None) -> str:
