@@ -1,20 +1,18 @@
 import datetime as dt
-import json
 from typing import Any
 
-from arpakitlib.ar_json_util import transfer_data_to_json_str
 from markupsafe import Markup
 from pygments import highlight
 from pygments.formatters.html import HtmlFormatter
 from pygments.lexers.data import JsonLexer
-from pygments.style import Style
-from pygments.token import Text
+
+from arpakitlib.ar_json_util import transfer_data_to_json_str
 
 
 def format_datetime_(datetime_: dt.datetime | None) -> str:
     if datetime_ is None:
         return ""
-    return datetime_.strftime("%Y-%m-%d %H:%M:%S")
+    return datetime_.strftime("%Y-%m-%d %H:%M:%S %z")
 
 
 def format_json_for_preview_(data: dict[str, Any] | list[Any] | None) -> str:

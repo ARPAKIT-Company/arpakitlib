@@ -1,6 +1,7 @@
 import sqlalchemy
 
 from project.sqladmin_.model_view.common import SimpleMV
+from project.sqladmin_.util.etc import format_datetime_
 from project.sqlalchemy_db_.sqlalchemy_model import UserDBM
 
 
@@ -47,3 +48,9 @@ class UserMV(SimpleMV, model=UserDBM):
         UserDBM.password,
         UserDBM.tg_id
     ]
+    column_formatters = {
+        UserDBM.creation_dt: lambda m, _: format_datetime_(m.creation_dt)
+    }
+    column_formatters_detail = {
+        UserDBM.creation_dt: lambda m, _: format_datetime_(m.creation_dt)
+    }

@@ -1,12 +1,14 @@
 import sqlalchemy
 
 from project.sqladmin_.model_view.common import SimpleMV
+from project.sqladmin_.util.etc import format_datetime_
 from project.sqlalchemy_db_.sqlalchemy_model import StoryLogDBM
 
 
 class StoryLogMV(SimpleMV, model=StoryLogDBM):
     name = "StoryLog"
     name_plural = "StoryLogs"
+    icon = "fa-solid fa-history"
     column_list = sqlalchemy.inspect(StoryLogDBM).columns
     form_columns = [
         StoryLogDBM.slug,
@@ -24,3 +26,9 @@ class StoryLogMV(SimpleMV, model=StoryLogDBM):
         StoryLogDBM.long_id,
         StoryLogDBM.slug,
     ]
+    column_formatters = {
+        StoryLogDBM.creation_dt: lambda m, _: format_datetime_(m.creation_dt)
+    }
+    column_formatters_detail = {
+        StoryLogDBM.creation_dt: lambda m, _: format_datetime_(m.creation_dt)
+    }

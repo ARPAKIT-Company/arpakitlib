@@ -40,3 +40,6 @@ class UserTokenMV(SimpleMV, model=UserTokenDBM):
     column_formatters = {
         UserTokenDBM.creation_dt: lambda m, _: format_datetime_(m.creation_dt)
     }
+    column_formatters_detail = {
+        UserTokenDBM.creation_dt: lambda m, _: format_datetime_(m.creation_dt)
+    }
