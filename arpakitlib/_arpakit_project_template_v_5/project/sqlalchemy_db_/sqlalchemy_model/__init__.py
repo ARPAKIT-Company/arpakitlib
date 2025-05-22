@@ -6,6 +6,7 @@ from project.sqlalchemy_db_.sqlalchemy_model.operation import OperationDBM
 from project.sqlalchemy_db_.sqlalchemy_model.story_log import StoryLogDBM
 from project.sqlalchemy_db_.sqlalchemy_model.user import UserDBM
 from project.sqlalchemy_db_.sqlalchemy_model.user_token import UserTokenDBM
+from project.sqlalchemy_db_.sqlalchemy_model.verification_code import VerificationCodeDBM
 
 if __name__ == '__main__':
     print(get_string_info_from_declarative_base(SimpleDBM))

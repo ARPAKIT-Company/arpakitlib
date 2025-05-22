@@ -15,6 +15,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 
 if TYPE_CHECKING:
     from project.sqlalchemy_db_.sqlalchemy_model.user_token import UserTokenDBM
+    from project.sqlalchemy_db_.sqlalchemy_model.verification_code import VerificationCodeDBM
 
 
 def generate_default_user_password() -> str:
@@ -85,6 +86,13 @@ class UserDBM(SimpleDBM):
         uselist=True,
         back_populates="user",
         foreign_keys="UserTokenDBM.user_id",
+        cascade="all, delete-orphan"
+    )
+    verification_codes: Mapped[list[VerificationCodeDBM]] = relationship(
+        "VerificationCodeDBM",
+        uselist=True,
+        back_populates="user",
+        foreign_keys="VerificationCodeDBM.user_id",
         cascade="all, delete-orphan"
     )
 

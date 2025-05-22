@@ -9,7 +9,16 @@ class StoryLogMV(SimpleMV, model=StoryLogDBM):
     name = "StoryLog"
     name_plural = "StoryLogs"
     icon = "fa-solid fa-history"
-    column_list = sqlalchemy.inspect(StoryLogDBM).columns
+    column_list = [
+        StoryLogDBM.id,
+        StoryLogDBM.long_id,
+        StoryLogDBM.slug,
+        StoryLogDBM.creation_dt,
+        StoryLogDBM.level,
+        StoryLogDBM.type,
+        StoryLogDBM.title,
+        StoryLogDBM.extra_data
+    ]
     form_columns = [
         StoryLogDBM.slug,
         StoryLogDBM.level,
