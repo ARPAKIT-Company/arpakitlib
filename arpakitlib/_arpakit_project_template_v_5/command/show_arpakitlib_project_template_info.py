@@ -1,4 +1,4 @@
-from project.util.arpakitlib_project_template import get_arpakitlib_project_template_info
+from project.util.arpakitlib_project_template_util import get_arpakitlib_project_template_info
 
 
 def __command():

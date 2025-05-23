@@ -5,13 +5,14 @@ from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 
 import sqlalchemy
+from email_validator import validate_email
+from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
+
 from arpakitlib.ar_datetime_util import now_utc_dt
 from arpakitlib.ar_enumeration_util import Enumeration
 from arpakitlib.ar_str_util import make_none_if_blank
 from arpakitlib.ar_type_util import raise_for_type
-from email_validator import validate_email
 from project.sqlalchemy_db_.sqlalchemy_model.common import SimpleDBM
-from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 
 if TYPE_CHECKING:
     from project.sqlalchemy_db_.sqlalchemy_model.user_token import UserTokenDBM
@@ -55,6 +56,13 @@ class UserDBM(SimpleDBM):
         index=True,
         insert_default=True,
         server_default="true",
+    )
+    is_verified: Mapped[bool] = mapped_column(
+        sqlalchemy.Boolean,
+        nullable=False,
+        index=True,
+        insert_default=False,
+        server_default="false",
     )
     password: Mapped[str | None] = mapped_column(
         sqlalchemy.TEXT,

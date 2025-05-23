@@ -12,6 +12,7 @@ class User1ClientSO(SimpleDBMClientSO):
     username: str | None
     roles: list[str]
     is_active: bool
+    is_verified: bool
     tg_id: int | None
     tg_bot_last_action_dt: dt.datetime | None
     tg_data: dict[str, Any]

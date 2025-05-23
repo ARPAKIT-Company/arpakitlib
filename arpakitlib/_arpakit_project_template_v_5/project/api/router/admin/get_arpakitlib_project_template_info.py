@@ -6,7 +6,7 @@ from project.api.authorize import require_user_token_dbm_api_authorize_middlewar
     api_authorize, require_api_key_dbm_api_authorize_middleware
 from project.api.schema.out.common.error import ErrorCommonSO
 from project.sqlalchemy_db_.sqlalchemy_model import UserDBM
-from project.util.arpakitlib_project_template import get_arpakitlib_project_template_info
+from project.util.arpakitlib_project_template_util import get_arpakitlib_project_template_info
 
 api_router = APIRouter()
 
