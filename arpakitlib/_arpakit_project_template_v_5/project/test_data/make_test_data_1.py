@@ -29,6 +29,7 @@ def make_test_data_1():
             username="arpakit",
             roles=[UserDBM.Roles.client, UserDBM.Roles.admin],
             is_active=True,
+            is_verified=True,
             password="123",
             tg_id=269870432
         )

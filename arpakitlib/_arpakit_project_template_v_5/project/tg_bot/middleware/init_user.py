@@ -56,6 +56,7 @@ class InitUserTgBotMiddleware(BaseMiddleware):
                     middleware_data_tg_bot.current_user_dbm = UserDBM(
                         creation_dt=now_utc_dt_,
                         roles=roles,
+                        is_verified=True,
                         tg_id=tg_user.id,
                         tg_data=tg_user.model_dump(mode="json"),
                         tg_bot_last_action_dt=now_utc_dt_
@@ -66,6 +67,7 @@ class InitUserTgBotMiddleware(BaseMiddleware):
                     middleware_data_tg_bot.current_user_dbm_just_created = True
                     _logger.info(f"user_dbm was added, {middleware_data_tg_bot.current_user_dbm}")
                 else:
+                    middleware_data_tg_bot.current_user_dbm.is_verified = True
                     middleware_data_tg_bot.current_user_dbm.tg_data = tg_user.model_dump(mode="json")
                     middleware_data_tg_bot.current_user_dbm.tg_bot_last_action_dt = now_utc_dt_
                     if (
