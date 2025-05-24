@@ -2,6 +2,7 @@ import asyncio
 import logging
 
 from aiogram.types import BotCommand, BotCommandScopeChat
+
 from arpakitlib.ar_str_util import return_str_if_none
 from project.core.settings import get_cached_settings
 from project.core.util import setup_logging

@@ -4,7 +4,7 @@ from aiogram.types import InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from arpakitlib.ar_aiogram_util import as_tg_command
-from project.tg_bot.callback.common import BaseCD
+from project.tg_bot.callback_data_.common import BaseCD
 from project.tg_bot.const import AdminTgBotCommands
 from project.tg_bot.filter_.is_private_chat import IsPrivateChatTgBotFilter
 from project.tg_bot.filter_.user_roles_has_admin import UserRolesHasAdminTgBotFilter

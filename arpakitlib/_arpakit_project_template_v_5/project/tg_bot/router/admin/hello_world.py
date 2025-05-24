@@ -5,7 +5,7 @@ from aiogram.fsm.context import FSMContext
 from arpakitlib.ar_str_util import remove_html
 from project.tg_bot.blank.admin import get_cached_eng_admin_tg_bot_blank
 from project.tg_bot.blank.client import get_cached_rus_client_tg_bot_blank
-from project.tg_bot.callback.admin import HelloWorldAdminCD
+from project.tg_bot.callback_data_.admin import HelloWorldAdminCD
 from project.tg_bot.const import AdminTgBotCommands
 from project.tg_bot.filter_.is_private_chat import IsPrivateChatTgBotFilter
 from project.tg_bot.filter_.message_text import MessageTextTgBotFilter

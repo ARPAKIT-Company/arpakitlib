@@ -1,6 +1,7 @@
 from functools import lru_cache
 
 from emoji import emojize
+
 from project.tg_bot.blank.common import SimpleBlankTgBot
 from project.tg_bot.const import ClientTgBotCommands
 

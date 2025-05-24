@@ -1,8 +1,9 @@
 from typing import Any
 
 import fastapi.requests
-from arpakitlib.ar_json_util import transfer_data_to_json_str_to_data
 from fastapi import APIRouter
+
+from arpakitlib.ar_json_util import transfer_data_to_json_str_to_data
 from project.api.authorize import APIAuthorizeData, api_authorize, require_user_token_dbm_api_authorize_middleware, \
     require_api_key_dbm_api_authorize_middleware
 from project.api.schema.out.common.error import ErrorCommonSO

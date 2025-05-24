@@ -5,6 +5,7 @@ import starlette.types
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+
 from project.api.event import get_startup_api_events, get_shutdown_api_events
 from project.api.exception_handler import add_exception_handler_to_api_app
 from project.api.openapi_ui import add_local_openapi_ui_to_api_app

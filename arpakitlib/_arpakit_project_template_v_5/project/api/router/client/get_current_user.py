@@ -3,13 +3,14 @@ from __future__ import annotations
 import fastapi.requests
 import sqlalchemy
 from fastapi import APIRouter
+from sqlalchemy.orm import joinedload
+
 from project.api.authorize import APIAuthorizeData, api_authorize, require_user_token_dbm_api_authorize_middleware, \
     require_api_key_dbm_api_authorize_middleware
 from project.api.schema.out.client.complicated_user_1 import ComplicatedUser1ClientSO
 from project.api.schema.out.common.error import ErrorCommonSO
 from project.sqlalchemy_db_.sqlalchemy_db import get_cached_sqlalchemy_db
 from project.sqlalchemy_db_.sqlalchemy_model import UserDBM
-from sqlalchemy.orm import joinedload
 
 api_router = APIRouter()
 

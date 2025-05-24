@@ -1,8 +1,9 @@
 import datetime as dt
 
 import fastapi
-from arpakitlib.ar_datetime_util import now_utc_dt
 from fastapi import APIRouter
+
+from arpakitlib.ar_datetime_util import now_utc_dt
 from project.api.schema.common import BaseSO
 from project.api.schema.out.common.error import ErrorCommonSO
 

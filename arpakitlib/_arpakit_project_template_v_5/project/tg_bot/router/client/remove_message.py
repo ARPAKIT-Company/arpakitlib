@@ -3,7 +3,8 @@ import logging
 from aiogram import Router, types
 from aiogram.exceptions import AiogramError
 from aiogram.fsm.context import FSMContext
-from project.tg_bot.callback.client import RemoveMessageClientCD
+
+from project.tg_bot.callback_data_.client import RemoveMessageClientCD
 from project.tg_bot.middleware.common import MiddlewareDataTgBot
 
 _logger = logging.getLogger(__name__)

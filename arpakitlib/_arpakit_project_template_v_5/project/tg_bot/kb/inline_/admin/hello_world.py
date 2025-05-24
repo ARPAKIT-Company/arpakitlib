@@ -2,7 +2,7 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from project.tg_bot.blank.admin import get_cached_eng_admin_tg_bot_blank
-from project.tg_bot.callback.admin import HelloWorldAdminCD
+from project.tg_bot.callback_data_.admin import HelloWorldAdminCD
 
 
 def hello_world_admin_inline_kb_tg_bot() -> InlineKeyboardMarkup:

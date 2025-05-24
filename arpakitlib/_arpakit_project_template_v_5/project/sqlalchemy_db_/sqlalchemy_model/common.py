@@ -3,10 +3,11 @@ from typing import Any
 from uuid import uuid4
 
 import sqlalchemy
-from arpakitlib.ar_datetime_util import now_utc_dt
-from arpakitlib.ar_sqlalchemy_util import get_string_info_from_declarative_base, BaseDBM
 from sqlalchemy import func
 from sqlalchemy.orm import mapped_column, Mapped, validates
+
+from arpakitlib.ar_datetime_util import now_utc_dt
+from arpakitlib.ar_sqlalchemy_util import get_string_info_from_declarative_base, BaseDBM
 
 
 def generate_default_long_id() -> str:

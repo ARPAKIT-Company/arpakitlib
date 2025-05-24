@@ -4,11 +4,12 @@ from datetime import datetime, timedelta
 from typing import Any, TYPE_CHECKING
 
 import sqlalchemy
+from sqlalchemy.dialects import postgresql
+from sqlalchemy.orm import mapped_column, Mapped, validates
+
 from arpakitlib.ar_enumeration_util import Enumeration
 from arpakitlib.ar_str_util import make_none_if_blank
 from project.sqlalchemy_db_.sqlalchemy_model.common import SimpleDBM
-from sqlalchemy.dialects import postgresql
-from sqlalchemy.orm import mapped_column, Mapped, validates
 
 if TYPE_CHECKING:
     pass

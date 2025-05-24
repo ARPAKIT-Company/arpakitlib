@@ -1,4 +1,4 @@
-from project.tg_bot.callback.common import BaseCD
+from project.tg_bot.callback_data_.common import BaseCD
 
 
 class HelloWorldAdminCD(BaseCD):

@@ -3,6 +3,7 @@ import logging
 import aiogram.filters
 from aiogram.exceptions import AiogramError
 from aiogram.fsm.context import FSMContext
+
 from project.tg_bot.blank.client import get_cached_rus_client_tg_bot_blank
 from project.tg_bot.middleware.common import MiddlewareDataTgBot
 

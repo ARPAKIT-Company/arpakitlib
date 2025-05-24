@@ -3,6 +3,7 @@ import asyncio
 import aiohttp
 import aiohttp.web
 from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_application
+
 from project.core.settings import get_cached_settings
 from project.core.util import setup_logging
 from project.tg_bot.tg_bot import get_cached_tg_bot
