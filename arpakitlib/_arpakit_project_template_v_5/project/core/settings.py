@@ -173,6 +173,10 @@ class Settings(SimpleSettings):
         raise_for_type(self.local_timezone, str)
         return pytz.timezone(self.local_timezone)
 
+    openai_api_key: str | None = None
+
+    openai_api_base_url: str | None = "https://api.proxyapi.ru/openai/v1"
+
 
 @lru_cache()
 def get_cached_settings() -> Settings:
