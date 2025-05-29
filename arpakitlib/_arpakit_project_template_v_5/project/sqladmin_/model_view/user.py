@@ -1,4 +1,5 @@
 import sqlalchemy
+from wtforms import SelectMultipleField
 
 from project.sqladmin_.model_view.common import SimpleMV
 from project.sqladmin_.util.etc import format_datetime_, format_json_for_preview_, format_json_
@@ -36,6 +37,15 @@ class UserMV(SimpleMV, model=UserDBM):
         UserDBM.tg_bot_last_action_dt,
         UserDBM.extra_data
     ]
+    form_overrides = {
+        UserDBM.roles.key: SelectMultipleField
+    }
+    form_args = {
+        UserDBM.roles.key: {
+            "choices": [(role, role) for role in UserDBM.Roles.values_list()],
+            "description": "Выберите роли пользователя"
+        }
+    }
     column_sortable_list = sqlalchemy.inspect(UserDBM).columns
     column_default_sort = [
         (UserDBM.creation_dt, True)

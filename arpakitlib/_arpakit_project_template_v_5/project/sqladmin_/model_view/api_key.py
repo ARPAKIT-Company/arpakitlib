@@ -9,7 +9,26 @@ class ApiKeyMV(SimpleMV, model=ApiKeyDBM):
     name = "ApiKey"
     name_plural = "ApiKeys"
     icon = "fa-solid fa-key"
-    column_list = sqlalchemy.inspect(ApiKeyDBM).columns
+    column_list = [
+        ApiKeyDBM.id,
+        ApiKeyDBM.long_id,
+        ApiKeyDBM.slug,
+        ApiKeyDBM.creation_dt,
+        ApiKeyDBM.title,
+        ApiKeyDBM.value,
+        ApiKeyDBM.is_active,
+        ApiKeyDBM.extra_data
+    ]
+    column_details_list = [
+        ApiKeyDBM.id,
+        ApiKeyDBM.long_id,
+        ApiKeyDBM.slug,
+        ApiKeyDBM.creation_dt,
+        ApiKeyDBM.title,
+        ApiKeyDBM.value,
+        ApiKeyDBM.is_active,
+        ApiKeyDBM.extra_data
+    ]
     form_columns = [
         ApiKeyDBM.slug,
         ApiKeyDBM.title,
@@ -22,8 +41,6 @@ class ApiKeyMV(SimpleMV, model=ApiKeyDBM):
     ]
     column_searchable_list = [
         ApiKeyDBM.id,
-        ApiKeyDBM.long_id,
-        ApiKeyDBM.slug,
         ApiKeyDBM.value,
     ]
     column_formatters = {
