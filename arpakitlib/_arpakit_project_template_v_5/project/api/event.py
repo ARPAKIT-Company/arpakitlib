@@ -2,6 +2,7 @@ import logging
 from typing import Callable
 
 from arpakitlib.ar_base_worker_util import safe_run_worker_in_background, SafeRunInBackgroundModes
+from project.api.create_first_data import create_first_data_for_api
 from project.core.cache_file_storage_in_dir import get_cached_cache_file_storage_in_dir
 from project.core.dump_file_storage_in_dir import get_cached_dump_file_storage_in_dir
 from project.core.media_file_storage_in_dir import get_cached_media_file_storage_in_dir
@@ -40,6 +41,9 @@ async def async_startup_api_event():
             and get_cached_settings().api_init_json_db
     ):
         get_cached_json_db().init()
+
+    if get_cached_sqlalchemy_db() is not None:
+        create_first_data_for_api()
 
     if get_cached_settings().api_start_operation_executor_worker:
         _ = safe_run_worker_in_background(
