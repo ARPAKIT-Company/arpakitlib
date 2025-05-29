@@ -34,20 +34,17 @@ async def _(
         ])),
         filter_id: int | None = fastapi.Query(default=None),
         filter_long_id: str | None = fastapi.Query(default=None),
-        filter_slug: str | None = fastapi.Query(default=None),
         filter_email: str | None = fastapi.Query(default=None),
         filter_username: str | None = fastapi.Query(default=None),
         filter_tg_id: int | None = fastapi.Query(default=None),
 ):
     filter_long_id = make_none_if_blank(strip_if_not_none(filter_long_id))
-    filter_slug = make_none_if_blank(strip_if_not_none(filter_slug))
     filter_email = make_none_if_blank(strip_if_not_none(filter_email))
     filter_username = make_none_if_blank(strip_if_not_none(filter_username))
 
     if (
             filter_id is None
             and filter_long_id is None
-            and filter_slug is None
             and filter_email is None
             and filter_username is None
             and filter_tg_id is None
@@ -59,8 +56,6 @@ async def _(
         query = query.filter(UserDBM.id == filter_id)
     if filter_long_id is not None:
         query = query.filter(UserDBM.long_id == filter_long_id)
-    if filter_slug is not None:
-        query = query.filter(UserDBM.slug == filter_slug)
     if filter_email is not None:
         query = query.filter(UserDBM.email == filter_email)
     if filter_username is not None:

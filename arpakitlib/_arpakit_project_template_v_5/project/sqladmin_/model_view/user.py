@@ -43,7 +43,7 @@ class UserMV(SimpleMV, model=UserDBM):
     form_args = {
         UserDBM.roles.key: {
             "choices": [(role, role) for role in UserDBM.Roles.values_list()],
-            "description": "Choose user roles"
+            "description": "Choose roles"
         }
     }
     column_sortable_list = sqlalchemy.inspect(UserDBM).columns
@@ -55,7 +55,6 @@ class UserMV(SimpleMV, model=UserDBM):
         UserDBM.long_id,
         UserDBM.email,
         UserDBM.username,
-        UserDBM.password,
         UserDBM.tg_id
     ]
     column_formatters = {

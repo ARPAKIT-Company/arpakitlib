@@ -5,7 +5,7 @@ from sqladmin.fields import SelectField
 
 from project.sqladmin_.model_view import SimpleMV
 from project.sqladmin_.util.etc import format_datetime_, format_json_for_preview_, format_json_
-from project.sqlalchemy_db_.sqlalchemy_model import VerificationCodeDBM
+from project.sqlalchemy_db_.sqlalchemy_model import VerificationCodeDBM, UserDBM
 
 
 class VerificationCodeMV(SimpleMV, model=VerificationCodeDBM):
@@ -48,6 +48,7 @@ class VerificationCodeMV(SimpleMV, model=VerificationCodeDBM):
     ]
     column_searchable_list = [
         VerificationCodeDBM.id,
+        VerificationCodeDBM.long_id,
         VerificationCodeDBM.value,
         VerificationCodeDBM.recipient
     ]
@@ -58,4 +59,12 @@ class VerificationCodeMV(SimpleMV, model=VerificationCodeDBM):
     column_formatters_detail = {
         VerificationCodeDBM.creation_dt: lambda m, _: format_datetime_(m.creation_dt),
         VerificationCodeDBM.extra_data: lambda m, a: format_json_(m.extra_data),
+    }
+    form_ajax_refs = {
+        VerificationCodeDBM.user.key: {
+            "fields": [UserDBM.id.key, UserDBM.email.key, UserDBM.username.key],
+            "placeholder": "Search by id or email",
+            "minimum_input_length": 1,
+            "page_size": 10,
+        }
     }

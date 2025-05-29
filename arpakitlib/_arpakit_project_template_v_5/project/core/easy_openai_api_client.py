@@ -2,10 +2,10 @@ import asyncio
 from functools import lru_cache
 
 import httpx
-from arpakitlib.ar_logging_util import setup_normal_logging
-from arpakitlib.ar_openai_api_client_util import EasyOpenAIAPIClient
 from openai import OpenAI, AsyncOpenAI
 
+from arpakitlib.ar_logging_util import setup_normal_logging
+from arpakitlib.ar_openai_api_client_util import EasyOpenAIAPIClient
 from project.core.settings import get_cached_settings
 
 

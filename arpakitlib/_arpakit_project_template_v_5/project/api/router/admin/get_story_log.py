@@ -34,12 +34,10 @@ async def _(
         ])),
         filter_id: int | None = fastapi.Query(default=None),
         filter_long_id: str | None = fastapi.Query(default=None),
-        filter_slug: str | None = fastapi.Query(default=None),
 ):
     filter_long_id = make_none_if_blank(strip_if_not_none(filter_long_id))
-    filter_slug = make_none_if_blank(strip_if_not_none(filter_slug))
 
-    if filter_id is None and filter_long_id is None and filter_slug is None:
+    if filter_id is None and filter_long_id is None:
         return None
 
     query = sqlalchemy.select(StoryLogDBM)
@@ -47,8 +45,6 @@ async def _(
         query = query.filter(StoryLogDBM.id == filter_id)
     if filter_long_id is not None:
         query = query.filter(StoryLogDBM.long_id == filter_long_id)
-    if filter_slug is not None:
-        query = query.filter(StoryLogDBM.slug == filter_slug)
 
     async with get_cached_sqlalchemy_db().new_async_session() as async_session:
         result = await async_session.scalar(query)

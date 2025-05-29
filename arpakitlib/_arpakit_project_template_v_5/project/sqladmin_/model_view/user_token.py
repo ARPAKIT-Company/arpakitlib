@@ -34,7 +34,6 @@ class UserTokenMV(SimpleMV, model=UserTokenDBM):
     column_searchable_list = [
         UserTokenDBM.id,
         UserTokenDBM.long_id,
-        UserTokenDBM.slug,
         UserTokenDBM.value,
     ]
     column_formatters = {
@@ -47,7 +46,7 @@ class UserTokenMV(SimpleMV, model=UserTokenDBM):
     }
     form_ajax_refs = {
         UserTokenDBM.user.key: {
-            "fields": [UserDBM.id.key, UserDBM.email.key],
+            "fields": [UserDBM.id.key, UserDBM.email.key, UserDBM.username.key],
             "placeholder": "Search by id or email",
             "minimum_input_length": 1,
             "page_size": 10,

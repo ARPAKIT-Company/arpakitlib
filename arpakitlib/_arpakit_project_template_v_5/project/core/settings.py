@@ -168,6 +168,14 @@ class Settings(SimpleSettings):
 
     local_timezone: str | None = None
 
+    email_smtp_user: str | None = None
+
+    email_smtp_password: str | None = None
+
+    email_smtp_port: int | None = 465
+
+    email_smtp_hostname: str | None = "smtp.yandex.ru"
+
     @property
     def local_timezone_as_pytz(self) -> Any:
         raise_for_type(self.local_timezone, str)
@@ -176,6 +184,10 @@ class Settings(SimpleSettings):
     openai_api_key: str | None = None
 
     openai_api_base_url: str | None = "https://api.proxyapi.ru/openai/v1"
+
+    tg_bot_notifier_token: str | None = None
+
+    tg_bot_notifier_proxy_url: str | None = None
 
 
 @lru_cache()

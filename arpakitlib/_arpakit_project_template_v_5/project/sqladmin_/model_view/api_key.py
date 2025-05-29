@@ -41,6 +41,7 @@ class ApiKeyMV(SimpleMV, model=ApiKeyDBM):
     ]
     column_searchable_list = [
         ApiKeyDBM.id,
+        ApiKeyDBM.long_id,
         ApiKeyDBM.value,
     ]
     column_formatters = {
