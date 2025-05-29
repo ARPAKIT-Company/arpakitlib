@@ -1,4 +1,13 @@
+import datetime as dt
+import io
+import json
+from typing import Any, List
+
+import starlette.responses
+from openpyxl import Workbook
 from sqladmin import ModelView
+
+from project.core.util import now_local_dt
 
 
 class SimpleMV(ModelView):
@@ -11,7 +20,53 @@ class SimpleMV(ModelView):
     page_size_options = [50, 100, 200, 500, 750, 1000]
     save_as = True
     save_as_continue = True
-    export_types = ["xlsx", "csv", "json"]
+    export_types = ["xlsx"]
+
+    async def export_data(
+            self,
+            data: List[Any],
+            export_type: str = "csv",
+    ) -> starlette.responses.StreamingResponse:
+        if export_type == "xlsx":
+            return await self.export_data_into_xlsx(data=data)
+        else:
+            return await super().export_data(data=data, export_type=export_type)
+
+    async def export_data_into_xlsx(self, data: list[Any]) -> starlette.responses.StreamingResponse:
+        wb = Workbook()
+        wb.active.title = f"{self.model.__name__}"
+        wb.active.append(self.get_list_columns())
+
+        for d in data:
+            wb.active.append([
+                self._serialize_value_for_export_data_into_xlsx(getattr(d, column_name, ""))
+                for column_name in self.get_list_columns()
+            ])
+
+        output = io.BytesIO()
+        wb.save(output)
+        output.seek(0)
+
+        filename = f"{self.model.__name__}_export_{now_local_dt().strftime("%d.%m.%YT%H-%M-%S-%Z%z")}.xlsx"
+
+        return starlette.responses.StreamingResponse(
+            output,
+            media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            headers={
+                "Content-Disposition": f"attachment; filename=\"{filename}\""
+            },
+        )
+
+    def _serialize_value_for_export_data_into_xlsx(self, value: Any) -> str:
+        if value is None:
+            return ""
+        if isinstance(value, dt.datetime):
+            return value.strftime("%d.%m.%Y %H:%M:%S %Z%z")
+        if isinstance(value, dt.date):
+            return value.strftime("%d.%m.%Y")
+        if isinstance(value, (dict, list)):
+            return json.dumps(value, ensure_ascii=False, default=str)
+        return str(value)
 
 
 def get_simple_mv_class() -> type[SimpleMV]:
