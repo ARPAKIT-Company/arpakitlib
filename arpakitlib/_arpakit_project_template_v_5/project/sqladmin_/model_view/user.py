@@ -15,6 +15,23 @@ class UserMV(SimpleMV, model=UserDBM):
         UserDBM.long_id,
         UserDBM.slug,
         UserDBM.creation_dt,
+        UserDBM.fullname,
+        UserDBM.email,
+        UserDBM.username,
+        UserDBM.roles,
+        UserDBM.is_active,
+        UserDBM.password,
+        UserDBM.tg_id,
+        UserDBM.tg_data,
+        UserDBM.tg_bot_last_action_dt,
+        UserDBM.extra_data
+    ]
+    column_details_list = [
+        UserDBM.id,
+        UserDBM.long_id,
+        UserDBM.slug,
+        UserDBM.creation_dt,
+        UserDBM.fullname,
         UserDBM.email,
         UserDBM.username,
         UserDBM.roles,
@@ -27,6 +44,7 @@ class UserMV(SimpleMV, model=UserDBM):
     ]
     form_columns = [
         UserDBM.slug,
+        UserDBM.fullname,
         UserDBM.email,
         UserDBM.username,
         UserDBM.roles,
@@ -53,6 +71,7 @@ class UserMV(SimpleMV, model=UserDBM):
     column_searchable_list = [
         UserDBM.id,
         UserDBM.long_id,
+        UserDBM.fullname,
         UserDBM.email,
         UserDBM.username,
         UserDBM.tg_id

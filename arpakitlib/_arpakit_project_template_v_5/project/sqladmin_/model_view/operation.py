@@ -25,6 +25,21 @@ class OperationMV(SimpleMV, model=OperationDBM):
         OperationDBM.error_data,
         OperationDBM.extra_data
     ]
+    column_details_list = [
+        OperationDBM.id,
+        OperationDBM.long_id,
+        OperationDBM.slug,
+        OperationDBM.creation_dt,
+        OperationDBM.status,
+        OperationDBM.type,
+        OperationDBM.title,
+        OperationDBM.execution_start_dt,
+        OperationDBM.execution_finish_dt,
+        OperationDBM.input_data,
+        OperationDBM.output_data,
+        OperationDBM.error_data,
+        OperationDBM.extra_data
+    ]
     form_columns = [
         OperationDBM.slug,
         OperationDBM.status,

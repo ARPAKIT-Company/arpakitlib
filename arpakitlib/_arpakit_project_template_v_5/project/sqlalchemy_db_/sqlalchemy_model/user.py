@@ -34,6 +34,10 @@ class UserDBM(SimpleDBM):
         admin = "admin"
         client = "client"
 
+    fullname: Mapped[str | None] = mapped_column(
+        sqlalchemy.TEXT,
+        nullable=True,
+    )
     email: Mapped[str | None] = mapped_column(
         sqlalchemy.TEXT,
         nullable=True,

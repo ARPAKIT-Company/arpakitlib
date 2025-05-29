@@ -24,6 +24,18 @@ class VerificationCodeMV(SimpleMV, model=VerificationCodeDBM):
         VerificationCodeDBM.is_active,
         VerificationCodeDBM.extra_data
     ]
+    column_details_list = [
+        VerificationCodeDBM.id,
+        VerificationCodeDBM.long_id,
+        VerificationCodeDBM.slug,
+        VerificationCodeDBM.creation_dt,
+        VerificationCodeDBM.type,
+        VerificationCodeDBM.value,
+        VerificationCodeDBM.recipient,
+        VerificationCodeDBM.user,
+        VerificationCodeDBM.is_active,
+        VerificationCodeDBM.extra_data
+    ]
     form_columns = [
         VerificationCodeDBM.slug,
         VerificationCodeDBM.type,

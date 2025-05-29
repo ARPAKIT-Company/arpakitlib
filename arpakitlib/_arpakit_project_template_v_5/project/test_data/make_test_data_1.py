@@ -19,13 +19,14 @@ def make_test_data_1():
 
     with get_cached_sqlalchemy_db().new_session() as session:
 
-        for i in range(1000):
+        for i in range(100):
             api_key = ApiKeyDBM(value=str(i + 1))
             session.add(api_key)
             _logger.info(api_key)
         session.commit()
 
         arpakit_user = UserDBM(
+            fullname="Арсен",
             email="arpakit@gmail.com",
             username="arpakit",
             roles=[UserDBM.Roles.client, UserDBM.Roles.admin],

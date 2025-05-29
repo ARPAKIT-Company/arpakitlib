@@ -8,6 +8,7 @@ from project.sqlalchemy_db_.sqlalchemy_model import UserDBM
 
 
 class User1AdminSO(SimpleDBMAdminSO):
+    fullname: str | None
     email: str | None
     username: str | None
     roles: list[str]

@@ -19,6 +19,16 @@ class StoryLogMV(SimpleMV, model=StoryLogDBM):
         StoryLogDBM.title,
         StoryLogDBM.extra_data
     ]
+    column_details_list = [
+        StoryLogDBM.id,
+        StoryLogDBM.long_id,
+        StoryLogDBM.slug,
+        StoryLogDBM.creation_dt,
+        StoryLogDBM.level,
+        StoryLogDBM.type,
+        StoryLogDBM.title,
+        StoryLogDBM.extra_data
+    ]
     form_columns = [
         StoryLogDBM.slug,
         StoryLogDBM.level,
