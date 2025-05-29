@@ -39,7 +39,7 @@ class VerificationCodeMV(SimpleMV, model=VerificationCodeDBM):
     form_args = {
         VerificationCodeDBM.type.key: {
             "choices": [(status, status) for status in VerificationCodeDBM.Types.values_list()],
-            "description": "Выберите тип"
+            "description": "Choose type"
         }
     }
     column_sortable_list = sqlalchemy.inspect(VerificationCodeDBM).columns

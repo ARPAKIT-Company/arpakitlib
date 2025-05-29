@@ -48,7 +48,7 @@ class UserTokenMV(SimpleMV, model=UserTokenDBM):
     form_ajax_refs = {
         UserTokenDBM.user.key: {
             "fields": [UserDBM.id.key, UserDBM.email.key],
-            "placeholder": 'Search by id or email',
+            "placeholder": "Search by id or email",
             "minimum_input_length": 1,
             "page_size": 10,
         }

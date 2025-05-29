@@ -43,7 +43,7 @@ class OperationMV(SimpleMV, model=OperationDBM):
     form_args = {
         OperationDBM.status.key: {
             "choices": [(status, status) for status in OperationDBM.Statuses.values_list()],
-            "description": "Выберите статус"
+            "description": "Choose status"
         }
     }
     column_sortable_list = sqlalchemy.inspect(OperationDBM).columns
