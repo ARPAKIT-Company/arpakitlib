@@ -42,7 +42,7 @@ async def async_startup_api_event():
     ):
         get_cached_json_db().init()
 
-    if get_cached_sqlalchemy_db() is not None:
+    if get_cached_sqlalchemy_db() is not None and get_cached_settings().api_create_first_data:
         create_first_data_for_api()
 
     if get_cached_settings().api_start_operation_executor_worker:
