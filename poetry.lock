@@ -6088,6 +6088,25 @@ docs = ["furo (>=2023.7.26)", "proselint (>=0.13)", "sphinx (>=7.1.2,!=7.3)", "s
 test = ["covdefaults (>=2.3)", "coverage (>=7.2.7)", "coverage-enable-subprocess (>=1)", "flaky (>=3.7)", "packaging (>=23.1)", "pytest (>=7.4)", "pytest-env (>=0.8.2)", "pytest-freezer (>=0.4.8) ; platform_python_implementation == \"PyPy\" or platform_python_implementation == \"GraalVM\" or platform_python_implementation == \"CPython\" and sys_platform == \"win32\" and python_version >= \"3.13\"", "pytest-mock (>=3.11.1)", "pytest-randomly (>=3.12)", "pytest-timeout (>=2.1)", "setuptools (>=68)", "time-machine (>=2.10) ; platform_python_implementation == \"CPython\""]
 
 [[package]]
+name = "vk-api"
+version = "11.9.9"
+description = "Python модуль для создания скриптов для социальной сети Вконтакте (vk.com API wrapper)"
+optional = false
+python-versions = "*"
+groups = ["main"]
+files = [
+    {file = "vk_api-11.9.9-py3-none-any.whl", hash = "sha256:c71021506449afe5b9bbb1c4acb0d86b35a007ddc21678478e46fbbeabd1f3ef"},
+    {file = "vk_api-11.9.9.tar.gz", hash = "sha256:c7741e40bc05980c91ed94c84542e1e7e7370e101b5eaa74222958d4130fe3c2"},
+]
+
+[package.dependencies]
+requests = "*"
+
+[package.extras]
+vkaudio = ["beautifulsoup4"]
+vkstreaming = ["websocket-client"]
+
+[[package]]
 name = "wcwidth"
 version = "0.2.13"
 description = "Measures the displayed width of unicode strings in a terminal"
@@ -6509,4 +6528,4 @@ cffi = ["cffi (>=1.11)"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12.4,<4.0"
-content-hash = "8f39048ed808b9e0bcc1ebd31efd3f29b35d67715153304767c12a21ec45b35b"
+content-hash = "8517cf55c76c8490c2c0bebc71a7c30dd7f610a01353f0be63f6f877f1bec54a"
