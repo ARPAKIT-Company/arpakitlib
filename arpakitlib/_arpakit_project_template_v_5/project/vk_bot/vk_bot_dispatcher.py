@@ -4,7 +4,7 @@ from typing import Callable, Dict
 import vk_api
 from vk_api.longpoll import VkLongPoll, VkEventType
 
-from project.vk_bot.event import add_events_to_vk_bot_dispatcher
+from project.vk_bot.events import add_events_to_vk_bot_dispatcher
 
 
 @dataclass
