@@ -124,6 +124,8 @@ class Settings(SimpleSettings):
 
     tg_bot_token: str | None = None
 
+    vk_bot_token: str | None = None
+
     tg_bot_proxy_url: str | None = None
 
     tg_bot_init_sqlalchemy_db: bool = False
