@@ -10,7 +10,7 @@ def start_vk_bot():
 
     vk_bot_dispatcher = create_vk_bot_dispatcher(vk=vk, longpoll=longpoll)
 
-    print("VK Bot started...")
+    print("VK bot started...")
     
     for event in longpoll.listen():
         vk_bot_dispatcher.process_event(event)
