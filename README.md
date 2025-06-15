@@ -44,3 +44,4 @@ poetry run arpakitlib -c init_arpakit_project_template -version 5 -project_dirpa
 
 ## ❤️ Made by ARPAKIT Company ❤️
 
+
