@@ -29,7 +29,6 @@ class UserTokenDBM(SimpleDBM):
         nullable=False,
         unique=True,
         insert_default=generate_default_user_token_value,
-        server_default=sqlalchemy.func.gen_random_uuid(),
     )
     user_id: Mapped[int] = mapped_column(
         sqlalchemy.BIGINT,

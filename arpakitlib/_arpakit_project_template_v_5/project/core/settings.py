@@ -80,6 +80,10 @@ class Settings(SimpleSettings):
 
     api_port: int | None = 8080
 
+    api_host: str | None = "localhost"
+
+    api_reload: bool = False
+
     api_init_sqlalchemy_db: bool = False
 
     api_init_json_db: bool = False

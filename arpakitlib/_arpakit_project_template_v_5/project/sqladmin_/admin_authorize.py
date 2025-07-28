@@ -36,15 +36,22 @@ class SQLAdminAuth(AuthenticationBackend):
                             is_password_correct := password in get_cached_settings().sqladmin_authorize_keys
                     )
             ):
-                if is_username_correct is True:
+                if is_username_correct:
                     request.session.update({SQLADMIN_AUTHORIZE_KEY: username})
-                elif is_password_correct is True:
+                elif is_password_correct:
                     request.session.update({SQLADMIN_AUTHORIZE_KEY: password})
                 return True
 
         if get_cached_sqlalchemy_db() is not None and (username is not None or password is not None):
             with get_cached_sqlalchemy_db().new_session() as session:
-                query = session.query(UserTokenDBM).filter(UserTokenDBM.is_active == True)
+                query = session.query(UserTokenDBM)
+                query = query.join(
+                    UserDBM
+                ).filter(
+                    UserTokenDBM.is_active == True
+                ).filter(
+                    UserDBM.is_active.is_(True)
+                )
                 if username is not None:
                     query = query.filter(UserTokenDBM.value == username)
                 elif password is not None:
@@ -57,26 +64,29 @@ class SQLAdminAuth(AuthenticationBackend):
                     return True
 
         if get_cached_sqlalchemy_db() is not None and (username is not None and password is not None):
-            query = session.query(UserDBM)
-            query = query.filter(UserDBM.is_active == True)
-            _or_conditions = [
-                UserDBM.long_id == username,
-                UserDBM.slug == username,
-                UserDBM.email == username,
-                UserDBM.username == username,
-            ]
-            if username.isdigit():
-                _or_conditions.append(UserDBM.id == int(username))
-            query = query.filter(sqlalchemy.or_(*_or_conditions))
-            query = query.filter(UserDBM.password == password)
-            user_dbm: UserDBM | None = query.one_or_none()
-            if user_dbm is not None and user_dbm.compare_roles(UserDBM.Roles.admin):
-                new_user_token_dbm = UserTokenDBM(user_id=user_dbm.id)
-                session.add(new_user_token_dbm)
-                session.commit()
-                session.refresh(new_user_token_dbm)
-                request.session.update({SQLADMIN_AUTHORIZE_KEY: new_user_token_dbm.value})
-                return True
+            with get_cached_sqlalchemy_db().new_session() as session:
+                query = session.query(UserDBM)
+                query = query.filter(
+                    UserDBM.is_active == True
+                )
+                _or_conditions = [
+                    UserDBM.long_id == username,
+                    UserDBM.slug == username,
+                    UserDBM.email == username,
+                    UserDBM.username == username,
+                ]
+                if username.isdigit():
+                    _or_conditions.append(UserDBM.id == int(username))
+                query = query.filter(sqlalchemy.or_(*_or_conditions))
+                query = query.filter(UserDBM.password == password)
+                user_dbm: UserDBM | None = query.one_or_none()
+                if user_dbm is not None and user_dbm.compare_roles(UserDBM.Roles.admin):
+                    new_user_token_dbm = UserTokenDBM(user_id=user_dbm.id)
+                    session.add(new_user_token_dbm)
+                    session.commit()
+                    session.refresh(new_user_token_dbm)
+                    request.session.update({SQLADMIN_AUTHORIZE_KEY: new_user_token_dbm.value})
+                    return True
 
         return False
 

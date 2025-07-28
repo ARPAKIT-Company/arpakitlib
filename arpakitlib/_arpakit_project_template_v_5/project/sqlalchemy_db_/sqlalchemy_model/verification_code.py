@@ -36,7 +36,6 @@ class VerificationCodeDBM(SimpleDBM):
         nullable=False,
         index=True,
         insert_default=generate_default_verification_code_value,
-        server_default=sqlalchemy.func.gen_random_uuid(),
     )
     recipient: Mapped[str | None] = mapped_column(
         sqlalchemy.TEXT,
