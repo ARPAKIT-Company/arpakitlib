@@ -10,4 +10,4 @@ export TWINE_HTTP_TIMEOUT=60
 rm -rf dist
 poetry build
 poetry publish --repository testpypi
-poetry publish --repository pypi
+poetry publish
