@@ -70,30 +70,30 @@ def sync_execute_with_story_log(
 
 
 async def async_execute_with_story_log(
-        func,
+        async_func,
         *,
-        func_args: tuple[Any] | None = None,
-        func_kwargs: dict[Any, Any] | None = None,
+        async_func_args: tuple[Any] | None = None,
+        async_func_kwargs: dict[Any, Any] | None = None,
         async_session_: AsyncSession | None = None,
         story_log_level: str = StoryLogDBM.Levels.error,
         story_log_type: str = StoryLogDBM.Types.error_in_execute_with_story_log,
         story_log_title: str | None = None,
         story_log_extra_data: dict[Any, Any] | None = None,
 ) -> Any:
-    if func_args is None:
-        func_args = ()
-    if func_kwargs is None:
-        func_kwargs = {}
+    if async_func_args is None:
+        async_func_args = ()
+    if async_func_kwargs is None:
+        async_func_kwargs = {}
     if story_log_extra_data is None:
         story_log_extra_data = {}
 
     try:
-        return await func(*func_args, **func_kwargs)
+        return await async_func(*async_func_args, **async_func_kwargs)
     except Exception as exception:
-        _logger.error(f"Async error in {func.__name__}", exc_info=True)
+        _logger.error(f"Async error in {async_func.__name__}", exc_info=True)
 
         if story_log_title is None:
-            story_log_title = f"Async error in func {func.__name__}: {type(exception).__name__}: {exception}"
+            story_log_title = f"Async error in func {async_func.__name__}: {type(exception).__name__}: {exception}"
 
         story_log_extra_data.update({
             "exception": str(exception),
