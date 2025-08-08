@@ -1,6 +1,6 @@
 [project]
 name = "arpakitlib"
-version = "1.8.145"
+version = "1.8.146"
 description = "arpakitlib"
 authors = [
     { name = "arpakit_support", email = "support@arpakit.com" }
@@ -79,6 +79,12 @@ arpakit_company_site = "https://arpakit.com/"
 
 [tool.poetry]
 package-mode = true
+
+
+[[tool.poetry.source]]
+name = "pypi"
+url = "https://pypi.org/simple/"
+priority = "default"
 
 
 [[tool.poetry.source]]
