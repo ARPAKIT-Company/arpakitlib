@@ -4,6 +4,7 @@ import logging
 import smtplib
 import ssl
 from email.message import EmailMessage
+from email.utils import formataddr
 
 import aiosmtplib
 
@@ -13,9 +14,19 @@ from project.core.util import setup_logging
 _logger = logging.getLogger(__name__)
 
 
-def _build_message(to_email: str, subject: str, html_content: str) -> EmailMessage:
+def _build_email_message(
+        *,
+        from_email: str,
+        to_email: str,
+        subject: str,
+        html_content: str,
+        from_name: str | None = None,
+) -> EmailMessage:
     msg = EmailMessage()
-    msg["From"] = get_cached_settings().email_smtp_user
+    if from_name:
+        msg["From"] = formataddr((from_name, from_email))
+    else:
+        msg["From"] = from_email  # без имени
     msg["To"] = to_email.strip()
     msg["Subject"] = subject
     msg.add_alternative(html_content, subtype="html")
@@ -24,6 +35,7 @@ def _build_message(to_email: str, subject: str, html_content: str) -> EmailMessa
 
 def sync_send_email(
         *,
+        from_name: str | None = get_cached_settings().project_name,
         to_email: str,
         subject: str = get_cached_settings().project_name,
         html_content: str,
@@ -33,26 +45,32 @@ def sync_send_email(
         _logger.info(f"emulate email sending, to_email={to_email!r}, subject={subject!r}")
         return
 
+    message = _build_email_message(
+        from_email=get_cached_settings().email_smtp_user,
+        from_name=from_name,
+        to_email=to_email, subject=subject, html_content=html_content
+    )
+
     if get_cached_settings().email_smtp_port == 465:
         _logger.info("using port 465 (SSL)")
         with smtplib.SMTP_SSL(
                 host=get_cached_settings().email_smtp_hostname,
                 port=465,
-                timeout=dt.timedelta(seconds=30).total_seconds(),
+                timeout=dt.timedelta(seconds=15).total_seconds(),
                 context=ssl.create_default_context(),
         ) as server:
             server.login(
                 get_cached_settings().email_smtp_user,
                 get_cached_settings().email_smtp_password,
             )
-            server.send_message(_build_message(to_email, subject, html_content))
+            server.send_message(message)
 
     elif get_cached_settings().email_smtp_port == 587:
         _logger.info("using port 587 (STARTTLS)")
         with smtplib.SMTP(
                 host=get_cached_settings().email_smtp_hostname,
                 port=587,
-                timeout=dt.timedelta(seconds=30).total_seconds(),
+                timeout=dt.timedelta(seconds=15).total_seconds(),
         ) as server:
             server.ehlo()
             server.starttls(context=ssl.create_default_context())
@@ -61,7 +79,7 @@ def sync_send_email(
                 get_cached_settings().email_smtp_user,
                 get_cached_settings().email_smtp_password,
             )
-            server.send_message(_build_message(to_email, subject, html_content))
+            server.send_message(message)
     else:
         raise ValueError("Unsupported SMTP port")
 
@@ -70,6 +88,7 @@ def sync_send_email(
 
 async def async_send_email(
         *,
+        from_name: str | None = get_cached_settings().project_name,
         to_email: str,
         subject: str = get_cached_settings().project_name,
         html_content: str,
@@ -79,31 +98,37 @@ async def async_send_email(
         _logger.info(f"emulate email sending, to_email={to_email!r}, subject={subject!r}")
         return
 
+    message = _build_email_message(
+        from_email=get_cached_settings().email_smtp_user,
+        from_name=from_name,
+        to_email=to_email, subject=subject, html_content=html_content
+    )
+
     if get_cached_settings().email_smtp_port == 465:
         _logger.info("using port 465 (SSL)")
         await aiosmtplib.send(
-            _build_message(to_email, subject, html_content),
+            message,
             hostname=get_cached_settings().email_smtp_hostname,
-            port=get_cached_settings().email_smtp_port,
+            port=465,
             username=get_cached_settings().email_smtp_user,
             password=get_cached_settings().email_smtp_password,
             use_tls=True,
             start_tls=False,
-            timeout=dt.timedelta(seconds=30).total_seconds(),
+            timeout=dt.timedelta(seconds=15).total_seconds(),
             tls_context=ssl.create_default_context(),
         )
 
     elif get_cached_settings().email_smtp_port == 587:
         _logger.info("using port 587 (STARTTLS)")
         await aiosmtplib.send(
-            _build_message(to_email, subject, html_content),
+            message,
             hostname=get_cached_settings().email_smtp_hostname,
-            port=get_cached_settings().email_smtp_port,
+            port=587,
             username=get_cached_settings().email_smtp_user,
             password=get_cached_settings().email_smtp_password,
             use_tls=False,
             start_tls=True,
-            timeout=dt.timedelta(seconds=30).total_seconds(),
+            timeout=dt.timedelta(seconds=15).total_seconds(),
             tls_context=ssl.create_default_context(),
         )
     else:
@@ -117,6 +142,7 @@ async def __async_example():
     await async_send_email(
         to_email="arpakit@gmail.com",
         html_content="Hello world 2",
+        from_name="Gamer Market"
     )
 
 
