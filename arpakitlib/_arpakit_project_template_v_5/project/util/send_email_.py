@@ -35,9 +35,9 @@ def _build_email_message(
 
 def sync_send_email(
         *,
-        from_name: str | None = get_cached_settings().project_name,
+        from_name: str | None = get_cached_settings().common_project_title,
         to_email: str,
-        subject: str = get_cached_settings().project_name,
+        subject: str = get_cached_settings().common_project_title,
         html_content: str,
         emulate: bool = False,
 ):
@@ -88,9 +88,9 @@ def sync_send_email(
 
 async def async_send_email(
         *,
-        from_name: str | None = get_cached_settings().project_name,
+        from_name: str | None = get_cached_settings().common_project_title,
         to_email: str,
-        subject: str = get_cached_settings().project_name,
+        subject: str = get_cached_settings().common_project_title,
         html_content: str,
         emulate: bool = False,
 ):
