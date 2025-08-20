@@ -21,6 +21,7 @@ class SimpleMV(ModelView):
     save_as = True
     save_as_continue = True
     export_types = ["xlsx"]
+    form_include_pk = True
 
     async def export_data(
             self,
