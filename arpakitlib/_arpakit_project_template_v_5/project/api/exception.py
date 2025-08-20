@@ -14,7 +14,8 @@ class APIException(fastapi.exceptions.HTTPException):
             error_code: str | None = APIErrorCodes.unknown_error,
             error_specification_code: str | None = None,
             error_description: str | None = None,
-            error_data: dict[str, Any] | None = None
+            error_data: dict[str, Any] | None = None,
+            create_story_log: bool = True
     ):
         self.status_code = status_code
         self.error_code = error_code
@@ -23,6 +24,7 @@ class APIException(fastapi.exceptions.HTTPException):
         if error_data is None:
             error_data = {}
         self.error_data = error_data
+        self.create_story_log = create_story_log
 
         self.error_common_so = ErrorCommonSO(
             has_error=True,
