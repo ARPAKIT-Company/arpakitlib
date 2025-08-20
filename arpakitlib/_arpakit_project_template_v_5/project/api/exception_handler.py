@@ -210,7 +210,7 @@ def create_story_log_func_before_in_api_exception_handler(
             return
 
         if isinstance(exception, APIException):
-            if not exception.create_story_log:
+            if exception.kwargs_.get("create_story_log") is False:
                 return
 
         async with get_cached_sqlalchemy_db().new_async_session() as session:
