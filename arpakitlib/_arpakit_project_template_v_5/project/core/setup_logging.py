@@ -1,31 +1,19 @@
-# arpakit
-
+import asyncio
 import logging
-import os
-from typing import Optional
 
-_ARPAKIT_LIB_MODULE_VERSION = "3.0"
-
-
-def init_log_file(*, log_filepath: str):
-    directory = os.path.dirname(log_filepath)
-    if directory and not os.path.exists(directory):
-        os.makedirs(directory, exist_ok=True)
-    if not os.path.exists(log_filepath):
-        with open(log_filepath, mode="w") as file:
-            file.write("")
-
+from arpakitlib.ar_logging_util import init_log_file
+from project.core.settings import get_cached_settings
 
 _logging_was_setup: bool = False
 
 
-def setup_normal_logging(log_filepath: Optional[str] = None):
+def setup_logging():
     global _logging_was_setup
-    if _normal_logging_was_setup is True:
+    if _logging_was_setup:
         return
 
-    if log_filepath:
-        init_log_file(log_filepath=log_filepath)
+    if get_cached_settings().log_filepath:
+        init_log_file(log_filepath=get_cached_settings().log_filepath)
 
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
@@ -39,8 +27,8 @@ def setup_normal_logging(log_filepath: Optional[str] = None):
     stream_handler.setFormatter(stream_formatter)
     logger.addHandler(stream_handler)
 
-    if log_filepath:
-        file_handler = logging.FileHandler(log_filepath)
+    if get_cached_settings().log_filepath:
+        file_handler = logging.FileHandler(get_cached_settings().log_filepath)
         file_handler.setLevel(logging.WARNING)
         file_formatter = logging.Formatter(
             "%(asctime)s | %(levelname)s | %(filename)s | %(funcName)s:%(lineno)d - %(message)s",
@@ -49,7 +37,7 @@ def setup_normal_logging(log_filepath: Optional[str] = None):
         file_handler.setFormatter(file_formatter)
         logger.addHandler(file_handler)
 
-    _normal_logging_was_setup = True
+    _logging_was_setup = True
 
     logger.info("normal logging was setup")
 
@@ -58,5 +46,10 @@ def __example():
     pass
 
 
+async def __async_example():
+    pass
+
+
 if __name__ == '__main__':
     __example()
+    asyncio.run(__async_example())

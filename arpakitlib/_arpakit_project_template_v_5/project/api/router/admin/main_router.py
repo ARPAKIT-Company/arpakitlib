@@ -23,7 +23,6 @@ main_admin_api_router.include_router(
     prefix="/raise_fake_error"
 )
 
-
 main_admin_api_router.include_router(
     router=raise_api_exception_1.api_router,
     prefix="/raise_api_exception_1"
