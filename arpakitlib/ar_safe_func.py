@@ -12,10 +12,19 @@ _ARPAKIT_LIB_MODULE_VERSION = "3.0"
 class SafeFuncResult(BaseModel):
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True, from_attributes=True)
 
-    is_ok: bool = False
+    has_exception: bool = False
     func_result: Any = None
     exception: Exception | None = None
     duration: dt.timedelta | None = None
+
+    def simple_dict_for_json(self) -> dict[str, Any]:
+        return {
+            "has_exception": self.has_exception,
+            "func_result": self.func_result,
+            "exception": self.exception,
+            "duration": self.duration,
+            "duration_total_seconds": self.duration.total_seconds() if self.duration is not None else None
+        }
 
 
 def sync_safely_run_func(*, sync_func, args: tuple | None = None, kwargs: dict | None = None) -> SafeFuncResult:
@@ -28,13 +37,13 @@ def sync_safely_run_func(*, sync_func, args: tuple | None = None, kwargs: dict |
         res = sync_func(*args, **kwargs)
         duration = now_utc_dt() - func_start_dt
         return SafeFuncResult(
-            is_ok=True,
+            has_exception=True,
             func_result=res,
             duration=duration
         )
     except Exception as exception:
         return SafeFuncResult(
-            is_ok=False,
+            has_exception=False,
             exception=exception
         )
 
