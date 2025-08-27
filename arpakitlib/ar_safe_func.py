@@ -2,7 +2,7 @@
 import datetime as dt
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from arpakitlib.ar_datetime_util import now_utc_dt
 
@@ -16,6 +16,9 @@ class SafeFuncResult(BaseModel):
     func_result: Any = None
     exception: Exception | None = None
     duration: dt.timedelta | None = None
+    func_name: str
+    args: tuple = Field(default_factory=tuple)
+    kwargs: dict = Field(default_factory=dict)
 
     def simple_dict_for_json(self) -> dict[str, Any]:
         return {
@@ -39,12 +42,18 @@ def sync_safely_run_func(*, sync_func, args: tuple | None = None, kwargs: dict |
         return SafeFuncResult(
             has_exception=False,
             func_result=res,
-            duration=duration
+            duration=duration,
+            func_name=sync_func.__name__,
+            args=args,
+            kwargs=kwargs
         )
     except Exception as exception:
         return SafeFuncResult(
             has_exception=True,
-            exception=exception
+            exception=exception,
+            func_name=sync_func.__name__,
+            args=args,
+            kwargs=kwargs
         )
 
 
