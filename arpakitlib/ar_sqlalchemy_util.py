@@ -317,8 +317,8 @@ def get_string_info_from_declarative_base_2(class_: type[DeclarativeBase]) -> st
     lines: list[str] = [f"DBModels: {len(class_.__subclasses__())}"]
     for i, cls in enumerate(class_.__subclasses__()):
         if hasattr(cls, "__tablename__"):
-            lines.append(f"{i + 1}. DBModel: {cls.__tablename__}")
             mapper = inspect(cls)
+            lines.append(f"{i + 1}. DBModel: {cls.__tablename__} (columns={len(mapper.columns)})")
             for column in mapper.columns:
                 lines.append(f"   - {column.name} ({column.type})")
     return "\n".join(lines)
