@@ -7,9 +7,11 @@ from pydantic_core import PydanticUndefined
 def clone_pydantic_model_fields(
         *,
         model_cls: Type[BaseModel],
-        fields_to_remove: set[str],
+        fields_to_remove: set[str] | None = None,
         new_class_name: str | None = None,
 ) -> Type[BaseModel]:
+    if fields_to_remove is None:
+        fields_to_remove = set()
     if new_class_name is None:
         new_class_name = f"{model_cls.__name__}Cloned"
 
