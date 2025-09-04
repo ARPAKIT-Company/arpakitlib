@@ -31,6 +31,12 @@ def get_default_column_default_sort() -> tuple[Any, Any]:
     return SimpleDBM.ColumnNames.creation_dt, True
 
 
+def get_default_column_searchable_list() -> list[str]:
+    from project.sqlalchemy_db_.sqlalchemy_model import SimpleDBM
+    return [SimpleDBM.ColumnNames.id, SimpleDBM.ColumnNames.long_id, SimpleDBM.ColumnNames.uuid]
+
+
+
 class SimpleMV(ModelView):
     can_create = True
     can_edit = True
@@ -46,6 +52,7 @@ class SimpleMV(ModelView):
     column_default_sort = get_default_column_default_sort()
     column_formatters = get_default_column_formatters()
     column_formatters_detail = get_default_column_formatters_detail()
+    column_searchable_list = get_default_column_searchable_list()
 
     @classmethod
     def get_default_column_default_sort(cls) -> tuple[Any, Any]:
@@ -53,8 +60,7 @@ class SimpleMV(ModelView):
 
     @classmethod
     def get_default_column_searchable_list(cls) -> list[str]:
-        from project.sqlalchemy_db_.sqlalchemy_model import SimpleDBM
-        return [SimpleDBM.ColumnNames.id, SimpleDBM.ColumnNames.long_id, SimpleDBM.ColumnNames.uuid]
+        return get_default_column_searchable_list()
 
     @classmethod
     def get_default_column_list(cls) -> list[str]:
