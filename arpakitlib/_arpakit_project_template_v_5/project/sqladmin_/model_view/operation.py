@@ -86,7 +86,6 @@ class OperationMV(SimpleMV, model=OperationDBM):
         OperationDBM.output_data: lambda m, a: format_json_for_preview_(m.output_data),
         OperationDBM.error_data: lambda m, a: format_json_for_preview_(m.error_data),
         OperationDBM.extra_data: lambda m, a: format_json_for_preview_(m.extra_data),
-        "duration": lambda m, a: m.duration,
     }
     column_formatters_detail = {
         OperationDBM.creation_dt: lambda m, _: format_datetime_(m.creation_dt),
@@ -94,5 +93,4 @@ class OperationMV(SimpleMV, model=OperationDBM):
         OperationDBM.output_data: lambda m, a: format_json_(m.output_data),
         OperationDBM.error_data: lambda m, a: format_json_(m.error_data),
         OperationDBM.extra_data: lambda m, a: format_json_(m.extra_data),
-        "duration": lambda m, a: m.duration,
     }

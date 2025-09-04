@@ -27,6 +27,9 @@ def get_default_column_formatters_detail() -> dict[Any, Any]:
     }
 
 
+def get_default_column_default_sort() -> tuple[Any, Any]:
+    return SimpleDBM.ColumnNames.creation_dt, True
+
 
 class SimpleMV(ModelView):
     can_create = True
@@ -34,17 +37,19 @@ class SimpleMV(ModelView):
     can_delete = True
     can_view_details = True
     can_export = True
-    page_size = 50
+    page_size = 100
     page_size_options = [50, 100, 200, 500, 750, 1000]
     save_as = True
     save_as_continue = True
     export_types = ["xlsx"]
     form_include_pk = True
-    column_default_sort = [
-        (SimpleDBM.ColumnNames.creation_dt, True)
-    ]
+    column_default_sort = get_default_column_default_sort()
     column_formatters = get_default_column_formatters()
     column_formatters_detail = get_default_column_formatters_detail()
+
+    @classmethod
+    def get_default_column_default_sort(cls) -> tuple[Any, Any]:
+        return get_default_column_default_sort()
 
     @classmethod
     def get_default_column_searchable_list(cls) -> list[str]:
