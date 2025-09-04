@@ -12,6 +12,22 @@ from project.sqladmin_.util.etc import format_json_for_preview_, format_datetime
 from project.sqlalchemy_db_.sqlalchemy_model import SimpleDBM
 
 
+def get_default_column_formatters() -> dict[Any, Any]:
+    return {
+        SimpleDBM.ColumnNames.creation_dt: lambda m, _: format_datetime_(m.creation_dt),
+        SimpleDBM.ColumnNames.detail_data: lambda m, a: format_json_for_preview_(m.detail_data),
+        SimpleDBM.ColumnNames.extra_data: lambda m, a: format_json_for_preview_(m.extra_data),
+    }
+
+def get_default_column_formatters_detail() -> dict[Any, Any]:
+    return {
+        SimpleDBM.ColumnNames.creation_dt: lambda m, _: format_datetime_(m.creation_dt),
+        SimpleDBM.ColumnNames.detail_data: lambda m, a: format_json_(m.detail_data),
+        SimpleDBM.ColumnNames.extra_data: lambda m, a: format_json_(m.extra_data),
+    }
+
+
+
 class SimpleMV(ModelView):
     can_create = True
     can_edit = True
@@ -24,10 +40,11 @@ class SimpleMV(ModelView):
     save_as_continue = True
     export_types = ["xlsx"]
     form_include_pk = True
-
     column_default_sort = [
         (SimpleDBM.ColumnNames.creation_dt, True)
     ]
+    column_formatters = get_default_column_formatters()
+    column_formatters_detail = get_default_column_formatters_detail()
 
     @classmethod
     def get_default_column_searchable_list(cls) -> list[str]:
@@ -62,19 +79,11 @@ class SimpleMV(ModelView):
 
     @classmethod
     def get_default_column_formatters(cls) -> dict[Any, Any]:
-        return {
-            SimpleDBM.ColumnNames.creation_dt: lambda m, _: format_datetime_(m.creation_dt),
-            SimpleDBM.ColumnNames.detail_data: lambda m, a: format_json_for_preview_(m.detail_data),
-            SimpleDBM.ColumnNames.extra_data: lambda m, a: format_json_for_preview_(m.extra_data),
-        }
+        return get_default_column_formatters()
 
     @classmethod
     def get_default_column_formatters_detail(cls) -> dict[Any, Any]:
-        return {
-            SimpleDBM.ColumnNames.creation_dt: lambda m, _: format_datetime_(m.creation_dt),
-            SimpleDBM.ColumnNames.detail_data: lambda m, a: format_json_(m.detail_data),
-            SimpleDBM.ColumnNames.extra_data: lambda m, a: format_json_(m.extra_data),
-        }
+        return get_default_column_formatters_detail()
 
     async def export_data(
             self,
