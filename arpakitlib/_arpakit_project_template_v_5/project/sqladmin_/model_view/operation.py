@@ -25,7 +25,8 @@ class OperationMV(SimpleMV, model=OperationDBM):
         OperationDBM.error_data,
         OperationDBM.extra_data,
 
-        "duration"
+        OperationDBM.duration.fget.__name__,
+        OperationDBM.duration_as_str.fget.__name__
     ]
     column_details_list = [
         OperationDBM.id,
@@ -42,7 +43,8 @@ class OperationMV(SimpleMV, model=OperationDBM):
         OperationDBM.error_data,
         OperationDBM.extra_data,
 
-        "duration"
+        OperationDBM.duration.fget.__name__,
+        OperationDBM.duration_as_str.fget.__name__
     ]
     form_columns = [
         OperationDBM.slug,
