@@ -28,6 +28,9 @@ class OperationDBM(SimpleDBM):
         healthcheck_ = "healthcheck"
         raise_fake_error_ = "raise_fake_error"
 
+    class Markers(Enumeration):
+        nothing = "nothing"
+
     status: Mapped[str] = mapped_column(
         sqlalchemy.TEXT,
         nullable=False,
@@ -40,6 +43,11 @@ class OperationDBM(SimpleDBM):
         nullable=False,
         index=True,
         insert_default=Types.healthcheck_
+    )
+    marker: Mapped[str | None] = mapped_column(
+        sqlalchemy.TEXT,
+        nullable=True,
+        index=True,
     )
     title: Mapped[str | None] = mapped_column(
         sqlalchemy.TEXT,
@@ -86,6 +94,8 @@ class OperationDBM(SimpleDBM):
             parts.append(f"type={self.type}")
         return f"{self.entity_name} ({', '.join(parts)})"
 
+    # ---validators---
+
     @validates("status")
     def _validate_status(self, key, value, *args, **kwargs):
         if not isinstance(value, str):
@@ -103,6 +113,15 @@ class OperationDBM(SimpleDBM):
         value = value.strip()
         if not value:
             raise ValueError(f"{key=}, {value=}, value is empty")
+        return value
+
+    @validates("marker")
+    def _validate_marker(self, key, value, *args, **kwargs):
+        if value is None:
+            return None
+        if not isinstance(value, str):
+            raise ValueError(f"{key=}, {value=}, value is not str")
+        value = make_none_if_blank(value.strip())
         return value
 
     @validates("title")
@@ -138,6 +157,8 @@ class OperationDBM(SimpleDBM):
             raise ValueError(f"{key=}, {value=}, value is not dict")
         return value
 
+    # ---more---
+
     def raise_if_executed_with_error(self):
         if self.status == self.Statuses.executed_with_error:
             raise Exception(
@@ -159,12 +180,34 @@ class OperationDBM(SimpleDBM):
         return self.execution_finish_dt - self.execution_start_dt
 
     @property
+    def duration_as_str(self) -> str | None:
+        if self.duration is None:
+            return None
+        return str(self.duration)
+
+    @property
     def duration_total_seconds(self) -> float | None:
         if self.duration is None:
             return None
         return self.duration.total_seconds()
 
     # ---SDP---
+
+    @property
+    def sdp_duration(self) -> timedelta | None:
+        """
+        При использовании у данной модели .simple_dict данное свойство будет представлено как поле.
+        То есть префикс sdp_ и даёт этот бонус.
+        """
+        return self.duration
+
+    @property
+    def sdp_duration_as_str(self) -> str | None:
+        """
+        При использовании у данной модели .simple_dict данное свойство будет представлено как поле.
+        То есть префикс sdp_ и даёт этот бонус.
+        """
+        return self.duration_as_str
 
     @property
     def sdp_duration_total_seconds(self) -> float | None:
