@@ -23,6 +23,7 @@ class OperationDBM(SimpleDBM):
         executing = "executing"
         executed_without_error = "executed_without_error"
         executed_with_error = "executed_with_error"
+        cancelled = "cancelled"
 
     class Types(Enumeration):
         healthcheck_ = "healthcheck"
