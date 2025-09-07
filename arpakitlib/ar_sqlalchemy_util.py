@@ -68,7 +68,7 @@ class BaseDBM(DeclarativeBase):
         return self._bus_data
 
     @classmethod
-    def get_cls_column_names(
+    def get_table_column_names_(
             cls,
             *,
             include_pk: bool = True,
@@ -85,7 +85,7 @@ class BaseDBM(DeclarativeBase):
         return result
 
     @classmethod
-    def get_cls_sd_property_names(
+    def get_sd_property_names(
             cls,
             *,
             prefix: str = "sdp_",
@@ -99,22 +99,6 @@ class BaseDBM(DeclarativeBase):
         if remove_prefix:
             return [name[len(prefix):] for name in props]
         return props
-
-    def get_sd_property_names(
-            self,
-            *,
-            prefix: str = "sdp_",
-            remove_prefix: bool = False
-    ) -> list[str]:
-        res = []
-        for attr_name in dir(self):
-            if not attr_name.startswith(prefix) or not isinstance(getattr(type(self), attr_name, None), property):
-                continue
-            sd_property_name = attr_name
-            if remove_prefix:
-                sd_property_name = attr_name.removeprefix(prefix)
-            res.append(sd_property_name)
-        return res
 
     def simple_dict(
             self,
