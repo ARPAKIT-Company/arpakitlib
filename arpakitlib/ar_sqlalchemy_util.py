@@ -67,6 +67,22 @@ class BaseDBM(DeclarativeBase):
             self._bus_data = {}
         return self._bus_data
 
+    def get_sd_property_names(
+            self,
+            *,
+            prefix: str = "sdp_",
+            remove_prefix: bool = False
+    ) -> list[str]:
+        res = []
+        for attr_name in dir(self):
+            if not attr_name.startswith(prefix) or not isinstance(getattr(type(self), attr_name, None), property):
+                continue
+            sd_property_name = attr_name
+            if remove_prefix:
+                sd_property_name = attr_name.removeprefix(sd_property_name)
+            res.append(sd_property_name)
+        return res
+
     def simple_dict(
             self,
             *,
