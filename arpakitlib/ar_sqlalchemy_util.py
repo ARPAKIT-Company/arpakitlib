@@ -67,6 +67,22 @@ class BaseDBM(DeclarativeBase):
             self._bus_data = {}
         return self._bus_data
 
+    @classmethod
+    def get_cls_sd_property_names(
+            cls,
+            *,
+            prefix: str = "sdp_",
+            remove_prefix: bool = False
+    ) -> list[str]:
+        props = [
+            name
+            for name, attr in vars(cls).items()
+            if isinstance(attr, property) and name.startswith(prefix)
+        ]
+        if remove_prefix:
+            return [name[len(prefix):] for name in props]
+        return props
+
     def get_sd_property_names(
             self,
             *,
