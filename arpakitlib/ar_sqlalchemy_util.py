@@ -79,7 +79,7 @@ class BaseDBM(DeclarativeBase):
                 continue
             sd_property_name = attr_name
             if remove_prefix:
-                sd_property_name = attr_name.removeprefix(sd_property_name)
+                sd_property_name = attr_name.removeprefix(prefix)
             res.append(sd_property_name)
         return res
 
