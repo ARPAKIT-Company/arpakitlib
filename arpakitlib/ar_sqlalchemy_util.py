@@ -68,6 +68,23 @@ class BaseDBM(DeclarativeBase):
         return self._bus_data
 
     @classmethod
+    def get_columns(
+            cls,
+            *,
+            include_pk: bool = True,
+            exclude_columns: list[str] | None = None
+    ) -> list[str]:
+        exclude_columns = set(exclude_columns or [])
+        result = []
+        for c in cls.__table__.columns:
+            if not include_pk and c.primary_key:
+                continue
+            if c.name in exclude_columns:
+                continue
+            result.append(c.name)
+        return result
+
+    @classmethod
     def get_cls_sd_property_names(
             cls,
             *,
