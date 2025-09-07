@@ -68,7 +68,7 @@ class BaseDBM(DeclarativeBase):
         return self._bus_data
 
     @classmethod
-    def get_columns(
+    def get_cls_column_names(
             cls,
             *,
             include_pk: bool = True,
