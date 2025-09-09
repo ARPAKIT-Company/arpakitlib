@@ -1,7 +1,8 @@
 from typing import Type
 
-from arpakitlib.ar_sqlalchemy_util import BaseDBM
 from pydantic import BaseModel
+
+from arpakitlib.ar_sqlalchemy_util import BaseDBM
 
 
 def schema_from_dbm(*, schema: Type[BaseModel], dbm: BaseDBM, **kwargs) -> BaseModel:
