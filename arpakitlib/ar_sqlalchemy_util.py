@@ -89,32 +89,54 @@ class BaseDBM(DeclarativeBase):
     def get_relationship_names_(
             cls,
             *,
+            exclude_one_to_many: bool = False,
+            exclude_many_to_one: bool = False,
+            exclude_many_to_many: bool = False,
+            exclude_viewonly: bool = False,
             exclude_names: list[str] | None = None
     ) -> list[str]:
         if exclude_names is None:
             exclude_names = []
         res = []
-        for c in inspect(cls).relationships:
-            if c.key in exclude_names:
+        for r in inspect(cls).relationships:
+            if r.key in exclude_names:
                 continue
-            res.append(c.key)
+            if exclude_viewonly and r.viewonly:
+                continue
+            if exclude_one_to_many and r.direction is sqlalchemy.orm.ONETOMANY:
+                continue
+            if exclude_many_to_one and r.direction is sqlalchemy.orm.MANYTOONE:
+                continue
+            if exclude_many_to_many and r.direction is sqlalchemy.orm.MANYTOMANY:
+                continue
+            res.append(r.key)
         return res
 
     @classmethod
     def get_column_and_relationship_names_(
             cls,
             *,
+
             include_column_names: bool = True,
             include_column_pk: bool = True,
             exclude_column_names: list[str] | None = None,
+
             include_relationship_names: bool = True,
+            exclude_one_to_many: bool = False,
+            exclude_many_to_one: bool = False,
+            exclude_many_to_many: bool = False,
             exclude_relationship_names: list[str] | None = None,
     ) -> list[str]:
         res = []
         if include_column_names:
             res += cls.get_column_names_(include_pk=include_column_pk, exclude_names=exclude_column_names)
         if include_relationship_names:
-            res += cls.get_relationship_names_(exclude_names=exclude_relationship_names)
+            res += cls.get_relationship_names_(
+                exclude_names=exclude_relationship_names,
+                exclude_one_to_many=exclude_one_to_many,
+                exclude_many_to_one=exclude_many_to_one,
+                exclude_many_to_many=exclude_many_to_many,
+            )
         return res
 
     @classmethod
