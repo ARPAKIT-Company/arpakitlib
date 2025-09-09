@@ -122,9 +122,9 @@ class BaseDBM(DeclarativeBase):
             exclude_column_names: list[str] | None = None,
 
             include_relationship_names: bool = True,
-            exclude_one_to_many: bool = False,
-            exclude_many_to_one: bool = False,
-            exclude_many_to_many: bool = False,
+            exclude_relationship_one_to_many: bool = False,
+            exclude_relationship_many_to_one: bool = False,
+            exclude_relationship_many_to_many: bool = False,
             exclude_relationship_names: list[str] | None = None,
     ) -> list[str]:
         res = []
@@ -133,9 +133,9 @@ class BaseDBM(DeclarativeBase):
         if include_relationship_names:
             res += cls.get_relationship_names_(
                 exclude_names=exclude_relationship_names,
-                exclude_one_to_many=exclude_one_to_many,
-                exclude_many_to_one=exclude_many_to_one,
-                exclude_many_to_many=exclude_many_to_many,
+                exclude_one_to_many=exclude_relationship_one_to_many,
+                exclude_many_to_one=exclude_relationship_many_to_one,
+                exclude_many_to_many=exclude_relationship_many_to_many,
             )
         return res
 
