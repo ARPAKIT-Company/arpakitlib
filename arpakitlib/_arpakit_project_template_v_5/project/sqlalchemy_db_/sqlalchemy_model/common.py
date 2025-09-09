@@ -143,10 +143,6 @@ class SimpleDBM(BaseDBM):
     def uuid_as_str(self) -> str:
         return str(self.uuid)
 
-    @classmethod
-    def get_mapped_column_names(cls) -> list[str]:
-        return [k for k, v in SimpleDBM.__dict__.items() if isinstance(v, Mapped)]
-
     # ---SDP---
 
     @property
