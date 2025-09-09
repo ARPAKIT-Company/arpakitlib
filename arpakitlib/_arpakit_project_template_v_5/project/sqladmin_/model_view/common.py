@@ -63,24 +63,6 @@ class SimpleMV(ModelView):
         return get_default_column_searchable_list()
 
     @classmethod
-    def get_default_column_list(cls) -> list[str]:
-        from project.sqlalchemy_db_.sqlalchemy_model import SimpleDBM
-        return SimpleDBM.get_column_and_relationship_names_()
-
-    @classmethod
-    def get_default_column_details_list(cls) -> list[str]:
-        from project.sqlalchemy_db_.sqlalchemy_model import SimpleDBM
-        return SimpleDBM.get_column_and_relationship_names_()
-
-    @classmethod
-    def get_default_form_columns(cls) -> list[str]:
-        from project.sqlalchemy_db_.sqlalchemy_model import SimpleDBM
-        res = SimpleDBM.get_column_and_relationship_names_(
-            include_column_pk=False
-        )
-        return res
-
-    @classmethod
     def get_default_column_formatters(cls) -> dict[Any, Any]:
         return get_default_column_formatters()
 
