@@ -82,7 +82,7 @@ class BaseDBM(DeclarativeBase):
                 continue
             if c.key in exclude_names:
                 continue
-            res.append(c)
+            res.append(c.key)
         return res
 
     @classmethod
@@ -97,7 +97,7 @@ class BaseDBM(DeclarativeBase):
         for c in inspect(cls).relationships:
             if c.key in exclude_names:
                 continue
-            res.append(c)
+            res.append(c.key)
         return res
 
     @classmethod
