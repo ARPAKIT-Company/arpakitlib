@@ -72,7 +72,8 @@ class BaseDBM(DeclarativeBase):
             cls,
             *,
             include_pk: bool = True,
-            exclude_names: list[str] | None = None
+            exclude_names: list[str] | None = None,
+            exclude_if_have_foreign_keys: bool  = False
     ) -> list[str]:
         if exclude_names is None:
             exclude_names = []
@@ -81,6 +82,8 @@ class BaseDBM(DeclarativeBase):
             if not include_pk and c.primary_key:
                 continue
             if c.key in exclude_names:
+                continue
+            if exclude_if_have_foreign_keys and c.foreign_keys:
                 continue
             res.append(c.key)
         return res
