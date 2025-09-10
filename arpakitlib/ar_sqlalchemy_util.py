@@ -123,6 +123,7 @@ class BaseDBM(DeclarativeBase):
             include_column_names: bool = True,
             include_column_pk: bool = True,
             exclude_column_names: list[str] | None = None,
+            exclude_column_names_if_have_foreign_keys: bool  = False,
 
             include_relationship_names: bool = True,
             exclude_relationship_one_to_many: bool = False,
@@ -132,7 +133,11 @@ class BaseDBM(DeclarativeBase):
     ) -> list[str]:
         res = []
         if include_column_names:
-            res += cls.get_column_names_(include_pk=include_column_pk, exclude_names=exclude_column_names)
+            res += cls.get_column_names_(
+                include_pk=include_column_pk,
+                exclude_names=exclude_column_names,
+                exclude_if_have_foreign_keys=exclude_column_names_if_have_foreign_keys
+            )
         if include_relationship_names:
             res += cls.get_relationship_names_(
                 exclude_names=exclude_relationship_names,
