@@ -9,7 +9,12 @@ from project.api.schema.out.common.error import ErrorCommonSO
 
 
 class LimitContentLengthMiddleware(BaseHTTPMiddleware):
-    def __init__(self, app, max_body_size: int = 5 * 1024 * 1024):
+    def __init__(
+            self,
+            *
+            app,
+            max_body_size: int = 10 * 1024 * 1024  # 10 mb
+    ):
         super().__init__(app)
         self.max_body_size = max_body_size
 
@@ -34,7 +39,7 @@ class LimitContentLengthMiddleware(BaseHTTPMiddleware):
 
 def __example():
     app = FastAPI()
-    app.add_middleware(LimitContentLengthMiddleware, max_body_size=5 * 1024 * 1024)  # 5 MB
+    app.add_middleware(LimitContentLengthMiddleware)  # 5 MB
 
     @app.post("/upload")
     async def upload_file(request: Request):
