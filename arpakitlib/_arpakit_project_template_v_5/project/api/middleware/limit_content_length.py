@@ -11,7 +11,6 @@ from project.api.schema.out.common.error import ErrorCommonSO
 class LimitContentLengthMiddleware(BaseHTTPMiddleware):
     def __init__(
             self,
-            *
             app,
             max_body_size: int = 10 * 1024 * 1024  # 10 mb
     ):
