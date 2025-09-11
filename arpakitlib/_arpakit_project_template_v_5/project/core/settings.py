@@ -153,6 +153,12 @@ class Settings(SimpleSettings):
 
     sqladmin_port: int | None = 8081
 
+    sqladmin_prefix: str | None = "/sqladmin"
+
+    sqladmin_full_url: str = f"http://{api_host}:{api_port}"
+
+    sqladmin_full_url_with_prefix: str = sqladmin_full_url + sqladmin_prefix
+
     tg_bot_token: str | None = None
 
     tg_bot_proxy_url: str | None = None
