@@ -16,6 +16,7 @@ def raise_own_exception_if_exception(
         except_catching_exceptions: type[BaseException] | Tuple[type[BaseException], ...] | None = None,
         own_exception: type[Exception],
         kwargs_in_own_exception: dict[str, Any] | None = None,
+        forward_kwargs_in_own_exception: dict[str, Any] | None = None,
 ) -> (
         Callable[[Callable[PARAMS_SPEC, RESULT_SPEC] | Callable[PARAMS_SPEC, Awaitable[RESULT_SPEC]]],
         Callable[PARAMS_SPEC, RESULT_SPEC] | Callable[PARAMS_SPEC, Awaitable[RESULT_SPEC]]]
@@ -44,10 +45,11 @@ def raise_own_exception_if_exception(
     else:
         except_catching_exceptions = ()
 
-    kwargs_in_own_exception = dict(kwargs_in_own_exception or {})
-    kwargs_in_own_exception["catching_exceptions"] = catching_exceptions
-    kwargs_in_own_exception["except_catching_exceptions"] = except_catching_exceptions
-    kwargs_in_own_exception["own_exception"] = own_exception
+    if kwargs_in_own_exception is not None:
+        kwargs_in_own_exception = dict(kwargs_in_own_exception or {})
+        kwargs_in_own_exception["catching_exceptions"] = catching_exceptions
+        kwargs_in_own_exception["except_catching_exceptions"] = except_catching_exceptions
+        kwargs_in_own_exception["own_exception"] = own_exception
 
     # Если явно передали пустой набор для ловли — возвращаем функцию как есть
     if not catching_exceptions:
@@ -65,11 +67,17 @@ def raise_own_exception_if_exception(
                 except catching_exceptions as caught_exception:  # ловим ТОЛЬКО нужные типы
                     if except_catching_exceptions and isinstance(caught_exception, except_catching_exceptions):
                         raise  # пропускаем как есть
-                    copied_kwargs_in_own_exception = kwargs_in_own_exception.copy()
-                    copied_kwargs_in_own_exception["caught_exception"] = caught_exception
-                    copied_kwargs_in_own_exception["caught_exception_str"] = str(caught_exception)
+                    if kwargs_in_own_exception is not None:
+                        copied_kwargs_in_own_exception = kwargs_in_own_exception.copy()
+                        copied_kwargs_in_own_exception["caught_exception"] = caught_exception
+                        copied_kwargs_in_own_exception["caught_exception_str"] = str(caught_exception)
                     try:
-                        raise own_exception(kwargs_=copied_kwargs_in_own_exception) from caught_exception
+                        _kwargs = {}
+                        if kwargs_in_own_exception is not None:
+                            _kwargs = {"kwargs_": copied_kwargs_in_own_exception}
+                        if forward_kwargs_in_own_exception is not None:
+                            _kwargs.update(forward_kwargs_in_own_exception)
+                        raise own_exception(**_kwargs) from caught_exception
                     except TypeError:
                         raise own_exception() from caught_exception
 
@@ -82,11 +90,17 @@ def raise_own_exception_if_exception(
             except catching_exceptions as caught_exception:
                 if except_catching_exceptions and isinstance(caught_exception, except_catching_exceptions):
                     raise
-                copied_kwargs_in_own_exception = kwargs_in_own_exception.copy()
-                copied_kwargs_in_own_exception["caught_exception"] = caught_exception
-                copied_kwargs_in_own_exception["caught_exception_str"] = str(caught_exception)
+                if kwargs_in_own_exception is not None:
+                    copied_kwargs_in_own_exception = kwargs_in_own_exception.copy()
+                    copied_kwargs_in_own_exception["caught_exception"] = caught_exception
+                    copied_kwargs_in_own_exception["caught_exception_str"] = str(caught_exception)
                 try:
-                    raise own_exception(kwargs_=copied_kwargs_in_own_exception) from caught_exception
+                    _kwargs = {}
+                    if kwargs_in_own_exception is not None:
+                        _kwargs = {"kwargs_": copied_kwargs_in_own_exception}
+                    if forward_kwargs_in_own_exception is not None:
+                        _kwargs.update(forward_kwargs_in_own_exception)
+                    raise own_exception(**_kwargs) from caught_exception
                 except TypeError:
                     raise own_exception() from caught_exception
 
