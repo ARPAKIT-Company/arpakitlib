@@ -72,6 +72,7 @@ def raise_own_exception_if_exception(
                     if kwargs_in_own_exception is not None:
                         copied_kwargs_in_own_exception = kwargs_in_own_exception.copy()
                         copied_kwargs_in_own_exception["caught_exception"] = caught_exception
+                        copied_kwargs_in_own_exception["caught_exception_type"] = type(caught_exception)
                         copied_kwargs_in_own_exception["caught_exception_str"] = str(caught_exception)
                     try:
                         _kwargs = {}
@@ -96,6 +97,7 @@ def raise_own_exception_if_exception(
                 if kwargs_in_own_exception is not None:
                     copied_kwargs_in_own_exception = kwargs_in_own_exception.copy()
                     copied_kwargs_in_own_exception["caught_exception"] = caught_exception
+                    copied_kwargs_in_own_exception["caught_exception_type"] = type(caught_exception)
                     copied_kwargs_in_own_exception["caught_exception_str"] = str(caught_exception)
                 try:
                     _kwargs = {}

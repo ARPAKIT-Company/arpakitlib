@@ -32,7 +32,7 @@ class APIException(fastapi.exceptions.HTTPException):
         self.status_code = status_code
 
         if error_common_so is None:
-            self.error_common_so = ErrorCommonSO(
+            error_common_so = ErrorCommonSO(
                 has_error=True,
                 error_code=error_code,
                 error_specification_code=error_specification_code,
@@ -40,27 +40,27 @@ class APIException(fastapi.exceptions.HTTPException):
                 error_description_data=error_description_data,
                 error_data=error_data
             )
+            self.error_common_so = error_common_so
         else:
             self.error_common_so = error_common_so
-            self.error_code = error_common_so.error_code
-            self.error_specification_code = error_common_so.error_specification_code
-            self.error_description = error_common_so.error_description
-            self.error_description_data = error_common_so.error_description_data
-            self.error_data = error_common_so.error_data
 
         if kwargs_in_own_exception.get("raise_own_exception_if_exception_in_api_router") is True:
-            self.error_data["raise_own_exception_if_exception_in_api_router"] = True
-            if kwargs_in_own_exception.get("caught_exception_str"):
-                self.error_data["caught_exception_str"] = kwargs_in_own_exception.get("caught_exception_str")
+            self.error_common_so.error_data["raise_own_exception_if_exception_in_api_router"] = True
+            self.error_common_so.error_data["caught_exception_type"] = kwargs_in_own_exception.get(
+                "caught_exception_type"
+            )
+            self.error_common_so.error_data["caught_exception_str"] = kwargs_in_own_exception.get(
+                "caught_exception_str"
+            )
 
         if kwargs_ is None:
             kwargs_ = {}
         if "create_story_log" not in kwargs_ and kwargs_create_story_log is not None:
             kwargs_["create_story_log"] = kwargs_create_story_log
-            self.error_data["create_story_log"] = kwargs_create_story_log
+            self.error_common_so.error_data["create_story_log"] = kwargs_create_story_log
         if "logging" not in kwargs_ and kwargs_logging_full_error is not None:
             kwargs_["logging_full_error"] = kwargs_logging_full_error
-            self.error_data["logging_full_error"] = kwargs_logging_full_error
+            self.error_common_so.error_data["logging_full_error"] = kwargs_logging_full_error
         self.kwargs_ = kwargs_
 
         super().__init__(
@@ -69,7 +69,7 @@ class APIException(fastapi.exceptions.HTTPException):
         )
 
     def __str__(self) -> str:
-        return f"{self.status_code=}, {self.error_code=}, {self.error_specification_code=}"
+        return f"{self.status_code=}, {self.error_common_so.error_code=}, {self.error_common_so.error_specification_code=}"
 
     def __repr__(self) -> str:
-        return f"{self.status_code=}, {self.error_code=}, {self.error_specification_code=}"
+        return f"{self.status_code=}, {self.error_common_so.error_code=}, {self.error_common_so.error_specification_code=}"
