@@ -74,7 +74,7 @@ def raise_own_exception_if_exception(
                     try:
                         _kwargs = {}
                         if kwargs_in_own_exception is not None:
-                            _kwargs = {"kwargs_in_own_exception": copied_kwargs_in_own_exception}
+                            _kwargs.update({"kwargs_in_own_exception": copied_kwargs_in_own_exception})
                         if forward_kwargs_in_own_exception is not None:
                             _kwargs.update(forward_kwargs_in_own_exception)
                         raise own_exception(**_kwargs) from caught_exception
@@ -97,7 +97,7 @@ def raise_own_exception_if_exception(
                 try:
                     _kwargs = {}
                     if kwargs_in_own_exception is not None:
-                        _kwargs = {"kwargs_in_own_exception": copied_kwargs_in_own_exception}
+                        _kwargs.update({"kwargs_in_own_exception": copied_kwargs_in_own_exception})
                     if forward_kwargs_in_own_exception is not None:
                         _kwargs.update(forward_kwargs_in_own_exception)
                     raise own_exception(**_kwargs) from caught_exception
