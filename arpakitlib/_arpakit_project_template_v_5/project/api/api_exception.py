@@ -18,28 +18,27 @@ class APIException(fastapi.exceptions.HTTPException):
             error_description_data: dict[str, Any] | None = None,
             error_data: dict[str, Any] | None = None,
             kwargs_: dict[str, Any] | None = None,
-            kwargs_create_story_log: bool = True,
-            kwargs_logging_full_error: bool = True,
+            kwargs_create_story_log: bool | None = True,
+            kwargs_logging_full_error: bool | None = True,
+            kwargs_in_own_exception: dict[str, Any] = None,
     ):
+        if error_description_data is None:
+            error_description_data = {}
+        if error_data is None:
+            error_data = {}
+        if kwargs_in_own_exception is None:
+            kwargs_in_own_exception = {}
+
         self.status_code = status_code
 
         if error_common_so is None:
-            self.error_code = error_code
-            self.error_specification_code = error_specification_code
-            self.error_description = error_description
-            if error_description_data is None:
-                error_description_data = {}
-            self.error_description_data = error_description_data
-            if error_data is None:
-                error_data = {}
-            self.error_data = error_data
             self.error_common_so = ErrorCommonSO(
                 has_error=True,
-                error_code=self.error_code,
-                error_specification_code=self.error_specification_code,
-                error_description=self.error_description,
-                error_description_data=self.error_description_data,
-                error_data=self.error_data
+                error_code=error_code,
+                error_specification_code=error_specification_code,
+                error_description=error_description,
+                error_description_data=error_description_data,
+                error_data=error_data
             )
         else:
             self.error_common_so = error_common_so
@@ -49,15 +48,28 @@ class APIException(fastapi.exceptions.HTTPException):
             self.error_description_data = error_common_so.error_description_data
             self.error_data = error_common_so.error_data
 
+        if kwargs_in_own_exception.get("raise_own_exception_if_exception_in_api_router") is True:
+            self.error_data["raise_own_exception_if_exception_in_api_router"] = True
+            if kwargs_in_own_exception.get("caught_exception_str"):
+                self.error_data["caught_exception_str"] = kwargs_in_own_exception.get("caught_exception_str")
+
         if kwargs_ is None:
             kwargs_ = {}
-        if "create_story_log" not in kwargs_:
+        if "create_story_log" not in kwargs_ and kwargs_create_story_log is not None:
             kwargs_["create_story_log"] = kwargs_create_story_log
-        if "logging" not in kwargs_:
+            self.error_data["create_story_log"] = kwargs_create_story_log
+        if "logging" not in kwargs_ and kwargs_logging_full_error is not None:
             kwargs_["logging_full_error"] = kwargs_logging_full_error
+            self.error_data["logging_full_error"] = kwargs_logging_full_error
         self.kwargs_ = kwargs_
 
         super().__init__(
             status_code=self.status_code,
             detail=self.error_common_so.model_dump(mode="json")
         )
+
+    def __str__(self) -> str:
+        return f"{self.status_code=}, {self.error_code=}, {self.error_specification_code=}"
+
+    def __repr__(self) -> str:
+        return f"{self.status_code=}, {self.error_code=}, {self.error_specification_code=}"

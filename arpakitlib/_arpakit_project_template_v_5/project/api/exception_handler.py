@@ -12,7 +12,7 @@ from arpakitlib.ar_dict_util import combine_dicts
 from arpakitlib.ar_exception_util import exception_to_traceback_str
 from arpakitlib.ar_func_util import raise_if_not_async_func, is_async_func, is_sync_func
 from project.api.api_error_codes import APIErrorCodes
-from project.api.exception import APIException
+from project.api.api_exception import APIException
 from project.api.response import APIJSONResponse
 from project.api.schema.out.common.error import ErrorCommonSO
 from project.sqlalchemy_db_.sqlalchemy_db import get_cached_sqlalchemy_db
