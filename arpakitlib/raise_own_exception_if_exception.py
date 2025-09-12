@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import inspect
+import logging
 from functools import wraps
 from typing import Any, Callable, Awaitable, Tuple, TypeVar, ParamSpec, cast
 
@@ -9,6 +10,7 @@ _ARPAKIT_LIB_MODULE_VERSION = "3.0"
 PARAMS_SPEC = ParamSpec("PARAMS_SPEC")
 RESULT_SPEC = TypeVar("RESULT_SPEC")
 
+_logger = logging.getLogger(__name__)
 
 def raise_own_exception_if_exception(
         *,
@@ -78,7 +80,8 @@ def raise_own_exception_if_exception(
                         if forward_kwargs_in_own_exception is not None:
                             _kwargs.update(forward_kwargs_in_own_exception)
                         raise own_exception(**_kwargs) from caught_exception
-                    except TypeError:
+                    except TypeError as exception:
+                        _logger.warning(exception)
                         raise own_exception() from caught_exception
 
             return cast(Callable[PARAMS_SPEC, Awaitable[RESULT_SPEC]], async_wrapper)
@@ -101,7 +104,8 @@ def raise_own_exception_if_exception(
                     if forward_kwargs_in_own_exception is not None:
                         _kwargs.update(forward_kwargs_in_own_exception)
                     raise own_exception(**_kwargs) from caught_exception
-                except TypeError:
+                except TypeError as exception:
+                    _logger.warning(exception)
                     raise own_exception() from caught_exception
 
         return cast(Callable[PARAMS_SPEC, RESULT_SPEC], wrapper)
