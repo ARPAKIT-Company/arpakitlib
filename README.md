@@ -1,5 +1,7 @@
 # arpakitlib
 
+## Текущая версия шаблона arpakit_project_template_v_5 находится в разработке. В скором времени будет stable version.
+
 ## 🚀 Simplify Your Development Workflow
 
 A collection of lightweight and convenient development tools by Arpakit, designed to simplify and accelerate your
