@@ -1,10 +1,10 @@
-from arpakitlib.ensure_sqlalchemy_check_constraints import ensure_sqlalchemy_check_constraints
 from project.core.setup_logging import setup_logging
+from project.sqlalchemy_db_.sqlalchemy_db import get_cached_sqlalchemy_db
 
 
 def __command():
     setup_logging()
-    ensure_sqlalchemy_check_constraints()
+    get_cached_sqlalchemy_db().ensure_check_constraints()
 
 
 if __name__ == '__main__':
