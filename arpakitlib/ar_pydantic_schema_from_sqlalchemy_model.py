@@ -1,6 +1,6 @@
 # arpakit
 import datetime as dt
-from typing import Any, Optional
+from typing import Any, Optional, get_type_hints
 
 from pydantic import BaseModel, Field
 from sqlalchemy import inspect
@@ -11,6 +11,7 @@ from sqlalchemy.sql.sqltypes import (
     DateTime, Date, Time,
     Float, Numeric, DECIMAL, LargeBinary, JSON
 )
+
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
 
 _SQLA_TYPE_MAP = {
@@ -134,15 +135,15 @@ def pydantic_schema_from_sqlalchemy_model(
 
         # blacklist
         if exclude_property_names:
-            for propetry_name in list(property_name_to_type.keys()):
-                if propetry_name in exclude_property_names:
+            for property_name in list(property_name_to_type.keys()):
+                if property_name in exclude_property_names:
                     property_name_to_type.pop(name, None)
 
         # Добавляем аннотации свойств (колонки имеют приоритет)
-        for peopetry_name, peopetry_type in target_props.items():
-            if peopetry_name in annotations:
+        for property_name, property_type in property_name_to_type.items():
+            if property_name in annotations:
                 continue
-            annotations[peopetry_name] = peopetry_type
+            annotations[property_name] = property_type
 
     attrs["__annotations__"] = annotations
     return type(model_name, (base_model,), attrs)
