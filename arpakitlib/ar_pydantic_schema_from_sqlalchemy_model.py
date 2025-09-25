@@ -1,8 +1,8 @@
 # arpakit
 import datetime as dt
-from typing import Any, Optional, get_type_hints
+from typing import Any, Optional, get_type_hints, get_origin, Union, Annotated, get_args
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from sqlalchemy import inspect
 from sqlalchemy.orm import ColumnProperty
 from sqlalchemy.sql.sqltypes import (
@@ -27,7 +27,7 @@ _SQLA_TYPE_MAP = {
     Text: str,
     UnicodeText: str,
     LargeBinary: bytes,
-    JSON: dict,
+    JSON: dict | list,
     DateTime: dt.datetime,
     Date: dt.date,
     Time: dt.time,
@@ -61,6 +61,38 @@ def _get_property_name_to_type_from_model_class(model_class: type) -> dict[str, 
     return props
 
 
+def _type_matches(*, type_: Any, allowed_types: list[type]) -> bool:
+    """
+    Возвращает True, если тип `tp` соответствует хоть одному из типов в `allowed`.
+    - поддерживает Union/Optional (перебирает аргументы),
+    - Annotated (смотрит на базовый тип),
+    - generics (List[int], Dict[str, Any]) — сравнивает по origin (list, dict, и т.п.).
+    """
+    if type_ is Any:
+        return True
+
+    origin = get_origin(type_)
+    if origin is Union:  # Optional/Union
+        return any(_type_matches(type_=arg, allowed_types=allowed_types) for arg in get_args(type_))
+    if origin is Annotated:
+        return _type_matches(type_=get_args(type_)[0], allowed_types=allowed_types)
+
+    # если это generic, сравним по origin (например, list/dict)
+    type_check = origin or type_
+
+    for allowed_type in allowed_types:
+        # точное совпадение по объекту типа
+        if type_check is allowed_type:
+            return True
+        # безопасная проверка наследования
+        try:
+            if isinstance(type_check, type) and isinstance(allowed_type, type) and issubclass(type_check, allowed_type):
+                return True
+        except Exception:
+            pass
+    return False
+
+
 def pydantic_schema_from_sqlalchemy_model(
         sqlalchemy_model: type,
         *,
@@ -70,7 +102,9 @@ def pydantic_schema_from_sqlalchemy_model(
         exclude_column_names: list[str] | None = None,
         include_properties: bool = False,
         include_property_names: list[str] | None = None,
+        include_property_types: list[type] | None = None,
         exclude_property_names: list[str] | None = None,
+        exclude_property_types: list[type] | None = None,
         filter_property_prefixes: list[str] | None = None,
         remove_property_prefixes: list[str] | None = None,
 ) -> type[BaseModel]:
@@ -127,7 +161,22 @@ def pydantic_schema_from_sqlalchemy_model(
     if include_properties:
         property_name_to_type = _get_property_name_to_type_from_model_class(sqlalchemy_model)
 
-        # фильтр по префиксам (если задан и не пуст)
+        # (НОВОЕ) фильтр по типам, если задан
+        if include_property_types:
+            property_name_to_type = {
+                k: v for k, v in property_name_to_type.items()
+                if _type_matches(type_=v, allowed_types=include_property_types)
+            }
+
+        # Затем исключающие типы (EXCLUDE)
+        if exclude_property_types:
+            property_name_to_type = {
+                k: v
+                for k, v in property_name_to_type.items()
+                if not _type_matches(type_=v, allowed_types=exclude_property_types)
+            }
+
+        # фильтр по префиксам
         if filter_property_prefixes:
             property_name_to_type = {
                 property_name: property_type
@@ -151,7 +200,7 @@ def pydantic_schema_from_sqlalchemy_model(
                 if property_name in exclude_property_names:
                     property_name_to_type.pop(property_name, None)
 
-        # удаляем префиксы
+        # удаление префиксов (без изменений)
         if remove_property_prefixes:
             renamed_property_name_to_type = {}
             for property_name, property_type in list(property_name_to_type.items()):
@@ -183,4 +232,8 @@ def pydantic_schema_from_sqlalchemy_model(
             annotations[property_name] = property_type
 
     attrs["__annotations__"] = annotations
+
+    if "model_config" not in attrs:
+        attrs["model_config"] = ConfigDict(extra="ignore", arbitrary_types_allowed=True, from_attributes=True)
+
     return type(model_name, (base_model,), attrs)
