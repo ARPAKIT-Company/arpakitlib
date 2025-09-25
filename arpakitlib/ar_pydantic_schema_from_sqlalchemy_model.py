@@ -43,51 +43,106 @@ def _python_type_from_col(col) -> type | str:
         return Any
 
 
+def _collect_properties_with_types(model_class: type) -> dict[str, Any]:
+    """
+    Находит все @property в классе и вытаскивает их возвращаемый тип.
+    Если тип не удаётся получить — подставляем Any.
+    """
+    props: dict[str, Any] = {}
+    for name, attr in vars(model_class).items():
+        if isinstance(attr, property):
+            try:
+                hints = get_type_hints(attr.fget) if attr.fget else {}
+                ret_type = hints.get("return", Any)
+            except Exception:
+                ret_type = Any
+            props[name] = ret_type
+    return props
+
+
 def pydantic_schema_from_sqlalchemy_model(
         sqlalchemy_model: type,
         *,
         name: str | None = None,
         base_model: type[BaseModel] = BaseModel,
-        include_defaults: bool = False,
+        include_column_defaults: bool = False,
         exclude_column_names: list[str] | None = None,
+        include_properties: bool = False,
+        include_property_names: list[str] | None = None,
+        exclude_property_names: list[str] | None = None,
 ) -> type[BaseModel]:
     """
-    Генерирует Pydantic-модель только из колонок SQLAlchemy-модели.
-    - include_defaults: добавлять ли default/server_default.
+    Генерирует Pydantic-модель из колонок SQLAlchemy-модели и (опционально) из @property.
+
+    - include_column_defaults: добавлять ли default/server_default у колонок.
     - exclude_column_names: список имён колонок, которые нужно пропустить.
+
+    - include_properties: включать ли свойства (@property). По умолчанию False.
+    - include_property_names: whitelist имён свойств (если задан, берём только их).
+    - exclude_property_names: blacklist имён свойств (исключаются после whitelist'а).
     """
     mapper = inspect(sqlalchemy_model).mapper
     model_name = name or f"{sqlalchemy_model.__name__}Schema"
 
     annotations: dict[str, Any] = {}
     attrs: dict[str, Any] = {}
-    exclude_column_names = set(exclude_column_names or [])
 
+    exclude_column_names = set(exclude_column_names or [])
+    include_property_names = set(include_property_names or [])
+    exclude_property_names = set(exclude_property_names or [])
+
+    # 1) Колонки
     for prop in mapper.attrs:
         if not isinstance(prop, ColumnProperty):
             continue
         if prop.key in exclude_column_names:
             continue
 
-        col = prop.columns[0]
-        py_t = _python_type_from_col(col)
+        column = prop.columns[0]
+        column_type = _python_type_from_col(column)
 
         # Аннотация типа
-        if col.nullable:
-            annotations[prop.key] = Optional[py_t]  # type: ignore[name-defined]
+        if column.nullable:
+            annotations[prop.key] = Optional[column_type]  # type: ignore[name-defined]
         else:
-            annotations[prop.key] = py_t
+            annotations[prop.key] = column_type
 
-        # Если нужно — добавляем дефолт
-        if include_defaults:
+        # Дефолты, если нужно
+        if include_column_defaults:
             default_value = None
-            if col.default is not None and col.default.is_scalar:
-                default_value = col.default.arg
-            elif col.server_default is not None and getattr(col.server_default.arg, "text", None):
-                default_value = col.server_default.arg.text
+            if column.default is not None and getattr(column.default, "is_scalar", False):
+                default_value = column.default.arg
+            elif column.server_default is not None and getattr(column.server_default.arg, "text", None):
+                default_value = column.server_default.arg.text
 
             if default_value is not None:
                 attrs[prop.key] = Field(default=default_value)
+
+    # 2) Свойства (@property)
+    if include_properties:
+        property_name_to_type = _collect_properties_with_types(sqlalchemy_model)
+
+        # whitelist (если задан)
+        if include_property_names:
+            property_name_to_type = {
+                k: v
+                for k, v in property_name_to_type.items()
+                if k in include_property_names
+            }
+        else:
+            property_name_to_type = dict(property_name_to_type)
+
+        # blacklist
+        if exclude_property_names:
+            for propetry_name in list(property_name_to_type.keys()):
+                if propetry_name in exclude_property_names:
+                    property_name_to_type.pop(name, None)
+
+        # Добавляем аннотации свойств (колонки имеют приоритет)
+        for peopetry_name, peopetry_type in target_props.items():
+            if peopetry_name in annotations:
+                continue
+            annotations[peopetry_name] = peopetry_type
 
     attrs["__annotations__"] = annotations
     return type(model_name, (base_model,), attrs)
