@@ -44,20 +44,35 @@ def _python_type_from_col(col) -> type | str:
         return Any
 
 
-def _get_property_name_to_type_from_model_class(model_class: type) -> dict[str, Any]:
+def _get_property_name_to_type_from_model_class(
+        *,
+        model_class: type,
+        skip_property_if_cannot_define_type: bool = True,
+        exclude_property_names: list[str] | None = None,
+        exclude_property_types: list[type] | None = None,
+) -> dict[str, Any]:
     """
     Находит все @property в классе и вытаскивает их возвращаемый тип.
     Если тип не удаётся получить — подставляем Any.
     """
+    exclude_property_names = set(exclude_property_names or [])
     props: dict[str, Any] = {}
-    for name, attr in vars(model_class).items():
+    for property_name, attr in vars(model_class).items():
         if isinstance(attr, property):
             try:
                 hints = get_type_hints(attr.fget) if attr.fget else {}
                 ret_type = hints.get("return", Any)
             except Exception:
+                if skip_property_if_cannot_define_type:
+                    continue
                 ret_type = Any
-            props[name] = ret_type
+            if exclude_property_names:
+                if property_name in exclude_property_names:
+                    continue
+            if exclude_property_types:
+                if not _type_matches(type_=ret_type, allowed_types=exclude_property_types):
+                    continue
+            props[property_name] = ret_type
     return props
 
 
@@ -107,6 +122,7 @@ def pydantic_schema_from_sqlalchemy_model(
         exclude_property_types: list[type] | None = None,
         filter_property_prefixes: list[str] | None = None,
         remove_property_prefixes: list[str] | None = None,
+        skip_property_if_cannot_define_type: bool = True
 ) -> type[BaseModel]:
     """
     Генерирует Pydantic-модель из колонок SQLAlchemy-модели и (опционально) из @property.
@@ -159,7 +175,12 @@ def pydantic_schema_from_sqlalchemy_model(
 
     # 2) Свойства (@property)
     if include_properties:
-        property_name_to_type = _get_property_name_to_type_from_model_class(sqlalchemy_model)
+        property_name_to_type = _get_property_name_to_type_from_model_class(
+            model_class=sqlalchemy_model,
+            skip_property_if_cannot_define_type=skip_property_if_cannot_define_type,
+            exclude_property_names=list(exclude_property_names),
+            exclude_property_types=exclude_property_types
+        )
 
         # (НОВОЕ) фильтр по типам, если задан
         if include_property_types:
