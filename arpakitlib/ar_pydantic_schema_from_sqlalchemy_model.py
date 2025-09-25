@@ -5,8 +5,6 @@ from pydantic import BaseModel, ConfigDict
 from sqlalchemy import inspect
 from sqlalchemy.orm import ColumnProperty, Mapped
 
-from project.sqlalchemy_db_.sqlalchemy_model import UserDBM
-
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
 
 
@@ -139,7 +137,8 @@ def pydantic_schema_from_sqlalchemy_model(
     include_property_names = set(include_property_names or [])
     exclude_property_names = set(exclude_property_names or [])
     filter_property_prefixes = set(filter_property_prefixes or [])
-    remove_property_prefixes = set(remove_property_prefixes or [])
+    remove_property_prefixes = list(set(remove_property_prefixes or []))
+    remove_property_prefixes.sort(key=len, reverse=True)
 
     # 1) Колонки
     if include_columns:
