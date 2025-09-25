@@ -1,47 +1,40 @@
 # arpakit
-import datetime as dt
-from typing import Any, Optional, get_type_hints, get_origin, Union, Annotated, get_args
+from typing import Any, get_type_hints, get_origin, Union, Annotated, get_args
 
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, ConfigDict
 from sqlalchemy import inspect
-from sqlalchemy.orm import ColumnProperty
-from sqlalchemy.sql.sqltypes import (
-    Boolean, Integer, BigInteger, SmallInteger,
-    String, Text, Unicode, UnicodeText,
-    DateTime, Date, Time,
-    Float, Numeric, DECIMAL, LargeBinary, JSON
-)
+from sqlalchemy.orm import ColumnProperty, Mapped
+from sqlalchemy.util import get_annotations
+
+from project.sqlalchemy_db_.sqlalchemy_model import UserDBM
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
 
-_SQLA_TYPE_MAP = {
-    Boolean: bool,
-    Integer: int,
-    BigInteger: int,
-    SmallInteger: int,
-    Float: float,
-    Numeric: float,
-    DECIMAL: float,
-    String: str,
-    Unicode: str,
-    Text: str,
-    UnicodeText: str,
-    LargeBinary: bytes,
-    JSON: dict | list,
-    DateTime: dt.datetime,
-    Date: dt.date,
-    Time: dt.time,
-}
 
-
-def _python_type_from_col(col) -> type | str:
-    try:
-        return col.type.python_type
-    except Exception:
-        for sa_t, py_t in _SQLA_TYPE_MAP.items():
-            if isinstance(col.type, sa_t):
-                return py_t
+def __declared_sqlalchemy_column_type(declared_type: Any) -> Any:
+    """
+    Возвращает тип колонки ИСКЛЮЧИТЕЛЬНО из аннотации поля.
+    Разворачивает оболочки:
+      - Annotated[T, ...] -> T
+      - Mapped[T] -> T
+    Если аннотации нет — возвращает Any.
+    """
+    if declared_type is None or declared_type is Any:
         return Any
+
+    origin = get_origin(declared_type)
+
+    # Annotated[T, ...] -> T
+    if origin is Annotated:
+        args = get_args(declared_type)
+        return __declared_sqlalchemy_column_type(args[0]) if args else Any
+
+    # Mapped[T] -> T
+    if origin is Mapped:
+        args = get_args(declared_type)
+        return __declared_sqlalchemy_column_type(args[0]) if args else Any
+
+    return declared_type
 
 
 def _get_property_name_to_type_from_model_class(
@@ -64,8 +57,9 @@ def _get_property_name_to_type_from_model_class(
                 ret_type = hints.get("return", Any)
             except Exception:
                 if skip_property_if_cannot_define_type:
-                    continue
-                ret_type = Any
+                    ret_type = Any
+                else:
+                    raise
             if exclude_property_names:
                 if property_name in exclude_property_names:
                     continue
@@ -113,7 +107,7 @@ def pydantic_schema_from_sqlalchemy_model(
         *,
         model_name: str | None = None,
         base_model: type[BaseModel] = BaseModel,
-        include_column_defaults: bool = False,
+        include_columns: bool = True,
         exclude_column_names: list[str] | None = None,
         include_properties: bool = False,
         include_property_names: list[str] | None = None,
@@ -148,31 +142,18 @@ def pydantic_schema_from_sqlalchemy_model(
     remove_property_prefixes = set(remove_property_prefixes or [])
 
     # 1) Колонки
-    for prop in mapper.attrs:
-        if not isinstance(prop, ColumnProperty):
-            continue
-        if prop.key in exclude_column_names:
-            continue
+    if include_columns:
 
-        column = prop.columns[0]
-        column_type = _python_type_from_col(column)
+        # читаем аннотации класса (include_extras=True нужно для Annotated/Mapped)
+        type_hints = get_annotations(sqlalchemy_model)
 
-        # Аннотация типа
-        if column.nullable:
-            annotations[prop.key] = Optional[column_type]  # type: ignore[name-defined]
-        else:
-            annotations[prop.key] = column_type
+        for prop in mapper.column_attrs:
+            if not isinstance(prop, ColumnProperty):
+                continue
+            if prop.key in exclude_column_names:
+                continue
 
-        # Дефолты, если нужно
-        if include_column_defaults:
-            default_value = None
-            if column.default is not None and getattr(column.default, "is_scalar", False):
-                default_value = column.default.arg
-            elif column.server_default is not None and getattr(column.server_default.arg, "text", None):
-                default_value = column.server_default.arg.text
-
-            if default_value is not None:
-                attrs[prop.key] = Field(default=default_value)
+            annotations[prop.key] = __declared_sqlalchemy_column_type(type_hints.get(prop.key, None))
 
     # 2) Свойства (@property)
     if include_properties:
@@ -260,3 +241,4 @@ def pydantic_schema_from_sqlalchemy_model(
         attrs["model_config"] = ConfigDict(extra="ignore", arbitrary_types_allowed=True, from_attributes=True)
 
     return type(model_name, (base_model,), attrs)
+
