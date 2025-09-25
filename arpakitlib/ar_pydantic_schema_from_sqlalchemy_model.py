@@ -238,6 +238,3 @@ def pydantic_schema_from_sqlalchemy_model(
         attrs["model_config"] = ConfigDict(extra="ignore", arbitrary_types_allowed=True, from_attributes=True)
 
     return type(model_name, (base_model,), attrs)
-
-
-print(pydantic_schema_from_sqlalchemy_model(sqlalchemy_model=UserDBM))
