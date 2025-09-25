@@ -72,7 +72,7 @@ def pydantic_schema_from_sqlalchemy_model(
         include_property_names: list[str] | None = None,
         exclude_property_names: list[str] | None = None,
         filter_property_prefixes: list[str] | None = None,
-        remove_prefixes: list[str] | None = None,
+        remove_property_prefixes: list[str] | None = None,
 ) -> type[BaseModel]:
     """
     Генерирует Pydantic-модель из колонок SQLAlchemy-модели и (опционально) из @property.
@@ -90,11 +90,11 @@ def pydantic_schema_from_sqlalchemy_model(
     annotations: dict[str, Any] = {}
     attrs: dict[str, Any] = {}
 
-    exclude_column_names = set(set(exclude_column_names) or [])
-    include_property_names = set(set(include_property_names) or [])
-    exclude_property_names = set(set(exclude_property_names) or [])
-    filter_property_prefixes = list(set(filter_property_prefixes) or [])
-    remove_prefixes = list(set(remove_prefixes) or [])
+    exclude_column_names = set(exclude_column_names or [])
+    include_property_names = set(include_property_names or [])
+    exclude_property_names = set(exclude_property_names or [])
+    filter_property_prefixes = set(filter_property_prefixes or [])
+    remove_property_prefixes = set(remove_property_prefixes or [])
 
     # 1) Колонки
     for prop in mapper.attrs:
@@ -152,11 +152,11 @@ def pydantic_schema_from_sqlalchemy_model(
                     property_name_to_type.pop(property_name, None)
 
         # удаляем префиксы
-        if remove_prefixes:
+        if remove_property_prefixes:
             renamed_property_name_to_type = {}
             for property_name, property_type in property_name_to_type.items():
                 new_property_name = property_name
-                for prefix in remove_prefixes:
+                for prefix in remove_property_prefixes:
                     if new_property_name.startswith(prefix):
                         new_property_name = new_property_name[len(prefix):].strip()
                         break
