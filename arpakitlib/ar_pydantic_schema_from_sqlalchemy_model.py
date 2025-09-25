@@ -70,7 +70,7 @@ def _get_property_name_to_type_from_model_class(
                 if property_name in exclude_property_names:
                     continue
             if exclude_property_types:
-                if not _type_matches(type_=ret_type, allowed_types=exclude_property_types):
+                if _type_matches(type_=ret_type, allowed_types=exclude_property_types):
                     continue
             props[property_name] = ret_type
     return props
