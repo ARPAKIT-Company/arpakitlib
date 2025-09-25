@@ -4,14 +4,13 @@ from typing import Any, get_type_hints, get_origin, Union, Annotated, get_args
 from pydantic import BaseModel, ConfigDict
 from sqlalchemy import inspect
 from sqlalchemy.orm import ColumnProperty, Mapped
-from sqlalchemy.util import get_annotations
 
 from project.sqlalchemy_db_.sqlalchemy_model import UserDBM
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
 
 
-def __declared_sqlalchemy_column_type(declared_type: Any) -> Any:
+def _define_sqlalchemy_column_mapped_type(type_: Any) -> Any:
     """
     Возвращает тип колонки ИСКЛЮЧИТЕЛЬНО из аннотации поля.
     Разворачивает оболочки:
@@ -19,22 +18,13 @@ def __declared_sqlalchemy_column_type(declared_type: Any) -> Any:
       - Mapped[T] -> T
     Если аннотации нет — возвращает Any.
     """
-    if declared_type is None or declared_type is Any:
-        return Any
 
-    origin = get_origin(declared_type)
+    origin = get_origin(type_)
 
-    # Annotated[T, ...] -> T
-    if origin is Annotated:
-        args = get_args(declared_type)
-        return __declared_sqlalchemy_column_type(args[0]) if args else Any
-
-    # Mapped[T] -> T
     if origin is Mapped:
-        args = get_args(declared_type)
-        return __declared_sqlalchemy_column_type(args[0]) if args else Any
+        return get_args(type_)[0] if get_args(type_) else Any
 
-    return declared_type
+    return type_
 
 
 def _get_property_name_to_type_from_model_class(
@@ -102,6 +92,16 @@ def _type_matches(*, type_: Any, allowed_types: list[type]) -> bool:
     return False
 
 
+def _get_sqlalchemy_mapped_types(sqlalchemy_model):
+    result = {}
+    for cls in reversed(sqlalchemy_model.__mro__):
+        annotations = getattr(cls, "__annotations__", {})
+        for field, annotation in annotations.items():
+            if get_origin(annotation) is Mapped:
+                result[field] = annotation
+    return result
+
+
 def pydantic_schema_from_sqlalchemy_model(
         sqlalchemy_model: type,
         *,
@@ -144,16 +144,13 @@ def pydantic_schema_from_sqlalchemy_model(
     # 1) Колонки
     if include_columns:
 
-        # читаем аннотации класса (include_extras=True нужно для Annotated/Mapped)
-        type_hints = get_annotations(sqlalchemy_model)
-
-        for prop in mapper.column_attrs:
-            if not isinstance(prop, ColumnProperty):
+        for column_attr in mapper.column_attrs:
+            if not isinstance(column_attr, ColumnProperty):
                 continue
-            if prop.key in exclude_column_names:
+            if column_attr.key in exclude_column_names:
                 continue
-
-            annotations[prop.key] = __declared_sqlalchemy_column_type(type_hints.get(prop.key, None))
+            mapped_type = _get_sqlalchemy_mapped_types(sqlalchemy_model=sqlalchemy_model)[column_attr.key]
+            annotations[column_attr.key] = _define_sqlalchemy_column_mapped_type(type_=mapped_type)
 
     # 2) Свойства (@property)
     if include_properties:
@@ -242,3 +239,5 @@ def pydantic_schema_from_sqlalchemy_model(
 
     return type(model_name, (base_model,), attrs)
 
+
+print(pydantic_schema_from_sqlalchemy_model(sqlalchemy_model=UserDBM))

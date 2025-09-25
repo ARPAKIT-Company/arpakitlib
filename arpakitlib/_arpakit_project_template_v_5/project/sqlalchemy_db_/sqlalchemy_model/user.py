@@ -1,4 +1,3 @@
-from __future__ import annotations
 
 import datetime as dt
 from typing import TYPE_CHECKING, Any
@@ -92,14 +91,14 @@ class UserDBM(SimpleDBM):
     )
 
     # many to one
-    user_tokens: Mapped[list[UserTokenDBM]] = relationship(
+    user_tokens: Mapped[list["UserTokenDBM"]] = relationship(
         "UserTokenDBM",
         uselist=True,
         back_populates="user",
         foreign_keys="UserTokenDBM.user_id",
         cascade="all, delete-orphan"
     )
-    verification_codes: Mapped[list[VerificationCodeDBM]] = relationship(
+    verification_codes: Mapped[list["VerificationCodeDBM"]] = relationship(
         "VerificationCodeDBM",
         uselist=True,
         back_populates="user",
