@@ -154,7 +154,7 @@ def pydantic_schema_from_sqlalchemy_model(
         # удаляем префиксы
         if remove_property_prefixes:
             renamed_property_name_to_type = {}
-            for property_name, property_type in property_name_to_type.items():
+            for property_name, property_type in list(property_name_to_type.items()):
                 new_property_name = property_name
                 for prefix in remove_property_prefixes:
                     if new_property_name.startswith(prefix):
@@ -177,7 +177,7 @@ def pydantic_schema_from_sqlalchemy_model(
             property_name_to_type.update(renamed_property_name_to_type)
 
         # добавляем (колонки в приоритете)
-        for property_name, property_type in property_name_to_type.items():
+        for property_name, property_type in list(property_name_to_type.items()):
             if property_name in annotations:
                 continue
             annotations[property_name] = property_type
