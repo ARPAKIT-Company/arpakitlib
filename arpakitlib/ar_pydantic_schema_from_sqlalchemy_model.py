@@ -44,7 +44,7 @@ def _python_type_from_col(col) -> type | str:
         return Any
 
 
-def _collect_properties_with_types(model_class: type) -> dict[str, Any]:
+def _get_property_name_to_type_from_model_class(model_class: type) -> dict[str, Any]:
     """
     Находит все @property в классе и вытаскивает их возвращаемый тип.
     Если тип не удаётся получить — подставляем Any.
@@ -64,13 +64,15 @@ def _collect_properties_with_types(model_class: type) -> dict[str, Any]:
 def pydantic_schema_from_sqlalchemy_model(
         sqlalchemy_model: type,
         *,
-        name: str | None = None,
+        model_name: str | None = None,
         base_model: type[BaseModel] = BaseModel,
         include_column_defaults: bool = False,
         exclude_column_names: list[str] | None = None,
         include_properties: bool = False,
         include_property_names: list[str] | None = None,
         exclude_property_names: list[str] | None = None,
+        filter_property_prefixes: list[str] | None = None,
+        remove_prefixes: list[str] | None = None,
 ) -> type[BaseModel]:
     """
     Генерирует Pydantic-модель из колонок SQLAlchemy-модели и (опционально) из @property.
@@ -83,14 +85,16 @@ def pydantic_schema_from_sqlalchemy_model(
     - exclude_property_names: blacklist имён свойств (исключаются после whitelist'а).
     """
     mapper = inspect(sqlalchemy_model).mapper
-    model_name = name or f"{sqlalchemy_model.__name__}Schema"
+    model_name = model_name or f"{sqlalchemy_model.__name__}Schema"
 
     annotations: dict[str, Any] = {}
     attrs: dict[str, Any] = {}
 
-    exclude_column_names = set(exclude_column_names or [])
-    include_property_names = set(include_property_names or [])
-    exclude_property_names = set(exclude_property_names or [])
+    exclude_column_names = set(set(exclude_column_names) or [])
+    include_property_names = set(set(include_property_names) or [])
+    exclude_property_names = set(set(exclude_property_names) or [])
+    filter_property_prefixes = list(set(filter_property_prefixes) or [])
+    remove_prefixes = list(set(remove_prefixes) or [])
 
     # 1) Колонки
     for prop in mapper.attrs:
@@ -121,9 +125,17 @@ def pydantic_schema_from_sqlalchemy_model(
 
     # 2) Свойства (@property)
     if include_properties:
-        property_name_to_type = _collect_properties_with_types(sqlalchemy_model)
+        property_name_to_type = _get_property_name_to_type_from_model_class(sqlalchemy_model)
 
-        # whitelist (если задан)
+        # фильтр по префиксам (если задан и не пуст)
+        if filter_property_prefixes:
+            property_name_to_type = {
+                property_name: property_type
+                for property_name, property_type in property_name_to_type.items()
+                if any(property_name.startswith(v) for v in filter_property_prefixes)
+            }
+
+        # whitelist по именам
         if include_property_names:
             property_name_to_type = {
                 k: v
@@ -133,13 +145,38 @@ def pydantic_schema_from_sqlalchemy_model(
         else:
             property_name_to_type = dict(property_name_to_type)
 
-        # blacklist
+        # blacklist по именам
         if exclude_property_names:
             for property_name in list(property_name_to_type.keys()):
                 if property_name in exclude_property_names:
-                    property_name_to_type.pop(name, None)
+                    property_name_to_type.pop(property_name, None)
 
-        # Добавляем аннотации свойств (колонки имеют приоритет)
+        # удаляем префиксы
+        if remove_prefixes:
+            renamed_property_name_to_type = {}
+            for property_name, property_type in property_name_to_type.items():
+                new_property_name = property_name
+                for prefix in remove_prefixes:
+                    if new_property_name.startswith(prefix):
+                        new_property_name = new_property_name[len(prefix):].strip()
+                        break
+                if new_property_name != property_name:
+                    property_name_to_type.pop(property_name)
+                    # избегаем коллизий
+                    if (
+                            new_property_name not in annotations
+                            and new_property_name not in property_name_to_type
+                            and new_property_name not in renamed_property_name_to_type
+                    ):
+                        renamed_property_name_to_type[new_property_name] = property_type
+                    else:
+                        raise ValueError(
+                            f"Property name '{property_name}' after removing prefix "
+                            f"conflicts with existing name '{new_property_name}'"
+                        )
+            property_name_to_type.update(renamed_property_name_to_type)
+
+        # добавляем (колонки в приоритете)
         for property_name, property_type in property_name_to_type.items():
             if property_name in annotations:
                 continue

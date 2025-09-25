@@ -174,6 +174,7 @@ class BaseDBM(DeclarativeBase):
             exclude_sd_properties: Collection[str] | None = None,
             include_columns_and_sd_properties: Collection[str] | None = None,
             prefix: str = "sdp_",
+            remove_prefix: bool = True,
             kwargs: dict[str, Any] | None = None
     ) -> dict[str, Any]:
         if exclude_columns is None:
@@ -199,7 +200,9 @@ class BaseDBM(DeclarativeBase):
                 if not attr_name.startswith(prefix) or not isinstance(getattr(type(self), attr_name, None), property):
                     continue
 
-                sd_property_name = attr_name.removeprefix(prefix)
+                sd_property_name = attr_name
+                if remove_prefix:
+                    sd_property_name = sd_property_name.removeprefix(prefix)
 
                 if (
                         include_columns_and_sd_properties is not None
