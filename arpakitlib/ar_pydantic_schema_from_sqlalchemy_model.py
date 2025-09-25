@@ -122,7 +122,8 @@ def pydantic_schema_from_sqlalchemy_model(
         exclude_property_types: list[type] | None = None,
         filter_property_prefixes: list[str] | None = None,
         remove_property_prefixes: list[str] | None = None,
-        skip_property_if_cannot_define_type: bool = True
+        skip_property_if_cannot_define_type: bool = True,
+        skip_property_name_if_exists: bool = True
 ) -> type[BaseModel]:
     """
     Генерирует Pydantic-модель из колонок SQLAlchemy-модели и (опционально) из @property.
@@ -240,10 +241,11 @@ def pydantic_schema_from_sqlalchemy_model(
                     ):
                         renamed_property_name_to_type[new_property_name] = property_type
                     else:
-                        raise ValueError(
-                            f"Property name '{property_name}' after removing prefix "
-                            f"conflicts with existing name '{new_property_name}'"
-                        )
+                        if not skip_property_name_if_exists:
+                            raise ValueError(
+                                f"Property name '{property_name}' after removing prefix "
+                                f"conflicts with existing name '{new_property_name}'"
+                            )
             property_name_to_type.update(renamed_property_name_to_type)
 
         # добавляем (колонки в приоритете)
