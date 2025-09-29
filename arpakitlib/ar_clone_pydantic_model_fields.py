@@ -36,15 +36,16 @@ def clone_pydantic_model_fields(
 
         field_defs[field_name] = ((field_.annotation or Any), default)
 
-    model_config = dict(getattr(model_cls, "model_config", {}))
-
-    return create_model(
+    res = create_model(
         new_class_name,
         __base__=BaseModel,
-        __config__=model_config,
         __module__=model_cls.__module__,
         **field_defs,
     )
+
+    res.model_config = dict(getattr(model_cls, "model_config", {}))
+
+    return res
 
 
 def __example():
