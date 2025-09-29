@@ -10,6 +10,7 @@ _ARPAKIT_LIB_MODULE_VERSION = "3.0"
 def clone_pydantic_model_fields(
         *,
         model_cls: Type[BaseModel],
+        base_model: Type[BaseModel],
         fields_to_remove: Iterable[str] | None = None,
         new_class_name: str | None = None,
         class_name_prefix: str | None = "Cloned"
@@ -38,12 +39,10 @@ def clone_pydantic_model_fields(
 
     res = create_model(
         new_class_name,
-        __base__=BaseModel,
+        __base__=base_model,
         __module__=model_cls.__module__,
         **field_defs,
     )
-
-    res.model_config = dict(getattr(model_cls, "model_config", {}))
 
     return res
 
