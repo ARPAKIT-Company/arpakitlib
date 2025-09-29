@@ -115,7 +115,8 @@ def pydantic_schema_from_sqlalchemy_model(
         filter_property_prefixes: list[str] | None = None,
         remove_property_prefixes: list[str] | None = None,
         skip_property_if_cannot_define_type: bool = True,
-        skip_property_name_if_exists: bool = True
+        skip_property_name_if_exists: bool = True,
+        model_name_suffix: str = "Schema"
 ) -> type[BaseModel]:
     """
     Генерирует Pydantic-модель из колонок SQLAlchemy-модели и (опционально) из @property.
@@ -128,7 +129,7 @@ def pydantic_schema_from_sqlalchemy_model(
     - exclude_property_names: blacklist имён свойств (исключаются после whitelist'а).
     """
     mapper = inspect(sqlalchemy_model).mapper
-    model_name = model_name or f"{sqlalchemy_model.__name__}Schema"
+    model_name = model_name or f"{sqlalchemy_model.__name__}{model_name_suffix}"
 
     annotations: dict[str, Any] = {}
     attrs: dict[str, Any] = {}
