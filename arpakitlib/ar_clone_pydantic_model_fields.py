@@ -12,11 +12,14 @@ def clone_pydantic_model_fields(
         model_cls: Type[BaseModel],
         fields_to_remove: Iterable[str] | None = None,
         new_class_name: str | None = None,
+        class_name_prefix: str | None = "Cloned"
 ) -> Type[BaseModel]:
     if fields_to_remove is None:
         fields_to_remove = set()
+    if class_name_prefix is None:
+        class_name_prefix = "Cloned"
     if new_class_name is None:
-        new_class_name = f"{model_cls.__name__}Cloned"
+        new_class_name = f"{model_cls.__name__}{class_name_prefix}"
 
     field_defs: dict[str, tuple[type[Any], Any]] = {}
 
@@ -33,9 +36,13 @@ def clone_pydantic_model_fields(
 
         field_defs[field_name] = ((field_.annotation or Any), default)
 
+    model_config = dict(getattr(model_cls, "model_config", {}))
+
     return create_model(
         new_class_name,
         __base__=BaseModel,
+        __config__=model_config,
+        __module__=model_cls.__module__,
         **field_defs,
     )
 
