@@ -75,8 +75,10 @@ class BaseWorker(ABC):
     def sync_on_error(self, exception: Exception, **kwargs):
         pass
 
-    def sync_safe_run(self):
+    def sync_safe_run(self, *, timeout_before_run: timedelta | None = None):
         self._logger.info("start")
+        if timeout_before_run is not None:
+            sync_safe_sleep(timeout_before_run)
         try:
             self.sync_on_startup()
         except Exception as exception:
@@ -117,8 +119,10 @@ class BaseWorker(ABC):
     async def async_on_error(self, exception: Exception, **kwargs):
         pass
 
-    async def async_safe_run(self):
+    async def async_safe_run(self, *, timeout_before_run: timedelta | None = None):
         self._logger.info("start async_safe_run")
+        if timeout_before_run is not None:
+            await async_safe_sleep(timeout_before_run)
         try:
             await self.async_on_startup()
         except Exception as exception:
