@@ -309,6 +309,10 @@ class SQLAlchemyDb:
         from arpakitlib.ar_sqlalchemy_drop_check_constraints import drop_sqlalchemy_check_constraints
         drop_sqlalchemy_check_constraints(base_=self.base_dbm, engine=self.engine)
 
+    def drop_and_ensure_check_constraints(self):
+        self.drop_check_constraints()
+        self.ensure_check_constraints()
+
     def init(self, ensure_check_constraints: bool = True):
         self.base_dbm.metadata.create_all(bind=self.engine, checkfirst=True)
         if ensure_check_constraints:
