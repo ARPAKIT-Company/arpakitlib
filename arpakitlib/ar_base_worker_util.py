@@ -26,6 +26,7 @@ class BaseWorker(ABC):
             startup_funcs: list[Any] | None = None,
             worker_name: str | None = None,
             data: dict[str, Any] | None = None,
+            timeout_before_safe_run: timedelta | None= None,
             **kwargs
     ):
         self.timeout_after_run = timeout_after_run
@@ -43,6 +44,8 @@ class BaseWorker(ABC):
         if data is None:
             data = {}
         self.data = data
+
+        self.timeout_before_safe_run = timeout_before_safe_run
 
         self._logger = logging.getLogger(self.worker_fullname)
 
@@ -75,10 +78,10 @@ class BaseWorker(ABC):
     def sync_on_error(self, exception: Exception, **kwargs):
         pass
 
-    def sync_safe_run(self, *, timeout_before_run: timedelta | None = None):
+    def sync_safe_run(self):
         self._logger.info("start")
-        if timeout_before_run is not None:
-            sync_safe_sleep(timeout_before_run)
+        if self.timeout_before_safe_run is not None:
+            sync_safe_sleep(self.timeout_before_safe_run)
         try:
             self.sync_on_startup()
         except Exception as exception:
@@ -119,10 +122,10 @@ class BaseWorker(ABC):
     async def async_on_error(self, exception: Exception, **kwargs):
         pass
 
-    async def async_safe_run(self, *, timeout_before_run: timedelta | None = None):
+    async def async_safe_run(self):
         self._logger.info("start async_safe_run")
-        if timeout_before_run is not None:
-            await async_safe_sleep(timeout_before_run)
+        if self.timeout_before_safe_run is not None:
+            await async_safe_sleep(self.timeout_before_safe_run)
         try:
             await self.async_on_startup()
         except Exception as exception:
