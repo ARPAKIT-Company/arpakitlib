@@ -55,9 +55,11 @@ def sync_safely_run_func(*, sync_func, args: tuple | None = None, kwargs: dict |
             kwargs=kwargs
         )
     except Exception as exception:
+        duration = now_utc_dt() - func_start_dt
         return SafeFuncResult(
             has_exception=True,
             exception=exception,
+            duration=duration,
             func_name=sync_func.__name__,
             args=args,
             kwargs=kwargs
