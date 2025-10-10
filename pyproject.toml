@@ -1,6 +1,6 @@
 [project]
 name = "arpakitlib"
-version = "1.8.275"
+version = "1.8.276"
 description = "arpakitlib"
 authors = [
     { name = "arpakit_company", email = "support@arpakit.com" }
@@ -68,6 +68,7 @@ dependencies = [
     "gunicorn (>=23.0.0,<24.0.0)",
     "openai (>=2.2.0,<3.0.0)",
     "paramiko (>=4.0.0,<5.0.0)",
+    "redis (>=6.4.0,<7.0.0)",
 ]
 
 
