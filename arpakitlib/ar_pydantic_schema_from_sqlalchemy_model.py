@@ -33,13 +33,24 @@ def _get_property_name_to_type_from_model_class(
         exclude_property_types: list[type] | None = None,
 ) -> dict[str, Any]:
     """
-    Находит все @property в классе и вытаскивает их возвращаемый тип.
-    Если тип не удаётся получить — подставляем Any.
+    Находит все @property в классе и его родителях, и вытаскивает их возвращаемый тип.
+    Если тип не удаётся получить — подставляем Any (в зависимости от skip_property_if_cannot_define_type).
     """
     exclude_property_names = set(exclude_property_names or [])
     props: dict[str, Any] = {}
-    for property_name, attr in vars(model_class).items():
-        if isinstance(attr, property):
+
+    for cls in reversed(model_class.__mro__):
+
+        if cls is object:
+            continue
+
+        for property_name, attr in cls.__dict__.items():
+            if not isinstance(attr, property):
+                continue
+
+            if property_name in exclude_property_names:
+                continue
+
             try:
                 hints = get_type_hints(attr.fget) if attr.fget else {}
                 ret_type = hints.get("return", Any)
@@ -48,13 +59,12 @@ def _get_property_name_to_type_from_model_class(
                     ret_type = Any
                 else:
                     raise
-            if exclude_property_names:
-                if property_name in exclude_property_names:
-                    continue
-            if exclude_property_types:
-                if _type_matches(type_=ret_type, allowed_types=exclude_property_types):
-                    continue
+
+            if exclude_property_types and _type_matches(type_=ret_type, allowed_types=exclude_property_types):
+                continue
+
             props[property_name] = ret_type
+
     return props
 
 
