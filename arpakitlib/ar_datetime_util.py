@@ -1,6 +1,7 @@
 # arpakit
 
 from datetime import datetime, date
+from zoneinfo import ZoneInfo
 
 import pytz
 
@@ -34,6 +35,18 @@ def birth_date_to_age(*, birth_date: date, raise_if_age_negative: bool = False) 
     if raise_if_age_negative and res < 0:
         raise ValueError("raise_if_negative and res < 0")
     return res
+
+
+def datetime_as_msk_str(datetime_: datetime | None) -> str | None:
+    if datetime_ is None:
+        return None
+    return datetime_.astimezone(ZoneInfo("Europe/Moscow")).strftime("%Y-%m-%d %H:%M:%S %Z%z")
+
+
+def datetime_as_ufa_str(datetime_: datetime | None) -> str | None:
+    if datetime_ is None:
+        return None
+    return datetime_.astimezone(ZoneInfo("Asia/Yekaterinburg")).strftime("%Y-%m-%d %H:%M:%S %Z%z")
 
 
 def __example():
