@@ -47,6 +47,16 @@ def remove_from_list_if_left(*, list_: list[Any], values: list[Any]) -> list[Any
     return list_
 
 
+def remove_from_lists_if_left(
+        *,
+        lists_: list[list[Any]],
+        values: list[Any]
+):
+    for list_ in lists_:
+        remove_from_list_if_left(list_=list_, values=values)
+    return lists_
+
+
 def __example():
     a = remove_from_list_if_left(
         list_=[1,2,2,2,2,2,3,3,3,3,3,3],
