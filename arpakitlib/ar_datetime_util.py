@@ -40,13 +40,13 @@ def birth_date_to_age(*, birth_date: date, raise_if_age_negative: bool = False) 
 def datetime_as_msk_str(datetime_: datetime | None) -> str | None:
     if datetime_ is None:
         return None
-    return datetime_.astimezone(ZoneInfo("Europe/Moscow")).strftime("%Y-%m-%d %H:%M:%S %Z%z")
+    return datetime_.astimezone(ZoneInfo("Europe/Moscow")).strftime("%Y-%m-%d %H:%M:%S %p %Z%z")
 
 
 def datetime_as_ufa_str(datetime_: datetime | None) -> str | None:
     if datetime_ is None:
         return None
-    return datetime_.astimezone(ZoneInfo("Asia/Yekaterinburg")).strftime("%Y-%m-%d %H:%M:%S %Z%z")
+    return datetime_.astimezone(ZoneInfo("Asia/Yekaterinburg")).strftime("%Y-%m-%d %H:%M:%S %p %Z%z")
 
 
 def __example():
