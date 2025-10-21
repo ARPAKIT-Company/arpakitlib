@@ -1,6 +1,6 @@
 [project]
 name = "arpakitlib"
-version = "1.8.288"
+version = "1.8.289"
 description = "arpakitlib"
 authors = [
     { name = "arpakit_company", email = "support@arpakit.com" }
@@ -89,10 +89,6 @@ package-mode = true
 name = "testpypi"
 url = "https://test.pypi.org/legacy/"
 priority = "explicit"
-
-
-[tool.poetry.repositories.pypi]
-url = "https://upload.pypi.org/legacy/"
 
 
 [project.scripts]
