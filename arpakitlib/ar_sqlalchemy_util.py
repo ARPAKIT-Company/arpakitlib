@@ -73,7 +73,7 @@ class BaseDBM(DeclarativeBase):
             *,
             include_pk: bool = True,
             exclude_names: list[str] | None = None,
-            exclude_if_have_foreign_keys: bool  = False
+            exclude_if_have_foreign_keys: bool = False
     ) -> list[str]:
         if exclude_names is None:
             exclude_names = []
@@ -123,7 +123,7 @@ class BaseDBM(DeclarativeBase):
             include_column_names: bool = True,
             include_column_pk: bool = True,
             exclude_column_names: list[str] | None = None,
-            exclude_column_names_if_have_foreign_keys: bool  = False,
+            exclude_column_names_if_have_foreign_keys: bool = False,
 
             include_relationship_names: bool = True,
             exclude_relationship_one_to_many: bool = False,
@@ -152,16 +152,26 @@ class BaseDBM(DeclarativeBase):
             cls,
             *,
             prefix: str = "sdp_",
-            remove_prefix: bool = False
+            remove_prefix: bool = False,
+            exclude_property_names: list[str] | None = None,
     ) -> list[str]:
-        props = [
-            name
-            for name, attr in vars(cls).items()
-            if isinstance(attr, property) and name.startswith(prefix)
-        ]
-        if remove_prefix:
-            return [name[len(prefix):] for name in props]
-        return props
+        exclude_property_names = set(exclude_property_names or [])
+        res: list[str] = []
+
+        # идём от потомка к базам, переопределения потомка «побеждают»
+        for c in cls.__mro__:
+            if c is object:
+                continue
+            for name, attr in c.__dict__.items():
+                if not isinstance(attr, property):
+                    continue
+                if not name.startswith(prefix):
+                    continue
+                if name in exclude_property_names or name in res:
+                    continue
+                res.append(name)
+
+        return [n[len(prefix):] for n in res] if remove_prefix else res
 
     def simple_dict(
             self,

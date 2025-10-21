@@ -1,8 +1,10 @@
 import asyncio
 
+from project.sqlalchemy_db_.sqlalchemy_model import UserDBM
+
 
 def __sandbox():
-    pass
+    print(UserDBM.get_sd_property_names())
 
 
 async def __async_sandbox():
