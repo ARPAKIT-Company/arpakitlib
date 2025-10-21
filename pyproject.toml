@@ -78,7 +78,7 @@ homepage = "https://github.com/ARPAKIT-Company/arpakitlib"
 repository = "https://github.com/ARPAKIT-Company/arpakitlib"
 documentation = "https://github.com/ARPAKIT-Company/arpakitlib"
 telegram_channel = "https://t.me/arpakitlib"
-arpakit_company_site = "https://arpakit.com/"
+arpakit_company_site = "https://arpakit.com"
 
 
 [tool.poetry]
@@ -89,6 +89,10 @@ package-mode = true
 name = "testpypi"
 url = "https://test.pypi.org/legacy/"
 priority = "explicit"
+
+
+[tool.poetry.repositories.pypi]
+url = "https://upload.pypi.org/legacy/"
 
 
 [project.scripts]
