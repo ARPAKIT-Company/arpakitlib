@@ -1,6 +1,6 @@
 [project]
 name = "arpakitlib"
-version = "1.8.292"
+version = "1.8.293"
 description = "arpakitlib"
 authors = [
     { name = "arpakit_company", email = "support@arpakit.com" }
@@ -41,7 +41,6 @@ dependencies = [
     "itsdangerous (>=2.2.0,<3.0.0)",
     "email-validator (>=2.2.0,<3.0.0)",
     "jupyter (>=1.1.1,<2.0.0)",
-    "matplotlib (>=3.10.0,<4.0.0)",
     "openpyxl (>=3.1.5,<4.0.0)",
     "alembic (>=1.14.1,<2.0.0)",
     "pymongo (>=4.10.1,<5.0.0)",
