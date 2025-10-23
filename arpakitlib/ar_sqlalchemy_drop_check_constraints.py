@@ -58,6 +58,9 @@ def drop_sqlalchemy_check_constraints(*, base_: type[DeclarativeBase], engine: E
         conn_inspection_ = sqlalchemy.inspect(conn)
 
         for table in base_.metadata.tables.values():
+            if not conn_inspection_.has_table(table.name, schema=table.schema):
+                continue
+
             fqtn = _qualified_name(table.schema, table.name, engine.dialect.name)
 
             # берём ВСЕ реальные CHECK-и из базы
