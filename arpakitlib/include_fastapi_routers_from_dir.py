@@ -4,6 +4,7 @@ from fastapi import APIRouter
 
 
 def include_fastapi_routers_from_dir(
+        *,
         router: APIRouter,
         base_dir: str = ".",
         exclude_filenames: list[str] | None = None,
