@@ -4,11 +4,11 @@ import logging
 from arpakitlib.ar_logging_util import init_log_file
 from project.core.settings import get_cached_settings
 
-_logging_was_setup: bool = False
+_normal_easy_logging_was_setup: bool = False
 
 
 def setup_logging():
-    global _logging_was_setup
+    global _normal_easy_logging_was_setup
     if _logging_was_setup:
         return
 
