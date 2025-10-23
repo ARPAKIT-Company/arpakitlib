@@ -333,9 +333,11 @@ class SQLAlchemyDb:
         self.base_dbm.metadata.drop_all(bind=self.engine, checkfirst=True)
         self._logger.info("dropped")
 
-    def reinit(self):
+    def reinit(self, ensure_check_constraints: bool = True):
         self.base_dbm.metadata.drop_all(bind=self.engine, checkfirst=True)
         self.base_dbm.metadata.create_all(bind=self.engine, checkfirst=True)
+        if ensure_check_constraints:
+            self.ensure_check_constraints()
         self._logger.info("reinited")
 
     def reinit_all(self):
