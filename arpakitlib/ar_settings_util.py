@@ -17,7 +17,7 @@ def generate_env_example(settings_class: Union[BaseSettings, type[BaseSettings]]
             if isinstance(v, bool):
                 s = "true" if v else "false"
             elif v is None:
-                s = ""
+                s = "None"
             else:
                 s = str(v)
             # Если дефолт — строка с пробелами → в кавычки (экранируем \ и ")
