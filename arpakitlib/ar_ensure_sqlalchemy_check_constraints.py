@@ -73,12 +73,14 @@ def ensure_sqlalchemy_check_constraints(*, base_: type[DeclarativeBase], engine:
     # Возьмём соединение и транзакцию (BEGIN), чтобы изменения были атомарными
 
     with engine.begin() as conn:
-        conn_inspector = sqlalchemy.inspect(conn)
+        conn_inspection_ = sqlalchemy.inspect(conn)
 
         for table in base_.metadata.tables.values():
+            if not conn_inspection_.has_table(table.name, schema=table.schema):
+                continue
 
             # Соберём существующие CHECK-и из БД
-            existing = conn_inspector.get_check_constraints(table.name, schema=table.schema)
+            existing = conn_inspection_.get_check_constraints(table.name, schema=table.schema)
 
             # Множества для быстрых проверок
             existing_names: Set[str] = set()
