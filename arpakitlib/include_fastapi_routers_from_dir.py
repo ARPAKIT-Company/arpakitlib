@@ -4,24 +4,28 @@ from fastapi import APIRouter
 
 
 def include_fastapi_routers_from_dir(
-        *,
         router: APIRouter,
-        base_dir_path: str = "."
+        base_dir: str = ".",
+        exclude_filenames: list[str] | None = None,
 ):
     """
     Рекурсивно ищет все .py файлы с объектом `api_router` типа APIRouter
     и подключает их к переданному `router`.
 
     Префикс = имя файла без .py
+    exclude_filenames — список имён файлов, которые нужно пропустить (без путей)
     """
-    for root, _, files in os.walk(base_dir_path):
+    if exclude_filenames is None:
+        exclude_filenames = ["__init__.py"]
+
+    for root, _, files in os.walk(base_dir):
         for filename in files:
-            if not filename.endswith(".py") or filename == "__init__.py":
+            if not filename.endswith(".py") or filename in exclude_filenames:
                 continue
 
             file_path = os.path.join(root, filename)
             module_name = (
-                os.path.relpath(file_path, base_dir_path)
+                os.path.relpath(file_path, base_dir)
                 .replace(os.sep, ".")
                 .removesuffix(".py")
             )
