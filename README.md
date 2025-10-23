@@ -1,6 +1,6 @@
 # arpakitlib
 
-## Текущая версия шаблона arpakit_project_template_v_5 находится в разработке. В скором времени будет stable version.
+## Текущая версия шаблона arpakit_project_template_v_5 находится в разработке, она неверная. В скором времени будет stable version.
 
 ## 🚀 Simplify Your Development Workflow
 
