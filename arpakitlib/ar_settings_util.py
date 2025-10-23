@@ -13,7 +13,7 @@ def generate_env_example(settings_class: Union[BaseSettings, type[BaseSettings]]
     for k, f in settings_class.model_fields.items():
         if f.default is not PydanticUndefined:
             # есть дефолтное значение — пишем его как комментарий
-            res += f"# {k}={f.default}\n"
+            res += f"{k}={f.default}\n"
         else:
             # обязательное поле — без комментария
             res += f"{k}=\n"
