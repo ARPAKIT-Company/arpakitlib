@@ -13,14 +13,14 @@ LINE_RE = re.compile(r"""
     $
 """, re.VERBOSE)
 
-# Комментарий, но содержащий шаблон "ключ="
 COMMENT_KEY_RE = re.compile(r"^(\s*#\s*)([A-Za-z_][A-Za-z0-9_]*)(\s*=\s*.*)$")
-COMMENT_RE = re.compile(r"^\s*#")
 
 
-def uppercase_env_keys(*, path: str | Path,
-                       output: Optional[str | Path] = None,
-                       backup: bool = False) -> Path:
+def uppercase_env_keys(
+        *, path: str | Path,
+        output: Optional[str | Path] = None,
+        backup: bool = False
+) -> Path:
     """
     Преобразует имена переменных в .env и в комментариях в верхний регистр.
 
@@ -35,23 +35,24 @@ def uppercase_env_keys(*, path: str | Path,
 
     text = src.read_text(encoding="utf-8-sig").splitlines(keepends=True)
 
-    seen_upper = set()
     out_lines = []
 
     for line in text:
         stripped = line.strip()
 
-        # пустая строка
+        # пустые строки — оставляем как есть
         if not stripped:
             out_lines.append(line)
             continue
 
-        # комментарий — проверяем, не # key=
-        m_comment = COMMENT_KEY_RE.match(line)
+        # комментарий с "ключом" вида # KEY=
+        m_comment = COMMENT_KEY_RE.match(line.rstrip("\n"))
         if m_comment:
             prefix, key, rest = m_comment.groups()
             key_up = key.upper()
-            out_lines.append(f"{prefix}{key_up}{rest}\n")
+            # сохраняем оригинальный символ конца строки, если он был
+            newline = "\n" if line.endswith("\n") else ""
+            out_lines.append(f"{prefix}{key_up}{rest}{newline}")
             continue
 
         # стандартная строка с KEY=VAL
@@ -67,9 +68,9 @@ def uppercase_env_keys(*, path: str | Path,
         val = m.group("val")
 
         key_up = key.upper()
-        new_line = f"{lead}{(export_kw + ' ') if export_kw else ''}{key_up}{eq}{val}\n"
+        newline = "\n" if line.endswith("\n") else ""
+        new_line = f"{lead}{(export_kw + ' ') if export_kw else ''}{key_up}{eq}{val}{newline}"
         out_lines.append(new_line)
-        seen_upper.add(key_up)
 
     # запись
     if output is None:
