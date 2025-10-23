@@ -13,6 +13,8 @@ LINE_RE = re.compile(r"""
     $
 """, re.VERBOSE)
 
+# Комментарий, но содержащий шаблон "ключ="
+COMMENT_KEY_RE = re.compile(r"^(\s*#\s*)([A-Za-z_][A-Za-z0-9_]*)(\s*=\s*.*)$")
 COMMENT_RE = re.compile(r"^\s*#")
 
 
@@ -20,7 +22,7 @@ def uppercase_env_keys(*, path: str | Path,
                        output: Optional[str | Path] = None,
                        backup: bool = False) -> Path:
     """
-    Преобразует имена переменных в .env в верхний регистр.
+    Преобразует имена переменных в .env и в комментариях в верхний регистр.
 
     :param path: путь к исходному .env
     :param output: путь к файлу вывода. Если None — правит на месте.
@@ -37,14 +39,24 @@ def uppercase_env_keys(*, path: str | Path,
     out_lines = []
 
     for line in text:
-        # комментарии и пустые строки — как есть
-        if not line.strip() or COMMENT_RE.match(line):
+        stripped = line.strip()
+
+        # пустая строка
+        if not stripped:
             out_lines.append(line)
             continue
 
+        # комментарий — проверяем, не # key=
+        m_comment = COMMENT_KEY_RE.match(line)
+        if m_comment:
+            prefix, key, rest = m_comment.groups()
+            key_up = key.upper()
+            out_lines.append(f"{prefix}{key_up}{rest}\n")
+            continue
+
+        # стандартная строка с KEY=VAL
         m = LINE_RE.match(line.rstrip("\n"))
         if not m:
-            # строки без "=" или нестандартные — не трогаем
             out_lines.append(line)
             continue
 
@@ -55,10 +67,8 @@ def uppercase_env_keys(*, path: str | Path,
         val = m.group("val")
 
         key_up = key.upper()
-        # аккуратно соберем строку обратно (сохраняя пробелы/формат)
         new_line = f"{lead}{(export_kw + ' ') if export_kw else ''}{key_up}{eq}{val}\n"
         out_lines.append(new_line)
-
         seen_upper.add(key_up)
 
     # запись
