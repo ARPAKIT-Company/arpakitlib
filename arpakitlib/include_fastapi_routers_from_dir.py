@@ -20,6 +20,8 @@ def include_fastapi_routers_from_dir(
         exclude_filenames = ["__init__.py"]
 
     for root, _, files in os.walk(base_dir):
+        files.sort()
+
         for filename in files:
             if not filename.endswith(".py") or filename in exclude_filenames:
                 continue
