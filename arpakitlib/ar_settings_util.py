@@ -37,8 +37,17 @@ class SimpleSettings(BaseSettings):
     @classmethod
     def validate_all_fields(cls, values: dict[str, Any]) -> dict[str, Any]:
         for key, value in values.items():
-            if isinstance(value, str) and value.lower().strip() in {"null", "none", "nil"}:
+            if not isinstance(value, str):
+                continue
+            if value.lower().strip() in {"null", "none", "nil"}:
                 values[key] = None
+            elif value.lower().strip() == "default_value":
+                field = cls.model_fields.get(key)
+                if field is not None:
+                    if field.default is not None:
+                        values[key] = field.default
+                    elif field.default_factory is not None:
+                        values[key] = field.default_factory()
         return values
 
     @classmethod
