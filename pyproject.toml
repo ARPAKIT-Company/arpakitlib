@@ -1,11 +1,12 @@
 [project]
 name = "arpakitlib"
-version = "1.8.315"
+version = "1.8.316"
 description = "arpakitlib"
 authors = [
     { name = "arpakit_company", email = "support@arpakit.com" }
 ]
-license = { text = "Apache License 2.0" }
+license = "Apache-2.0"
+license-files = ["LICENSE"]
 readme = "README.md"
 keywords = ["arpakitlib", "arpakit", "arpakit-company", "arpakitcompany", "arpakit_company"]
 requires-python = ">=3.12.4,<4.0"
