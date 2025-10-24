@@ -3,7 +3,7 @@ from urllib.parse import quote_plus
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
 
 
-def generate_celery_url(
+def generate_broker_url(
         *,
         scheme: str = "redis",  # или amqp, sqs, etc.
         user: str | None = None,
@@ -51,19 +51,19 @@ def generate_celery_url(
 
 
 def __example():
-    print(generate_celery_url())
+    print(generate_broker_url())
     # → redis://127.0.0.1:6379/0
 
     # Redis с паролем
-    print(generate_celery_url(password="supersecret", host="redis"))
+    print(generate_broker_url(password="supersecret", host="redis"))
     # → redis://:supersecret@redis:6379/0
 
     # RabbitMQ (AMQP)
-    print(generate_celery_url(scheme="amqp", user="guest", password="guest", host="rabbitmq"))
+    print(generate_broker_url(scheme="amqp", user="guest", password="guest", host="rabbitmq"))
     # → amqp://guest:guest@rabbitmq:6379/0
 
     # Redis с параметрами
-    print(generate_celery_url(password="pass", ssl_cert_reqs="none", socket_timeout=10))
+    print(generate_broker_url(password="pass", ssl_cert_reqs="none", socket_timeout=10))
     # → redis://:pass@127.0.0.1:6379/0?ssl_cert_reqs=none&socket_timeout=10
 
 
