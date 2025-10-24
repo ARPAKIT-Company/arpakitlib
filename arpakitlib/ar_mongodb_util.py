@@ -4,35 +4,12 @@ import asyncio
 import logging
 from abc import abstractmethod
 from random import randint
-from typing import Optional
-from urllib.parse import quote
 
 from pymongo import MongoClient
 from pymongo.collection import Collection
 from pymongo.database import Database
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
-
-
-def generate_mongo_uri(
-        *,
-        mongo_user: Optional[str] = None,
-        mongo_password: Optional[str] = None,
-        mongo_hostname: str = "localhost",
-        mongo_port: int = 27017,
-        mongo_auth_db: Optional[str] = None
-) -> str:
-    res: str = f'mongodb://'
-    if mongo_user:
-        res += f"{mongo_user}"
-        if mongo_password:
-            res += f":{quote(mongo_password)}"
-        res += "@"
-    res += f"{mongo_hostname}:{mongo_port}"
-    if mongo_auth_db is not None:
-        res += f"/?authSource={mongo_auth_db}"
-
-    return res
 
 
 class EasyMongoDb:

@@ -3,7 +3,6 @@ import asyncio
 import logging
 from datetime import timedelta, datetime
 from typing import Any, Collection
-from urllib.parse import quote_plus
 from uuid import uuid4
 
 import sqlalchemy
@@ -15,44 +14,6 @@ from sqlalchemy.orm.session import Session
 from arpakitlib.ar_datetime_util import now_utc_dt
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
-
-
-def generate_sqlalchemy_url(
-        *,
-        base: str = "postgresql",
-        user: str | None = None,
-        password: str | None = None,
-        host: str | None = "127.0.0.1",
-        port: int | None = 5432,
-        database: str | None = None,
-        **query_params
-) -> str | None:
-    if host is None or port is None:
-        return None
-
-    auth_part = ""
-    if user and password:
-        auth_part = f"{quote_plus(user)}:{quote_plus(password)}@"
-    elif user:
-        auth_part = f"{quote_plus(user)}@"
-
-    if base.startswith("sqlite"):
-        host_part = ""
-    else:
-        host_part = f"{host}"
-        if port:
-            host_part += f":{port}"
-
-    database_part = f"/{database}" if database else ""
-    if base.startswith("sqlite") and database:
-        database_part = f"/{database}"
-
-    query_part = ""
-    if query_params:
-        query_items = [f"{key}={quote_plus(str(value))}" for key, value in query_params.items()]
-        query_part = f"?{'&'.join(query_items)}"
-
-    return f"{base}://{auth_part}{host_part}{database_part}{query_part}"
 
 
 class BaseDBM(DeclarativeBase):
