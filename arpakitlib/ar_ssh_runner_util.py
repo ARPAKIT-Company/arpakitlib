@@ -13,11 +13,11 @@ from arpakitlib.ar_json_util import transfer_data_to_json_str
 from pydantic import BaseModel, ConfigDict
 
 
-class _BaseSSHException(Exception):
+class BaseSSHException(Exception):
     pass
 
 
-class ConnectionSSHException(_BaseSSHException):
+class ConnectionSSHException(BaseSSHException):
     def __init__(self, ssh_runner: SSHRunner, base_exception: Exception | None = None):
         self.ssh_runner = ssh_runner
         self.base_exception = base_exception
@@ -35,7 +35,7 @@ class ConnectionSSHException(_BaseSSHException):
         return str(self)
 
 
-class ErrorInRunSSHException(_BaseSSHException):
+class ErrorInRunSSHException(BaseSSHException):
     def __init__(self, ssh_runner: SSHRunner, base_exception: Exception | None = None, message: str | None = None):
         self.ssh_runner = ssh_runner
         self.base_exception = base_exception
@@ -56,7 +56,7 @@ class ErrorInRunSSHException(_BaseSSHException):
         return str(self)
 
 
-class SSHRunResultHasErrorSSHException(_BaseSSHException):
+class SSHRunResultHasErrorSSHException(BaseSSHException):
     def __init__(self, ssh_run_result: SSHRunResult, message: str | None = None):
         self.ssh_run_result = ssh_run_result
         self.message = message
