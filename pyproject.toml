@@ -1,6 +1,6 @@
 [project]
 name = "arpakitlib"
-version = "1.8.329"
+version = "1.8.330"
 description = "arpakitlib"
 authors = [
     { name = "arpakit_company", email = "support@arpakit.com" }
@@ -21,7 +21,6 @@ classifiers = [
     "Topic :: Software Development :: Libraries"
 ]
 dependencies = [
-    "aiogram (>=3.17.0,<4.0.0)",
     "sqlalchemy (>=2.0.37,<3.0.0)",
     "poetry (>=2.0.1,<3.0.0)",
     "pydantic-settings (>=2.7.1,<3.0.0)",
@@ -52,7 +51,6 @@ dependencies = [
     "aiosmtplib (>=4.0.0,<5.0.0)",
     "aiohttp (>=3.11.16,<4.0.0)",
     "aiosqlite (>=0.21.0,<0.22.0)",
-    "pytelegrambotapi (>=4.27.0,<5.0.0)",
     "xlsxwriter (>=3.2.5,<4.0.0)",
     "requests-ntlm (>=1.3.0,<2.0.0)",
     "qrcode (>=8.2,<9.0)",
@@ -64,6 +62,8 @@ dependencies = [
     "redis (>=6.4.0,<7.0.0)",
     "pytest (>=8.4.2,<9.0.0)",
     "poetry-plugin-export (>=1.9.0)",
+    "aiogram (>=3.22.0,<4.0.0)",
+    "pytelegrambotapi (>=4.29.1,<5.0.0)",
 ]
 
 
@@ -93,7 +93,10 @@ arpakitlib = "arpakitlib.ar_arpakitlib_cli_util:execute_arpakitlib_cli"
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
 
+
 [dependency-groups]
-openai = [
-    "openai (>=2.6.1,<3.0.0)"
+full = [
+    "openai (>=2.6.1,<3.0.0)",
+    "asyncssh (>=2.21.1,<3.0.0)",
+    "paramiko (>=4.0.0,<5.0.0)"
 ]
