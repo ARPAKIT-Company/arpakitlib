@@ -27,12 +27,18 @@ def sync_make_http_request(
         max_tries_: int = 9,
         proxy_url_: str | None = None,
         raise_for_status_: bool = False,
-        not_raise_for_statuses_: list[int] | None = None,
+        not_raise_for_statuses_: list[int] | set[int] | None = None,
         timeout_: timedelta | float = timedelta(seconds=15).total_seconds(),
         enable_logging_: bool = False,
         exception_class_: type[Exception] | None = None,
+        retry_delay_timeout: timedelta | int | None = timedelta(seconds=0.1),
         **kwargs
 ) -> requests.Response:
+    if isinstance(retry_delay_timeout, int):
+        retry_delay_timeout = timedelta(seconds=retry_delay_timeout)
+    if retry_delay_timeout is not None:
+        raise_for_type(retry_delay_timeout, timedelta)
+
     if isinstance(timeout_, float):
         timeout_ = timedelta(seconds=timeout_)
     raise_for_type(timeout_, timedelta)
@@ -69,7 +75,7 @@ def sync_make_http_request(
                 else:
                     try:
                         response.raise_for_status()
-                    except requests.HTTPError as raise_for_status_exception:
+                    except requests.HTTPError:
                         if enable_logging_:
                             try:
                                 json_data = response.json()
@@ -86,7 +92,7 @@ def sync_make_http_request(
                                     )
                                 except Exception:
                                     pass
-                        raise raise_for_status_exception
+                        raise
             if enable_logging_:
                 _logger.info(f"good try http {method} {url} {params}")
             return response
@@ -99,8 +105,9 @@ def sync_make_http_request(
                 if exception_class_ is not None:
                     raise exception_class_(exception)
                 else:
-                    raise exception
-            sync_safe_sleep(timedelta(seconds=0.1).total_seconds())
+                    raise
+            if retry_delay_timeout is not None:
+                sync_safe_sleep(retry_delay_timeout.total_seconds())
             continue
 
 
@@ -113,12 +120,22 @@ async def async_make_http_request(
         max_tries_: int = 9,
         proxy_url_: str | None = None,
         raise_for_status_: bool = False,
-        not_raise_for_statuses_: list[int] | None = None,
+        not_raise_for_statuses_: list[int] | set[int] | None = None,
         timeout_: timedelta | None = timedelta(seconds=15),
         enable_logging_: bool = False,
         exception_class_: type[Exception] | None = None,
+        retry_delay_timeout: timedelta | int | None = timedelta(seconds=0.1),
         **kwargs
 ) -> aiohttp.ClientResponse:
+    if isinstance(retry_delay_timeout, int):
+        retry_delay_timeout = timedelta(seconds=retry_delay_timeout)
+    if retry_delay_timeout is not None:
+        raise_for_type(retry_delay_timeout, timedelta)
+
+    if isinstance(timeout_, float):
+        timeout_ = timedelta(seconds=timeout_)
+    raise_for_type(timeout_, timedelta)
+
     tries_counter = 0
 
     kwargs["method"] = method
@@ -153,7 +170,7 @@ async def async_make_http_request(
                         else:
                             try:
                                 response.raise_for_status()
-                            except aiohttp.ClientResponseError as raise_for_status_exception:
+                            except aiohttp.ClientResponseError:
                                 if enable_logging_:
                                     try:
                                         json_data = await response.json()
@@ -170,7 +187,7 @@ async def async_make_http_request(
                                             )
                                         except Exception:
                                             pass
-                                raise raise_for_status_exception
+                                raise
                     await response.read()
                     if enable_logging_:
                         _logger.info(f"good try {method} {url} {params}")
@@ -184,8 +201,9 @@ async def async_make_http_request(
                 if exception_class_ is not None:
                     raise exception_class_(exception)
                 else:
-                    raise exception
-            await async_safe_sleep(timedelta(seconds=0.1).total_seconds())
+                    raise
+            if retry_delay_timeout is not None:
+                await async_safe_sleep(retry_delay_timeout.total_seconds())
             continue
 
 

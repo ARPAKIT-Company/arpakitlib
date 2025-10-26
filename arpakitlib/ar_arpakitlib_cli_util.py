@@ -4,7 +4,7 @@ import sys
 
 from arpakitlib.ar_arpakit_project_template_util import init_arpakit_project_template
 from arpakitlib.ar_need_type_util import parse_need_type, NeedTypes
-from arpakitlib.ar_parse_command import parse_command
+from arpakitlib.ar_parse_command_util import parse_command
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
 

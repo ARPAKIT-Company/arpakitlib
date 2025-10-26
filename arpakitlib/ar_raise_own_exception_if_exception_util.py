@@ -12,6 +12,7 @@ RESULT_SPEC = TypeVar("RESULT_SPEC")
 
 _logger = logging.getLogger(__name__)
 
+
 def raise_own_exception_if_exception(
         *,
         catching_exceptions: type[BaseException] | Tuple[type[BaseException], ...] | None = Exception,

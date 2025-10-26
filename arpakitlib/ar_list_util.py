@@ -59,8 +59,8 @@ def remove_from_lists_if_left(
 
 def __example():
     a = remove_from_list_if_left(
-        list_=[1,2,2,2,2,2,3,3,3,3,3,3],
-        values=[1,2,3]
+        list_=[1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3],
+        values=[1, 2, 3]
     )
     print(a)
 

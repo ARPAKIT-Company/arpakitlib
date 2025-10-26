@@ -10,7 +10,7 @@ from aiogram.filters import CommandObject
 from pydantic import BaseModel
 
 from arpakitlib.ar_need_type_util import parse_need_type, NeedTypes
-from arpakitlib.ar_parse_command import BadCommandFormat, parse_command
+from arpakitlib.ar_parse_command_util import BadCommandFormat, parse_command
 from arpakitlib.ar_type_util import raise_for_types
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"

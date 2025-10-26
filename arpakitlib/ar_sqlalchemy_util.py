@@ -273,11 +273,11 @@ class SQLAlchemyDb:
         self._logger.info("alembic tables data were removed")
 
     def ensure_check_constraints(self):
-        from arpakitlib.ar_sqlalchemy_ensure_check_constraints import ensure_sqlalchemy_check_constraints
+        from arpakitlib.ar_sqlalchemy_ensure_check_constraints_util import ensure_sqlalchemy_check_constraints
         ensure_sqlalchemy_check_constraints(base_=self.base_dbm, engine=self.engine)
 
     def drop_check_constraints(self):
-        from arpakitlib.ar_sqlalchemy_drop_check_constraints import drop_sqlalchemy_check_constraints
+        from arpakitlib.ar_sqlalchemy_drop_check_constraints_util import drop_sqlalchemy_check_constraints
         drop_sqlalchemy_check_constraints(base_=self.base_dbm, engine=self.engine)
 
     def drop_and_ensure_check_constraints(self):

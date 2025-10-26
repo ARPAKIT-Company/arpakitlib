@@ -2,7 +2,6 @@
 
 import logging
 import os
-from typing import Optional
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
 

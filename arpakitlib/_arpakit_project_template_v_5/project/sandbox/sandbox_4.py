@@ -1,6 +1,6 @@
 import asyncio
 
-from arpakitlib.ar_pydantic_schema_from_sqlalchemy_model import _get_property_name_to_type_from_model_class
+from arpakitlib.ar_pydantic_schema_from_sqlalchemy_model_util import _get_property_name_to_type_from_model_class
 from project.sqlalchemy_db_.sqlalchemy_model import UserDBM
 
 

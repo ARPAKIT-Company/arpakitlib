@@ -26,7 +26,7 @@ class BaseWorker(ABC):
             startup_funcs: list[Any] | None = None,
             worker_name: str | None = None,
             data: dict[str, Any] | None = None,
-            timeout_before_safe_run: timedelta | None= None,
+            timeout_before_safe_run: timedelta | None = None,
             **kwargs
     ):
         self.timeout_after_run = timeout_after_run

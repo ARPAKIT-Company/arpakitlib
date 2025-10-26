@@ -6,17 +6,17 @@ _ARPAKIT_LIB_MODULE_VERSION = "3.0"
 
 class BaseBlank:
     class Languages(Enumeration):
-        rus = "ru"        # Русский
-        eng = "en"        # Английский
-        spa = "es"        # Испанский
-        deu = "de"        # Немецкий
-        fra = "fr"        # Французский
-        ita = "it"        # Итальянский
-        por = "pt"        # Португальский
-        jpn = "ja"        # Японский
-        kor = "ko"        # Корейский
-        zho = "zh"        # Китайский
-        ara = "ar"        # Арабский
+        rus = "ru"  # Русский
+        eng = "en"  # Английский
+        spa = "es"  # Испанский
+        deu = "de"  # Немецкий
+        fra = "fr"  # Французский
+        ita = "it"  # Итальянский
+        por = "pt"  # Португальский
+        jpn = "ja"  # Японский
+        kor = "ko"  # Корейский
+        zho = "zh"  # Китайский
+        ara = "ar"  # Арабский
 
     def __init__(self, *, lang: str = "ru", **kwargs):
         self.lang = lang.strip()
@@ -28,7 +28,7 @@ class BaseBlank:
 
     def hello_world(self) -> str:
         if self.compare_lang(self.Languages.rus):
-            return "Привет, мир!"   # Русский
+            return "Привет, мир!"  # Русский
 
         if self.compare_lang(self.Languages.eng):
             return "Hello, world!"  # Английский
@@ -37,29 +37,28 @@ class BaseBlank:
             return "¡Hola, mundo!"  # Испанский
 
         if self.compare_lang(self.Languages.deu):
-            return "Hallo, Welt!"   # Немецкий
+            return "Hallo, Welt!"  # Немецкий
 
         if self.compare_lang(self.Languages.fra):
             return "Bonjour, le monde!"  # Французский
 
         if self.compare_lang(self.Languages.ita):
-            return "Ciao, mondo!"    # Итальянский
+            return "Ciao, mondo!"  # Итальянский
 
         if self.compare_lang(self.Languages.por):
-            return "Olá, mundo!"     # Португальский
+            return "Olá, mundo!"  # Португальский
 
         if self.compare_lang(self.Languages.jpn):
             return "こんにちは、世界！"  # Японский
 
         if self.compare_lang(self.Languages.kor):
-            return "안녕, 세상!"       # Корейский
+            return "안녕, 세상!"  # Корейский
 
         if self.compare_lang(self.Languages.zho):
-            return "你好，世界！"      # Китайский
+            return "你好，世界！"  # Китайский
 
         if self.compare_lang(self.Languages.ara):
-            return "مرحبا بالعالم!"   # Арабский
+            return "مرحبا بالعالم!"  # Арабский
 
         # если язык не найден
         return "Hello, world!"
-
