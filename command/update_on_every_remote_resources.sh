@@ -2,8 +2,8 @@ cd ..
 
 git add .
 git commit -m "fix"
-git push arpakit_company_github_1
-git push arpakit_company_gitlab_1
+git push git_main_repository_address
+git push git_another_repository_address_1
 
 export TWINE_HTTP_TIMEOUT=60
 
