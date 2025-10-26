@@ -1,2 +1,2 @@
-cd ..
+cd ../..
 poetry show --tree
