@@ -1,6 +1,6 @@
 [project]
 name = "arpakitlib"
-version = "1.8.328"
+version = "1.8.329"
 description = "arpakitlib"
 authors = [
     { name = "arpakit_company", email = "support@arpakit.com" }
@@ -85,10 +85,6 @@ url = "https://test.pypi.org/legacy/"
 priority = "explicit"
 
 
-[tool.poetry.extras]
-openai = ["openai"]
-
-
 [project.scripts]
 arpakitlib = "arpakitlib.ar_arpakitlib_cli_util:execute_arpakitlib_cli"
 
@@ -96,3 +92,8 @@ arpakitlib = "arpakitlib.ar_arpakitlib_cli_util:execute_arpakitlib_cli"
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[dependency-groups]
+openai = [
+    "openai (>=2.6.1,<3.0.0)"
+]
