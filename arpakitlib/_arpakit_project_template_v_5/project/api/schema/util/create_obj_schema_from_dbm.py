@@ -1,6 +1,6 @@
 from typing import Type
 
-from arpakitlib.ar_sqlalchemy_util import BaseDBM
+from arpakitlib.ar_sqlalchemy_base_dbm_util import BaseDBM
 from pydantic import BaseModel
 
 

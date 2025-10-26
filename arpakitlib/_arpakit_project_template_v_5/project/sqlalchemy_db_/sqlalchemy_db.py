@@ -1,6 +1,6 @@
 from functools import lru_cache
 
-from arpakitlib.ar_sqlalchemy_util import SQLAlchemyDb
+from arpakitlib.ar_sqlalchemy_base_dbm_util import SQLAlchemyDb
 from project.core.settings import get_cached_settings
 from project.sqlalchemy_db_.sqlalchemy_model import SimpleDBM
 

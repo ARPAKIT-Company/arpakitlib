@@ -4,7 +4,7 @@ from typing import Any
 from arpakitlib.ar_base_worker_util import BaseWorker
 from arpakitlib.ar_json_util import transfer_data_to_json_str_to_data
 from arpakitlib.ar_sleep_util import sync_safe_sleep, async_safe_sleep
-from arpakitlib.ar_sqlalchemy_util import SQLAlchemyDb
+from arpakitlib.ar_sqlalchemy_base_dbm_util import SQLAlchemyDb
 from arpakitlib.ar_type_util import raise_for_type
 from project.operation_execution.scheduled_operations import ScheduledOperation, get_scheduled_operations
 from project.sqlalchemy_db_.sqlalchemy_db import get_cached_sqlalchemy_db
