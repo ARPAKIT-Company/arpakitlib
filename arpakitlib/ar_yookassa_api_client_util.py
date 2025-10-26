@@ -9,6 +9,7 @@ from typing import Any
 import aiohttp
 import requests
 
+from arpakitlib.ar_base_http_api_client_util import BaseHTTPAPIClient
 from arpakitlib.ar_dict_util import combine_dicts
 from arpakitlib.ar_enumeration_util import Enumeration
 from arpakitlib.ar_http_request_util import sync_make_http_request, async_make_http_request
@@ -19,7 +20,7 @@ https://yookassa.ru/developers/api
 """
 
 
-class YookassaAPIClient:
+class EasyYookassaAPIClient(BaseHTTPAPIClient):
     class PaymentStatuses(Enumeration):
         pending = "pending"
         waiting_for_capture = "waiting_for_capture"
@@ -161,6 +162,9 @@ class YookassaAPIClient:
             return None
         response.raise_for_status()
         return json_data
+
+
+YookassaAPIClient = EasyYookassaAPIClient
 
 
 def __example():
