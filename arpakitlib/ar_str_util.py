@@ -107,7 +107,7 @@ def remove_tags_and_html(string: str) -> str:
 
 def raise_if_string_blank(string: str) -> str:
     if not string:
-        raise ValueError("not string")
+        raise ValueError("string is blank")
     return string
 
 
