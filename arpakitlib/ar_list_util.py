@@ -57,6 +57,28 @@ def remove_from_lists_if_left(
     return lists_
 
 
+def int_to_list_(value: int | list | None) -> list[int] | None:
+    if isinstance(value, int):
+        return [value]
+    elif isinstance(value, list):
+        return value
+    elif value is None:
+        return None
+    else:
+        raise TypeError(f"{type(value)=}")
+
+
+def str_to_list_(value: str | list | None) -> list[str] | None:
+    if isinstance(value, str):
+        return [value]
+    elif isinstance(value, list):
+        return value
+    elif value is None:
+        return None
+    else:
+        raise TypeError(f"{type(value)=}")
+
+
 def __example():
     a = remove_from_list_if_left(
         list_=[1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3],
