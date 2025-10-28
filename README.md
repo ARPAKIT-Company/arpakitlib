@@ -19,6 +19,8 @@ workflow
 
 ```
 poetry add arpakitlib
+# or
+poetry add git+https://github.com/ARPAKIT-Company/arpakitlib.git@master
 ```
 
 ### Installation with pip
