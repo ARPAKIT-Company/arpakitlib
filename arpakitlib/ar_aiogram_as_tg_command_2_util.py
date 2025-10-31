@@ -1,6 +1,7 @@
 # arpakit
 import ast
 import asyncio
+import json
 import logging
 from typing import Any, get_origin, get_args, Awaitable, Callable
 
@@ -43,7 +44,7 @@ def _generate_help_text(
         if desc:
             lines.append(f"\n{desc}")
 
-    lines.append(f"\n\n<b>Fields ({len(model_class.model_fields.items())}):</b>")
+    lines.append(f"\n\n<b>Fields ({len(model_class.model_fields)}):</b>")
 
     for name, field in model_class.model_fields.items():
 
@@ -63,16 +64,16 @@ def _generate_help_text(
         else:
             type_name = str(field.annotation)
 
-        desc = f" — {field.description}" if field.description else ""
+        description = f" — {field.description}" if field.description else ""
 
-        lines.append(f"\n• <code>-{name}</code>: <i>{type_name}</i>{desc} (default: {default_value})")
+        lines.append(f"\n• <code>-{name}</code>: <i>{type_name}</i>{description} (default: {default_value})")
 
     lines.append(f"\n\n<b>Usage for help:</b>\n<code>/{command_name} -help</code>")
 
     return "\n".join(lines)
 
 
-def _smart_parse_tg_command_param(value: Any) -> Any:
+def _parse_tg_param(value: Any) -> Any:
     """Интеллектуальное преобразование строки из Telegram-команды в Python-значение."""
     if isinstance(value, (bool, int, float)) or value is None:
         return value
@@ -92,7 +93,15 @@ def _smart_parse_tg_command_param(value: Any) -> Any:
         return result
     except Exception:
         # не получилось распарсить — возвращаем как строку
-        return v
+        pass
+
+    try:
+        result = json.loads(v)
+        return result
+    except Exception:
+        pass
+
+    return v
 
 
 def as_tg_command_handler(
@@ -135,10 +144,10 @@ def as_tg_command_handler(
                     if value is None:
                         tg_command_model_data[key] = True
                     else:
-                        tg_command_model_data[key] = _smart_parse_tg_command_param(value=value)
+                        tg_command_model_data[key] = _parse_tg_param(value=value)
 
                 for i, value in enumerate(parsed_command.values_without_key):
-                    tg_command_model_data[f"arg_{i}"] = _smart_parse_tg_command_param(value=value)
+                    tg_command_model_data[f"arg_{i}"] = _parse_tg_param(value=value)
 
                 tg_command_format_obj = tg_command_format_class(**tg_command_model_data)
 
@@ -146,7 +155,7 @@ def as_tg_command_handler(
 
             except Exception as exception:
 
-                _logger.error(f"error in {tg_command.text}", exc_info=True)
+                _logger.exception("Error while parsing command %s", tg_command.text, exc_info=True)
 
                 await message.answer(
                     text=(
