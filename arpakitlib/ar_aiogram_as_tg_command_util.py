@@ -1,4 +1,5 @@
 # arpakit
+# DEPRECATED
 
 import asyncio
 import logging
