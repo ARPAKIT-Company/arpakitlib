@@ -3,6 +3,7 @@
 
 import asyncio
 import logging
+from pathlib import Path
 from typing import Optional, Any, Callable
 
 from aiogram import types
@@ -17,6 +18,8 @@ from arpakitlib.ar_type_util import raise_for_types
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
 
 _logger = logging.getLogger(__name__)
+
+_logger.warning(f"Module '{Path(__file__).name}' is deprecated; use 'ar_aiogram_as_tg_command_2_util' instead.")
 
 
 class BadTgCommandFormat(BadCommandFormat):

@@ -17,11 +17,13 @@ _ARPAKIT_LIB_MODULE_VERSION = "3.0"
 
 _logger = logging.getLogger(__name__)
 
+__DESC_FIELD_KEY = "desc_"
+
 
 class BaseTgCommandModel(BaseModel):
     model_config = ConfigDict(extra="ignore", arbitrary_types_allowed=True, from_attributes=True)
 
-    desc: str | None = Field(default=None)
+    desc_: str | None = Field(default=None)
     help: bool | None = Field(default=False)
 
     def __init__(self, **data):
@@ -43,18 +45,22 @@ def _generate_help_text(command_name: str, model_class: type[BaseTgCommandModel]
     """Генерирует help-текст по описанию модели."""
     lines = [f"<b>Command</b> /{command_name}"]
 
-    desc_field = model_class.model_fields.get("desc")
+    desc_field = model_class.model_fields.get(__DESC_FIELD_KEY)
 
     if desc_field:
         if desc_field.default:
             raise_for_type(desc_field.default, str)
             lines.append(f"\n{desc_field.default}")
 
-    lines.append(f"\n\n<b>Fields ({len(model_class.model_fields.items())}):</b>")
+    model_fields = {
+        name: field
+        for name, field in model_class.model_fields.items()
+        if name not in (__DESC_FIELD_KEY,)
+    }
 
-    for name, field in model_class.model_fields.items():
-        if name in ("desc",):
-            continue
+    lines.append(f"\n\n<b>Fields ({len(model_fields)}):</b>")
+
+    for name, field in model_fields.items():
 
         default_value = (
             field.default
@@ -139,6 +145,8 @@ def as_tg_command_handler(
                 tg_command_model_data: dict[str, Any] = {}
 
                 for key, value in parsed_command.key_to_value.items():
+                    if key == __DESC_FIELD_KEY:
+                        continue
                     if value is None:
                         tg_command_model_data[key] = True
                     else:
