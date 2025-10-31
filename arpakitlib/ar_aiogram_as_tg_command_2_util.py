@@ -2,9 +2,10 @@
 import ast
 import asyncio
 import logging
-from typing import Any, get_origin, get_args
+from typing import Any, get_origin, get_args, Awaitable, Callable
 
 from aiogram import types
+from aiogram.enums import ParseMode
 from aiogram.filters import CommandObject
 from pydantic import BaseModel, Field, ConfigDict
 from pydantic_core import PydanticUndefined
@@ -21,10 +22,20 @@ class BaseTgCommandModel(BaseModel):
     model_config = ConfigDict(extra="ignore", arbitrary_types_allowed=True, from_attributes=True)
 
     desc: str | None = Field(default=None)
-    help: bool = Field(default=False)
+    help: bool | None = Field(default=False)
+
+    def __init__(self, **data):
+        # если desc не передан — берём из __doc__ модели
+        if "desc" not in data or data["desc"] is None:
+            doc = getattr(self.__class__, "__doc__", None)
+            if doc:
+                data["desc"] = doc.strip()
+        super().__init__(**data)
 
 
 class ExampleTgCommandModel(BaseTgCommandModel):
+    """Это описание команды hello-world"""
+
     hello: str | None = Field(description="Example Desc", default="Hello world")
 
 
@@ -37,7 +48,7 @@ def _generate_help_text(command_name: str, model_class: type[BaseTgCommandModel]
     if desc_field:
         if desc_field.default:
             raise_for_type(desc_field.default, str)
-            lines.append(f"\n\n{desc_field.default}")
+            lines.append(f"\n{desc_field.default}")
 
     lines.append(f"\n\n<b>Fields ({len(model_class.model_fields.items())}):</b>")
 
@@ -96,7 +107,7 @@ def _smart_parse_tg_command_param(value: Any) -> Any:
 def as_tg_command_handler(
         *,
         tg_command_format_class: type[BaseTgCommandModel]
-):
+) -> Callable[[Callable[..., Awaitable[Any]]], Callable[..., Awaitable[Any]]]:
     def decorator(handler):
 
         async def new_handler(*args, **kwargs):
@@ -105,7 +116,9 @@ def as_tg_command_handler(
             if not isinstance(message, types.Message):
                 raise TypeError("not isinstance(message, types.Message)")
 
-            tg_command: CommandObject = kwargs["command"]
+            tg_command: CommandObject = kwargs.get("command")
+            if tg_command is None:
+                raise ValueError("Missing 'command' in handler kwargs")
 
             try:
 
@@ -113,25 +126,30 @@ def as_tg_command_handler(
                 kwargs["parsed_command"] = parsed_command
 
                 if parsed_command.has_flag(flag="help") or parsed_command.has_flag(flag="h"):
-                    help_text = _generate_help_text(
-                        command_name=tg_command.command,
-                        model_class=tg_command_format_class,
+                    await message.answer(
+                        text=_generate_help_text(
+                            command_name=tg_command.command,
+                            model_class=tg_command_format_class,
+                        ),
+                        disable_web_page_preview=True,
+                        parse_mode=ParseMode.HTML
                     )
-                    await message.answer(text=help_text, disable_web_page_preview=True)
                     return None
 
                 tg_command_model_data: dict[str, Any] = {}
+
                 for key, value in parsed_command.key_to_value.items():
                     if value is None:
                         tg_command_model_data[key] = True
                     else:
                         tg_command_model_data[key] = _smart_parse_tg_command_param(value=value)
 
-                # позиционные аргументы (если нужны)
                 for i, value in enumerate(parsed_command.values_without_key):
                     tg_command_model_data[f"arg_{i}"] = _smart_parse_tg_command_param(value=value)
 
                 tg_command_format_obj = tg_command_format_class(**tg_command_model_data)
+
+                kwargs["tg_command_format_obj"] = tg_command_format_obj
 
             except Exception as exception:
 
@@ -147,11 +165,10 @@ def as_tg_command_handler(
                         f"\nUse <code>/{tg_command.command} -help</code> for help info"
                     ),
                     disable_web_page_preview=True,
+                    parse_mode=ParseMode.HTML
                 )
 
                 return None
-
-            kwargs["tg_command_format_obj"] = tg_command_format_obj
 
             return await handler(*args, **kwargs)
 
