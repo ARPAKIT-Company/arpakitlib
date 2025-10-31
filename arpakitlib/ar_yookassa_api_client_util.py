@@ -40,6 +40,7 @@ class EasyYookassaAPIClient(BaseHTTPAPIClient):
             method: str,
             url: str,
             headers: dict[str, Any] | None = None,
+            not_raise_for_statuses_: list[int] | set[int] | None = None,
             **kwargs
     ) -> requests.Response:
         return sync_make_http_request(
@@ -49,7 +50,7 @@ class EasyYookassaAPIClient(BaseHTTPAPIClient):
             max_tries_=3,
             raise_for_status_=True,
             timeout_=timedelta(seconds=3),
-            not_raise_for_statuses_=[404],
+            not_raise_for_statuses_=not_raise_for_statuses_,
             auth=(self.shop_id, self.secret_key),
             enable_logging_=False,
             **kwargs
@@ -61,6 +62,7 @@ class EasyYookassaAPIClient(BaseHTTPAPIClient):
             method: str = "GET",
             url: str,
             headers: dict[str, Any] | None = None,
+            not_raise_for_statuses_: list[int] | set[int] | None = None,
             **kwargs
     ) -> aiohttp.ClientResponse:
         return await async_make_http_request(
@@ -69,7 +71,7 @@ class EasyYookassaAPIClient(BaseHTTPAPIClient):
             headers=combine_dicts(self.headers, (headers if headers is not None else {})),
             max_tries_=3,
             raise_for_status_=True,
-            not_raise_for_statuses_=[404],
+            not_raise_for_statuses_=not_raise_for_statuses_,
             timeout_=timedelta(seconds=3),
             auth=aiohttp.BasicAuth(login=str(self.shop_id), password=self.secret_key),
             enable_logging_=False,
@@ -112,7 +114,7 @@ class EasyYookassaAPIClient(BaseHTTPAPIClient):
         response = self._sync_make_http_request(
             method="GET",
             url=f"https://api.yookassa.ru/v3/payments/{payment_id}",
-            headers=self.headers
+            not_raise_for_statuses_=[404]
         )
         json_data = response.json()
         if response.status_code == 404:
@@ -156,6 +158,7 @@ class EasyYookassaAPIClient(BaseHTTPAPIClient):
         response = await self._async_make_http_request(
             method="GET",
             url=f"https://api.yookassa.ru/v3/payments/{payment_id}",
+            not_raise_for_statuses_=[404]
         )
         json_data = await response.json()
         if response.status == 404:
