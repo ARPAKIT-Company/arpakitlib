@@ -11,28 +11,16 @@ from pydantic import BaseModel, Field, ConfigDict
 from pydantic_core import PydanticUndefined
 
 from arpakitlib.ar_parse_command_util import parse_command
-from arpakitlib.ar_type_util import raise_for_type
 
 _ARPAKIT_LIB_MODULE_VERSION = "3.0"
 
 _logger = logging.getLogger(__name__)
 
-__DESC_FIELD_KEY = "desc_"
-
 
 class BaseTgCommandModel(BaseModel):
     model_config = ConfigDict(extra="ignore", arbitrary_types_allowed=True, from_attributes=True)
 
-    desc_: str | None = Field(default=None)
     help: bool | None = Field(default=False)
-
-    def __init__(self, **data):
-        # если desc не передан — берём из __doc__ модели
-        if "desc" not in data or data["desc"] is None:
-            doc = getattr(self.__class__, "__doc__", None)
-            if doc:
-                data["desc"] = doc.strip()
-        super().__init__(**data)
 
 
 class ExampleTgCommandModel(BaseTgCommandModel):
@@ -41,26 +29,23 @@ class ExampleTgCommandModel(BaseTgCommandModel):
     hello: str | None = Field(description="Example Desc", default="Hello world")
 
 
-def _generate_help_text(command_name: str, model_class: type[BaseTgCommandModel]) -> str:
+def _generate_help_text(
+        *,
+        command_name: str,
+        model_class: type[BaseTgCommandModel],
+        desc: str | None = None
+) -> str:
     """Генерирует help-текст по описанию модели."""
     lines = [f"<b>Command</b> /{command_name}"]
 
-    desc_field = model_class.model_fields.get(__DESC_FIELD_KEY)
+    if desc:
+        desc = desc.strip()
+        if desc:
+            lines.append(f"\n{desc}")
 
-    if desc_field:
-        if desc_field.default:
-            raise_for_type(desc_field.default, str)
-            lines.append(f"\n{desc_field.default}")
+    lines.append(f"\n\n<b>Fields ({len(model_class.model_fields.items())}):</b>")
 
-    model_fields = {
-        name: field
-        for name, field in model_class.model_fields.items()
-        if name not in (__DESC_FIELD_KEY,)
-    }
-
-    lines.append(f"\n\n<b>Fields ({len(model_fields)}):</b>")
-
-    for name, field in model_fields.items():
+    for name, field in model_class.model_fields.items():
 
         default_value = (
             field.default
@@ -112,7 +97,8 @@ def _smart_parse_tg_command_param(value: Any) -> Any:
 
 def as_tg_command_handler(
         *,
-        tg_command_format_class: type[BaseTgCommandModel]
+        tg_command_format_class: type[BaseTgCommandModel],
+        desc: str | None = None
 ) -> Callable[[Callable[..., Awaitable[Any]]], Callable[..., Awaitable[Any]]]:
     def decorator(handler):
 
@@ -136,6 +122,7 @@ def as_tg_command_handler(
                         text=_generate_help_text(
                             command_name=tg_command.command,
                             model_class=tg_command_format_class,
+                            desc=desc
                         ),
                         disable_web_page_preview=True,
                         parse_mode=ParseMode.HTML
@@ -145,8 +132,6 @@ def as_tg_command_handler(
                 tg_command_model_data: dict[str, Any] = {}
 
                 for key, value in parsed_command.key_to_value.items():
-                    if key == __DESC_FIELD_KEY:
-                        continue
                     if value is None:
                         tg_command_model_data[key] = True
                     else:
