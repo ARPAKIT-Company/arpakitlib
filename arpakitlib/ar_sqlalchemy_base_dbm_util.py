@@ -112,27 +112,56 @@ class BaseDBM(DeclarativeBase):
     def get_sd_property_names(
             cls,
             *,
-            prefix: str = "sdp_",
-            remove_prefix: bool = False,
+            prefixes: list[str] | None = None,
+            remove_prefixes: list[str] | None = None,
             exclude_property_names: list[str] | None = None,
+            exclude_property_names_after_remove_prefix: list[str] | None = None,
     ) -> list[str]:
+        """
+        Возвращает список имён sd-свойств (property), начинающихся с указанных префиксов.
+
+        :param prefixes: Список префиксов, по которым определяются sd-свойства.
+        :param remove_prefixes: Префиксы, которые нужно удалить из имён перед возвратом.
+                                Если не указаны, префиксы не удаляются.
+        :param exclude_property_names: Список имён (до удаления префикса), которые нужно исключить.
+        :param exclude_property_names_after_remove_prefix: Список имён (после удаления префиксов),
+                                которые нужно исключить.
+        :return: Список имён свойств (без дубликатов), упорядоченных от потомков к базам.
+        """
         exclude_property_names = set(exclude_property_names or [])
+        exclude_property_names_after_remove_prefix = set(exclude_property_names_after_remove_prefix or [])
         res: list[str] = []
 
-        # идём от потомка к базам, переопределения потомка «побеждают»
+        # идём от потомка к базовым классам — переопределения потомка "побеждают"
         for c in cls.__mro__:
             if c is object:
                 continue
+
             for name, attr in c.__dict__.items():
                 if not isinstance(attr, property):
                     continue
-                if not name.startswith(prefix):
+
+                # если заданы prefixes, фильтруем по ним
+                if prefixes and not any(name.startswith(p) for p in prefixes):
                     continue
+
                 if name in exclude_property_names or name in res:
                     continue
-                res.append(name)
 
-        return [n[len(prefix):] for n in res] if remove_prefix else res
+                # удаляем префикс (если требуется)
+                clean_name = name
+                if remove_prefixes:
+                    for p in remove_prefixes:
+                        if clean_name.startswith(p):
+                            clean_name = clean_name[len(p):]
+                            break
+
+                if clean_name in exclude_property_names_after_remove_prefix or clean_name in res:
+                    continue
+
+                res.append(clean_name)
+
+        return res
 
     def simple_dict(
             self,
