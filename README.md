@@ -29,13 +29,6 @@ poetry add git+https://github.com/ARPAKIT-Company/arpakitlib.git@master
 pip install arpakitlib
 ```
 
-### arpakitlib command
-
-```
-poetry run arpakitlib -c help
-poetry run arpakitlib -c init_arpakit_project_template -version 5 -project_dirpath ./ -overwrite_if_exists true
-```
-
 ---
 
 ### Links
