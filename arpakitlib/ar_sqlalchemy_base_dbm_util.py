@@ -144,17 +144,32 @@ class BaseDBM(DeclarativeBase):
             include_sd_properties: Collection[str] | None = None,
             exclude_sd_properties: Collection[str] | None = None,
             include_columns_and_sd_properties: Collection[str] | None = None,
-            prefix: str = "sdp_",
-            remove_prefix: bool = True,
+            prefixes: list[str] | None = None,
+            remove_prefixes: list[str] | None = None,
             kwargs: dict[str, Any] | None = None
     ) -> dict[str, Any]:
-        if exclude_columns is None:
-            exclude_columns = set()
-        if exclude_sd_properties is None:
-            exclude_sd_properties = set()
+        """
+        Преобразует ORM-объект в простой dict, включая обычные колонки и sd-свойства.
+
+        :param need_include_columns: Включать ли обычные колонки модели.
+        :param need_include_sd_properties: Включать ли sd-свойства (property с заданными префиксами).
+        :param include_columns: Список колонок для включения.
+        :param exclude_columns: Список колонок для исключения.
+        :param include_sd_properties: Список sd-свойств для включения (по полным именам).
+        :param exclude_sd_properties: Список sd-свойств для исключения (по полным именам).
+        :param include_columns_and_sd_properties: Универсальный фильтр — если задан, то включаются только эти имена.
+        :param prefixes: Список префиксов, которые считаются sd-свойствами. По умолчанию ["sdp_"].
+        :param remove_prefixes: Префиксы, которые нужно удалить из имени при добавлении в результат.
+        :param kwargs: Дополнительные данные, которые будут добавлены в итоговый словарь.
+        """
+        exclude_columns = set(exclude_columns or [])
+        exclude_sd_properties = set(exclude_sd_properties or [])
+        prefixes = prefixes or ["sdp_"]
+        remove_prefixes = remove_prefixes or []
 
         res = {}
 
+        # === 1. Обычные колонки ===
         if need_include_columns:
             for c in inspect(self).mapper.column_attrs:
                 if include_columns_and_sd_properties is not None and c.key not in include_columns_and_sd_properties:
@@ -166,15 +181,18 @@ class BaseDBM(DeclarativeBase):
                 value = getattr(self, c.key)
                 res[c.key] = value
 
+        # === 2. SD-свойства ===
         if need_include_sd_properties:
             for attr_name in dir(self):
-                if not attr_name.startswith(prefix) or not isinstance(getattr(type(self), attr_name, None), property):
+                # Проверяем, начинается ли имя с любого префикса
+                if not any(attr_name.startswith(p) for p in prefixes):
+                    continue
+                if not isinstance(getattr(type(self), attr_name, None), property):
                     continue
 
-                sd_property_name = attr_name
-                if remove_prefix:
-                    sd_property_name = sd_property_name.removeprefix(prefix)
+                sd_property_name = attr_name  # пока полное имя (с префиксом)
 
+                # Фильтрация — ДО удаления префикса
                 if (
                         include_columns_and_sd_properties is not None
                         and sd_property_name not in include_columns_and_sd_properties
@@ -185,8 +203,15 @@ class BaseDBM(DeclarativeBase):
                 if sd_property_name in exclude_sd_properties:
                     continue
 
+                # Удаляем префикс, если он указан в remove_prefixes
+                for p in remove_prefixes:
+                    if sd_property_name.startswith(p):
+                        sd_property_name = sd_property_name[len(p):]
+                        break
+
                 res[sd_property_name] = getattr(self, attr_name)
 
+        # === 3. Добавляем дополнительные данные ===
         if kwargs is not None:
             res.update(kwargs)
 
