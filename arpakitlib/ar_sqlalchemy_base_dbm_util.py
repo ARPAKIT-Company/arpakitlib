@@ -191,6 +191,11 @@ class BaseDBM(DeclarativeBase):
                     continue
 
                 sd_property_name = attr_name  # пока полное имя (с префиксом)
+                # сначала убираем префикс (первый совпавший)
+                for p in remove_prefixes:
+                    if sd_property_name.startswith(p):
+                        sd_property_name = sd_property_name[len(p):]
+                        break
 
                 # Фильтрация — ДО удаления префикса
                 if (
@@ -202,12 +207,6 @@ class BaseDBM(DeclarativeBase):
                     continue
                 if sd_property_name in exclude_sd_properties:
                     continue
-
-                # Удаляем префикс, если он указан в remove_prefixes
-                for p in remove_prefixes:
-                    if sd_property_name.startswith(p):
-                        sd_property_name = sd_property_name[len(p):]
-                        break
 
                 res[sd_property_name] = getattr(self, attr_name)
 
