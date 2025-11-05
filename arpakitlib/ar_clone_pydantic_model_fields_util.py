@@ -13,14 +13,14 @@ def clone_pydantic_model_fields(
         base_model: Type[BaseModel] = BaseModel,
         fields_to_remove: Iterable[str] | None = None,
         new_class_name: str | None = None,
-        class_name_prefix: str | None = "Cloned"
+        class_name_suffix: str | None = "Cloned"
 ) -> Type[BaseModel]:
     if fields_to_remove is None:
         fields_to_remove = set()
-    if class_name_prefix is None:
-        class_name_prefix = "Cloned"
+    if class_name_suffix is None:
+        class_name_suffix = "Cloned"
     if new_class_name is None:
-        new_class_name = f"{model_cls.__name__}{class_name_prefix}"
+        new_class_name = f"{model_cls.__name__}{class_name_suffix}"
 
     field_defs: dict[str, tuple[type[Any], Any]] = {}
 
