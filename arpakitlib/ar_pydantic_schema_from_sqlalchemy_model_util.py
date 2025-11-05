@@ -75,8 +75,6 @@ def _type_matches(*, type_: Any, allowed_types: list[type]) -> bool:
     - Annotated (смотрит на базовый тип),
     - generics (List[int], Dict[str, Any]) — сравнивает по origin (list, dict, и т.п.).
     """
-    if type_ is Any:
-        return True
 
     origin = get_origin(type_)
     if origin is Union:  # Optional/Union
