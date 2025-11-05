@@ -144,8 +144,8 @@ class BaseDBM(DeclarativeBase):
             include_sd_properties: Collection[str] | None = None,
             exclude_sd_properties: Collection[str] | None = None,
             include_columns_and_sd_properties: Collection[str] | None = None,
-            prefixes: list[str] | None = None,
-            remove_prefixes: list[str] | None = None,
+            include_sd_property_prefixes: list[str] | None = None,
+            remove_sd_property_prefixes: list[str] | None = None,
             kwargs: dict[str, Any] | None = None
     ) -> dict[str, Any]:
         """
@@ -158,14 +158,14 @@ class BaseDBM(DeclarativeBase):
         :param include_sd_properties: Список sd-свойств для включения (по полным именам).
         :param exclude_sd_properties: Список sd-свойств для исключения (по полным именам).
         :param include_columns_and_sd_properties: Универсальный фильтр — если задан, то включаются только эти имена.
-        :param prefixes: Список префиксов, которые считаются sd-свойствами. По умолчанию ["sdp_"].
-        :param remove_prefixes: Префиксы, которые нужно удалить из имени при добавлении в результат.
+        :param include_sd_property_prefixes: Список префиксов, которые считаются sd-свойствами. По умолчанию ["sdp_"].
+        :param remove_sd_property_prefixes: Префиксы, которые нужно удалить из имени при добавлении в результат.
         :param kwargs: Дополнительные данные, которые будут добавлены в итоговый словарь.
         """
         exclude_columns = set(exclude_columns or [])
         exclude_sd_properties = set(exclude_sd_properties or [])
-        prefixes = prefixes or ["sdp_"]
-        remove_prefixes = remove_prefixes or []
+        include_sd_property_prefixes = include_sd_property_prefixes or ["sdp_"]
+        remove_sd_property_prefixes = remove_sd_property_prefixes or []
 
         res = {}
 
@@ -185,14 +185,14 @@ class BaseDBM(DeclarativeBase):
         if need_include_sd_properties:
             for attr_name in dir(self):
                 # Проверяем, начинается ли имя с любого префикса
-                if not any(attr_name.startswith(p) for p in prefixes):
+                if not any(attr_name.startswith(p) for p in include_sd_property_prefixes):
                     continue
                 if not isinstance(getattr(type(self), attr_name, None), property):
                     continue
 
                 sd_property_name = attr_name  # пока полное имя (с префиксом)
                 # сначала убираем префикс (первый совпавший)
-                for p in remove_prefixes:
+                for p in remove_sd_property_prefixes:
                     if sd_property_name.startswith(p):
                         sd_property_name = sd_property_name[len(p):]
                         break
