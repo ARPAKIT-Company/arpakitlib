@@ -20,14 +20,6 @@ class BaseDBM(DeclarativeBase):
     __abstract__ = True
     __table_args__ = {"extend_existing": True}
 
-    _bus_data: dict[str, Any] | None = None
-
-    @property
-    def bus_data(self) -> dict[str, Any]:
-        if self._bus_data is None:
-            self._bus_data = {}
-        return self._bus_data
-
     @classmethod
     def get_column_names_(
             cls,
