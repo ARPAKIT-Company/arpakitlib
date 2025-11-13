@@ -18,6 +18,34 @@ def replace_dict_key(*, dict_: dict, old_key: Any, new_key: Any) -> dict[Any, An
     return dict_
 
 
+def get_typed(
+        *,
+        d: dict,
+        key: str,
+        type_,
+        allow_unexisting: bool = False
+) -> Any:
+    """
+    Получает d[key], проверяет, что оно относится к типу typ.
+    Если ключ отсутствует:
+        - если allow_non_existing=True → возвращаем None
+        - иначе → KeyError
+    Если тип не совпадает → TypeError
+    """
+
+    if key not in d:
+        if allow_unexisting:
+            return None
+        raise KeyError(f"Missing key: {key}")
+
+    val = d[key]
+
+    if not isinstance(val, type_):
+        raise TypeError(f"Expected {type_}, got {type(val)} for key '{key}'")
+
+    return val
+
+
 def __example():
     pass
 

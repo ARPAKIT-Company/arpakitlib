@@ -1,6 +1,6 @@
 [project]
 name = "arpakitlib"
-version = "1.8.358"
+version = "1.8.359"
 description = "arpakitlib"
 authors = [
     { name = "arpakit_company", email = "support@arpakit.com" }
