@@ -18,7 +18,7 @@ def replace_dict_key(*, dict_: dict, old_key: Any, new_key: Any) -> dict[Any, An
     return dict_
 
 
-def get_typed(
+def get_typed_from_dict(
         *,
         d: dict,
         key: str,
