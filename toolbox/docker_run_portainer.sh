@@ -1,4 +1,4 @@
-docker pull portainer/portainer-ce:2.33.2
+docker pull portainer/portainer-ce:lts
 docker stop arpakit_portainer
 docker rm arpakit_portainer
 docker run -d \
