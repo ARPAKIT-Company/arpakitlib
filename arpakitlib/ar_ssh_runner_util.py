@@ -213,7 +213,6 @@ class SSHRunner:
         try:
             self.sync_client.connect(**connect_kwargs)
         except Exception as exception:
-            self._logger.error(f"not connected, {exception=}", exc_info=True)
             raise ConnectionSSHException(ssh_runner=self, base_exception=exception)
 
         self._logger.info("connected")
@@ -317,7 +316,6 @@ class SSHRunner:
         try:
             self.async_conn = await asyncssh.connect(**connect_kwargs)
         except Exception as exception:
-            self._logger.error(f"not connected, {exception=}", exc_info=True)
             raise ConnectionSSHException(ssh_runner=self, base_exception=exception)
 
         self._logger.info("connected")
