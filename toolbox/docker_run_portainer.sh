@@ -1,6 +1,8 @@
 docker pull portainer/portainer-ce:lts
+
 docker stop arpakit_portainer
 docker rm arpakit_portainer
+
 docker run -d \
   -p 50533:8000 \
   -p 50534:9443 \
@@ -9,4 +11,5 @@ docker run -d \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v arpakit_portainer_volume:/data \
   portainer/portainer-ce:latest
+
 echo "web port: 50534"
