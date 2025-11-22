@@ -14,7 +14,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from arpakitlib.ar_json_util import transfer_data_to_json_str
 
-
+# TODO: добавить вход по ключу приватному
 class SSHKeys(BaseModel):
     private_key: str = Field()
     public_key: str = Field()
