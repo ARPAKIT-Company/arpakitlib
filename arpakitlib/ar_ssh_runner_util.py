@@ -10,17 +10,19 @@ from typing import Any
 
 import asyncssh
 import paramiko
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import ed25519
 from pydantic import BaseModel, ConfigDict, Field
 
 from arpakitlib.ar_json_util import transfer_data_to_json_str
 
-# TODO: добавить вход по ключу приватному
+
 class SSHKeys(BaseModel):
     private_key: str = Field()
     public_key: str = Field()
 
 
-def generate_ed25519_ssh_keys() -> SSHKeys:
+def generate_ed25519_via_asyncssh_ssh_keys() -> SSHKeys:
     key = asyncssh.generate_private_key("ssh-ed25519")
 
     private_key_str = key.export_private_key().decode()
@@ -29,6 +31,26 @@ def generate_ed25519_ssh_keys() -> SSHKeys:
     return SSHKeys(
         private_key=private_key_str,
         public_key=public_key_str
+    )
+
+
+def generate_ed25519_via_cryptography_ssh_keys() -> SSHKeys:
+    private_key = ed25519.Ed25519PrivateKey.generate()
+
+    private_bytes = private_key.private_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PrivateFormat.OpenSSH,
+        encryption_algorithm=serialization.NoEncryption()
+    )
+
+    public_key = private_key.public_key().public_bytes(
+        encoding=serialization.Encoding.OpenSSH,
+        format=serialization.PublicFormat.OpenSSH
+    )
+
+    return SSHKeys(
+        private_key=private_bytes.decode(),
+        public_key=public_key.decode()
     )
 
 
@@ -225,6 +247,28 @@ class SSHRunner:
             connect_kwargs["banner_timeout"] = common_timeout
         if connect_kwargs.get("channel_timeout") is None:
             connect_kwargs["channel_timeout"] = common_timeout
+
+        connect_kwargs.setdefault("allow_agent", False)
+        connect_kwargs.setdefault("look_for_keys", False)
+
+        if self.private_key:
+            private_key_to_set = None
+            try:
+                private_key_to_set = paramiko.PKey.from_private_key(io.StringIO(self.private_key))
+            except Exception:
+                pass
+            try:
+                private_key_to_set = paramiko.Ed25519Key.from_private_key(file_obj=io.StringIO(self.private_key))
+            except Exception:
+                pass
+            try:
+                private_key_to_set = paramiko.RSAKey.from_private_key(file_obj=io.StringIO(self.private_key))
+            except Exception:
+                pass
+            if private_key_to_set is not None:
+                connect_kwargs["pkey"] = private_key_to_set
+            else:
+                self._logger.warning(f"incorrect private key, {self.private_key=}")
 
         self._logger.info("connecting")
 
