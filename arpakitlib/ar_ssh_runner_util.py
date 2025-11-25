@@ -198,7 +198,7 @@ class SSHRunner:
         self.private_key = private_key
 
         if base_timeout is None:
-            base_timeout = timedelta(seconds=10).total_seconds()
+            base_timeout = timedelta(seconds=15).total_seconds()
         self.base_timeout = base_timeout
 
         if check_if_already_connected is None:
