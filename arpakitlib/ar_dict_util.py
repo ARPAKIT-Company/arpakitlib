@@ -18,6 +18,10 @@ def replace_dict_key(*, dict_: dict, old_key: Any, new_key: Any) -> dict[Any, An
     return dict_
 
 
+class GetTypedFromDictException(Exception):
+    pass
+
+
 def get_typed_from_dict(
         *,
         d: dict,
@@ -36,12 +40,12 @@ def get_typed_from_dict(
     if key not in d:
         if allow_unexisting:
             return None
-        raise KeyError(f"Missing key: {key}")
+        raise GetTypedFromDictException(f"Missing key: {key}")
 
     val = d[key]
 
     if not isinstance(val, type_):
-        raise TypeError(f"Expected {type_}, got {type(val)} for key '{key}'")
+        raise GetTypedFromDictException(f"Expected {type_}, got {type(val)} for key '{key}'")
 
     return val
 
