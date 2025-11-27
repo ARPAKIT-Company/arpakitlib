@@ -27,8 +27,8 @@ def get_typed_from_dict(
         d: dict,
         key: str,
         type_,
-        allow_unexisting: bool = False,
-        allow_missing: type[Exception] = GetTypedFromDictException
+        allow_missing: bool = False,
+        custom_exception: type[Exception] = GetTypedFromDictException
 ) -> Any:
     """
     Получает d[key], проверяет, что оно относится к типу typ.
@@ -39,14 +39,14 @@ def get_typed_from_dict(
     """
 
     if key not in d:
-        if allow_unexisting:
+        if allow_missing:
             return None
-        raise allow_missing(f"Missing key: {key}")
+        raise custom_exception(f"Missing key: {key}")
 
     val = d[key]
 
     if not isinstance(val, type_):
-        raise allow_missing(f"Expected {type_}, got {type(val)} for key '{key}'")
+        raise custom_exception(f"Expected {type_}, got {type(val)} for key '{key}'")
 
     return val
 
