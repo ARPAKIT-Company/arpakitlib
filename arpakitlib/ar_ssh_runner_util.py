@@ -301,7 +301,6 @@ class SSHRunner:
         if self.sync_client is not None:
             self.sync_client.close()
             self.sync_client = paramiko.SSHClient()
-            self.sync_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         self.sync_client = None
 
     """ASYNC SYNC"""
