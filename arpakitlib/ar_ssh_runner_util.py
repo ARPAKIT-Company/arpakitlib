@@ -300,7 +300,6 @@ class SSHRunner:
     def sync_close(self):
         if self.sync_client is not None:
             self.sync_client.close()
-            self.sync_client = paramiko.SSHClient()
         self.sync_client = None
 
     """ASYNC SYNC"""
