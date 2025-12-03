@@ -33,6 +33,7 @@ class SafeFuncResult(BaseModel):
             "exception": self.exception,
             "duration": self.duration,
             "duration_total_seconds": self.duration.total_seconds() if self.duration is not None else None,
+            "func_name": self.func_name,
             "is_ok": self.is_ok
         }
 
