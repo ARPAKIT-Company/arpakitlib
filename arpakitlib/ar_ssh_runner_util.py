@@ -202,6 +202,8 @@ class SSHRunner:
             self._logger.info("already connected")
             return self
 
+        self.sync_close()
+
         if connect_kwargs is None:
             connect_kwargs = {}
         if common_timeout is None:
@@ -343,6 +345,8 @@ class SSHRunner:
         if check_if_already_connected and self.async_conn is not None:
             self._logger.info("already connected")
             return self
+
+        await self.async_close()
 
         if connect_kwargs is None:
             connect_kwargs = {}
