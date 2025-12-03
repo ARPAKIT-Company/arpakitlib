@@ -176,6 +176,13 @@ class SSHRunner:
 
     """SYNC"""
 
+    def __enter__(self) -> SSHRunner:
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.sync_close()
+        return False
+
     def sync_connect(
             self,
             *,
@@ -300,9 +307,17 @@ class SSHRunner:
     def sync_close(self):
         if self.sync_client is not None:
             self.sync_client.close()
-        self.sync_client = None
+            self.sync_client = None
+        self._logger.info("sync_client was closed")
 
-    """ASYNC SYNC"""
+    """ASYNC"""
+
+    async def __aenter__(self) -> SSHRunner:
+        return self
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        await self.async_close()
+        return False
 
     async def async_connect(
             self,
@@ -398,6 +413,7 @@ class SSHRunner:
         if self.async_conn is not None:
             self.async_conn.close()
             self.async_conn = None
+        self._logger.info("sync_client was closed")
 
 
 def __example():
