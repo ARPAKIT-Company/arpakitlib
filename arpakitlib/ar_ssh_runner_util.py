@@ -150,13 +150,15 @@ class SSHRunner:
             password: str | None = None,
             private_key: str | None = None,
             base_timeout: float | None = None,
-            check_if_already_connected: bool | None = True
+            check_if_already_connected: bool | None = True,
+            auto_close_after_run: bool = False
     ):
         self.username = username
         self.hostname = hostname
         self.port = port
         self.password = password
         self.private_key = private_key
+        self.auto_close_after_run = auto_close_after_run
 
         if base_timeout is None:
             base_timeout = timedelta(seconds=10).total_seconds()
@@ -246,6 +248,7 @@ class SSHRunner:
         try:
             self.sync_client.connect(**connect_kwargs)
         except Exception as exception:
+            self.sync_close()
             raise ConnectionSSHException(ssh_runner=self, base_exception=exception)
 
         self._logger.info("connected")
@@ -290,7 +293,12 @@ class SSHRunner:
             stdout = stdout.read().decode()
             stderr = stderr.read().decode()
         except Exception as exception:
+            if self.auto_close_after_run:
+                self.sync_close()
             raise ErrorInRunSSHException(ssh_runner=self, base_exception=exception)
+
+        if self.auto_close_after_run:
+            self.sync_close()
 
         ssh_run_result = SSHRunResult(
             out=stdout,
@@ -355,6 +363,7 @@ class SSHRunner:
         try:
             self.async_conn = await asyncssh.connect(**connect_kwargs)
         except Exception as exception:
+            await self.async_close()
             raise ConnectionSSHException(ssh_runner=self, base_exception=exception)
 
         self._logger.info("connected")
@@ -395,7 +404,12 @@ class SSHRunner:
                 timeout=timeout
             )
         except Exception as exception:
+            if self.auto_close_after_run:
+                await self.async_close()
             raise ErrorInRunSSHException(ssh_runner=self, base_exception=exception)
+
+        if self.auto_close_after_run:
+            await self.async_close()
 
         ssh_run_result = SSHRunResult(
             out=result.stdout,
