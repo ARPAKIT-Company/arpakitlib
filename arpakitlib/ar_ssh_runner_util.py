@@ -151,14 +151,13 @@ class SSHRunner:
             private_key: str | None = None,
             base_timeout: float | None = None,
             check_if_already_connected: bool | None = True,
-            auto_close_after_run: bool = False
+            auto_close_after_run: bool | None = False
     ):
         self.username = username
         self.hostname = hostname
         self.port = port
         self.password = password
         self.private_key = private_key
-        self.auto_close_after_run = auto_close_after_run
 
         if base_timeout is None:
             base_timeout = timedelta(seconds=10).total_seconds()
@@ -167,6 +166,10 @@ class SSHRunner:
         if check_if_already_connected is None:
             check_if_already_connected = True
         self.check_if_already_connected = check_if_already_connected
+
+        if auto_close_after_run is None:
+            auto_close_after_run = True
+        self.auto_close_after_run = auto_close_after_run
 
         self._logger = logging.getLogger(
             f"{logging.getLogger(self.__class__.__name__)} - {self.username}@{self.hostname}:{self.port}"
