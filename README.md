@@ -7,6 +7,10 @@
 A collection of lightweight and convenient development tools by Arpakit, designed to simplify and accelerate your
 workflow
 
+## ВАЖНО
+
+Самая актуальная версия в GitHub https://github.com/ARPAKIT-Company/arpakitlib
+
 ---
 
 ### Supported Python version
@@ -18,9 +22,9 @@ workflow
 ### Installation with Poetry
 
 ```
-poetry add arpakitlib
-# or
 poetry add git+https://github.com/ARPAKIT-Company/arpakitlib.git@master
+# or
+poetry add arpakitlib
 ```
 
 ### Installation with pip
