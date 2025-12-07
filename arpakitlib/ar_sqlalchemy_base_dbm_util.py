@@ -185,8 +185,10 @@ class BaseDBM(DeclarativeBase):
         """
         exclude_columns = set(exclude_columns or [])
         exclude_sd_properties = set(exclude_sd_properties or [])
-        include_sd_property_prefixes = include_sd_property_prefixes or ["sdp_"]
-        remove_sd_property_prefixes = remove_sd_property_prefixes or []
+        if include_sd_property_prefixes is None:
+            include_sd_property_prefixes = include_sd_property_prefixes or ["sdp_"]
+        if remove_sd_property_prefixes is None:
+            remove_sd_property_prefixes = remove_sd_property_prefixes or ["sdp_"]
 
         res = {}
 
