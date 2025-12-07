@@ -2,7 +2,7 @@
 
 ## 🚀 Simplify Your Development Workflow
 
-A collection of lightweight and convenient development tools by Arpakit, designed to simplify and accelerate your
+A collection of lightweight and convenient development tools by arpakit, designed to simplify and accelerate your
 workflow
 
 ## IMPORTANT
