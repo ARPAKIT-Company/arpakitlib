@@ -5,7 +5,7 @@
 A collection of lightweight and convenient development tools by arpakit, designed to simplify and accelerate your
 workflow
 
-## IMPORTANT
+## Important
 
 The most up-to-date version is on GitHub or GitLab.
 
