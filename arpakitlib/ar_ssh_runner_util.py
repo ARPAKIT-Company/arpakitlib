@@ -24,17 +24,20 @@ class ConnectionSSHException(BaseSSHException):
         self.ssh_runner = ssh_runner
         self.base_exception = base_exception
 
-    def __str__(self):
+    def format_message(self) -> str:
         parts = [
-            f"Connection error",
+            f"{self.__class__.__name__}",
             f"{self.ssh_runner.username}@{self.ssh_runner.hostname}:{self.ssh_runner.port}",
             f"{type(self.base_exception)=}",
             f"{self.base_exception=}"
         ]
         return ', '.join(parts)
 
-    def __repr__(self):
-        return str(self)
+    def __str__(self) -> str:
+        return self.format_message()
+
+    def __repr__(self) -> str:
+        return self.format_message()
 
 
 class ErrorInRunSSHException(BaseSSHException):
@@ -42,40 +45,49 @@ class ErrorInRunSSHException(BaseSSHException):
         self.ssh_runner = ssh_runner
         self.base_exception = base_exception
         self.message = message
+        super().__init__(self.format_message())
 
-    def __str__(self):
+    def format_message(self) -> str:
         parts = [
-            f"Error in run",
+            f"{self.__class__.__name__}",
             f"{self.ssh_runner.username}@{self.ssh_runner.hostname}:{self.ssh_runner.port}",
         ]
         if self.base_exception is not None:
+            parts.append(f"{type(self.base_exception)=}")
             parts.append(f"{self.base_exception=}")
         if self.message is not None:
             parts.append(f"{self.message=}")
         return ', '.join(parts)
 
-    def __repr__(self):
-        return str(self)
+    def __str__(self) -> str:
+        return self.format_message()
+
+    def __repr__(self) -> str:
+        return self.format_message()
 
 
 class SSHRunResultHasErrorSSHException(BaseSSHException):
     def __init__(self, ssh_run_result: SSHRunResult, message: str | None = None):
         self.ssh_run_result = ssh_run_result
         self.message = message
+        super().__init__(self.format_message())
 
-    def __str__(self):
+    def format_message(self) -> str:
         parts = [
-            f"SSHRunResult has error",
+            f"{self.__class__.__name__}",
             f"{self.ssh_run_result.ssh_runner.username}@{self.ssh_run_result.ssh_runner.hostname}:{self.ssh_run_result.ssh_runner.port}",
-            f"return_code={str(self.ssh_run_result.return_code)}",
-            f"err={str(self.ssh_run_result.err)}"
+            f"{str(self.ssh_run_result.return_code)=}",
+            f"{str(self.ssh_run_result.err)=}",
         ]
         if self.message is not None:
-            parts.append(f"message={self.message}")
+            parts.append(f"{self.message=}")
         return ', '.join(parts)
 
-    def __repr__(self):
-        return str(self)
+    def __str__(self) -> str:
+        return self.format_message()
+
+    def __repr__(self) -> str:
+        return self.format_message()
 
 
 class SSHRunResult(BaseModel):
