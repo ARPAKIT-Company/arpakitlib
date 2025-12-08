@@ -392,7 +392,6 @@ class SQLAlchemyDb:
         try:
             self.check_conn()
         except Exception as e:
-            self._logger.error(e)
             return False
         return True
 
