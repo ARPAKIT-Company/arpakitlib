@@ -1,6 +1,6 @@
 [project]
 name = "arpakitlib"
-version = "1.9.5"
+version = "1.9.6"
 description = "arpakitlib"
 authors = [
     { name = "arpakit_company", email = "support@arpakit.com" }
@@ -85,6 +85,12 @@ package-mode = true
 
 [project.scripts]
 arpakitlib = "arpakitlib.ar_arpakitlib_cli_util:execute_arpakitlib_cli"
+
+
+[[tool.poetry.source]]
+name = "testpypi"
+url = "https://test.pypi.org/legacy/"
+priority = "explicit"
 
 
 [build-system]
