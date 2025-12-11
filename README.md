@@ -20,6 +20,7 @@ The most up-to-date version is on GitHub or GitLab.
 ### Installation with Poetry
 
 ```
+poetry add arpakitlib
 poetry add git+https://github.com/ARPAKIT-Company/arpakitlib.git@master
 ```
 
