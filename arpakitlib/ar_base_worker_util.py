@@ -14,8 +14,6 @@ from arpakitlib.ar_enumeration_util import Enumeration
 from arpakitlib.ar_func_util import is_async_func, is_sync_func, is_coroutine
 from arpakitlib.ar_sleep_util import sync_safe_sleep, async_safe_sleep
 
-_ARPAKIT_LIB_MODULE_VERSION = "3.0"
-
 
 class BaseWorker(ABC):
     def __init__(

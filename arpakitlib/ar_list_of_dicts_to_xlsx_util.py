@@ -4,8 +4,6 @@ from typing import Any
 
 import pandas
 
-_ARPAKIT_LIB_MODULE_VERSION = "3.0"
-
 
 def list_of_dicts_to_xlsx(
         list_of_dicts: list[dict[str, Any]],

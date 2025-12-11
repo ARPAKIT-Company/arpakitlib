@@ -2,8 +2,6 @@
 
 from cryptography.fernet import Fernet
 
-_ARPAKIT_LIB_MODULE_VERSION = "3.0"
-
 
 def generate_secret_key() -> str:
     return Fernet.generate_key().decode()

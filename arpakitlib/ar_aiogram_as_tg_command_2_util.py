@@ -13,8 +13,6 @@ from pydantic_core import PydanticUndefined
 
 from arpakitlib.ar_parse_command_util import parse_command
 
-_ARPAKIT_LIB_MODULE_VERSION = "3.0"
-
 _logger = logging.getLogger(__name__)
 
 

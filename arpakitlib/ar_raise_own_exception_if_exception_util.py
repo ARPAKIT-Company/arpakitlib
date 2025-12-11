@@ -5,8 +5,6 @@ import logging
 from functools import wraps
 from typing import Any, Callable, Awaitable, Tuple, TypeVar, ParamSpec, cast
 
-_ARPAKIT_LIB_MODULE_VERSION = "3.0"
-
 PARAMS_SPEC = ParamSpec("PARAMS_SPEC")
 RESULT_SPEC = TypeVar("RESULT_SPEC")
 

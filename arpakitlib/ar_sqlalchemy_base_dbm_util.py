@@ -13,8 +13,6 @@ from sqlalchemy.orm.session import Session
 
 from arpakitlib.ar_datetime_util import now_utc_dt
 
-_ARPAKIT_LIB_MODULE_VERSION = "3.0"
-
 
 class BaseDBM(DeclarativeBase):
     __abstract__ = True

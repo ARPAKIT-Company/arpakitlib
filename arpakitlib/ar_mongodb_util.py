@@ -9,8 +9,6 @@ from pymongo import MongoClient
 from pymongo.collection import Collection
 from pymongo.database import Database
 
-_ARPAKIT_LIB_MODULE_VERSION = "3.0"
-
 
 class EasyMongoDb:
     def __init__(

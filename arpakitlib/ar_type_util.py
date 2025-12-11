@@ -1,8 +1,6 @@
 # arpakit
 from typing import Optional, Any
 
-_ARPAKIT_LIB_MODULE_VERSION = "3.0"
-
 
 class NotSet:
     pass

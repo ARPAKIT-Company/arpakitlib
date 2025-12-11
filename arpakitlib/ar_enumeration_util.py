@@ -2,8 +2,6 @@
 
 from typing import Union, Iterator, Iterable, Any
 
-_ARPAKIT_LIB_MODULE_VERSION = "3.0"
-
 ValueType = Union[int, str]
 ValuesForParseType = Union[ValueType, Iterable[ValueType]]
 

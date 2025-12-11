@@ -1,7 +1,5 @@
 import os
 
-_ARPAKIT_LIB_MODULE_VERSION = "3.0"
-
 
 def raise_if_path_not_exists(path: str):
     if not os.path.exists(path):

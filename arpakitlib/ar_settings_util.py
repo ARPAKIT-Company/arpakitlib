@@ -5,8 +5,6 @@ from pydantic import ConfigDict, model_validator
 from pydantic_core import PydanticUndefined
 from pydantic_settings import BaseSettings
 
-_ARPAKIT_LIB_MODULE_VERSION = "3.0"
-
 
 def generate_env_example(settings_class: Union[BaseSettings, type[BaseSettings]]) -> str:
     res = ""

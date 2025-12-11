@@ -6,8 +6,6 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from arpakitlib.ar_datetime_util import now_utc_dt
 
-_ARPAKIT_LIB_MODULE_VERSION = "3.0"
-
 
 class SafeFuncResult(BaseModel):
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True, from_attributes=True)

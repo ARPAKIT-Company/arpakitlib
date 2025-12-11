@@ -2,8 +2,6 @@ import asyncio
 import inspect
 from typing import Callable
 
-_ARPAKIT_LIB_MODULE_VERSION = "3.0"
-
 
 def is_async_func(func: Callable) -> bool:
     if inspect.ismethod(func) or inspect.isfunction(func):

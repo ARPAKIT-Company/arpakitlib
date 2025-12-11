@@ -13,8 +13,6 @@ from arpakitlib.ar_json_util import transfer_data_to_json_str
 from arpakitlib.ar_sleep_util import sync_safe_sleep, async_safe_sleep
 from arpakitlib.ar_type_util import raise_for_type
 
-_ARPAKIT_LIB_MODULE_VERSION = "3.0"
-
 _logger = logging.getLogger(__name__)
 
 

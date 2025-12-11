@@ -2,8 +2,6 @@
 
 from typing import Any
 
-_ARPAKIT_LIB_MODULE_VERSION = "3.0"
-
 
 def combine_dicts(*dicts: dict) -> dict[Any, Any]:
     res = {}

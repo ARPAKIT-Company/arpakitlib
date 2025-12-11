@@ -1,8 +1,6 @@
 # arpakit
 from arpakitlib.ar_enumeration_util import Enumeration
 
-_ARPAKIT_LIB_MODULE_VERSION = "3.0"
-
 
 class BaseBlank:
     class Languages(Enumeration):

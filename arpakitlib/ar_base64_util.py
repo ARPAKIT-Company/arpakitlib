@@ -3,8 +3,6 @@
 import base64
 from typing import Optional
 
-_ARPAKIT_LIB_MODULE_VERSION = "3.0"
-
 
 def convert_base64_string_to_bytes(base64_string: str, raise_for_error: bool = False) -> Optional[bytes]:
     try:

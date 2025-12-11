@@ -5,8 +5,6 @@ from typing import Any, Iterable
 
 import orjson
 
-_ARPAKIT_LIB_MODULE_VERSION = "3.0"
-
 
 def transfer_json_str_to_data(
         json_str: str, fast: bool = False

@@ -4,9 +4,10 @@ import asyncio
 import logging
 
 import httpx
-from arpakitlib.ar_base64_util import convert_file_to_base64_string
 from openai import OpenAI, AsyncOpenAI
 from openai.types.chat import ChatCompletion
+
+from arpakitlib.ar_base64_util import convert_file_to_base64_string
 
 """
 https://platform.openai.com/docs/

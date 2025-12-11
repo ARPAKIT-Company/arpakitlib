@@ -9,8 +9,6 @@ from typing import Optional, Union, Iterator
 from arpakitlib.ar_datetime_util import now_utc_dt
 from arpakitlib.ar_str_util import none_if_blank
 
-_ARPAKIT_LIB_MODULE_VERSION = "3.0"
-
 
 class FileStorageInDir:
 

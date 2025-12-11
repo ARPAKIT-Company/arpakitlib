@@ -2,8 +2,6 @@
 
 import hashlib
 
-_ARPAKIT_LIB_MODULE_VERSION = "3.0"
-
 
 def hash_string(string: str) -> str:
     return hashlib.sha256(string.encode()).hexdigest()

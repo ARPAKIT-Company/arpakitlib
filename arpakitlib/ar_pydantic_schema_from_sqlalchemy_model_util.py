@@ -5,8 +5,6 @@ from pydantic import BaseModel, ConfigDict
 from sqlalchemy import inspect
 from sqlalchemy.orm import ColumnProperty, Mapped
 
-_ARPAKIT_LIB_MODULE_VERSION = "3.0"
-
 
 def _define_sqlalchemy_column_mapped_type(type_: Any) -> Any:
     """

@@ -5,8 +5,6 @@ import math
 from datetime import timedelta
 from time import sleep
 
-_ARPAKIT_LIB_MODULE_VERSION = "3.0"
-
 
 def sync_safe_sleep(n: timedelta | float | int):
     if isinstance(n, timedelta):

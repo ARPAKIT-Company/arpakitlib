@@ -3,8 +3,6 @@
 import logging
 import os
 
-_ARPAKIT_LIB_MODULE_VERSION = "3.0"
-
 
 def init_log_file(*, log_filepath: str | None):
     if not log_filepath:

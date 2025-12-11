@@ -8,8 +8,6 @@ from typing import Any, Optional, Self
 
 from arpakitlib.ar_type_util import raise_for_type
 
-_ARPAKIT_LIB_MODULE_VERSION = "3.0"
-
 
 class JSONDbFile:
 

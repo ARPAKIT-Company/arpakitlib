@@ -3,8 +3,6 @@
 from arpakitlib.ar_run_cmd_util import run_cmd
 from arpakitlib.ar_type_util import raise_for_type
 
-_ARPAKIT_LIB_MODULE_VERSION = "3.0"
-
 
 def make_postgresql_db_dump(
         *,

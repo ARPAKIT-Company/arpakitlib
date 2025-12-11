@@ -4,8 +4,6 @@ from typing import Optional, Any
 
 from arpakitlib.ar_type_util import raise_for_type
 
-_ARPAKIT_LIB_MODULE_VERSION = "3.0"
-
 
 def str_in(string: str, main_string: str, *, max_diff: Optional[int] = None) -> bool:
     if string not in main_string:

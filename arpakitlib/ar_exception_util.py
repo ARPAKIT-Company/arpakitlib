@@ -1,7 +1,5 @@
 import traceback
 
-_ARPAKIT_LIB_MODULE_VERSION = "3.0"
-
 
 def exception_to_traceback_str(exception: BaseException) -> str:
     try:

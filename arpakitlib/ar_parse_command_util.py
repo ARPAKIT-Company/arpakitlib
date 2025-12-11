@@ -4,8 +4,6 @@ import shlex
 
 from pydantic import BaseModel
 
-_ARPAKIT_LIB_MODULE_VERSION = "3.0"
-
 
 class BadCommandFormat(Exception):
     pass

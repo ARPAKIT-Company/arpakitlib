@@ -2,8 +2,6 @@
 
 import ipaddress
 
-_ARPAKIT_LIB_MODULE_VERSION = "3.0"
-
 
 def is_ipv4_address(value: str) -> bool:
     try:

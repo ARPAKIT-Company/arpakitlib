@@ -4,14 +4,11 @@ import json
 import os
 import pathlib
 from importlib.util import spec_from_file_location, module_from_spec
-from typing import NamedTuple, Any, Iterator, Optional
-
-_ARPAKIT_LIB_MODULE_VERSION = "3.0"
+from typing import NamedTuple, Any, Iterator
 
 
 class ArpakitLibModule(NamedTuple):
     module_name: str
-    module_version: Optional[str]
     module_content: str
     module_hash: str
     module_has_error: bool
@@ -22,7 +19,6 @@ class ArpakitLibModule(NamedTuple):
     def simple_dict(self) -> dict[str, Any]:
         return {
             "module_name": self.module_name,
-            "module_version": self.module_version,
             "module_content": self.module_content,
             "module_hash": self.module_hash,
             "module_has_error": self.module_has_error,
@@ -61,13 +57,9 @@ class ArpakitLibModules(NamedTuple):
     def module_name_to_module_simple_dict(self) -> dict[str, dict]:
         return {module.module_name: module.simple_dict() for module in self.arpakit_lib_modules}
 
-    def module_name_to_module_version(self) -> dict[str, str]:
-        return {module.module_name: module.module_version for module in self.arpakit_lib_modules}
-
-    def module_name_to_module_version_and_module_has_errors(self) -> dict[str, dict[str, Any]]:
+    def module_name_to_has_errors(self) -> dict[str, dict[str, Any]]:
         return {
             module.module_name: {
-                "module_version": module.module_version,
                 "module_has_errors": module.module_has_error,
             } for module in self.arpakit_lib_modules
         }
@@ -104,7 +96,7 @@ class ArpakitLibModules(NamedTuple):
         return {module.module_name: module.module_content for module in self.arpakit_lib_modules}
 
 
-def get_arpakit_lib_modules() -> ArpakitLibModules:
+def get_arpakitlib_modules() -> ArpakitLibModules:
     base_dirpath: str = str(pathlib.Path(__file__).parent)
 
     filenames: list[str] = os.listdir(base_dirpath)
@@ -116,19 +108,15 @@ def get_arpakit_lib_modules() -> ArpakitLibModules:
         if not filename.endswith(".py") or filename == "__init__.py":
             continue
         module_name = filename.replace(".py", "")
-        module_version: Optional[str] = None
         try:
             spec = spec_from_file_location(module_name, os.path.join(base_dirpath, filename))
             module = module_from_spec(spec)
             spec.loader.exec_module(module)
-            module_version = getattr(module, "_ARPAKIT_LIB_MODULE_VERSION", None)
             module_has_error = False
             module_exception = None
         except Exception as error:
             module_has_error = True
             module_exception = error
-        if module_version is not None and not isinstance(module_version, str):
-            continue
         if module_name in [
             arpakit_lib_module.module_name for arpakit_lib_module in arpakit_lib_modules.arpakit_lib_modules
         ]:
@@ -137,7 +125,6 @@ def get_arpakit_lib_modules() -> ArpakitLibModules:
         module_hash = hashlib.sha256(module_content.encode('utf-8')).hexdigest()
         arpakit_lib_modules.arpakit_lib_modules.append(ArpakitLibModule(
             module_name=module_name,
-            module_version=module_version,
             module_content=module_content,
             module_hash=module_hash,
             module_has_error=module_has_error,
@@ -150,7 +137,7 @@ def get_arpakit_lib_modules() -> ArpakitLibModules:
 
 
 def __example():
-    pass
+    print(get_arpakitlib_modules())
 
 
 if __name__ == '__main__':

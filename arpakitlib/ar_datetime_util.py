@@ -7,8 +7,6 @@ import pytz
 
 from arpakitlib.ar_type_util import raise_for_type
 
-_ARPAKIT_LIB_MODULE_VERSION = "3.0"
-
 
 def convert_dt_tz(dt: datetime, tz_info):
     return dt.astimezone(tz_info)

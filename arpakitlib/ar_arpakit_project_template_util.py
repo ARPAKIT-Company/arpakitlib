@@ -6,8 +6,6 @@ import os
 from arpakitlib.ar_str_util import raise_if_string_blank
 from arpakitlib.ar_type_util import raise_for_type
 
-_ARPAKIT_LIB_MODULE_VERSION = "3.0"
-
 _logger = logging.getLogger(__name__)
 
 
