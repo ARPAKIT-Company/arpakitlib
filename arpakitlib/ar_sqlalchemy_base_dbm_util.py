@@ -255,8 +255,8 @@ class SQLAlchemyDb:
             self.engine = create_engine(
                 url=sync_db_url,
                 echo=db_echo,
-                pool_size=10,
-                max_overflow=10,
+                pool_size=20,
+                max_overflow=30,
                 poolclass=QueuePool,
                 pool_timeout=timedelta(seconds=30).total_seconds(),
             )
@@ -268,8 +268,8 @@ class SQLAlchemyDb:
             self.async_engine = create_async_engine(
                 url=async_db_url,
                 echo=db_echo,
-                pool_size=10,
-                max_overflow=10,
+                pool_size=20,
+                max_overflow=30,
                 poolclass=AsyncAdaptedQueuePool,
                 pool_timeout=timedelta(seconds=30).total_seconds()
             )
