@@ -45,3 +45,6 @@ class BaseHTTPAPIClient:
 
     def healthcheck(self) -> bool:
         raise NotImplemented()
+
+    async def async_healthcheck(self) -> bool:
+        raise NotImplemented()
