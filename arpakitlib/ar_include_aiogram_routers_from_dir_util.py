@@ -33,8 +33,6 @@ def include_aiogram_routers_from_dir(
 
             tg_bot_router = getattr(module, "tg_bot_router", None)
             if isinstance(tg_bot_router, Router):
-                prefix = "/" + filename[:-3]  # имя файла без .py
                 router.include_router(
                     router=tg_bot_router,
-                    prefix=prefix
                 )
