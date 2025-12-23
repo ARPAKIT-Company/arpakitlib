@@ -24,7 +24,8 @@ class BaseDBM(DeclarativeBase):
             *,
             include_pk: bool = True,
             exclude_names: list[str] | None = None,
-            exclude_if_have_foreign_keys: bool = False
+            exclude_if_have_foreign_keys: bool = False,
+            filter_prefixes: list[str] | None = None
     ) -> list[str]:
         if exclude_names is None:
             exclude_names = []
@@ -35,6 +36,10 @@ class BaseDBM(DeclarativeBase):
             if c.key in exclude_names:
                 continue
             if exclude_if_have_foreign_keys and c.foreign_keys:
+                continue
+            if filter_prefixes is not None and not any(
+                    c.key.startswith(prefix) for prefix in filter_prefixes
+            ):
                 continue
             res.append(c.key)
         return res
