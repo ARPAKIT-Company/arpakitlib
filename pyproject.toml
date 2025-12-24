@@ -1,6 +1,6 @@
 [project]
 name = "arpakitlib"
-version = "1.9.16"
+version = "1.9.17"
 description = "arpakitlib"
 authors = [
     { name = "arpakit_company", email = "support@arpakit.com" }
@@ -34,7 +34,6 @@ dependencies = [
     "cachetools (>=5.5.1,<6.0.0)",
     "bs4 (>=0.0.2,<0.0.3)",
     "celery (>=5.4.0,<6.0.0)",
-    "pandas (>=2.2.3,<3.0.0)",
     "twine (>=6.1.0,<7.0.0)",
     "itsdangerous (>=2.2.0,<3.0.0)",
     "email-validator (>=2.2.0,<3.0.0)",
