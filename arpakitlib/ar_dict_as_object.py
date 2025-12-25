@@ -30,3 +30,17 @@ class DictAsObject:
         if isinstance(value, (dict, list)):
             return DictAsObject(value)
         return value
+
+    def get_raw_from_dict(self, *, key: str, allow_non_exist: bool = True):
+        """
+        Возвращает значение напрямую из _real_data, без wrap
+        """
+
+        if not isinstance(self._real_data, dict):
+            raise TypeError("not isinstance(self._real_data, dict)")
+
+        if key not in self._real_data:
+            if allow_non_exist is True:
+                return None
+
+        return self._real_data[key]
