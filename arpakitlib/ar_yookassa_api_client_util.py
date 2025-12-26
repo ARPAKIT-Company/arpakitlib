@@ -49,7 +49,7 @@ class EasyYookassaAPIClient(BaseHTTPAPIClient):
             headers=combine_dicts(self.headers, (headers if headers is not None else {})),
             max_tries_=3,
             raise_for_status_=True,
-            timeout_=timedelta(seconds=3),
+            timeout_=timedelta(seconds=5),
             not_raise_for_statuses_=not_raise_for_statuses_,
             auth=(self.shop_id, self.secret_key),
             enable_logging_=False,
@@ -72,7 +72,7 @@ class EasyYookassaAPIClient(BaseHTTPAPIClient):
             max_tries_=3,
             raise_for_status_=True,
             not_raise_for_statuses_=not_raise_for_statuses_,
-            timeout_=timedelta(seconds=3),
+            timeout_=timedelta(seconds=5),
             auth=aiohttp.BasicAuth(login=str(self.shop_id), password=self.secret_key),
             enable_logging_=False,
             **kwargs
