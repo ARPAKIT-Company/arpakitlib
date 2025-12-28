@@ -10,9 +10,8 @@ from typing import Any
 
 import asyncssh
 import paramiko
-from pydantic import BaseModel, ConfigDict
-
 from arpakitlib.ar_json_util import transfer_data_to_json_str
+from pydantic import BaseModel, ConfigDict
 
 
 class BaseSSHException(Exception):
@@ -289,7 +288,8 @@ class SSHRunner:
             command: str,
             *,
             timeout: float | None = timedelta(seconds=10).total_seconds(),
-            raise_for_bad_return_code: bool = True
+            raise_for_bad_return_code: bool = True,
+            stdin_data: str | bytes | None = None,
     ) -> SSHRunResult:
         if not command or not command.strip():
             raise ValueError("command must be a non-empty string")
@@ -306,9 +306,18 @@ class SSHRunner:
                 command=command,
                 timeout=timeout
             )
+
+            if stdin_data is not None:
+                if isinstance(stdin_data, str):
+                    stdin_data = stdin_data.encode()
+                stdin.write(stdin_data)
+                stdin.flush()
+                stdin.channel.shutdown_write()
+                stdin.close()
+
+            out = stdout.read().decode(errors="replace")
+            err = stderr.read().decode(errors="replace")
             return_code = stdout.channel.recv_exit_status()
-            stdout = stdout.read().decode()
-            stderr = stderr.read().decode()
         except Exception as exception:
             if self.auto_close_after_run:
                 self.sync_close()
@@ -318,8 +327,8 @@ class SSHRunner:
             self.sync_close()
 
         ssh_run_result = SSHRunResult(
-            out=stdout,
-            err=stderr,
+            out=out,
+            err=err,
             return_code=return_code,
             ssh_runner=self
         )
