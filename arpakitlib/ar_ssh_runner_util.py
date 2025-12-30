@@ -265,6 +265,7 @@ class SSHRunner:
             self.sync_client.connect(**connect_kwargs)
         except Exception as exception:
             self.sync_close()
+            self._logger.error(f"{exception=}")
             raise ConnectionSSHException(ssh_runner=self, base_exception=exception)
 
         self._logger.info("connected")
