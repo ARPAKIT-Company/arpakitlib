@@ -19,9 +19,11 @@ class BaseSSHException(Exception):
 
 
 class ConnectionSSHException(BaseSSHException):
-    def __init__(self, ssh_runner: SSHRunner, base_exception: Exception | None = None):
+    def __init__(self, ssh_runner: SSHRunner, base_exception: Exception | None = None,
+                 error_message: str | None = None):
         self.ssh_runner = ssh_runner
         self.base_exception = base_exception
+        self.error_message = error_message
 
     def format_message(self) -> str:
         parts = [
@@ -265,8 +267,7 @@ class SSHRunner:
             self.sync_client.connect(**connect_kwargs)
         except Exception as exception:
             self.sync_close()
-            self._logger.error(f"{exception=}")
-            raise ConnectionSSHException(ssh_runner=self, base_exception=exception)
+            raise ConnectionSSHException(ssh_runner=self, base_exception=exception, error_message=f"{exception=}")
 
         self._logger.info("connected")
 
