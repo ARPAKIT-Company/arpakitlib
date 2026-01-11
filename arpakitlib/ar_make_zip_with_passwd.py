@@ -11,7 +11,7 @@ def make_zip_with_passwd(
 ):
     pyminizip.compress(
         input_filepath,  # исходный файл
-        "./asf/asf",
+        None,
         output_filename,  # архив
         passwd,  # пароль
         5  # уровень сжатия (1–9)
