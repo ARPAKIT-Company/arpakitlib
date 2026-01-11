@@ -3387,6 +3387,17 @@ docs = ["sphinx", "sphinx-rtd-theme", "zope.interface"]
 tests = ["coverage[toml] (==5.0.4)", "pytest (>=6.0.0,<7.0.0)"]
 
 [[package]]
+name = "pyminizip"
+version = "0.2.6"
+description = "A minizip wrapper - To create a password encrypted zip file in python."
+optional = false
+python-versions = "*"
+groups = ["main"]
+files = [
+    {file = "pyminizip-0.2.6.tar.gz", hash = "sha256:0a954dd2a65fd72c8b827b83fb806fb4f301075a6ec43e207d3345ab15843a7a"},
+]
+
+[[package]]
 name = "pymongo"
 version = "4.15.5"
 description = "PyMongo - the Official MongoDB Python driver"
@@ -4765,4 +4776,4 @@ cffi = ["cffi (>=1.17,<2.0) ; platform_python_implementation != \"PyPy\" and pyt
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12.4,<4.0"
-content-hash = "6b1d591c0b211b7d28f65392fa1ce61fdf6ac1a11b76df53b42036fde9313ef5"
+content-hash = "e18b1b6df386c8a5871e3577d579cb2ca28af2cff05765a8ac4c0e7bcdce279c"
