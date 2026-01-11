@@ -5,12 +5,15 @@ import pyminizip
 
 def make_zip_with_passwd(
         *,
-        input_filepath: str
+        input_filepath: str,
+        output_filename: str = "archive.zip",
+        passwd: str = "123"
 ):
     pyminizip.compress(
         input_filepath,  # исходный файл
-        None,
-        "dump.sql.zip",  # архив
-        "super_secret",  # пароль
+        "./asf/asf",
+        output_filename,  # архив
+        passwd,  # пароль
         5  # уровень сжатия (1–9)
     )
+
