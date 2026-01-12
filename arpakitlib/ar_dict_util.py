@@ -49,6 +49,10 @@ def get_typed_from_dict(
     return val
 
 
+def sort_dict_by_keys(*, data: dict[str, Any]) -> dict[str, Any]:
+    return {k: data[k] for k in sorted(data)}
+
+
 def __example():
     pass
 
