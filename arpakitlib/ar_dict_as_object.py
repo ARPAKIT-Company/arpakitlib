@@ -44,3 +44,6 @@ class DictAsObject:
                 return None
 
         return self._real_data[key]
+
+    def __contains__(self, item):
+        return item in self._real_data
