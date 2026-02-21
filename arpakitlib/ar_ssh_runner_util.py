@@ -164,7 +164,8 @@ class SSHRunner:
             private_key: str | None = None,
             base_timeout: float | None = None,
             check_if_already_connected: bool | None = True,
-            auto_close_after_run: bool | None = False
+            auto_close_after_run: bool | None = False,
+            sync_connect_kwargs: dict[str, Any] | None = None
     ):
         self.username = username
         self.hostname = hostname
@@ -183,6 +184,10 @@ class SSHRunner:
         if auto_close_after_run is None:
             auto_close_after_run = True
         self.auto_close_after_run = auto_close_after_run
+
+        if sync_connect_kwargs is None:
+            sync_connect_kwargs = {}
+        self.sync_connect_kwargs = sync_connect_kwargs
 
         self._logger = logging.getLogger(
             f"{logging.getLogger(self.__class__.__name__)} - {self.username}@{self.hostname}:{self.port}"
@@ -204,8 +209,6 @@ class SSHRunner:
     def sync_connect(
             self,
             *,
-            common_timeout: float | None = None,
-            connect_kwargs: dict[str, Any] | None = None,
             check_if_already_connected: bool | None = None
     ) -> SSHRunner:
         if check_if_already_connected is None:
@@ -217,24 +220,19 @@ class SSHRunner:
 
         self.sync_close()
 
-        if connect_kwargs is None:
-            connect_kwargs = {}
-        if common_timeout is None:
-            common_timeout = self.base_timeout
+        connect_kwargs = self.sync_connect_kwargs.copy()
 
-        connect_kwargs["hostname"] = self.hostname
-        connect_kwargs["username"] = self.username
-        connect_kwargs["password"] = self.password
-        connect_kwargs["port"] = self.port
+        connect_kwargs.update({
+            "hostname": self.hostname,
+            "username": self.username,
+            "password": self.password,
+            "port": self.port
+        })
 
-        if connect_kwargs.get("timeout") is None:
-            connect_kwargs["timeout"] = common_timeout
-        if connect_kwargs.get("auth_timeout") is None:
-            connect_kwargs["auth_timeout"] = common_timeout
-        if connect_kwargs.get("banner_timeout") is None:
-            connect_kwargs["banner_timeout"] = common_timeout
-        if connect_kwargs.get("channel_timeout") is None:
-            connect_kwargs["channel_timeout"] = common_timeout
+        connect_kwargs.setdefault("timeout", 10)
+        connect_kwargs.setdefault("banner_timeout", 15)
+        connect_kwargs.setdefault("auth_timeout", 30)
+        connect_kwargs.setdefault("channel_timeout", 30)
 
         connect_kwargs.setdefault("allow_agent", False)
         connect_kwargs.setdefault("look_for_keys", False)
