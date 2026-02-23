@@ -27,12 +27,13 @@ class EasyYookassaAPIClient(BaseHTTPAPIClient):
         succeeded = "succeeded"
         canceled = "canceled"
 
-    def __init__(self, *, secret_key: str, shop_id: int):
+    def __init__(self, *, secret_key: str, shop_id: int, timeout: timedelta = timedelta(seconds=7)):
         super().__init__()
         self.secret_key = secret_key
         self.shop_id = shop_id
         self.headers = {"Content-Type": "application/json"}
         self._logger = logging.getLogger(f"{self.__class__.__name__}-{shop_id}")
+        self.timeout = timeout
 
     def _sync_make_http_request(
             self,
@@ -49,7 +50,7 @@ class EasyYookassaAPIClient(BaseHTTPAPIClient):
             headers=combine_dicts(self.headers, (headers if headers is not None else {})),
             max_tries_=1,
             raise_for_status_=True,
-            timeout_=timedelta(seconds=5),
+            timeout_=self.timeout,
             not_raise_for_statuses_=not_raise_for_statuses_,
             auth=(self.shop_id, self.secret_key),
             enable_logging_=False,
@@ -72,7 +73,7 @@ class EasyYookassaAPIClient(BaseHTTPAPIClient):
             max_tries_=1,
             raise_for_status_=True,
             not_raise_for_statuses_=not_raise_for_statuses_,
-            timeout_=timedelta(seconds=5),
+            timeout_=self.timeout,
             auth=aiohttp.BasicAuth(login=str(self.shop_id), password=self.secret_key),
             enable_logging_=False,
             **kwargs
