@@ -10,8 +10,9 @@ from typing import Any
 
 import asyncssh
 import paramiko
-from arpakitlib.ar_json_util import transfer_data_to_json_str
 from pydantic import BaseModel, ConfigDict
+
+from arpakitlib.ar_json_util import transfer_data_to_json_str
 
 
 class BaseSSHException(Exception):
@@ -266,6 +267,8 @@ class SSHRunner:
         except Exception as exception:
             self.sync_close()
             raise ConnectionSSHException(ssh_runner=self, base_exception=exception, error_message=f"{exception=}")
+
+        self.sync_client.get_transport().set_keepalive(10)
 
         self._logger.info("connected")
 
