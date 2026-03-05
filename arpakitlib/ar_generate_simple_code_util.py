@@ -5,7 +5,8 @@ def generate_simple_code(
         *,
         amount: int = 5
 ) -> str:
-    alphabet: list = list("JZSDQWRLGFZ" + "123456789")
+    letters = "JZSDQWRLGFZ123456789"
+    alphabet: list = list(letters.lower() + letters.upper())
     return "".join(alphabet[randint(0, len(alphabet) - 1)] for _ in range(amount))
 
 

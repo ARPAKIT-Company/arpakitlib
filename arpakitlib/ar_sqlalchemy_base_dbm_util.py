@@ -1,7 +1,7 @@
 # arpakit
 import asyncio
 import logging
-from datetime import timedelta, datetime
+from datetime import datetime
 from typing import Any, Collection
 from uuid import uuid4
 
@@ -252,20 +252,32 @@ class SQLAlchemyDb:
             db_echo: bool = False,
             base_dbm: type[BaseDBM] | None = None,
             db_models: list[Any] | None = None,
+            pool_size: int = 20,
+            max_overflow: int = 30,
+            pool_timeout: int = 30,
+            pool_recycle: int = 3600,
+            pool_pre_ping: bool = True,
+            additional_engine_kwargs: dict[str, Any] | None = None
     ):
         self._logger = logging.getLogger(self.__class__.__name__)
+
+        if additional_engine_kwargs is None:
+            additional_engine_kwargs = {}
 
         self.db_url = sync_db_url
         if self.db_url is not None:
             self.engine = create_engine(
                 url=sync_db_url,
                 echo=db_echo,
-                pool_size=20,
-                max_overflow=30,
+                pool_size=pool_size,
+                max_overflow=max_overflow,
                 poolclass=QueuePool,
-                pool_timeout=timedelta(seconds=30).total_seconds(),
+                pool_timeout=pool_timeout,
+                pool_recycle=pool_recycle,
+                pool_pre_ping=pool_pre_ping,
+                **additional_engine_kwargs
             )
-        self.sessionmaker = sessionmaker(bind=self.engine)
+            self.sessionmaker = sessionmaker(bind=self.engine)
         self.func_new_session_counter = 0
 
         self.async_db_url = async_db_url
@@ -273,12 +285,15 @@ class SQLAlchemyDb:
             self.async_engine = create_async_engine(
                 url=async_db_url,
                 echo=db_echo,
-                pool_size=20,
-                max_overflow=30,
+                pool_size=pool_size,
+                max_overflow=max_overflow,
                 poolclass=AsyncAdaptedQueuePool,
-                pool_timeout=timedelta(seconds=30).total_seconds()
+                pool_timeout=pool_timeout,
+                pool_recycle=pool_recycle,
+                pool_pre_ping=pool_pre_ping,
+                **additional_engine_kwargs
             )
-        self.async_sessionmaker = async_sessionmaker(bind=self.async_engine)
+            self.async_sessionmaker = async_sessionmaker(bind=self.async_engine)
         self.func_new_async_session_counter = 0
 
         self.base_dbm = base_dbm
@@ -308,7 +323,6 @@ class SQLAlchemyDb:
 
     def drop_alembic_tables(self):
         with self.engine.connect() as connection:
-            connection.execute(text("DROP TABLE IF EXISTS alembic_version CASCADE;"))
             connection.execute(text("DROP TABLE IF EXISTS alembic_version CASCADE;"))
             connection.commit()
         self._logger.info("alembic_version tables were dropped")
@@ -361,26 +375,27 @@ class SQLAlchemyDb:
         if exclude_tables is None:
             exclude_tables = []
         with self.new_session() as session:
-            for table_name, table in BaseDBM.metadata.tables.items():
+            for table_name, table in self.base_dbm.metadata.tables.items():
                 if table_name not in exclude_tables:
                     session.execute(sqlalchemy.delete(table))
             session.commit()
-        removed_tables = [t for t in BaseDBM.metadata.tables.keys() if t not in exclude_tables]
+        removed_tables = [t for t in self.base_dbm.metadata.tables.keys() if t not in exclude_tables]
         self._logger.info(f"rows from tables ({removed_tables}) were removed")
 
     async def async_remove_rows_from_tables(self, exclude_tables: list[str] | None = None):
         if exclude_tables is None:
             exclude_tables = []
         async with self.new_async_session() as async_session:
-            for table_name, table in BaseDBM.metadata.tables.items():
+            for table_name, table in self.base_dbm.metadata.tables.items():
                 if table_name not in exclude_tables:
                     await async_session.execute(sqlalchemy.delete(table))
             await async_session.commit()
-        removed_tables = [t for t in BaseDBM.metadata.tables.keys() if t not in exclude_tables]
+        removed_tables = [t for t in self.base_dbm.metadata.tables.keys() if t not in exclude_tables]
         self._logger.info(f"rows from tables ({removed_tables}) were removed")
 
     def check_conn(self):
-        self.engine.connect()
+        with self.engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
         self._logger.info("db conn is good")
 
     def new_session(self, **kwargs) -> Session:
@@ -400,7 +415,7 @@ class SQLAlchemyDb:
 
     def generate_unique_id(self, *, class_dbm: Any):
         with self.new_session() as session:
-            res: int = session.query(func.max(class_dbm.id)).scalar()
+            res: int = (session.query(func.max(class_dbm.id)).scalar() or 0) + 1
             while session.query(class_dbm).filter(class_dbm.id == res).first() is not None:
                 res += 1
         return res
@@ -419,7 +434,7 @@ class SQLAlchemyDb:
         res = {}
 
         async with self.new_async_session() as async_session:
-            for table_name, table in BaseDBM.metadata.tables.items():
+            for table_name, table in self.base_dbm.metadata.tables.items():
                 res[table_name] = await async_session.scalar(
                     sqlalchemy.select(
                         sqlalchemy.func.count(1)
@@ -432,7 +447,7 @@ class SQLAlchemyDb:
         res = {}
 
         with self.new_session() as session:
-            for table_name, table in BaseDBM.metadata.tables.items():
+            for table_name, table in self.base_dbm.metadata.tables.items():
                 res[table_name] = session.scalar(
                     sqlalchemy.select(
                         sqlalchemy.func.count(1)
