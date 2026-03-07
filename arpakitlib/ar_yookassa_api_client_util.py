@@ -8,7 +8,6 @@ from typing import Any
 
 import aiohttp
 import requests
-
 from arpakitlib.ar_base_http_api_client_util import BaseHTTPAPIClient
 from arpakitlib.ar_dict_util import combine_dicts
 from arpakitlib.ar_enumeration_util import Enumeration
@@ -27,13 +26,17 @@ class EasyYookassaAPIClient(BaseHTTPAPIClient):
         succeeded = "succeeded"
         canceled = "canceled"
 
-    def __init__(self, *, secret_key: str, shop_id: int, timeout: timedelta = timedelta(seconds=7)):
+    def __init__(
+            self, *, secret_key: str, shop_id: int, timeout: timedelta = timedelta(seconds=7),
+            proxy_url: str | None = None
+    ):
         super().__init__()
         self.secret_key = secret_key
         self.shop_id = shop_id
         self.headers = {"Content-Type": "application/json"}
         self._logger = logging.getLogger(f"{self.__class__.__name__}-{shop_id}")
         self.timeout = timeout
+        self.proxy_url = proxy_url
 
     def _sync_make_http_request(
             self,
@@ -54,6 +57,7 @@ class EasyYookassaAPIClient(BaseHTTPAPIClient):
             not_raise_for_statuses_=not_raise_for_statuses_,
             auth=(self.shop_id, self.secret_key),
             enable_logging_=False,
+            proxy_url_=self.proxy_url,
             **kwargs
         )
 
@@ -76,6 +80,7 @@ class EasyYookassaAPIClient(BaseHTTPAPIClient):
             timeout_=self.timeout,
             auth=aiohttp.BasicAuth(login=str(self.shop_id), password=self.secret_key),
             enable_logging_=False,
+            proxy_url_=self.proxy_url,
             **kwargs
         )
 
