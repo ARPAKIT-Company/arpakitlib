@@ -2,9 +2,8 @@
 import datetime as dt
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field
-
 from arpakitlib.ar_datetime_util import now_utc_dt
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class SafeFuncResult(BaseModel):

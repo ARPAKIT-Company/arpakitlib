@@ -9,11 +9,10 @@ from typing import Optional, Any, Callable
 from aiogram import types
 from aiogram.exceptions import AiogramError
 from aiogram.filters import CommandObject
-from pydantic import BaseModel
-
 from arpakitlib.ar_need_type_util import parse_need_type, NeedTypes
 from arpakitlib.ar_parse_command_util import BadCommandFormat, parse_command
 from arpakitlib.ar_type_util import raise_for_types
+from pydantic import BaseModel
 
 _logger = logging.getLogger(__name__)
 

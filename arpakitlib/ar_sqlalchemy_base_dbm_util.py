@@ -6,12 +6,11 @@ from typing import Any, Collection
 from uuid import uuid4
 
 import sqlalchemy
+from arpakitlib.ar_datetime_util import now_utc_dt
 from sqlalchemy import create_engine, QueuePool, text, func, inspect, AsyncAdaptedQueuePool
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
 from sqlalchemy.orm.session import Session
-
-from arpakitlib.ar_datetime_util import now_utc_dt
 
 
 class BaseDBM(DeclarativeBase):

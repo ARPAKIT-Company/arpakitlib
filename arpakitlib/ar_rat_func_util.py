@@ -1,8 +1,7 @@
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict
-
 from arpakitlib.ar_type_util import NotSet, is_set, is_not_set
+from pydantic import BaseModel, ConfigDict
 
 
 class RatFuncRes(BaseModel):

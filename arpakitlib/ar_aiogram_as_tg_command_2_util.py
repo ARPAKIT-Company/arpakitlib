@@ -8,10 +8,9 @@ from typing import Any, get_origin, get_args, Awaitable, Callable
 from aiogram import types
 from aiogram.enums import ParseMode
 from aiogram.filters import CommandObject
+from arpakitlib.ar_parse_command_util import parse_command
 from pydantic import BaseModel, Field, ConfigDict
 from pydantic_core import PydanticUndefined
-
-from arpakitlib.ar_parse_command_util import parse_command
 
 _logger = logging.getLogger(__name__)
 

@@ -4,7 +4,6 @@ from datetime import datetime, date
 from zoneinfo import ZoneInfo
 
 import pytz
-
 from arpakitlib.ar_type_util import raise_for_type
 
 

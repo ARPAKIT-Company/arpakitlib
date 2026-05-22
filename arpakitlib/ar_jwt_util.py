@@ -3,9 +3,8 @@
 from typing import Any, Optional
 
 import jwt
-from jwt import PyJWTError
-
 from arpakitlib.ar_type_util import raise_for_type
+from jwt import PyJWTError
 
 
 def encode_jwt_token(

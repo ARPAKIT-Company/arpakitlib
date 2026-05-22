@@ -17,4 +17,3 @@ def make_zip_with_passwd(
         5  # уровень сжатия (1–9)
     )
     return output_filename
-
