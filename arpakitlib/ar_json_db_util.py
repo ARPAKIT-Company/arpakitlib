@@ -152,10 +152,9 @@ class JSONDbFile:
 
     def rm_records(self, record_ids: list[str]):
         json_data = self.read_json_data()
-        for record_id, record in json_data.items():
-            if record_id not in record_ids:
-                continue
-            del json_data[record_id]
+        for record_id in list(record_ids):
+            if record_id in json_data:
+                del json_data[record_id]
         self.write_json_data(json_data)
 
     def rm_all_records(self):

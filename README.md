@@ -9,7 +9,7 @@ workflow
 
 ### Supported Python version
 
-- Python 3.12.4+
+- Python 3.13.4+
 
 ---
 
@@ -18,7 +18,7 @@ workflow
 ```
 poetry add arpakitlib
 # or
-pip add arpakitlib
+pip install arpakitlib
 # or
 poetry add git+https://github.com/ARPAKIT-Company/arpakitlib.git@master
 ```
@@ -27,5 +27,3 @@ poetry add git+https://github.com/ARPAKIT-Company/arpakitlib.git@master
 
 
 ## ❤️ Made by ARPAKIT Company ❤️
-
-

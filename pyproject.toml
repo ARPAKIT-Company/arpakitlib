@@ -1,6 +1,6 @@
 [project]
 name = "arpakitlib"
-version = "1.9.56"
+version = "1.9.59"
 description = "arpakitlib"
 authors = [
     { name = "arpakit_company", email = "support@arpakit.com" }
@@ -33,7 +33,6 @@ dependencies = [
     "email-validator (>=2.2.0,<3.0.0)",
     "openpyxl (>=3.1.5,<4.0.0)",
     "pydantic (>=2.10.5,<3.0.0)",
-    "pika (>=1.3.2,<2.0.0)",
     "aio-pika (>=9.5.4,<10.0.0)",
     "pulp (>=2.9.0,<3.0.0)",
     "orjson (>=3.10.15,<4.0.0)",
@@ -48,7 +47,6 @@ dependencies = [
     "pytelegrambotapi (>=4.29.1,<5.0.0)",
     "openai (>=2.6.1,<3.0.0)",
     "pandas (>=2.3.3,<3.0.0)",
-    "pyminizip (>=0.2.6,<0.3.0)",
     "fastapi (>=0.141.1,<0.142.0)",
     "aiogram (>=3.30.0,<4.0.0)",
     "uvicorn (>=0.52.0,<0.53.0)",
@@ -66,8 +64,10 @@ dependencies = [
     "asyncpg (>=0.31.0,<0.32.0)",
     "psycopg2-binary (>=2.9.12,<3.0.0)",
     "aiohttp-socks (>=0.11.0,<0.12.0)",
-    "gunicorn (>=26.0.0,<27.0.0)",
     "aiosqlite (>=0.22.1,<0.23.0)",
+    "pika (>=1.4.2,<2.0.0)",
+    "gunicorn (>=26.0.0,<27.0.0)",
+    "pyminizip (>=0.2.6,<0.3.0)",
 ]
 
 
@@ -82,10 +82,6 @@ arpakit_company_support_tg = "https://t.me/arpakit_company_support"
 
 [tool.poetry]
 package-mode = true
-
-
-[project.scripts]
-arpakitlib = "arpakitlib.ar_arpakitlib_cli_util:execute_arpakitlib_cli"
 
 
 [[tool.poetry.source]]
