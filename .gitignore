@@ -3,6 +3,7 @@
 *.ignore
 *.key
 *.log
+*.log.*
 *.njsproj
 *.ntvs*
 *.pem
@@ -38,6 +39,8 @@ dump/*
 cache/*
 
 # exact names (files & directories)
+*.dump
+*.sqldump
 .DS_Store
 .env*
 *.env
@@ -56,6 +59,10 @@ bar
 cache
 cache_dir
 cachedir
+celerybeat-schedule
+celerybeat-schedule.db
+celerybeat-schedule-shm
+celerybeat-schedule-wal
 celerybeat-schedule.bak
 celerybeat-schedule.dat
 celerybeat-schedule.dir
@@ -70,7 +77,7 @@ media
 mongo_dumps
 node_modules
 playground.py
-story.log
+story.log*
 var
 venv
 .venv
